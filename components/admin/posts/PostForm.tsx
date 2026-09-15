@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 import {
+  Alert,
   Box,
   Button,
   Checkbox,
@@ -17,7 +19,9 @@ import ImageUploadField from "@/components/admin/shared/ImageUploadField";
 import RichTextEditor from "@/components/admin/shared/RichTextEditor";
 import AiWritingAssistant from "@/components/admin/posts/AiWritingAssistant";
 import SeoPanel, { type SeoValues } from "@/components/admin/posts/SeoPanel";
+import TitlePermalinkField from "@/components/admin/posts/TitlePermalinkField";
 import { deletePostAction, upsertPostAction } from "@/lib/admin/actions";
+import { slugify } from "@/lib/slug";
 import type { Category, Post, PostStatus } from "@/lib/types/cms";
 
 const STATUSES: PostStatus[] = [
@@ -50,9 +54,15 @@ export default function PostForm({
   siteName,
   siteUrl,
 }: Props) {
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const isEdit = Boolean(post?.id);
+  const [postId, setPostId] = useState(post?.id ?? "");
   const [title, setTitle] = useState(post?.title ?? "");
   const [slug, setSlug] = useState(post?.slug ?? "");
+  // New posts auto-slug from title until the editor locks it (WP behavior).
+  // Existing posts start locked so renaming the title won't rewrite the URL.
+  const [autoSlug, setAutoSlug] = useState(!post?.slug);
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? "");
   const [featuredImageUrl, setFeaturedImageUrl] = useState(
     post?.featured_image_url ?? "",
@@ -66,42 +76,114 @@ export default function PostForm({
   });
   const [forceHtml, setForceHtml] = useState<string | null>(null);
   const [forceToken, setForceToken] = useState(0);
+  const [previewBusy, setPreviewBusy] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [status, setStatus] = useState<PostStatus>(post?.status ?? "draft");
+
+  const onPreview = async () => {
+    setPreviewError(null);
+    if (!title.trim()) {
+      setPreviewError("Add a title before previewing.");
+      return;
+    }
+    const form = formRef.current;
+    if (!form) return;
+
+    const fd = new FormData(form);
+    const payload: Record<string, unknown> = {
+      id: postId || undefined,
+      title,
+      slug: slug || slugify(title),
+      excerpt,
+      body: String(fd.get("body") || ""),
+      status,
+      category_id: String(fd.get("category_id") || ""),
+      featured_image_url: featuredImageUrl,
+      video_url: String(fd.get("video_url") || ""),
+      reading_time_minutes: Number(fd.get("reading_time_minutes") || 5),
+      published_at: String(fd.get("published_at") || ""),
+      is_featured: fd.get("is_featured") === "on",
+      is_premium: fd.get("is_premium") === "on",
+      is_video: fd.get("is_video") === "on",
+      is_podcast: fd.get("is_podcast") === "on",
+      seo_title: seo.seo_title,
+      seo_description: seo.seo_description,
+      seo_keywords: seo.seo_keywords,
+      og_title: seo.og_title,
+      og_description: seo.og_description,
+    };
+
+    setPreviewBusy(true);
+    try {
+      const res = await fetch("/api/admin/posts/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = (await res.json()) as {
+        error?: string;
+        id?: string;
+        slug?: string;
+        previewUrl?: string;
+        publicUrl?: string | null;
+      };
+      if (!res.ok || !data.previewUrl || !data.id) {
+        throw new Error(data.error || "Preview failed");
+      }
+      if (data.slug) setSlug(data.slug);
+      if (!postId) {
+        setPostId(data.id);
+        // Stay on the edit URL after first preview-save (like WP draft autosave)
+        router.replace(`/admin/posts/${data.id}`);
+      }
+      window.open(data.previewUrl, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      setPreviewError(err instanceof Error ? err.message : "Preview failed");
+    } finally {
+      setPreviewBusy(false);
+    }
+  };
 
   return (
     <DashboardCard
-      title={isEdit ? "Edit news" : "New news"}
+      title={isEdit || postId ? "Edit news" : "New news"}
       subtitle={
-        isEdit
-          ? "Changes appear on the public home after save"
+        isEdit || postId
+          ? "Changes appear on the public site after you save or publish"
           : "Create a story that can power home sections"
       }
       action={
-        isEdit && post?.status === "published" ? (
-          <Button component={Link} href={`/news/${post.slug}`} target="_blank">
-            Open public page
+        status === "published" && slug ? (
+          <Button
+            component={Link}
+            href={`/news/${slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View public page
           </Button>
         ) : null
       }
     >
-      <Box component="form" action={upsertPostAction}>
-        {post?.id ? <input type="hidden" name="id" value={post.id} /> : null}
+      <Box component="form" ref={formRef} action={upsertPostAction}>
+        {postId ? <input type="hidden" name="id" value={postId} /> : null}
         <Stack spacing={2.5}>
-          <TextField
-            name="title"
-            label="Title"
-            required
-            fullWidth
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+          <TitlePermalinkField
+            siteUrl={siteUrl}
+            title={title}
+            slug={slug}
+            autoSlug={autoSlug}
+            onTitleChange={setTitle}
+            onSlugChange={setSlug}
+            onAutoSlugChange={setAutoSlug}
+            onPreview={() => void onPreview()}
+            previewBusy={previewBusy}
+            canViewPublic={status === "published" && Boolean(slug)}
+            publicHref={slug ? `/news/${slug}` : undefined}
           />
-          <TextField
-            name="slug"
-            label="Slug"
-            fullWidth
-            helperText="Used in /news/[slug]"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-          />
+
+          {previewError ? <Alert severity="error">{previewError}</Alert> : null}
+
           <TextField
             name="excerpt"
             label="Excerpt"
@@ -116,7 +198,10 @@ export default function PostForm({
             titleBlank={!title.trim()}
             excerptBlank={!excerpt.trim()}
             onGenerated={(result) => {
-              if (result.title && !title.trim()) setTitle(result.title);
+              if (result.title && !title.trim()) {
+                setTitle(result.title);
+                if (autoSlug) setSlug(slugify(result.title));
+              }
               if (result.excerpt && !excerpt.trim()) setExcerpt(result.excerpt);
               setForceHtml(result.bodyHtml);
               setForceToken((n) => n + 1);
@@ -138,11 +223,12 @@ export default function PostForm({
               name="status"
               label="Status"
               fullWidth
-              defaultValue={post?.status ?? "draft"}
+              value={status}
+              onChange={(e) => setStatus(e.target.value as PostStatus)}
             >
-              {STATUSES.map((status) => (
-                <MenuItem key={status} value={status}>
-                  {status}
+              {STATUSES.map((s) => (
+                <MenuItem key={s} value={s}>
+                  {s}
                 </MenuItem>
               ))}
             </TextField>
@@ -225,24 +311,32 @@ export default function PostForm({
             onChange={(patch) => setSeo((s) => ({ ...s, ...patch }))}
           />
 
-          <Stack direction="row" spacing={1.5}>
+          <Stack direction="row" spacing={1.5} flexWrap="wrap">
             <Button type="submit" variant="contained">
-              {isEdit ? "Save changes" : "Create news"}
+              {postId ? "Save changes" : "Create news"}
             </Button>
-            <Button component={Link} href="/admin/posts" variant="outlined">
+            <Button
+              type="button"
+              variant="outlined"
+              onClick={() => void onPreview()}
+              disabled={previewBusy}
+            >
+              {previewBusy ? "Saving preview…" : "Preview changes"}
+            </Button>
+            <Button component={Link} href="/admin/posts" variant="text">
               Cancel
             </Button>
           </Stack>
         </Stack>
       </Box>
 
-      {isEdit && post?.id ? (
+      {postId ? (
         <Box
           component="form"
           action={deletePostAction}
           sx={{ mt: 4, pt: 3, borderTop: "1px solid", borderColor: "divider" }}
         >
-          <input type="hidden" name="id" value={post.id} />
+          <input type="hidden" name="id" value={postId} />
           <Typography variant="subtitle2" color="error" mb={1}>
             Danger zone
           </Typography>

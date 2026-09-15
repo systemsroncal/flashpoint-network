@@ -3,17 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { slugify } from "@/lib/slug";
 import type { PostStatus } from "@/lib/types/cms";
-
-function slugify(input: string): string {
-  return input
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .slice(0, 120);
-}
 
 function boolFromForm(value: FormDataEntryValue | null): boolean {
   return value === "on" || value === "true" || value === "1";
@@ -32,7 +23,7 @@ export async function upsertPostAction(formData: FormData) {
   if (!title) throw new Error("Title is required");
 
   let slug = String(formData.get("slug") || "").trim() || slugify(title);
-  slug = slugify(slug);
+  slug = slugify(slug) || "untitled";
 
   const status = (String(formData.get("status") || "draft") as PostStatus) || "draft";
   const categoryId = String(formData.get("category_id") || "") || null;
