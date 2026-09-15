@@ -15,6 +15,7 @@ import DashboardCard from "@/components/admin/shared/DashboardCard";
 import { saveAiProviderKeysAction } from "@/lib/admin/ai-actions";
 import {
   saveAdSenseSettingsAction,
+  saveMaintenanceSettingsAction,
   savePaywallSettingsAction,
   upsertSiteSettingAction,
 } from "@/lib/admin/actions";
@@ -49,6 +50,7 @@ export default function SettingsManager({
 
   const paywall = asObject(byKey.get("paywall")?.value);
   const adsense = asObject(byKey.get("adsense")?.value);
+  const maintenance = asObject(byKey.get("maintenance")?.value);
   const adsTxtValue = byKey.get("ads_txt")?.value;
   const adsTxt =
     typeof adsTxtValue === "string"
@@ -57,11 +59,56 @@ export default function SettingsManager({
         ? String(adsense.ads_txt)
         : "google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0";
 
-  const hiddenKeys = new Set(["paywall", "adsense", "ads_txt", AI_KEYS_SETTING]);
+  const hiddenKeys = new Set([
+    "paywall",
+    "adsense",
+    "ads_txt",
+    "maintenance",
+    AI_KEYS_SETTING,
+  ]);
   const visibleSettings = settings.filter((s) => !hiddenKeys.has(s.key));
 
   return (
     <Stack spacing={3}>
+      <DashboardCard
+        title="Maintenance mode"
+        subtitle="When enabled, public visitors see the Coming Soon page. Staff can still use Admin and optionally browse the live site."
+      >
+        <Box component="form" action={saveMaintenanceSettingsAction}>
+          <Stack spacing={2}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="enabled"
+                  defaultChecked={
+                    typeof maintenance.enabled === "boolean"
+                      ? maintenance.enabled
+                      : false
+                  }
+                />
+              }
+              label="Enable maintenance mode (Coming Soon)"
+            />
+            <TextField
+              name="message"
+              label="Optional message override"
+              fullWidth
+              multiline
+              minRows={3}
+              helperText="Leave blank to use the Figma Coming Soon copy."
+              defaultValue={
+                typeof maintenance.message === "string"
+                  ? maintenance.message
+                  : ""
+              }
+            />
+            <Button type="submit" variant="contained" sx={{ alignSelf: "flex-start" }}>
+              Save maintenance
+            </Button>
+          </Stack>
+        </Box>
+      </DashboardCard>
+
       <DashboardCard
         title="Paywall limits"
         subtitle="Soft meter for anonymous readers. Staff and signed-in subscribers bypass."

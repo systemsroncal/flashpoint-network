@@ -346,3 +346,24 @@ export async function saveAdSenseSettingsAction(formData: FormData) {
   revalidatePath("/admin/settings");
   revalidatePath("/ads.txt");
 }
+
+export async function saveMaintenanceSettingsAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const enabled =
+    formData.get("enabled") === "on" || formData.get("enabled") === "true";
+  const message = String(formData.get("message") || "").trim();
+
+  const { error } = await supabase.from("site_settings").upsert({
+    key: "maintenance",
+    value: {
+      enabled,
+      message,
+    },
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/news");
+  revalidatePath("/events");
+  revalidatePath("/category");
+  revalidatePath("/admin/settings");
+}

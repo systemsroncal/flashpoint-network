@@ -14,7 +14,8 @@ insert into public.site_settings (key, value) values
   ('social_links', '{"x":"https://x.com/fpnetwork","facebook":"https://facebook.com/fpnetwork","instagram":"https://instagram.com/fpnetwork","youtube":"https://youtube.com/@fpnetwork"}'::jsonb),
   ('paywall', '{"enabled":true,"free_article_limit":3,"modal_title":"Don''t stop here","modal_body":"Create your FPN All Access account for free to keep reading and join the conversation."}'::jsonb),
   ('adsense', '{"enabled":false,"client_id":""}'::jsonb),
-  ('ads_txt', '"google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0"'::jsonb)
+  ('ads_txt', '"google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0"'::jsonb),
+  ('maintenance', '{"enabled":false,"message":""}'::jsonb)
 on conflict (key) do update set value = excluded.value, updated_at = timezone('utc', now());
 
 -- ---------------------------------------------------------------------------
