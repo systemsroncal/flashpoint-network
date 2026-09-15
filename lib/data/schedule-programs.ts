@@ -42,7 +42,7 @@ function parseLayoutTemplate(value: unknown): ScheduleLayoutTemplate {
 }
 
 export async function getScheduleLayoutTemplate(): Promise<ScheduleLayoutTemplate> {
-  const supabase = await db();
+  const supabase = createAdminClient() ?? (await db());
   if (!supabase) return "template_1";
   const { data } = await supabase
     .from("site_settings")
