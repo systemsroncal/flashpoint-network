@@ -1,5 +1,13 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { Category, EventItem, Post, Profile, Tag } from "@/lib/types/cms";
+import type {
+  Category,
+  ClassicProgram,
+  ClassicProgramsSortMode,
+  EventItem,
+  Post,
+  Profile,
+  Tag,
+} from "@/lib/types/cms";
 
 const POST_SELECT = `
   id, title, slug, excerpt, body, status, category_id, author_id,
@@ -175,4 +183,46 @@ export async function getRecentAdminPosts(limit = 8): Promise<Post[]> {
     .limit(limit);
   if (error) throw new Error(error.message);
   return ((data as unknown[]) ?? []).map(normalizePost);
+}
+
+const CLASSIC_SELECT =
+  "id, title, slug, excerpt, description, body, featured_image_url, external_url, schedule_note, sort_order, status, source_url, created_at, updated_at";
+
+export async function getAdminClassicPrograms(): Promise<ClassicProgram[]> {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("classic_programs")
+    .select(CLASSIC_SELECT)
+    .order("sort_order", { ascending: true })
+    .order("title", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data as ClassicProgram[]) ?? [];
+}
+
+export async function getAdminClassicProgram(
+  id: string,
+): Promise<ClassicProgram | null> {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("classic_programs")
+    .select(CLASSIC_SELECT)
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return (data as ClassicProgram) ?? null;
+}
+
+export async function getClassicProgramsSortMode(): Promise<ClassicProgramsSortMode> {
+  const supabase = requireAdmin();
+  const { data } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", "classic_programs_sort")
+    .maybeSingle();
+  const raw = data?.value;
+  const mode = typeof raw === "string" ? raw : String(raw ?? "manual").replace(/"/g, "");
+  if (["manual", "a_z", "z_a", "random", "newest"].includes(mode)) {
+    return mode as ClassicProgramsSortMode;
+  }
+  return "manual";
 }

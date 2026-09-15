@@ -1,6 +1,7 @@
 import {
   IconCalendarEvent,
   IconCategory,
+  IconDeviceTvOld,
   IconLayoutDashboard,
   IconMail,
   IconNews,
@@ -37,6 +38,12 @@ const Menuitems = [
     title: "Events",
     icon: IconCalendarEvent,
     href: "/admin/events",
+  },
+  {
+    id: "nav-classic-programs",
+    title: "Classic Programs",
+    icon: IconDeviceTvOld,
+    href: "/admin/classic-programs",
   },
   {
     id: "nav-categories",

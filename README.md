@@ -26,8 +26,11 @@ Dev server: **http://127.0.0.1:43125**
 | `/` | Public home |
 | `/news/[slug]` | Article (paywall + SEO + share) |
 | `/events/[slug]` | Event detail |
+| `/classic-programs` | Classic TV grid (sort mode from settings) |
+| `/classic-programs/[slug]` | Classic program detail |
 | `/login` `/register` `/forgot-password` | Auth flows |
 | `/admin` | Staff CMS (RBAC: superadmin/admin/editor/journalist) |
+| `/admin/classic-programs` | Classic Programs CRUD + grid sort |
 | `/ads.txt` | Dynamic ads.txt from Settings |
 | `/api/health` | Health check |
 | `/api/revalidate` | On-demand path revalidation |
@@ -49,3 +52,13 @@ npm run db:apply
 ```
 
 Requires `SUPABASE_SERVICE_ROLE_KEY` + DB password or access token (see `scripts/apply-supabase.mjs`).
+
+## Classic Programs seed
+
+Scrape public HTML from fptn.com and upsert into Supabase:
+
+```bash
+npm run seed:classic-programs
+```
+
+Snapshot: `scripts/data/classic-programs-seed.json`. Images stay as remote GoDaddy CDN URLs.

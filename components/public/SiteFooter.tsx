@@ -33,6 +33,7 @@ const COLUMNS = [
       { label: "Health", href: "/category/health" },
       { label: "Science", href: "/category/science" },
       { label: "Culture", href: "/category/lifestyle" },
+      { label: "Classic Programs", href: "/classic-programs" },
     ],
   },
 ];

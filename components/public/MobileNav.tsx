@@ -95,6 +95,13 @@ export default function MobileNav({ items }: { items: NavItem[] }) {
                 Login
               </Link>
               <Link
+                href="/classic-programs"
+                onClick={() => setOpen(false)}
+                className="inline-flex h-11 items-center justify-center rounded-md border border-white/40 text-sm font-semibold"
+              >
+                Classics
+              </Link>
+              <Link
                 href="/events"
                 onClick={() => setOpen(false)}
                 className="inline-flex h-11 items-center justify-center rounded-md border border-white/40 text-sm font-semibold"

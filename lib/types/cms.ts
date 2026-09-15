@@ -16,6 +16,32 @@ export type PostStatus =
 
 export type EventFormat = "video" | "text";
 
+export type ClassicProgramStatus = "draft" | "published" | "archived";
+
+export type ClassicProgramsSortMode =
+  | "manual"
+  | "a_z"
+  | "z_a"
+  | "random"
+  | "newest";
+
+export type ClassicProgram = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  description: string | null;
+  body: string | null;
+  featured_image_url: string | null;
+  external_url: string | null;
+  schedule_note: string | null;
+  sort_order: number;
+  status: ClassicProgramStatus;
+  source_url: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
 export type Category = {
   id: string;
   name: string;
