@@ -93,7 +93,12 @@ export default function NewsArticleView({
               </div>
             </div>
             <div className="hidden lg:block">
-              <ShareBar title={post.title} urlPath={href} orientation="vertical" />
+              <ShareBar
+                title={post.title}
+                urlPath={href}
+                excerpt={post.excerpt}
+                orientation="vertical"
+              />
             </div>
           </aside>
         </div>
@@ -155,11 +160,19 @@ export default function NewsArticleView({
           </div>
 
           <div className="mt-10 lg:hidden">
-            <ShareBar title={post.title} urlPath={href} />
+            <ShareBar
+              title={post.title}
+              urlPath={href}
+              excerpt={post.excerpt}
+            />
           </div>
 
           <div className="mt-10 hidden lg:block">
-            <ShareBar title={post.title} urlPath={href} />
+            <ShareBar
+              title={post.title}
+              urlPath={href}
+              excerpt={post.excerpt}
+            />
           </div>
 
           {/* Prev / Next */}

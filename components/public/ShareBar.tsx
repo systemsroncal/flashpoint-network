@@ -1,62 +1,150 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
+import { getSiteUrl } from "@/lib/env";
 
 type Props = {
   title: string;
   urlPath: string;
+  excerpt?: string | null;
   orientation?: "vertical" | "horizontal";
 };
 
-const ITEMS = [
+type NetworkKey = "linkedin" | "threads" | "facebook" | "x";
+
+const NETWORKS: {
+  key: NetworkKey;
+  label: string;
+  icon: string;
+}[] = [
   { key: "linkedin", label: "Linkedin", icon: "/brand/share/linkedin.svg" },
   { key: "threads", label: "Threads", icon: "/brand/share/threads.svg" },
   { key: "facebook", label: "Facebook", icon: "/brand/share/facebook.svg" },
   { key: "x", label: "X", icon: "/brand/share/x.svg" },
-  { key: "share", label: "Share", icon: "/brand/share/share.svg" },
-  { key: "print", label: "Print", icon: "/brand/share/print.svg" },
-] as const;
+];
+
+function absolutePageUrl(urlPath: string, liveUrl?: string) {
+  if (liveUrl) return liveUrl;
+  const site = getSiteUrl().replace(/\/$/, "");
+  const path = urlPath.startsWith("/") ? urlPath : `/${urlPath}`;
+  return `${site}${path}`;
+}
+
+function buildNetworkHref(
+  key: NetworkKey,
+  pageUrl: string,
+  title: string,
+  excerpt?: string | null,
+) {
+  const url = encodeURIComponent(pageUrl);
+  const titleEnc = encodeURIComponent(title);
+  const body = excerpt?.trim() ? `${title} — ${excerpt.trim()}` : title;
+  const textEnc = encodeURIComponent(body);
+
+  switch (key) {
+    case "linkedin":
+      return `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+    case "threads":
+      return `https://www.threads.net/intent/post?text=${textEnc}%20${url}`;
+    case "facebook":
+      return `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+    case "x":
+      return `https://twitter.com/intent/tweet?url=${url}&text=${titleEnc}`;
+    default:
+      return pageUrl;
+  }
+}
+
+function itemClass(orientation: "vertical" | "horizontal") {
+  return orientation === "vertical"
+    ? "inline-flex items-center gap-3 py-1.5 text-[15px] font-medium text-black hover:text-[var(--fpn-rojo)]"
+    : "inline-flex items-center gap-2.5 text-[15px] font-medium text-black hover:text-[var(--fpn-rojo)]";
+}
 
 export default function ShareBar({
   title,
   urlPath,
+  excerpt,
   orientation = "horizontal",
 }: Props) {
-  const onClick = async (key: (typeof ITEMS)[number]["key"]) => {
-    const absoluteUrl = `${window.location.origin}${urlPath}`;
-    const encoded = encodeURIComponent(absoluteUrl);
-    const text = encodeURIComponent(title);
-    if (key === "print") {
-      window.print();
-      return;
-    }
-    if (key === "share" && navigator.share) {
+  const [pageUrl, setPageUrl] = useState(() => absolutePageUrl(urlPath));
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    // Prefer the live browser URL so query/hash are included when present.
+    setPageUrl(
+      window.location.href ||
+        `${window.location.origin}${urlPath.startsWith("/") ? urlPath : `/${urlPath}`}`,
+    );
+  }, [urlPath]);
+
+  const networkHrefs = useMemo(() => {
+    const base = absolutePageUrl(urlPath, pageUrl);
+    return Object.fromEntries(
+      NETWORKS.map((n) => [n.key, buildNetworkHref(n.key, base, title, excerpt)]),
+    ) as Record<NetworkKey, string>;
+  }, [pageUrl, urlPath, title, excerpt]);
+
+  const onNativeShare = async () => {
+    const url = absolutePageUrl(urlPath, pageUrl || window.location.href);
+    if (navigator.share) {
       try {
-        await navigator.share({ title, url: absoluteUrl });
+        await navigator.share({
+          title,
+          text: excerpt?.trim() || title,
+          url,
+        });
+        return;
       } catch {
-        /* dismissed */
+        /* dismissed — fall through to copy */
       }
-      return;
     }
-    const map: Record<string, string> = {
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encoded}`,
-      threads: `https://www.threads.net/intent/post?text=${text}%20${encoded}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encoded}`,
-      x: `https://twitter.com/intent/tweet?url=${encoded}&text=${text}`,
-      share: absoluteUrl,
-    };
-    const href = map[key];
-    if (!href) return;
-    if (key === "share") {
-      try {
-        await navigator.clipboard.writeText(absoluteUrl);
-      } catch {
-        /* ignore */
-      }
-      return;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* ignore */
     }
-    window.open(href, "_blank", "noopener,noreferrer");
   };
+
+  const networkLinks = NETWORKS.map((item) => (
+    <a
+      key={item.key}
+      href={networkHrefs[item.key]}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Share on ${item.label}`}
+      className={itemClass(orientation)}
+    >
+      <Image src={item.icon} alt="" width={18} height={18} />
+      {item.label}
+    </a>
+  ));
+
+  const actions = (
+    <>
+      <button
+        type="button"
+        onClick={onNativeShare}
+        aria-label={copied ? "Link copied" : "Share or copy link"}
+        className={itemClass(orientation)}
+      >
+        <Image src="/brand/share/share.svg" alt="" width={18} height={18} />
+        {copied ? "Copied" : "Share"}
+      </button>
+      <button
+        type="button"
+        onClick={() => window.print()}
+        aria-label="Print this page"
+        className={itemClass(orientation)}
+      >
+        <Image src="/brand/share/print.svg" alt="" width={18} height={18} />
+        Print
+      </button>
+    </>
+  );
 
   if (orientation === "vertical") {
     return (
@@ -65,18 +153,42 @@ export default function ShareBar({
           Share
         </p>
         <ul className="flex flex-col gap-1">
-          {ITEMS.map((item) => (
+          {NETWORKS.map((item) => (
             <li key={item.key}>
-              <button
-                type="button"
-                onClick={() => onClick(item.key)}
-                className="inline-flex items-center gap-3 py-1.5 text-[15px] font-medium text-black hover:text-[var(--fpn-rojo)]"
+              <a
+                href={networkHrefs[item.key]}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Share on ${item.label}`}
+                className={itemClass(orientation)}
               >
                 <Image src={item.icon} alt="" width={18} height={18} />
                 {item.label}
-              </button>
+              </a>
             </li>
           ))}
+          <li>
+            <button
+              type="button"
+              onClick={onNativeShare}
+              aria-label={copied ? "Link copied" : "Share or copy link"}
+              className={itemClass(orientation)}
+            >
+              <Image src="/brand/share/share.svg" alt="" width={18} height={18} />
+              {copied ? "Copied" : "Share"}
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
+              onClick={() => window.print()}
+              aria-label="Print this page"
+              className={itemClass(orientation)}
+            >
+              <Image src="/brand/share/print.svg" alt="" width={18} height={18} />
+              Print
+            </button>
+          </li>
         </ul>
       </div>
     );
@@ -88,17 +200,8 @@ export default function ShareBar({
         Share
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2">
-        {ITEMS.map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            onClick={() => onClick(item.key)}
-            className="inline-flex items-center gap-2.5 text-[15px] font-medium text-black hover:text-[var(--fpn-rojo)]"
-          >
-            <Image src={item.icon} alt="" width={18} height={18} />
-            {item.label}
-          </button>
-        ))}
+        {networkLinks}
+        {actions}
       </div>
     </div>
   );
