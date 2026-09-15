@@ -84,6 +84,16 @@ article h3 {
   margin: 1rem 0;
 }
 
+.fpn-article-body p {
+  margin: 0 0 1.35rem;
+  font-family: var(--font-noto-serif), Georgia, serif;
+}
+
+.fpn-article-body h2,
+.fpn-article-body h3 {
+  font-family: var(--font-article) !important;
+}
+
 /* Live signal bars — Figma motion ~2s loop */
 @keyframes fpn-signal-a {
   0%,

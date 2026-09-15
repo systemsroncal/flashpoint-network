@@ -144,6 +144,70 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
   return asPosts(data ? [data] : [])[0] ?? null;
 }
 
+export async function getArticleSidebar(excludeId?: string): Promise<{
+  latest: Post[];
+  podcasts: Post[];
+  popular: Post[];
+  previous: Post | null;
+  next: Post | null;
+}> {
+  const empty = {
+    latest: [] as Post[],
+    podcasts: [] as Post[],
+    popular: [] as Post[],
+    previous: null as Post | null,
+    next: null as Post | null,
+  };
+  const supabase = await db();
+  if (!supabase) return empty;
+
+  let latestQ = supabase
+    .from("posts")
+    .select(POST_SELECT)
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(5);
+  if (excludeId) latestQ = latestQ.neq("id", excludeId);
+
+  const [latestRes, podcastsRes, popularRes, neighborsRes] = await Promise.all([
+    latestQ,
+    supabase
+      .from("posts")
+      .select(POST_SELECT)
+      .eq("status", "published")
+      .eq("is_podcast", true)
+      .order("published_at", { ascending: false })
+      .limit(4),
+    supabase
+      .from("posts")
+      .select(POST_SELECT)
+      .eq("status", "published")
+      .order("view_count", { ascending: false })
+      .limit(3),
+    excludeId
+      ? supabase
+          .from("posts")
+          .select(POST_SELECT)
+          .eq("status", "published")
+          .order("published_at", { ascending: false })
+          .limit(40)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const neighbors = asPosts(neighborsRes.data);
+  const idx = excludeId ? neighbors.findIndex((p) => p.id === excludeId) : -1;
+  const previous = idx > 0 ? neighbors[idx - 1] : null;
+  const next = idx >= 0 && idx < neighbors.length - 1 ? neighbors[idx + 1] : null;
+
+  return {
+    latest: asPosts(latestRes.data).slice(0, 4),
+    podcasts: asPosts(podcastsRes.data),
+    popular: asPosts(popularRes.data).filter((p) => p.id !== excludeId).slice(0, 3),
+    previous,
+    next,
+  };
+}
+
 export async function getEventBySlug(slug: string): Promise<EventItem | null> {
   const supabase = await db();
   if (!supabase) return null;
