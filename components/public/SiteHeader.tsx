@@ -1,72 +1,93 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getNavCategories } from "@/lib/data/home";
 
 const FALLBACK_NAV = [
-  "U.S.",
-  "Politics",
-  "World",
-  "Opinion",
-  "Business",
-  "Science",
-  "Lifestyle",
-  "Health",
-  "Tech & AI",
+  { name: "U.S.", chevron: true },
+  { name: "Politics", chevron: true },
+  { name: "World", chevron: true },
+  { name: "Opinion", chevron: false },
+  { name: "Business", chevron: false },
+  { name: "Science", chevron: false },
+  { name: "Lifestyle", chevron: true },
+  { name: "Health", chevron: true },
+  { name: "Tech & AI", chevron: true },
 ];
 
 export default async function SiteHeader() {
   const categories = await getNavCategories();
+  const fromDb = categories.filter((c) => c.slug !== "video").slice(0, 9);
   const nav =
-    categories.filter((c) => c.slug !== "video").slice(0, 9).length > 0
-      ? categories.filter((c) => c.slug !== "video").slice(0, 9)
-      : FALLBACK_NAV.map((name, i) => ({
+    fromDb.length > 0
+      ? fromDb.map((c, i) => ({
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          chevron: FALLBACK_NAV[i]?.chevron ?? true,
+        }))
+      : FALLBACK_NAV.map((item, i) => ({
           id: String(i),
-          name,
-          slug: name.toLowerCase().replace(/\s+/g, "-"),
-          description: null,
-          sort_order: i,
+          name: item.name,
+          slug: item.name.toLowerCase().replace(/\s+/g, "-").replace("&", ""),
+          chevron: item.chevron,
         }));
 
   return (
-    <header className="bg-black text-white">
-      <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-4 py-3.5">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5">
-          <span className="inline-flex items-center bg-[var(--fpn-red)] px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.06em]">
-            Flash Point
-          </span>
-          <span className="text-sm font-bold uppercase tracking-[0.2em] sm:text-[15px]">
-            Network
+    <header className="relative z-20 bg-[var(--fpn-navy)] text-white">
+      <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--fpn-rojo)]" />
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-3 md:px-8 lg:px-10">
+        <Link href="/" className="relative z-10 shrink-0">
+          <span className="flex w-[112px] flex-col overflow-hidden rounded-[3px] border-2 border-white bg-black sm:w-[130px]">
+            <span className="relative flex h-[58px] items-center justify-center bg-black px-2 sm:h-[68px]">
+              <Image
+                src="/brand/fpn-logo-mark.svg"
+                alt="Flash Point"
+                width={110}
+                height={52}
+                className="h-11 w-auto sm:h-[52px]"
+                priority
+              />
+            </span>
+            <span className="bg-[var(--fpn-rojo)] py-1 text-center text-[10px] font-bold uppercase tracking-[0.35em] text-white sm:text-[11px]">
+              Network
+            </span>
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-4 overflow-x-auto text-[11px] font-semibold uppercase tracking-[0.08em] text-white/75 xl:flex">
+        <nav className="hidden flex-1 items-center justify-center gap-1 xl:flex 2xl:gap-2">
           {nav.map((category) => (
             <Link
               key={category.id}
               href={`/?category=${category.slug}`}
-              className="whitespace-nowrap transition-colors hover:text-white"
+              className="inline-flex items-center gap-1 px-1.5 py-2 text-[13px] font-black text-white transition-opacity hover:opacity-80 2xl:px-2 2xl:text-[15px]"
             >
               {category.name}
+              {category.chevron ? (
+                <span className="text-[9px] opacity-80" aria-hidden>
+                  ▼
+                </span>
+              ) : null}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-2.5 text-sm">
+        <div className="flex items-center gap-3 sm:gap-4">
           <button
             type="button"
             aria-label="Search"
-            className="hidden h-9 w-9 items-center justify-center rounded-full border border-white/25 text-base text-white/80 transition-colors hover:border-white hover:text-white sm:inline-flex"
+            className="inline-flex h-6 w-6 items-center justify-center"
           >
-            ⌕
+            <Image src="/brand/search.svg" alt="" width={23} height={23} />
           </button>
           <Link
             href="/admin"
-            className="hidden rounded-sm border border-white px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-white transition-colors hover:bg-white hover:text-black sm:inline-flex"
+            className="hidden h-[38px] w-[105px] items-center justify-center rounded-md bg-white text-[14px] font-bold text-black sm:inline-flex"
           >
             Subscribe
           </Link>
           <Link
             href="/admin"
-            className="rounded-full bg-[#2563EB] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.04em] text-white hover:bg-[#1d4ed8]"
+            className="inline-flex h-[38px] w-[88px] items-center justify-center rounded-md border border-white text-[14px] font-black text-white sm:w-[105px]"
           >
             Login
           </Link>

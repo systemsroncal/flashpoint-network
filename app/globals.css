@@ -4,32 +4,36 @@
   --background: #ffffff;
   --foreground: #111111;
   --fpn-black: #000000;
-  --fpn-red: #e10600;
-  --fpn-orange: #ff4500;
+  --fpn-navy: #1b2a64;
+  --fpn-rojo: #ff490d;
+  --fpn-orange: #ff490d;
+  --fpn-red: #ff490d;
+  --fpn-meta: #929292;
   --fpn-ink: #1f2937;
-  --fpn-muted: #6b7280;
-  --font-article: "Times New Roman", Times, "Liberation Serif", Georgia, serif;
+  --font-article: var(--font-fraunces), var(--font-noto-serif), "Times New Roman",
+    Georgia, serif;
+  --font-ui: var(--font-roboto), var(--font-geist-sans), ui-sans-serif, system-ui,
+    sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-ui);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-ui);
 }
 
-/* Publication titles: Times New Roman */
 .font-article,
 article h1,
 article h2,
 article h3 {
-  font-family: "Times New Roman", Times, "Liberation Serif", Georgia, serif !important;
+  font-family: var(--font-article) !important;
 }
 
 /* Public rich-text bodies from admin Tiptap */
@@ -64,12 +68,12 @@ article h3 {
 .fpn-rich-html blockquote {
   margin: 0 0 1.25rem;
   padding-left: 1rem;
-  border-left: 3px solid #e85d04;
+  border-left: 3px solid var(--fpn-rojo);
   color: #4b5563;
 }
 
 .fpn-rich-html a {
-  color: #e85d04;
+  color: var(--fpn-rojo);
   text-decoration: underline;
 }
 
@@ -80,42 +84,54 @@ article h3 {
   margin: 1rem 0;
 }
 
-/* Live hero pulse (from Figma motion: white fill opacity loop ~2s) */
-@keyframes fpn-live-glow {
+/* Live signal bars — Figma motion ~2s loop */
+@keyframes fpn-signal-a {
   0%,
   100% {
     opacity: 1;
   }
   15% {
-    opacity: 0.72;
+    opacity: 0.7;
   }
   32% {
     opacity: 1;
   }
-  45% {
-    opacity: 0.72;
-  }
-  60% {
-    opacity: 1;
-  }
 }
 
-@keyframes fpn-live-dot {
+@keyframes fpn-signal-b {
   0%,
+  31% {
+    opacity: 1;
+  }
+  45% {
+    opacity: 0.7;
+  }
+  60%,
   100% {
     opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.55;
-    transform: scale(0.85);
   }
 }
 
-.fpn-live-glow {
-  animation: fpn-live-glow 2s ease-in-out infinite;
+@keyframes fpn-signal-c {
+  0%,
+  15% {
+    opacity: 1;
+  }
+  32% {
+    opacity: 0.7;
+  }
+  45%,
+  100% {
+    opacity: 1;
+  }
 }
 
-.fpn-live-dot {
-  animation: fpn-live-dot 1.2s ease-in-out infinite;
+.fpn-signal-a {
+  animation: fpn-signal-a 2s ease-in-out infinite;
+}
+.fpn-signal-b {
+  animation: fpn-signal-b 2s ease-in-out infinite;
+}
+.fpn-signal-c {
+  animation: fpn-signal-c 2s ease-in-out infinite;
 }
