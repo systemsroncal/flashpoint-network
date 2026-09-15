@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono, Noto_Serif, Roboto } from "next/font/google";
+import PerformanceMeasureGuard from "@/components/dev/PerformanceMeasureGuard";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -51,6 +52,14 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${notoSerif.variable} ${roboto.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-white text-[#111111]">
+        {process.env.NODE_ENV !== "production" ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(){try{if(typeof performance==="undefined"||typeof performance.measure!=="function"||performance.__fpnMeasurePatched)return;performance.__fpnMeasurePatched=true;var o=performance.measure.bind(performance);performance.measure=function(){try{return o.apply(performance,arguments);}catch(e){if(e&&e.message&&/negative time stamp/i.test(e.message))return;throw e;}};}catch(_){}})();`,
+            }}
+          />
+        ) : null}
+        <PerformanceMeasureGuard />
         {children}
       </body>
     </html>
