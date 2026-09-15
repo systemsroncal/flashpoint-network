@@ -43,7 +43,17 @@ lib/
   env.ts             # Env helpers + fallbacks
 ```
 
+## Supabase (Phase 2)
+
+Versioned SQL lives under `supabase/migrations/` + `supabase/seed.sql`.
+
+```bash
+# Requires DATABASE_URL or SUPABASE_DB_PASSWORD or SUPABASE_ACCESS_TOKEN
+# plus SUPABASE_SERVICE_ROLE_KEY + NEXT_PUBLIC_SUPABASE_URL
+npm run db:apply
+```
+
 ## Phase status
 
-Phase 1 complete: scaffold, deps, modular folders, admin shell.
-Phases 2–6 (schema, paywall, full CMS, public home design) are out of scope here.
+Phase 1: scaffold, deps, modular folders, admin shell.
+Phase 2: schema, RLS, and home-mockup seed (see `supabase/`).

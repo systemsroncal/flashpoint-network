@@ -1,0 +1,12 @@
+# Supabase local/CLI config for FP Network
+project_id = "fp-network"
+
+[api]
+enabled = true
+
+[db]
+major_version = 15
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
