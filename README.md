@@ -68,4 +68,4 @@ npm run seed:ministry-programs
 npm run seed:schedule-programs
 ```
 
-Snapshots under `scripts/data/`. Classic/ministry images stay as remote GoDaddy CDN URLs. Schedule seeds dated entries for September 2026 from the PDF grid and copies the PDF to `public/schedules/`.
+Snapshots under `scripts/data/`. After scraping remote posters, run `npm run seed:program-images` so images land in Supabase Storage (`media`). Schedule seeds dated entries for September 2026 and copies the PDF to `public/schedules/`.
