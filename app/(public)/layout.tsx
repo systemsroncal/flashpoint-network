@@ -2,9 +2,11 @@ import AdSenseScript from "@/components/public/AdSenseScript";
 import MaintenanceView from "@/components/public/MaintenanceView";
 import SiteFooter from "@/components/public/SiteFooter";
 import SiteHeader from "@/components/public/SiteHeader";
-import { getCurrentProfile, isStaffRole } from "@/lib/auth/session";
+import { getCurrentProfile, isAdminRole } from "@/lib/auth/session";
 import { getSiteName } from "@/lib/env";
 import { getMaintenanceSettings } from "@/lib/maintenance/settings";
+
+export const dynamic = "force-dynamic";
 
 export default async function PublicLayout({
   children,
@@ -16,19 +18,20 @@ export default async function PublicLayout({
     getCurrentProfile(),
   ]);
 
-  const staffBypass = Boolean(profile && isStaffRole(profile.role));
+  // Only admin / superadmin bypass Coming Soon on the public site.
+  const adminBypass = Boolean(profile && isAdminRole(profile.role));
 
-  if (maintenance.enabled && !staffBypass) {
+  if (maintenance.enabled && !adminBypass) {
     return <MaintenanceView message={maintenance.message} />;
   }
 
   const siteName = getSiteName();
   return (
     <>
-      {maintenance.enabled && staffBypass ? (
+      {maintenance.enabled && adminBypass ? (
         <div className="bg-amber-500 px-4 py-2 text-center text-sm font-semibold text-black">
-          Maintenance mode is ON — you are viewing the live site as staff.{" "}
-          Public visitors see the Coming Soon page.
+          Maintenance mode is ON — you are viewing the live site as admin.{" "}
+          Everyone else sees the Coming Soon page.
         </div>
       ) : null}
       <AdSenseScript />

@@ -72,7 +72,7 @@ export default function SettingsManager({
     <Stack spacing={3}>
       <DashboardCard
         title="Maintenance mode"
-        subtitle="When enabled, public visitors see the Coming Soon page. Staff can still use Admin and optionally browse the live site."
+        subtitle="When enabled, everyone sees Coming Soon on the public site except logged-in admin/superadmin (amber banner). Editors and other roles do not bypass. Auth and /admin stay reachable."
       >
         <Box component="form" action={saveMaintenanceSettingsAction}>
           <Stack spacing={2}>

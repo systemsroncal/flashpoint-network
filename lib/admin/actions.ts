@@ -365,6 +365,9 @@ export async function saveMaintenanceSettingsAction(formData: FormData) {
   revalidatePath("/news");
   revalidatePath("/events");
   revalidatePath("/category");
+  revalidatePath("/classic-programs");
+  revalidatePath("/ministry-programs");
+  revalidatePath("/schedule-programs");
   revalidatePath("/admin/settings");
 }
 
