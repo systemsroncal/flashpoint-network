@@ -1,10 +1,14 @@
-import AdminPlaceholderPage from "@/components/admin/shared/AdminPlaceholderPage";
+import PageContainer from "@/components/admin/shared/PageContainer";
+import TagsManager from "@/components/admin/tags/TagsManager";
+import { getAdminTags } from "@/lib/admin/queries";
 
-export default function Page() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminTagsPage() {
+  const tags = await getAdminTags();
   return (
-    <AdminPlaceholderPage
-      title="Tags"
-      description="Placeholder route for Phase 1 navigation. Full CRUD arrives in later phases."
-    />
+    <PageContainer title="Tags" description="Editorial tags">
+      <TagsManager tags={tags} />
+    </PageContainer>
   );
 }

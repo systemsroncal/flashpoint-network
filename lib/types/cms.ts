@@ -24,6 +24,12 @@ export type Category = {
   sort_order: number;
 };
 
+export type Tag = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
 export type Profile = {
   id: string;
   email: string | null;

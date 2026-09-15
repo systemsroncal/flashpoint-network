@@ -1,10 +1,14 @@
-import AdminPlaceholderPage from "@/components/admin/shared/AdminPlaceholderPage";
+import PageContainer from "@/components/admin/shared/PageContainer";
+import MediaGrid from "@/components/admin/media/MediaGrid";
+import { getAdminMedia } from "@/lib/admin/queries";
 
-export default function Page() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminMediaPage() {
+  const items = await getAdminMedia();
   return (
-    <AdminPlaceholderPage
-      title="Media"
-      description="Placeholder route for Phase 1 navigation. Full CRUD arrives in later phases."
-    />
+    <PageContainer title="Media" description="Images attached to posts">
+      <MediaGrid items={items} />
+    </PageContainer>
   );
 }

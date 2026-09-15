@@ -1,10 +1,14 @@
-import AdminPlaceholderPage from "@/components/admin/shared/AdminPlaceholderPage";
+import PageContainer from "@/components/admin/shared/PageContainer";
+import PostsTable from "@/components/admin/posts/PostsTable";
+import { getAdminPosts } from "@/lib/admin/queries";
 
-export default function Page() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminPostsPage() {
+  const posts = await getAdminPosts();
   return (
-    <AdminPlaceholderPage
-      title="Posts"
-      description="Placeholder route for Phase 1 navigation. Full CRUD arrives in later phases."
-    />
+    <PageContainer title="Posts" description="Manage FP Network articles">
+      <PostsTable posts={posts} />
+    </PageContainer>
   );
 }

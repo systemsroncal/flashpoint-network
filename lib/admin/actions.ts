@@ -1,0 +1,264 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { createAdminClient } from "@/lib/supabase/admin";
+import type { PostStatus } from "@/lib/types/cms";
+
+function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 120);
+}
+
+function boolFromForm(value: FormDataEntryValue | null): boolean {
+  return value === "on" || value === "true" || value === "1";
+}
+
+function requireAdmin() {
+  const client = createAdminClient();
+  if (!client) throw new Error("Supabase admin client is not configured");
+  return client;
+}
+
+export async function upsertPostAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const id = String(formData.get("id") || "");
+  const title = String(formData.get("title") || "").trim();
+  if (!title) throw new Error("Title is required");
+
+  let slug = String(formData.get("slug") || "").trim() || slugify(title);
+  slug = slugify(slug);
+
+  const status = (String(formData.get("status") || "draft") as PostStatus) || "draft";
+  const categoryId = String(formData.get("category_id") || "") || null;
+  const excerpt = String(formData.get("excerpt") || "");
+  const body = String(formData.get("body") || "");
+  const featuredImageUrl = String(formData.get("featured_image_url") || "") || null;
+  const readingTime = Number(formData.get("reading_time_minutes") || 5);
+  const publishedAtRaw = String(formData.get("published_at") || "");
+  const publishedAt = publishedAtRaw
+    ? new Date(publishedAtRaw).toISOString()
+    : status === "published"
+      ? new Date().toISOString()
+      : null;
+
+  // Default author: seeded FPN desk editor
+  const authorId = "f1000000-0000-4000-8000-000000000001";
+
+  const payload = {
+    title,
+    slug,
+    excerpt,
+    body,
+    status,
+    category_id: categoryId,
+    author_id: authorId,
+    featured_image_url: featuredImageUrl,
+    is_featured: boolFromForm(formData.get("is_featured")),
+    is_premium: boolFromForm(formData.get("is_premium")),
+    is_video: boolFromForm(formData.get("is_video")),
+    is_podcast: boolFromForm(formData.get("is_podcast")),
+    reading_time_minutes: Number.isFinite(readingTime) ? readingTime : 5,
+    published_at: publishedAt,
+  };
+
+  if (id) {
+    const { error } = await supabase.from("posts").update(payload).eq("id", id);
+    if (error) throw new Error(error.message);
+  } else {
+    const { data, error } = await supabase
+      .from("posts")
+      .insert(payload)
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    revalidatePath("/");
+    revalidatePath("/admin");
+    revalidatePath("/admin/posts");
+    redirect(`/admin/posts/${data.id}`);
+  }
+
+  revalidatePath("/");
+  revalidatePath(`/news/${slug}`);
+  revalidatePath("/admin");
+  revalidatePath("/admin/posts");
+  revalidatePath(`/admin/posts/${id}`);
+  redirect(`/admin/posts/${id}`);
+}
+
+export async function deletePostAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const id = String(formData.get("id") || "");
+  if (!id) throw new Error("Missing post id");
+  const { error } = await supabase.from("posts").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/admin/posts");
+  redirect("/admin/posts");
+}
+
+export async function upsertCategoryAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const id = String(formData.get("id") || "");
+  const name = String(formData.get("name") || "").trim();
+  if (!name) throw new Error("Name is required");
+  const slug = slugify(String(formData.get("slug") || name));
+  const description = String(formData.get("description") || "");
+  const sortOrder = Number(formData.get("sort_order") || 0);
+  const payload = {
+    name,
+    slug,
+    description,
+    sort_order: Number.isFinite(sortOrder) ? sortOrder : 0,
+  };
+  if (id) {
+    const { error } = await supabase.from("categories").update(payload).eq("id", id);
+    if (error) throw new Error(error.message);
+  } else {
+    const { error } = await supabase.from("categories").insert(payload);
+    if (error) throw new Error(error.message);
+  }
+  revalidatePath("/");
+  revalidatePath("/admin/categories");
+}
+
+export async function deleteCategoryAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const id = String(formData.get("id") || "");
+  const { error } = await supabase.from("categories").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/admin/categories");
+}
+
+export async function upsertTagAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const id = String(formData.get("id") || "");
+  const name = String(formData.get("name") || "").trim();
+  if (!name) throw new Error("Name is required");
+  const slug = slugify(String(formData.get("slug") || name));
+  const payload = { name, slug };
+  if (id) {
+    const { error } = await supabase.from("tags").update(payload).eq("id", id);
+    if (error) throw new Error(error.message);
+  } else {
+    const { error } = await supabase.from("tags").insert(payload);
+    if (error) throw new Error(error.message);
+  }
+  revalidatePath("/admin/tags");
+}
+
+export async function deleteTagAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const id = String(formData.get("id") || "");
+  const { error } = await supabase.from("tags").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/tags");
+}
+
+export async function upsertEventAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const id = String(formData.get("id") || "");
+  const title = String(formData.get("title") || "").trim();
+  if (!title) throw new Error("Title is required");
+  const slug = slugify(String(formData.get("slug") || title));
+  const description = String(formData.get("description") || "");
+  const body = String(formData.get("body") || "");
+  const format = String(formData.get("format") || "video") === "text" ? "text" : "video";
+  const videoUrl = String(formData.get("video_url") || "") || null;
+  const hostName = String(formData.get("host_name") || "") || null;
+  const thumbnailUrl = String(formData.get("thumbnail_url") || "") || null;
+  const startsAtRaw = String(formData.get("starts_at") || "");
+  const endsAtRaw = String(formData.get("ends_at") || "");
+
+  const payload = {
+    title,
+    slug,
+    description,
+    body,
+    format,
+    video_url: videoUrl,
+    host_name: hostName,
+    thumbnail_url: thumbnailUrl,
+    starts_at: startsAtRaw ? new Date(startsAtRaw).toISOString() : null,
+    ends_at: endsAtRaw ? new Date(endsAtRaw).toISOString() : null,
+    is_live: boolFromForm(formData.get("is_live")),
+    show_on_home: boolFromForm(formData.get("show_on_home")),
+  };
+
+  if (id) {
+    const { error } = await supabase.from("events").update(payload).eq("id", id);
+    if (error) throw new Error(error.message);
+  } else {
+    const { data, error } = await supabase
+      .from("events")
+      .insert(payload)
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    revalidatePath("/");
+    revalidatePath("/admin/events");
+    redirect(`/admin/events/${data.id}`);
+  }
+
+  revalidatePath("/");
+  revalidatePath(`/events/${slug}`);
+  revalidatePath("/admin/events");
+  revalidatePath(`/admin/events/${id}`);
+  redirect(`/admin/events/${id}`);
+}
+
+export async function deleteEventAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const id = String(formData.get("id") || "");
+  const { error } = await supabase.from("events").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/admin/events");
+  redirect("/admin/events");
+}
+
+export async function upsertEmailTemplateAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const id = String(formData.get("id") || "");
+  const name = String(formData.get("name") || "").trim();
+  const slug = slugify(String(formData.get("slug") || name));
+  const subject = String(formData.get("subject") || "");
+  const bodyHtml = String(formData.get("body_html") || "");
+  if (!name || !subject) throw new Error("Name and subject are required");
+  const payload = { name, slug, subject, body_html: bodyHtml };
+  if (id) {
+    const { error } = await supabase.from("email_templates").update(payload).eq("id", id);
+    if (error) throw new Error(error.message);
+  } else {
+    const { error } = await supabase.from("email_templates").insert(payload);
+    if (error) throw new Error(error.message);
+  }
+  revalidatePath("/admin/email-templates");
+}
+
+export async function upsertSiteSettingAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const key = String(formData.get("key") || "").trim();
+  const valueRaw = String(formData.get("value") || "").trim();
+  if (!key) throw new Error("Key is required");
+  let value: unknown = valueRaw;
+  try {
+    value = JSON.parse(valueRaw);
+  } catch {
+    value = valueRaw;
+  }
+  const { error } = await supabase.from("site_settings").upsert({
+    key,
+    value,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+}

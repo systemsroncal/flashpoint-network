@@ -1,62 +1,105 @@
 "use client";
 
-import { Box, Grid, Stack, Typography } from "@mui/material";
+import Link from "next/link";
+import {
+  Box,
+  Button,
+  Chip,
+  Grid,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import {
   IconCalendarEvent,
+  IconCategory,
   IconEye,
   IconNews,
-  IconUsers,
 } from "@tabler/icons-react";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
 import PageContainer from "@/components/admin/shared/PageContainer";
+import type { Post } from "@/lib/types/cms";
 
-const stats = [
-  {
-    title: "Published posts",
-    value: "—",
-    hint: "Connect Supabase in Phase 2",
-    icon: IconNews,
-    color: "primary.main",
-  },
-  {
-    title: "Active events",
-    value: "—",
-    hint: "Home spotlight ready later",
-    icon: IconCalendarEvent,
-    color: "secondary.main",
-  },
-  {
-    title: "Subscribers",
-    value: "—",
-    hint: "Auth + roles upcoming",
-    icon: IconUsers,
-    color: "success.main",
-  },
-  {
-    title: "Views (24h)",
-    value: "—",
-    hint: "Analytics stub",
-    icon: IconEye,
-    color: "warning.main",
-  },
-];
+type Stats = {
+  posts: number;
+  published: number;
+  events: number;
+  categories: number;
+  tags: number;
+  users: number;
+  totalViews: number;
+};
 
-export default function AdminDashboard() {
+export default function AdminDashboard({
+  stats,
+  recent,
+}: {
+  stats: Stats;
+  recent: Post[];
+}) {
+  const cards = [
+    {
+      title: "Published posts",
+      value: String(stats.published),
+      hint: `${stats.posts} total posts`,
+      icon: IconNews,
+      color: "primary.main",
+    },
+    {
+      title: "Events",
+      value: String(stats.events),
+      hint: "Live + scheduled",
+      icon: IconCalendarEvent,
+      color: "secondary.main",
+    },
+    {
+      title: "Categories",
+      value: String(stats.categories),
+      hint: `${stats.tags} tags`,
+      icon: IconCategory,
+      color: "success.main",
+    },
+    {
+      title: "Total views",
+      value: String(stats.totalViews),
+      hint: `${stats.users} profiles`,
+      icon: IconEye,
+      color: "warning.main",
+    },
+  ];
+
   return (
     <PageContainer
       title="FP Network Admin"
       description="Flash Point Network editorial dashboard"
     >
       <Box>
-        <Typography variant="h4" mb={1}>
-          Dashboard
-        </Typography>
-        <Typography variant="subtitle2" color="textSecondary" mb={3}>
-          Phase 1 scaffold — Modernize admin shell for FP Network editors.
-        </Typography>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          justifyContent="space-between"
+          alignItems={{ sm: "center" }}
+          mb={3}
+          spacing={2}
+        >
+          <Box>
+            <Typography variant="h4" mb={0.5}>
+              Dashboard
+            </Typography>
+            <Typography variant="subtitle2" color="textSecondary">
+              Manage the same posts that power the public home.
+            </Typography>
+          </Box>
+          <Button component={Link} href="/admin/posts/new" variant="contained">
+            New post
+          </Button>
+        </Stack>
 
         <Grid container spacing={3}>
-          {stats.map((stat) => {
+          {cards.map((stat) => {
             const Icon = stat.icon;
             return (
               <Grid key={stat.title} size={{ xs: 12, sm: 6, lg: 3 }}>
@@ -93,29 +136,69 @@ export default function AdminDashboard() {
 
           <Grid size={{ xs: 12, lg: 8 }}>
             <DashboardCard
-              title="Editorial queue"
-              subtitle="Placeholder until posts CRUD lands in Phase 4"
+              title="Recent posts"
+              subtitle="Click Edit to change home content"
+              action={
+                <Button component={Link} href="/admin/posts" size="small">
+                  View all
+                </Button>
+              }
             >
-              <Typography variant="body1" color="textSecondary">
-                Draft, pending review, scheduled, and published workflows will
-                appear here. For now this confirms the admin layout, sidebar,
-                and theme adapted from Modernize Nextjs Free.
-              </Typography>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Title</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell align="right">Edit</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {recent.map((post) => (
+                    <TableRow key={post.id} hover>
+                      <TableCell>
+                        <Typography variant="subtitle2">{post.title}</Typography>
+                        <Typography variant="caption" color="textSecondary">
+                          {post.category?.name ?? "Uncategorized"}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip size="small" label={post.status} />
+                      </TableCell>
+                      <TableCell align="right">
+                        <Button
+                          component={Link}
+                          href={`/admin/posts/${post.id}`}
+                          size="small"
+                          variant="outlined"
+                        >
+                          Edit
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </DashboardCard>
           </Grid>
 
           <Grid size={{ xs: 12, lg: 4 }}>
-            <DashboardCard title="Quick links" subtitle="Public + API stubs">
+            <DashboardCard title="Quick links">
               <Stack spacing={1.5}>
                 <Typography variant="body2">
                   Public home: <strong>/</strong>
                 </Typography>
                 <Typography variant="body2">
-                  Admin dashboard: <strong>/admin</strong>
+                  Posts: <strong>/admin/posts</strong>
                 </Typography>
                 <Typography variant="body2">
-                  Health API: <strong>/api/health</strong>
+                  Events: <strong>/admin/events</strong>
                 </Typography>
+                <Typography variant="body2">
+                  Categories: <strong>/admin/categories</strong>
+                </Typography>
+                <Button component={Link} href="/" target="_blank" variant="outlined">
+                  Open public site
+                </Button>
               </Stack>
             </DashboardCard>
           </Grid>

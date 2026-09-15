@@ -1,10 +1,14 @@
-import AdminPlaceholderPage from "@/components/admin/shared/AdminPlaceholderPage";
+import PageContainer from "@/components/admin/shared/PageContainer";
+import UsersTable from "@/components/admin/users/UsersTable";
+import { getAdminProfiles } from "@/lib/admin/queries";
 
-export default function Page() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminUsersPage() {
+  const users = await getAdminProfiles();
   return (
-    <AdminPlaceholderPage
-      title="Users"
-      description="Placeholder route for Phase 1 navigation. Full CRUD arrives in later phases."
-    />
+    <PageContainer title="Users" description="Profiles and roles">
+      <UsersTable users={users} />
+    </PageContainer>
   );
 }

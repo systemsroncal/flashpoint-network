@@ -1,10 +1,14 @@
-import AdminPlaceholderPage from "@/components/admin/shared/AdminPlaceholderPage";
+import PageContainer from "@/components/admin/shared/PageContainer";
+import CategoriesManager from "@/components/admin/categories/CategoriesManager";
+import { getAdminCategories } from "@/lib/admin/queries";
 
-export default function Page() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminCategoriesPage() {
+  const categories = await getAdminCategories();
   return (
-    <AdminPlaceholderPage
-      title="Categories"
-      description="Placeholder route for Phase 1 navigation. Full CRUD arrives in later phases."
-    />
+    <PageContainer title="Categories" description="Home navigation categories">
+      <CategoriesManager categories={categories} />
+    </PageContainer>
   );
 }
