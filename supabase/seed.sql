@@ -821,3 +821,25 @@ insert into public.post_tags (post_id, tag_id) values
   ('e1000000-0000-4000-8000-000000000050', 'c1000000-0000-4000-8000-00000000000a'),
   ('e1000000-0000-4000-8000-000000000051', 'c1000000-0000-4000-8000-00000000000a')
 on conflict do nothing;
+
+-- ---------------------------------------------------------------------------
+-- Expand article bodies for single-post layout (6–12 paragraphs of HTML)
+-- Kept here so re-seeds match the fuller live content. Runtime updates:
+--   node scripts/expand-post-bodies.mjs
+-- ---------------------------------------------------------------------------
+update public.posts
+set
+  body = $fpn_full_body$
+<p>Flash Point Network reporters spent the day tracking developments as officials offered their first unfiltered comments since the resignation landed on Capitol desks. The remarks, delivered without a prepared teleprompter script, immediately reset the tone of the afternoon briefing cycle.</p>
+<p>According to people familiar with the sequence, the outgoing secretary chose to speak after weeks of private consultations with career staff and outside advisers. Those conversations, sources said, focused on the timing of any public statement and how much detail could be shared without compromising ongoing reviews.</p>
+<p>Inside the department, the reaction was mixed but measured. Mid-level managers described a surge of internal messages seeking clarity on transition plans, while senior aides emphasized continuity of operations. Several desk officers said the priority overnight was keeping routine briefings on schedule.</p>
+<p>On the Hill, lawmakers from both parties framed the moment as a test of institutional stamina rather than a single personality drama. Committee staffers noted that hearing calendars already under pressure would likely absorb additional oversight requests in the coming weeks.</p>
+<p>Outside analysts pointed to three questions that will dominate the next news cycle: who assumes acting authority, which pending decisions freeze until a successor is confirmed, and how allied counterparts interpret the change. Each carries implications for budget negotiations and overseas coordination.</p>
+<p>Veterans of previous transitions cautioned against reading the first public comments as a complete narrative. "Early statements are often designed to stabilize markets and messaging," one former official told FPN. "The fuller record tends to emerge in documents released later."</p>
+<p>Meanwhile, advocacy groups and service organizations pressed for clearer timelines on personnel decisions that affect families and contractors. Their statements, circulated late in the day, urged the White House and department leadership to publish a written transition outline.</p>
+<p>Flash Point Live will continue covering the fallout with extended analysis, including reactions from statehouse leaders and international desks. Readers can follow updates on FPN digital channels and in tonight's broadcast window.</p>
+<p>As night fell in Washington, aides were still refining talking points for morning shows. The working consensus among reporters who covered the briefings is that the story has moved from rumor to record — and that the next chapter will be written in confirmation hearings and paper trails.</p>
+<p>For now, the public has a clearer sense of why the resignation unfolded when it did, even as many operational details remain under review. FPN will update this report as additional documents and on-the-record responses become available.</p>
+$fpn_full_body$,
+  updated_at = timezone('utc', now())
+where status = 'published';
