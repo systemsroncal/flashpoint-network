@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import VideoPlayer from "@/components/public/VideoPlayer";
 import type { Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 
@@ -136,23 +137,36 @@ export default function PostCard({ post, variant = "grid" }: Props) {
   if (variant === "video") {
     return (
       <article className="group">
+        <div className="relative overflow-hidden rounded-[12px] bg-neutral-900 md:min-h-[360px]">
+          {post.video_url ? (
+            <VideoPlayer
+              url={post.video_url}
+              title={post.title}
+              poster={post.featured_image_url}
+              className="aspect-video w-full md:min-h-[360px]"
+            />
+          ) : (
+            <Link href={href} className="block">
+              <div className="relative aspect-[4/5] md:aspect-[16/11] md:min-h-[360px]">
+                {post.featured_image_url ? (
+                  <Image
+                    src={post.featured_image_url}
+                    alt=""
+                    fill
+                    className="object-cover opacity-95 transition group-hover:opacity-100"
+                    sizes="(max-width:768px) 100vw, 55vw"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-neutral-800" />
+                )}
+                <span className="absolute bottom-4 left-4">
+                  <Image src="/brand/play-btn.svg" alt="" width={56} height={56} />
+                </span>
+              </div>
+            </Link>
+          )}
+        </div>
         <Link href={href} className="block">
-          <div className="relative aspect-[4/5] overflow-hidden rounded-[12px] bg-neutral-900 md:aspect-[16/11] md:min-h-[360px]">
-            {post.featured_image_url ? (
-              <Image
-                src={post.featured_image_url}
-                alt=""
-                fill
-                className="object-cover opacity-95 transition group-hover:opacity-100"
-                sizes="(max-width:768px) 100vw, 55vw"
-              />
-            ) : (
-              <div className="h-full w-full bg-neutral-800" />
-            )}
-            <span className="absolute bottom-4 left-4">
-              <Image src="/brand/play-btn.svg" alt="" width={56} height={56} />
-            </span>
-          </div>
           <p className="mt-3 text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
             {category}
           </p>

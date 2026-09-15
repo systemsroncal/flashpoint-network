@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminMediaPage() {
   const items = await getAdminMedia();
   return (
-    <PageContainer title="Media" description="Images attached to posts">
+    <PageContainer title="Media" description="Images attached to news">
       <MediaGrid items={items} />
     </PageContainer>
   );

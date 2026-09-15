@@ -28,11 +28,11 @@ const statusColor: Record<string, "default" | "success" | "warning" | "info" | "
 export default function PostsTable({ posts }: { posts: Post[] }) {
   return (
     <DashboardCard
-      title="Posts"
+      title="News"
       subtitle={`${posts.length} total — edits update the public home immediately`}
       action={
         <Button component={Link} href="/admin/posts/new" variant="contained">
-          New post
+          New news
         </Button>
       }
     >
@@ -101,7 +101,7 @@ export default function PostsTable({ posts }: { posts: Post[] }) {
             {posts.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6}>
-                  <Typography color="textSecondary">No posts yet.</Typography>
+                  <Typography color="textSecondary">No news yet.</Typography>
                 </TableCell>
               </TableRow>
             ) : null}

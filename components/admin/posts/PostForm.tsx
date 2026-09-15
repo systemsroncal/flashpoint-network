@@ -12,6 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
+import ImageUploadField from "@/components/admin/shared/ImageUploadField";
 import RichTextEditor from "@/components/admin/shared/RichTextEditor";
 import { deletePostAction, upsertPostAction } from "@/lib/admin/actions";
 import type { Category, Post, PostStatus } from "@/lib/types/cms";
@@ -43,7 +44,7 @@ export default function PostForm({ post, categories }: Props) {
 
   return (
     <DashboardCard
-      title={isEdit ? "Edit post" : "New post"}
+      title={isEdit ? "Edit news" : "New news"}
       subtitle={
         isEdit
           ? "Changes appear on the public home after save"
@@ -125,11 +126,17 @@ export default function PostForm({ post, categories }: Props) {
               defaultValue={post?.reading_time_minutes ?? 5}
             />
           </Stack>
-          <TextField
+          <ImageUploadField
             name="featured_image_url"
-            label="Featured image URL"
-            fullWidth
+            label="Featured image"
             defaultValue={post?.featured_image_url ?? ""}
+          />
+          <TextField
+            name="video_url"
+            label="Video URL (YouTube)"
+            fullWidth
+            helperText="Used by Must-Watch / video embeds (Plyr)"
+            defaultValue={post?.video_url ?? ""}
           />
           <TextField
             name="published_at"
@@ -165,7 +172,7 @@ export default function PostForm({ post, categories }: Props) {
           </Stack>
           <Stack direction="row" spacing={1.5}>
             <Button type="submit" variant="contained">
-              {isEdit ? "Save changes" : "Create post"}
+              {isEdit ? "Save changes" : "Create news"}
             </Button>
             <Button component={Link} href="/admin/posts" variant="outlined">
               Cancel
@@ -185,7 +192,7 @@ export default function PostForm({ post, categories }: Props) {
             Danger zone
           </Typography>
           <Button type="submit" color="error" variant="outlined">
-            Delete post
+            Delete news
           </Button>
         </Box>
       ) : null}

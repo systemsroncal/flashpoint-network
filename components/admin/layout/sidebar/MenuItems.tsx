@@ -28,7 +28,7 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: "Posts",
+    title: "News",
     icon: IconNews,
     href: "/admin/posts",
   },

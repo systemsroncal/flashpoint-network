@@ -43,9 +43,9 @@ export default function AdminDashboard({
 }) {
   const cards = [
     {
-      title: "Published posts",
+      title: "Published news",
       value: String(stats.published),
-      hint: `${stats.posts} total posts`,
+      hint: `${stats.posts} total news`,
       icon: IconNews,
       color: "primary.main",
     },
@@ -90,11 +90,11 @@ export default function AdminDashboard({
               Dashboard
             </Typography>
             <Typography variant="subtitle2" color="textSecondary">
-              Manage the same posts that power the public home.
+              Manage the same news that power the public home.
             </Typography>
           </Box>
           <Button component={Link} href="/admin/posts/new" variant="contained">
-            New post
+            New news
           </Button>
         </Stack>
 
@@ -136,7 +136,7 @@ export default function AdminDashboard({
 
           <Grid size={{ xs: 12, lg: 8 }}>
             <DashboardCard
-              title="Recent posts"
+              title="Recent news"
               subtitle="Click Edit to change home content"
               action={
                 <Button component={Link} href="/admin/posts" size="small">
@@ -188,7 +188,7 @@ export default function AdminDashboard({
                   Public home: <strong>/</strong>
                 </Typography>
                 <Typography variant="body2">
-                  Posts: <strong>/admin/posts</strong>
+                  News: <strong>/admin/posts</strong>
                 </Typography>
                 <Typography variant="body2">
                   Events: <strong>/admin/events</strong>

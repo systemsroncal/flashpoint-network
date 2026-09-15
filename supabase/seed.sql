@@ -88,7 +88,7 @@ insert into public.events (
     'flashpoint-live-army-secretary',
     'FlashPoint Live covers the resignation fallout and what comes next.',
     'video',
-    'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    'https://www.youtube.com/watch?v=una0oMq_oco',
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
     'FlashPoint Live',
     '2024-09-02 19:00:00+00',
@@ -102,15 +102,15 @@ insert into public.events (
     'Election Night Desk: Early returns special',
     'election-night-desk',
     'Text briefings and live updates from the elections desk.',
-    'text',
-    null,
+    'video',
+    'https://www.youtube.com/watch?v=Wlwq68AnrdQ',
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam.',
     'FPN Elections Desk',
     '2024-11-05 23:00:00+00',
     '2024-11-06 06:00:00+00',
     false,
     true,
-    'https://images.unsplash.com/photo-1494172961521-33799ddd918b?auto=format&fit=crop&w=1600&q=80'
+    'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=1600&q=80'
   ),
   (
     'd1000000-0000-4000-8000-000000000003',
@@ -118,7 +118,7 @@ insert into public.events (
     'world-briefing-markets',
     'A rapid briefing on overnight market moves and diplomatic cables.',
     'video',
-    'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    'https://www.youtube.com/watch?v=MXPa62I9wiY',
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
     'FPN World Desk',
     '2024-09-03 12:00:00+00',
@@ -163,7 +163,7 @@ insert into public.posts (
   'published',
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
-  'https://images.unsplash.com/photo-1569025690938-a007629cce3f?auto=format&fit=crop&w=1600&q=80',
+  'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?auto=format&fit=crop&w=1600&q=80',
   true, false, false, false, 8, 2300, '2024-09-02 14:00:00+00'
 ),
 -- Secondary stack (2)
@@ -188,7 +188,7 @@ insert into public.posts (
   'published',
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
-  'https://images.unsplash.com/photo-1555848962-6e79363cc5cb?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=800&q=80',
   false, false, false, false, 8, 2300, '2024-09-02 13:00:00+00'
 ),
 -- Podcasts (4)
@@ -286,7 +286,7 @@ insert into public.posts (
   'published',
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
-  'https://images.unsplash.com/photo-1504711337284-a5f755aa76f2?auto=format&fit=crop&w=900&q=80',
+  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=900&q=80',
   false, false, false, false, 8, 2300, '2024-09-02 08:20:00+00'
 ),
 (
@@ -384,7 +384,7 @@ insert into public.posts (
   'published',
   'b1000000-0000-4000-8000-00000000000b',
   'f1000000-0000-4000-8000-000000000001'::uuid,
-  'https://images.unsplash.com/photo-1598550476437-484ba68d3d0d?auto=format&fit=crop&w=700&q=80',
+  'https://images.unsplash.com/photo-1611162616475-46b635cb6868?auto=format&fit=crop&w=700&q=80',
   false, false, true, false, 6, 2200, '2024-09-02 06:50:00+00'
 ),
 (
@@ -420,7 +420,7 @@ insert into public.posts (
   'published',
   'b1000000-0000-4000-8000-00000000000b',
   'f1000000-0000-4000-8000-000000000001'::uuid,
-  'https://images.unsplash.com/photo-1492619372924-fb1b1d0c3c4a?auto=format&fit=crop&w=700&q=80',
+  'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=700&q=80',
   false, false, true, false, 6, 1950, '2024-09-02 06:20:00+00'
 ),
 -- Elections block (8)
@@ -445,7 +445,7 @@ insert into public.posts (
   'published',
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
-  'https://images.unsplash.com/photo-1464467543994-fcd083f12a40?auto=format&fit=crop&w=900&q=80',
+  'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80',
   false, false, false, false, 8, 2300, '2024-09-01 17:50:00+00'
 ),
 (
@@ -457,7 +457,7 @@ insert into public.posts (
   'published',
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
-  'https://images.unsplash.com/photo-1555848962-6e79363cc5cb?auto=format&fit=crop&w=900&q=80',
+  'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=900&q=80',
   false, false, false, false, 8, 2300, '2024-09-01 17:40:00+00'
 ),
 (
@@ -469,7 +469,7 @@ insert into public.posts (
   'published',
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
-  'https://images.unsplash.com/photo-1494172961521-33799ddd918b?auto=format&fit=crop&w=900&q=80',
+  'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=900&q=80',
   false, false, false, false, 8, 2300, '2024-09-01 17:30:00+00'
 ),
 (
@@ -493,7 +493,7 @@ insert into public.posts (
   'published',
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
-  'https://images.unsplash.com/photo-1569025690938-a007629cce3f?auto=format&fit=crop&w=900&q=80',
+  'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?auto=format&fit=crop&w=900&q=80',
   false, false, false, false, 8, 2300, '2024-09-01 17:10:00+00'
 ),
 (
@@ -505,7 +505,7 @@ insert into public.posts (
   'published',
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
-  'https://images.unsplash.com/photo-1504711337284-a5f755aa76f2?auto=format&fit=crop&w=900&q=80',
+  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=900&q=80',
   false, false, false, false, 8, 2300, '2024-09-01 17:00:00+00'
 ),
 (
@@ -530,7 +530,7 @@ insert into public.posts (
   'published',
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
-  'https://images.unsplash.com/photo-1555848962-6e79363cc5cb?auto=format&fit=crop&w=1400&q=80',
+  'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=1400&q=80',
   true, true, false, false, 10, 3200, '2024-09-01 16:00:00+00'
 ),
 (
@@ -651,7 +651,7 @@ insert into public.posts (
   'published',
   'b1000000-0000-4000-8000-000000000001',
   'f1000000-0000-4000-8000-000000000001'::uuid,
-  'https://images.unsplash.com/photo-1504711337284-a5f755aa76f2?auto=format&fit=crop&w=400&q=80',
+  'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=400&q=80',
   false, false, false, false, 8, 8700, '2024-09-01 11:50:00+00'
 ),
 (
@@ -663,7 +663,7 @@ insert into public.posts (
   'published',
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
-  'https://images.unsplash.com/photo-1494172961521-33799ddd918b?auto=format&fit=crop&w=400&q=80',
+  'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=400&q=80',
   false, false, false, false, 8, 7600, '2024-09-01 11:40:00+00'
 ),
 (
@@ -843,3 +843,19 @@ set
 $fpn_full_body$,
   updated_at = timezone('utc', now())
 where status = 'published';
+
+
+-- Assign FlashPoint YouTube videos to video posts
+-- Channel: https://www.youtube.com/channel/UCXheOYtaoPyYZ4aOnoIVpCQ
+update public.posts set video_url = 'https://www.youtube.com/watch?v=una0oMq_oco'
+  where slug in ('must-watch-01', 'outgoing-army-secretary-breaks-silence');
+update public.posts set video_url = 'https://www.youtube.com/watch?v=-v4tTVtNW4M' where slug = 'must-watch-02';
+update public.posts set video_url = 'https://www.youtube.com/watch?v=MXPa62I9wiY' where slug = 'must-watch-03';
+update public.posts set video_url = 'https://www.youtube.com/watch?v=rn3nVESk9ag' where slug = 'must-watch-04';
+update public.posts set video_url = 'https://www.youtube.com/watch?v=N8IYeaDUJ9I' where slug = 'must-watch-05';
+update public.posts set video_url = 'https://www.youtube.com/watch?v=Jhz623HVN3A'
+  where is_video = true and coalesce(video_url, '') = '' and slug like 'elections-%';
+update public.posts set video_url = 'https://www.youtube.com/watch?v=ro3XhGvcag4'
+  where is_video = true and coalesce(video_url, '') = '';
+update public.posts set video_url = 'https://www.youtube.com/watch?v=FN-Pec2eVy4'
+  where is_podcast = true and coalesce(video_url, '') = '';

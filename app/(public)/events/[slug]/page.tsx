@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import RichHtml from "@/components/public/RichHtml";
+import VideoPlayer from "@/components/public/VideoPlayer";
 import { getEventBySlug } from "@/lib/data/home";
 import { formatDate } from "@/lib/format";
 
@@ -30,22 +31,33 @@ export default async function EventPage({ params }: Props) {
     <article className="bg-white">
       <div className="bg-[#0B0F14] text-white">
         <div className="mx-auto grid max-w-5xl gap-6 px-4 py-10 md:grid-cols-2 md:items-center">
-          <div className="relative aspect-video overflow-hidden bg-black">
-            {event.thumbnail_url ? (
-              <Image
-                src={event.thumbnail_url}
-                alt=""
-                fill
-                priority
-                className="object-cover opacity-85"
-                sizes="(max-width:768px) 100vw, 50vw"
+          <div className="relative aspect-video overflow-hidden rounded-[12px] bg-black">
+            {event.video_url ? (
+              <VideoPlayer
+                url={event.video_url}
+                title={event.title}
+                poster={event.thumbnail_url}
+                className="h-full w-full"
               />
-            ) : null}
-            <span className="absolute inset-0 flex items-center justify-center">
-              <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white/70 bg-black/40 text-2xl">
-                ▶
-              </span>
-            </span>
+            ) : (
+              <>
+                {event.thumbnail_url ? (
+                  <Image
+                    src={event.thumbnail_url}
+                    alt=""
+                    fill
+                    priority
+                    className="object-cover opacity-85"
+                    sizes="(max-width:768px) 100vw, 50vw"
+                  />
+                ) : null}
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white/70 bg-black/40 text-2xl">
+                    ▶
+                  </span>
+                </span>
+              </>
+            )}
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wide">
@@ -81,16 +93,13 @@ export default async function EventPage({ params }: Props) {
           />
         ) : null}
         {event.video_url ? (
-          <p className="mt-6 text-sm">
-            <a
-              href={event.video_url}
-              target="_blank"
-              rel="noreferrer"
-              className="font-semibold text-[#E85D04] hover:underline"
-            >
-              Watch video ↗
-            </a>
-          </p>
+          <div className="mt-8 md:hidden">
+            <VideoPlayer
+              url={event.video_url}
+              title={event.title}
+              poster={event.thumbnail_url}
+            />
+          </div>
         ) : null}
         <div className="mt-10 border-t border-black/10 pt-6">
           <Link

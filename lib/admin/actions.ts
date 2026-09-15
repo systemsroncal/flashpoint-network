@@ -39,6 +39,7 @@ export async function upsertPostAction(formData: FormData) {
   const excerpt = String(formData.get("excerpt") || "");
   const body = String(formData.get("body") || "");
   const featuredImageUrl = String(formData.get("featured_image_url") || "") || null;
+  const videoUrl = String(formData.get("video_url") || "") || null;
   const readingTime = Number(formData.get("reading_time_minutes") || 5);
   const publishedAtRaw = String(formData.get("published_at") || "");
   const publishedAt = publishedAtRaw
@@ -59,6 +60,7 @@ export async function upsertPostAction(formData: FormData) {
     category_id: categoryId,
     author_id: authorId,
     featured_image_url: featuredImageUrl,
+    video_url: videoUrl,
     is_featured: boolFromForm(formData.get("is_featured")),
     is_premium: boolFromForm(formData.get("is_premium")),
     is_video: boolFromForm(formData.get("is_video")),

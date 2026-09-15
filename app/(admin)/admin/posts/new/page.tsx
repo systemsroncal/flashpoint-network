@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function NewPostPage() {
   const categories = await getAdminCategories();
   return (
-    <PageContainer title="New post" description="Create a publication">
+    <PageContainer title="New news" description="Create a publication">
       <PostForm categories={categories} />
     </PageContainer>
   );

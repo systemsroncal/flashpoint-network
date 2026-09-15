@@ -18,7 +18,7 @@ export default async function EditPostPage({ params }: Props) {
   if (!post) notFound();
 
   return (
-    <PageContainer title="Edit post" description={post.title}>
+    <PageContainer title="Edit news" description={post.title}>
       <PostForm post={post} categories={categories} />
     </PageContainer>
   );

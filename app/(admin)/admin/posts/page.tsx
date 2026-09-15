@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminPostsPage() {
   const posts = await getAdminPosts();
   return (
-    <PageContainer title="Posts" description="Manage FP Network articles">
+    <PageContainer title="News" description="Manage FP Network articles">
       <PostsTable posts={posts} />
     </PageContainer>
   );

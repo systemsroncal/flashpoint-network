@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import PostCard from "@/components/public/PostCard";
+import VideoPlayer from "@/components/public/VideoPlayer";
 import type { HomePayload } from "@/lib/types/cms";
 import {
   formatDate,
@@ -55,33 +56,42 @@ export default function HomeView({ data }: { data: HomePayload }) {
       {data.liveEvent ? (
         <section className="bg-black text-white">
           <div className="mx-auto flex max-w-[1440px] flex-col items-center gap-10 px-4 py-8 md:flex-row md:gap-12 md:px-8 lg:px-10 lg:py-10">
-            <Link
-              href={`/events/${data.liveEvent.slug}`}
-              className="relative w-full max-w-[700px] shrink-0 overflow-hidden rounded-[15px] md:w-[52%]"
-            >
-              <span className="relative block aspect-[700/394] bg-[#0B1220]">
-                {data.liveEvent.thumbnail_url ? (
-                  <Image
-                    src={data.liveEvent.thumbnail_url}
-                    alt=""
-                    fill
-                    priority
-                    className="object-cover opacity-90"
-                    sizes="(max-width:768px) 100vw, 52vw"
-                  />
-                ) : null}
-                <span className="absolute inset-0 bg-gradient-to-r from-[#1b2a64]/40 via-transparent to-[#ff490d]/20" />
-                <span className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6">
-                  <Image
-                    src="/brand/play-btn.svg"
-                    alt=""
-                    width={72}
-                    height={72}
-                    className="h-14 w-14 sm:h-[72px] sm:w-[72px]"
-                  />
-                </span>
-              </span>
-            </Link>
+            <div className="relative w-full max-w-[700px] shrink-0 overflow-hidden rounded-[15px] md:w-[52%]">
+              {data.liveEvent.video_url ? (
+                <VideoPlayer
+                  url={data.liveEvent.video_url}
+                  title={data.liveEvent.title}
+                  poster={data.liveEvent.thumbnail_url}
+                  className="aspect-video w-full"
+                />
+              ) : (
+                <Link
+                  href={`/events/${data.liveEvent.slug}`}
+                  className="relative block aspect-[700/394] bg-[#0B1220]"
+                >
+                  {data.liveEvent.thumbnail_url ? (
+                    <Image
+                      src={data.liveEvent.thumbnail_url}
+                      alt=""
+                      fill
+                      priority
+                      className="object-cover opacity-90"
+                      sizes="(max-width:768px) 100vw, 52vw"
+                    />
+                  ) : null}
+                  <span className="absolute inset-0 bg-gradient-to-r from-[#1b2a64]/40 via-transparent to-[#ff490d]/20" />
+                  <span className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6">
+                    <Image
+                      src="/brand/play-btn.svg"
+                      alt=""
+                      width={72}
+                      height={72}
+                      className="h-14 w-14 sm:h-[72px] sm:w-[72px]"
+                    />
+                  </span>
+                </Link>
+              )}
+            </div>
 
             <div className="w-full md:flex-1">
               <div className="flex flex-wrap items-center gap-3">

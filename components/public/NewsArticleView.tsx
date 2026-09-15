@@ -3,6 +3,7 @@ import Link from "next/link";
 import PostCard from "@/components/public/PostCard";
 import RichHtml from "@/components/public/RichHtml";
 import ShareBar from "@/components/public/ShareBar";
+import VideoPlayer from "@/components/public/VideoPlayer";
 import type { Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 
@@ -110,6 +111,16 @@ export default function NewsArticleView({
           <p className="mb-6 font-article text-[15px] leading-relaxed text-[#111] md:text-[16px]">
             {caption}
           </p>
+
+          {post.video_url ? (
+            <div className="mb-8">
+              <VideoPlayer
+                url={post.video_url}
+                title={post.title}
+                poster={post.featured_image_url}
+              />
+            </div>
+          ) : null}
 
           <RichHtml
             html={post.body || (post.excerpt ? `<p>${post.excerpt}</p>` : "")}

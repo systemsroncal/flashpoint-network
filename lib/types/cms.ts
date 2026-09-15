@@ -50,6 +50,7 @@ export type Post = {
   category_id: string | null;
   author_id: string | null;
   featured_image_url: string | null;
+  video_url: string | null;
   is_featured: boolean;
   is_premium: boolean;
   is_video: boolean;
