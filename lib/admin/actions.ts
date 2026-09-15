@@ -47,7 +47,6 @@ export async function upsertPostAction(formData: FormData) {
   const ogTitle = String(formData.get("og_title") || "").trim() || null;
   const ogDescription =
     String(formData.get("og_description") || "").trim() || null;
-  const ogImageUrl = String(formData.get("og_image_url") || "").trim() || null;
   const readingTime = Number(formData.get("reading_time_minutes") || 5);
   const publishedAtRaw = String(formData.get("published_at") || "");
   const publishedAt = publishedAtRaw
@@ -74,7 +73,8 @@ export async function upsertPostAction(formData: FormData) {
     seo_keywords: seoKeywords,
     og_title: ogTitle,
     og_description: ogDescription,
-    og_image_url: ogImageUrl,
+    // Meta / social image is always the featured image
+    og_image_url: featuredImageUrl,
     is_featured: boolFromForm(formData.get("is_featured")),
     is_premium: boolFromForm(formData.get("is_premium")),
     is_video: boolFromForm(formData.get("is_video")),

@@ -62,7 +62,6 @@ export default function PostForm({
     seo_keywords: post?.seo_keywords ?? "",
     og_title: post?.og_title ?? "",
     og_description: post?.og_description ?? "",
-    og_image_url: post?.og_image_url ?? "",
   });
 
   return (

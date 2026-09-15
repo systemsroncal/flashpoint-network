@@ -25,8 +25,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ogTitle = post.og_title?.trim() || title;
   const ogDescription =
     post.og_description?.trim() || description || undefined;
-  const ogImage =
-    post.og_image_url?.trim() || post.featured_image_url || undefined;
+  // Social / meta image is always the featured image
+  const ogImage = post.featured_image_url?.trim() || undefined;
   const url = `${getSiteUrl().replace(/\/$/, "")}/news/${post.slug}`;
 
   return {

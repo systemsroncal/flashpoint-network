@@ -16,7 +16,6 @@ export type SeoValues = {
   seo_keywords: string;
   og_title: string;
   og_description: string;
-  og_image_url: string;
 };
 
 type Props = {
@@ -105,7 +104,7 @@ export default function SeoPanel({
 
   const ogTitle = values.og_title || values.seo_title || title;
   const ogDesc = values.og_description || values.seo_description || excerpt;
-  const ogImage = values.og_image_url || featuredImageUrl || "";
+  const ogImage = featuredImageUrl?.trim() || "";
 
   return (
     <Box
@@ -122,7 +121,8 @@ export default function SeoPanel({
       </Typography>
       <Typography variant="body2" color="text.secondary" mb={2}>
         Meta fields and a live Google-style snippet. Leave blank to fall back to
-        the news title and excerpt on the public page.
+        the news title and excerpt on the public page. Social / Open Graph image
+        always uses the featured image.
       </Typography>
 
       {/* SERP preview */}
@@ -243,15 +243,45 @@ export default function SeoPanel({
           onChange={(e) => onChange({ og_description: e.target.value })}
           placeholder={ogDesc || "Defaults to meta / excerpt"}
         />
-        <TextField
-          name="og_image_url"
-          label="OG image URL"
-          fullWidth
-          value={values.og_image_url}
-          onChange={(e) => onChange({ og_image_url: e.target.value })}
-          placeholder={ogImage || "Defaults to featured image"}
-          helperText="Social share image; falls back to featured image when empty"
-        />
+        <Box>
+          <Typography variant="subtitle2" gutterBottom>
+            OG / meta image
+          </Typography>
+          <Typography variant="body2" color="text.secondary" mb={1.5}>
+            Always uses the featured image above. Change the featured image to
+            update social previews.
+          </Typography>
+          {ogImage ? (
+            <Box
+              component="img"
+              src={ogImage}
+              alt="Open Graph preview from featured image"
+              sx={{
+                display: "block",
+                width: "100%",
+                maxWidth: 480,
+                maxHeight: 240,
+                objectFit: "cover",
+                borderRadius: 1,
+                border: "1px solid",
+                borderColor: "divider",
+              }}
+            />
+          ) : (
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 1,
+                border: "1px dashed",
+                borderColor: "divider",
+                color: "text.secondary",
+                maxWidth: 480,
+              }}
+            >
+              No featured image yet — upload one above to set the meta image.
+            </Box>
+          )}
+        </Box>
       </Stack>
     </Box>
   );
