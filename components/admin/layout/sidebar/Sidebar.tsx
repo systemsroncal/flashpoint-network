@@ -2,17 +2,20 @@
 
 import { useMediaQuery, Box, Drawer } from "@mui/material";
 import SidebarItems from "./SidebarItems";
+import type { UserRole } from "@/lib/types/cms";
 
 interface ItemType {
   isMobileSidebarOpen: boolean;
   onSidebarClose: (event: React.MouseEvent<HTMLElement>) => void;
   isSidebarOpen: boolean;
+  role: UserRole;
 }
 
 const MSidebar = ({
   isMobileSidebarOpen,
   onSidebarClose,
   isSidebarOpen,
+  role,
 }: ItemType) => {
   const lgUp = useMediaQuery((theme: { breakpoints: { up: (k: string) => string } }) =>
     theme.breakpoints.up("lg"),
@@ -54,7 +57,7 @@ const MSidebar = ({
         >
           <Box sx={{ height: "100%" }}>
             <Box>
-              <SidebarItems />
+              <SidebarItems role={role} />
             </Box>
           </Box>
         </Drawer>
@@ -78,7 +81,7 @@ const MSidebar = ({
       }}
     >
       <Box>
-        <SidebarItems />
+        <SidebarItems role={role} />
       </Box>
     </Drawer>
   );

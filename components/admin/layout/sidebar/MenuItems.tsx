@@ -1,6 +1,8 @@
+import type { ElementType } from "react";
 import {
   IconCalendarEvent,
   IconCategory,
+  IconChartBar,
   IconCross,
   IconDeviceTvOld,
   IconLayoutDashboard,
@@ -11,9 +13,22 @@ import {
   IconTags,
   IconUsers,
 } from "@tabler/icons-react";
+import type { UserRole } from "@/lib/types/cms";
+
+export type MenuItemConfig = {
+  id?: string;
+  title?: string;
+  icon?: ElementType;
+  href?: string;
+  navlabel?: boolean;
+  subheader?: string;
+  children?: MenuItemConfig[];
+  /** If set, item is shown only when the viewer role is included. */
+  roles?: UserRole[];
+};
 
 /** Stable ids — avoid lodash uniqueId() (SSR/client mismatch). */
-const Menuitems = [
+const Menuitems: MenuItemConfig[] = [
   {
     navlabel: true,
     subheader: "HOME",
@@ -23,6 +38,13 @@ const Menuitems = [
     title: "Dashboard",
     icon: IconLayoutDashboard,
     href: "/admin",
+  },
+  {
+    id: "nav-analytics",
+    title: "Analytics",
+    icon: IconChartBar,
+    href: "/admin/analytics",
+    roles: ["superadmin", "admin"],
   },
   {
     navlabel: true,

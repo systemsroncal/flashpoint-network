@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import NewsArticleView from "@/components/public/NewsArticleView";
+import { recordPostView } from "@/lib/analytics/record-view";
 import { getCurrentProfile, isStaffRole } from "@/lib/auth/session";
 import { getArticleSidebar, getPostBySlug } from "@/lib/data/home";
 import { getSiteName, getSiteUrl } from "@/lib/env";
@@ -62,6 +63,7 @@ export default async function NewsArticlePage({ params }: Props) {
     getArticleSidebar(post.id),
     getPaywallSettings(),
     getCurrentProfile(),
+    recordPostView(post.id),
   ]);
 
   const paywallBypass = Boolean(

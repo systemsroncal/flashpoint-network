@@ -37,6 +37,7 @@ export default function AdminShell({
         isSidebarOpen={isSidebarOpen}
         isMobileSidebarOpen={isMobileSidebarOpen}
         onSidebarClose={() => setMobileSidebarOpen(false)}
+        role={profile.role}
       />
       <PageWrapper className="page-wrapper">
         <Header
