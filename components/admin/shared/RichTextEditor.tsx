@@ -21,6 +21,7 @@ type Props = {
   initialHtml?: string | null;
   placeholder?: string;
   minHeight?: number;
+  onHtmlChange?: (html: string) => void;
 };
 
 function toEditorHtml(value: string | null | undefined) {
@@ -41,6 +42,7 @@ export default function RichTextEditor({
   initialHtml = "",
   placeholder = "Write content…",
   minHeight = 220,
+  onHtmlChange,
 }: Props) {
   const seed = toEditorHtml(initialHtml);
   const [html, setHtml] = useState(seed || "<p></p>");
@@ -71,7 +73,9 @@ export default function RichTextEditor({
     ],
     content: seed || "",
     onUpdate: ({ editor: ed }) => {
-      setHtml(ed.getHTML());
+      const next = ed.getHTML();
+      setHtml(next);
+      onHtmlChange?.(next);
     },
     editorProps: {
       attributes: {
@@ -87,7 +91,10 @@ export default function RichTextEditor({
     if (next && next !== current) {
       editor.commands.setContent(next, { emitUpdate: false });
       setHtml(next);
+      onHtmlChange?.(next);
     }
+    // intentionally omit onHtmlChange — parent may pass unstable callbacks
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, seed]);
 
   const setLink = () => {
@@ -279,7 +286,7 @@ export default function RichTextEditor({
               borderRadius: 4,
               margin: "0.75rem 0",
             },
-            "& .ProseMirror p.is-editor-empty:first-child::before": {
+            "& .ProseMirror p.is-editor-empty:first-of-type::before": {
               color: "#9CA3AF",
               content: "attr(data-placeholder)",
               float: "left",

@@ -38,6 +38,13 @@ on conflict (slug) do update set
   body_html = excluded.body_html,
   updated_at = timezone('utc', now());
 
+update public.email_templates set
+  header_bg_color = coalesce(header_bg_color, '#1b2a64'),
+  footer_bg_color = coalesce(footer_bg_color, '#111111'),
+  logo_url = coalesce(nullif(logo_url, ''), '/brand/fpn-logo-mark.svg'),
+  max_width = coalesce(max_width, 600)
+where slug in ('welcome', 'password-reset');
+
 -- ---------------------------------------------------------------------------
 -- Categories (nav + Politics used on cards)
 -- ---------------------------------------------------------------------------

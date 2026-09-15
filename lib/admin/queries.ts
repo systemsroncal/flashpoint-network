@@ -137,7 +137,9 @@ export async function getAdminEmailTemplates() {
   const supabase = requireAdmin();
   const { data, error } = await supabase
     .from("email_templates")
-    .select("id, name, slug, subject, body_html, updated_at")
+    .select(
+      "id, name, slug, subject, body_html, header_bg_color, footer_bg_color, logo_url, max_width, updated_at",
+    )
     .order("name", { ascending: true });
   if (error) throw new Error(error.message);
   return data ?? [];

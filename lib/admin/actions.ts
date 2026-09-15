@@ -247,8 +247,26 @@ export async function upsertEmailTemplateAction(formData: FormData) {
   const slug = slugify(String(formData.get("slug") || name));
   const subject = String(formData.get("subject") || "");
   const bodyHtml = String(formData.get("body_html") || "");
+  const headerBgColor =
+    String(formData.get("header_bg_color") || "").trim() || "#1b2a64";
+  const footerBgColor =
+    String(formData.get("footer_bg_color") || "").trim() || "#111111";
+  const logoUrl = String(formData.get("logo_url") || "").trim() || null;
+  const maxWidthRaw = Number(formData.get("max_width") || 600);
+  const maxWidth = Number.isFinite(maxWidthRaw)
+    ? Math.min(Math.max(maxWidthRaw, 320), 900)
+    : 600;
   if (!name || !subject) throw new Error("Name and subject are required");
-  const payload = { name, slug, subject, body_html: bodyHtml };
+  const payload = {
+    name,
+    slug,
+    subject,
+    body_html: bodyHtml,
+    header_bg_color: headerBgColor,
+    footer_bg_color: footerBgColor,
+    logo_url: logoUrl,
+    max_width: maxWidth,
+  };
   if (id) {
     const { error } = await supabase.from("email_templates").update(payload).eq("id", id);
     if (error) throw new Error(error.message);
