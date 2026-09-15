@@ -121,7 +121,13 @@ function splitSql(sql) {
   }
   const tail = buf.trim();
   if (tail) parts.push(tail);
-  return parts;
+  return parts.filter((stmt) => {
+    const stripped = stmt
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/--[^\n]*/g, "")
+      .trim();
+    return stripped.length > 0;
+  });
 }
 
 async function runViaPg(sql) {
