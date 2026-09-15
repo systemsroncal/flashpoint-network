@@ -113,7 +113,7 @@ export default function NewsArticleView({
 
           <RichHtml
             html={post.body || (post.excerpt ? `<p>${post.excerpt}</p>` : "")}
-            className="fpn-rich-html fpn-article-body text-[17px] leading-[1.7] text-[#111] md:text-[18px]"
+            className="fpn-article-body"
           />
 
           {/* Gift CTA */}

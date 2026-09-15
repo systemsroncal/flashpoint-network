@@ -84,14 +84,42 @@ article h3 {
   margin: 1rem 0;
 }
 
+/* Single-post article prose — Noto Serif Medium */
+.fpn-article-body {
+  font-family: var(--font-noto-serif), "Noto Serif", Georgia, serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 21px;
+  line-height: 1.6; /* 160% */
+  letter-spacing: 0;
+  color: #111;
+}
+
+@media (max-width: 767px) {
+  .fpn-article-body {
+    font-size: 16px;
+  }
+}
+
 .fpn-article-body p {
   margin: 0 0 1.35rem;
-  font-family: var(--font-noto-serif), Georgia, serif;
+  font-family: inherit;
+  font-weight: 500;
+  font-style: normal;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+}
+
+.fpn-article-body strong,
+.fpn-article-body b {
+  font-weight: 700;
 }
 
 .fpn-article-body h2,
 .fpn-article-body h3 {
   font-family: var(--font-article) !important;
+  font-weight: 700;
 }
 
 /* Live signal bars — Figma motion ~2s loop */

@@ -21,7 +21,8 @@ const fraunces = Fraunces({
 const notoSerif = Noto_Serif({
   variable: "--font-noto-serif",
   subsets: ["latin"],
-  weight: ["700", "900"],
+  // 500 = Medium for article body; 700/900 for emphasis and display
+  weight: ["400", "500", "700", "900"],
 });
 
 const roboto = Roboto({
