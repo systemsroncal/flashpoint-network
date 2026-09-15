@@ -51,6 +51,12 @@ export type Post = {
   author_id: string | null;
   featured_image_url: string | null;
   video_url: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  seo_keywords: string | null;
+  og_title: string | null;
+  og_description: string | null;
+  og_image_url: string | null;
   is_featured: boolean;
   is_premium: boolean;
   is_video: boolean;

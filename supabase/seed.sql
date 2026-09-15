@@ -859,3 +859,10 @@ update public.posts set video_url = 'https://www.youtube.com/watch?v=ro3XhGvcag4
   where is_video = true and coalesce(video_url, '') = '';
 update public.posts set video_url = 'https://www.youtube.com/watch?v=FN-Pec2eVy4'
   where is_podcast = true and coalesce(video_url, '') = '';
+
+-- Sample SEO for the flagship story
+update public.posts set
+  seo_title = 'Army secretary breaks silence | FPN',
+  seo_description = 'First unfiltered comments after the resignation landed on Capitol desks. Full Flash Point Network report.',
+  seo_keywords = 'army, resignation, capitol, flashpoint'
+where slug = 'outgoing-army-secretary-breaks-silence';

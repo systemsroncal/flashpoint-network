@@ -15,17 +15,24 @@ type Props = {
   name?: string;
   label?: string;
   defaultValue?: string | null;
+  onUrlChange?: (url: string) => void;
 };
 
 export default function ImageUploadField({
   name = "featured_image_url",
   label = "Featured image",
   defaultValue = "",
+  onUrlChange,
 }: Props) {
   const [url, setUrl] = useState(defaultValue ?? "");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const setAndNotify = (next: string) => {
+    setUrl(next);
+    onUrlChange?.(next);
+  };
 
   const onFile = (file: File | null) => {
     if (!file) return;
@@ -38,7 +45,7 @@ export default function ImageUploadField({
         setError(result.error);
         return;
       }
-      setUrl(result.url);
+      setAndNotify(result.url);
     });
   };
 
@@ -70,7 +77,7 @@ export default function ImageUploadField({
         label="Image URL"
         fullWidth
         value={url}
-        onChange={(e) => setUrl(e.target.value)}
+        onChange={(e) => setAndNotify(e.target.value)}
         helperText={error ?? "Public URL used on the site and in Media."}
         error={Boolean(error)}
       />

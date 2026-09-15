@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import PageContainer from "@/components/admin/shared/PageContainer";
 import PostForm from "@/components/admin/posts/PostForm";
 import { getAdminCategories, getAdminPost } from "@/lib/admin/queries";
+import { getSiteName, getSiteUrl } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,12 @@ export default async function EditPostPage({ params }: Props) {
 
   return (
     <PageContainer title="Edit news" description={post.title}>
-      <PostForm post={post} categories={categories} />
+      <PostForm
+        post={post}
+        categories={categories}
+        siteName={getSiteName()}
+        siteUrl={getSiteUrl()}
+      />
     </PageContainer>
   );
 }

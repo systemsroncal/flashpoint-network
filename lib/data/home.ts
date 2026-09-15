@@ -4,7 +4,9 @@ import type { Category, EventItem, HomePayload, Post } from "@/lib/types/cms";
 
 const POST_SELECT = `
   id, title, slug, excerpt, body, status, category_id, author_id,
-  featured_image_url, video_url, is_featured, is_premium, is_video, is_podcast,
+  featured_image_url, video_url, seo_title, seo_description, seo_keywords,
+  og_title, og_description, og_image_url,
+  is_featured, is_premium, is_video, is_podcast,
   reading_time_minutes, view_count, published_at,
   category:categories ( id, name, slug, description, sort_order ),
   author:profiles ( id, email, full_name, first_name, last_name, role, avatar_url )

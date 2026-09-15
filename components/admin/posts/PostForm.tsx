@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -14,6 +15,7 @@ import {
 import DashboardCard from "@/components/admin/shared/DashboardCard";
 import ImageUploadField from "@/components/admin/shared/ImageUploadField";
 import RichTextEditor from "@/components/admin/shared/RichTextEditor";
+import SeoPanel, { type SeoValues } from "@/components/admin/posts/SeoPanel";
 import { deletePostAction, upsertPostAction } from "@/lib/admin/actions";
 import type { Category, Post, PostStatus } from "@/lib/types/cms";
 
@@ -37,10 +39,31 @@ function toLocalInput(value: string | null | undefined) {
 type Props = {
   post?: Post | null;
   categories: Category[];
+  siteName: string;
+  siteUrl: string;
 };
 
-export default function PostForm({ post, categories }: Props) {
+export default function PostForm({
+  post,
+  categories,
+  siteName,
+  siteUrl,
+}: Props) {
   const isEdit = Boolean(post?.id);
+  const [title, setTitle] = useState(post?.title ?? "");
+  const [slug, setSlug] = useState(post?.slug ?? "");
+  const [excerpt, setExcerpt] = useState(post?.excerpt ?? "");
+  const [featuredImageUrl, setFeaturedImageUrl] = useState(
+    post?.featured_image_url ?? "",
+  );
+  const [seo, setSeo] = useState<SeoValues>({
+    seo_title: post?.seo_title ?? "",
+    seo_description: post?.seo_description ?? "",
+    seo_keywords: post?.seo_keywords ?? "",
+    og_title: post?.og_title ?? "",
+    og_description: post?.og_description ?? "",
+    og_image_url: post?.og_image_url ?? "",
+  });
 
   return (
     <DashboardCard
@@ -66,14 +89,16 @@ export default function PostForm({ post, categories }: Props) {
             label="Title"
             required
             fullWidth
-            defaultValue={post?.title ?? ""}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
           <TextField
             name="slug"
             label="Slug"
             fullWidth
             helperText="Used in /news/[slug]"
-            defaultValue={post?.slug ?? ""}
+            value={slug}
+            onChange={(e) => setSlug(e.target.value)}
           />
           <TextField
             name="excerpt"
@@ -81,7 +106,8 @@ export default function PostForm({ post, categories }: Props) {
             fullWidth
             multiline
             minRows={2}
-            defaultValue={post?.excerpt ?? ""}
+            value={excerpt}
+            onChange={(e) => setExcerpt(e.target.value)}
           />
           <RichTextEditor
             name="body"
@@ -129,7 +155,8 @@ export default function PostForm({ post, categories }: Props) {
           <ImageUploadField
             name="featured_image_url"
             label="Featured image"
-            defaultValue={post?.featured_image_url ?? ""}
+            defaultValue={featuredImageUrl}
+            onUrlChange={setFeaturedImageUrl}
           />
           <TextField
             name="video_url"
@@ -170,6 +197,18 @@ export default function PostForm({ post, categories }: Props) {
               label="Podcast"
             />
           </Stack>
+
+          <SeoPanel
+            siteName={siteName}
+            siteUrl={siteUrl}
+            title={title}
+            slug={slug}
+            excerpt={excerpt}
+            featuredImageUrl={featuredImageUrl}
+            values={seo}
+            onChange={(patch) => setSeo((s) => ({ ...s, ...patch }))}
+          />
+
           <Stack direction="row" spacing={1.5}>
             <Button type="submit" variant="contained">
               {isEdit ? "Save changes" : "Create news"}

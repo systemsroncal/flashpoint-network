@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import NewsArticleView from "@/components/public/NewsArticleView";
 import { getArticleSidebar, getPostBySlug } from "@/lib/data/home";
+import { getSiteName, getSiteUrl } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 
@@ -8,13 +10,44 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) return { title: "Not found" };
+
+  const title = post.seo_title?.trim() || post.title;
+  const description =
+    post.seo_description?.trim() || post.excerpt || undefined;
+  const keywords = post.seo_keywords
+    ?.split(",")
+    .map((k) => k.trim())
+    .filter(Boolean);
+  const ogTitle = post.og_title?.trim() || title;
+  const ogDescription =
+    post.og_description?.trim() || description || undefined;
+  const ogImage =
+    post.og_image_url?.trim() || post.featured_image_url || undefined;
+  const url = `${getSiteUrl().replace(/\/$/, "")}/news/${post.slug}`;
+
   return {
-    title: post.title,
-    description: post.excerpt ?? undefined,
+    title,
+    description,
+    keywords: keywords?.length ? keywords : undefined,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      siteName: getSiteName(),
+      title: ogTitle,
+      description: ogDescription,
+      url,
+      images: ogImage ? [{ url: ogImage }] : undefined,
+    },
+    twitter: {
+      card: ogImage ? "summary_large_image" : "summary",
+      title: ogTitle,
+      description: ogDescription,
+      images: ogImage ? [ogImage] : undefined,
+    },
   };
 }
 

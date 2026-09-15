@@ -40,6 +40,14 @@ export async function upsertPostAction(formData: FormData) {
   const body = String(formData.get("body") || "");
   const featuredImageUrl = String(formData.get("featured_image_url") || "") || null;
   const videoUrl = String(formData.get("video_url") || "") || null;
+  const seoTitle = String(formData.get("seo_title") || "").trim() || null;
+  const seoDescription =
+    String(formData.get("seo_description") || "").trim() || null;
+  const seoKeywords = String(formData.get("seo_keywords") || "").trim() || null;
+  const ogTitle = String(formData.get("og_title") || "").trim() || null;
+  const ogDescription =
+    String(formData.get("og_description") || "").trim() || null;
+  const ogImageUrl = String(formData.get("og_image_url") || "").trim() || null;
   const readingTime = Number(formData.get("reading_time_minutes") || 5);
   const publishedAtRaw = String(formData.get("published_at") || "");
   const publishedAt = publishedAtRaw
@@ -61,6 +69,12 @@ export async function upsertPostAction(formData: FormData) {
     author_id: authorId,
     featured_image_url: featuredImageUrl,
     video_url: videoUrl,
+    seo_title: seoTitle,
+    seo_description: seoDescription,
+    seo_keywords: seoKeywords,
+    og_title: ogTitle,
+    og_description: ogDescription,
+    og_image_url: ogImageUrl,
     is_featured: boolFromForm(formData.get("is_featured")),
     is_premium: boolFromForm(formData.get("is_premium")),
     is_video: boolFromForm(formData.get("is_video")),
