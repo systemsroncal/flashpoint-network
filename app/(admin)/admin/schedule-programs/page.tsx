@@ -3,6 +3,7 @@ import ScheduleProgramsAdmin from "@/components/admin/schedule-programs/Schedule
 import {
   getAdminScheduleDisplayMode,
   getAdminScheduleEntries,
+  getAdminScheduleLayoutTemplate,
   getAdminSchedulePdf,
 } from "@/lib/admin/queries";
 
@@ -16,9 +17,10 @@ export default async function AdminScheduleProgramsPage({ searchParams }: Props)
   const sp = await searchParams;
   const year = Number(sp.year) || 2026;
   const month = Number(sp.month) || 9;
-  const [entries, displayMode, pdf] = await Promise.all([
+  const [entries, displayMode, layoutTemplate, pdf] = await Promise.all([
     getAdminScheduleEntries(year, month),
     getAdminScheduleDisplayMode(),
+    getAdminScheduleLayoutTemplate(),
     getAdminSchedulePdf(year, month),
   ]);
 
@@ -32,6 +34,7 @@ export default async function AdminScheduleProgramsPage({ searchParams }: Props)
         month={month}
         entries={entries}
         displayMode={displayMode}
+        layoutTemplate={layoutTemplate}
         pdf={pdf}
       />
     </PageContainer>

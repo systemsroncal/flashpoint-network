@@ -17,11 +17,13 @@ import {
 import DashboardCard from "@/components/admin/shared/DashboardCard";
 import {
   saveScheduleDisplayModeAction,
+  saveScheduleLayoutTemplateAction,
   saveSchedulePdfAction,
 } from "@/lib/admin/actions";
 import type {
   ScheduleDisplayMode,
   ScheduleEntry,
+  ScheduleLayoutTemplate,
   SchedulePdf,
 } from "@/lib/types/cms";
 
@@ -31,17 +33,36 @@ const MODES: { value: ScheduleDisplayMode; label: string }[] = [
   { value: "both", label: "Both dynamic + PDF" },
 ];
 
+const TEMPLATES: {
+  value: ScheduleLayoutTemplate;
+  label: string;
+  hint: string;
+}[] = [
+  {
+    value: "template_1",
+    label: "Template 1",
+    hint: "Current public page: month nav + day picker + timed list",
+  },
+  {
+    value: "template_2",
+    label: "Template 2",
+    hint: "Figma weekly grid: AM/PM tables, Sun–Sat, print/download",
+  },
+];
+
 export default function ScheduleProgramsAdmin({
   year,
   month,
   entries,
   displayMode,
+  layoutTemplate,
   pdf,
 }: {
   year: number;
   month: number;
   entries: ScheduleEntry[];
   displayMode: ScheduleDisplayMode;
+  layoutTemplate: ScheduleLayoutTemplate;
   pdf: SchedulePdf | null;
 }) {
   const prev =
@@ -89,6 +110,38 @@ export default function ScheduleProgramsAdmin({
             variant="outlined"
           >
             View public page
+          </Button>
+        </Stack>
+      </DashboardCard>
+
+      <DashboardCard
+        title="Public template"
+        subtitle="Layout used on /schedule-programs when the dynamic grid is shown"
+      >
+        <Stack
+          component="form"
+          action={saveScheduleLayoutTemplateAction}
+          spacing={2}
+        >
+          <TextField
+            select
+            name="layout_template"
+            label="Template"
+            defaultValue={layoutTemplate}
+            sx={{ minWidth: 280, maxWidth: 480 }}
+          >
+            {TEMPLATES.map((t) => (
+              <MenuItem key={t.value} value={t.value}>
+                {t.label} — {t.hint}
+              </MenuItem>
+            ))}
+          </TextField>
+          <Typography variant="body2" color="text.secondary">
+            Template 1 keeps the existing day-by-day lineup. Template 2 uses the
+            Figma weekly broadcast grid (navy card, colored titles, print).
+          </Typography>
+          <Button type="submit" variant="contained" sx={{ alignSelf: "flex-start" }}>
+            Save template
           </Button>
         </Stack>
       </DashboardCard>

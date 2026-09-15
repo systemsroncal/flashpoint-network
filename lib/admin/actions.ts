@@ -596,6 +596,19 @@ export async function saveScheduleDisplayModeAction(formData: FormData) {
   revalidatePath("/admin/schedule-programs");
 }
 
+export async function saveScheduleLayoutTemplateAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const raw = String(formData.get("layout_template") || "template_1").trim();
+  const value = raw === "template_2" ? "template_2" : "template_1";
+  const { error } = await supabase.from("site_settings").upsert({
+    key: "schedule_layout_template",
+    value,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/schedule-programs");
+  revalidatePath("/admin/schedule-programs");
+}
+
 export async function saveSchedulePdfAction(formData: FormData) {
   const supabase = requireAdmin();
   const year = Number(formData.get("year") || 2026);

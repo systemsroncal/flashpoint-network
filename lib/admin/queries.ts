@@ -9,6 +9,7 @@ import type {
   Post,
   Profile,
   ScheduleDisplayMode,
+  ScheduleLayoutTemplate,
   ScheduleEntry,
   SchedulePdf,
   Tag,
@@ -338,4 +339,19 @@ export async function getAdminScheduleDisplayMode(): Promise<ScheduleDisplayMode
     return mode;
   }
   return "dynamic";
+}
+
+export async function getAdminScheduleLayoutTemplate(): Promise<ScheduleLayoutTemplate> {
+  const supabase = requireAdmin();
+  const { data } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", "schedule_layout_template")
+    .maybeSingle();
+  const raw = data?.value;
+  const mode =
+    typeof raw === "string"
+      ? raw.replace(/^"|"$/g, "")
+      : String(raw ?? "template_1").replace(/"/g, "");
+  return mode === "template_2" ? "template_2" : "template_1";
 }

@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type {
   ScheduleDisplayMode,
   ScheduleEntry,
+  ScheduleLayoutTemplate,
   SchedulePdf,
 } from "@/lib/types/cms";
 
@@ -30,6 +31,25 @@ export async function getScheduleDisplayMode(): Promise<ScheduleDisplayMode> {
     .eq("key", "schedule_display_mode")
     .maybeSingle();
   return parseDisplayMode(data?.value);
+}
+
+function parseLayoutTemplate(value: unknown): ScheduleLayoutTemplate {
+  const raw =
+    typeof value === "string"
+      ? value.replace(/^"|"$/g, "")
+      : String(value ?? "template_1").replace(/^"|"$/g, "");
+  return raw === "template_2" ? "template_2" : "template_1";
+}
+
+export async function getScheduleLayoutTemplate(): Promise<ScheduleLayoutTemplate> {
+  const supabase = await db();
+  if (!supabase) return "template_1";
+  const { data } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", "schedule_layout_template")
+    .maybeSingle();
+  return parseLayoutTemplate(data?.value);
 }
 
 export async function getSchedulePdf(

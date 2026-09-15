@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import ScheduleProgramsView from "@/components/public/ScheduleProgramsView";
+import ScheduleWeeklyGridView from "@/components/public/ScheduleWeeklyGridView";
 import {
   getScheduleDisplayMode,
   getScheduleEntriesForMonth,
+  getScheduleLayoutTemplate,
   getSchedulePdf,
 } from "@/lib/data/schedule-programs";
 import { getSiteName } from "@/lib/env";
@@ -31,12 +33,43 @@ export default async function ScheduleProgramsPage({ searchParams }: Props) {
     month = now.getMonth() + 1;
   }
 
-  const [entries, displayMode, pdf, siteName] = await Promise.all([
+  const [entries, displayMode, layoutTemplate, pdf, siteName] = await Promise.all([
     getScheduleEntriesForMonth(year, month),
     getScheduleDisplayMode(),
+    getScheduleLayoutTemplate(),
     getSchedulePdf(year, month),
     Promise.resolve(getSiteName()),
   ]);
+
+  const localPdf =
+    month === 9 && year === 2026 ? "/schedules/september-2026.pdf" : null;
+  const pdfHref = pdf?.pdf_url || localPdf;
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  if (layoutTemplate === "template_2" && displayMode !== "pdf") {
+    return (
+      <ScheduleWeeklyGridView
+        year={year}
+        month={month}
+        entries={entries}
+        pdfHref={pdfHref}
+        pdfTitle={pdf?.title || `${monthNames[month - 1]} ${year} broadcast grid`}
+      />
+    );
+  }
 
   return (
     <ScheduleProgramsView

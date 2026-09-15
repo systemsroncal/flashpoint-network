@@ -56,6 +56,9 @@ export type MinistryProgram = ClassicProgram & {
 
 export type ScheduleDisplayMode = "dynamic" | "pdf" | "both";
 
+/** Public layout for /schedule-programs dynamic grid. */
+export type ScheduleLayoutTemplate = "template_1" | "template_2";
+
 export type ScheduleEntry = {
   id: string;
   air_date: string;
