@@ -15,6 +15,7 @@ import {
 import DashboardCard from "@/components/admin/shared/DashboardCard";
 import ImageUploadField from "@/components/admin/shared/ImageUploadField";
 import RichTextEditor from "@/components/admin/shared/RichTextEditor";
+import AiWritingAssistant from "@/components/admin/posts/AiWritingAssistant";
 import SeoPanel, { type SeoValues } from "@/components/admin/posts/SeoPanel";
 import { deletePostAction, upsertPostAction } from "@/lib/admin/actions";
 import type { Category, Post, PostStatus } from "@/lib/types/cms";
@@ -63,6 +64,8 @@ export default function PostForm({
     og_title: post?.og_title ?? "",
     og_description: post?.og_description ?? "",
   });
+  const [forceHtml, setForceHtml] = useState<string | null>(null);
+  const [forceToken, setForceToken] = useState(0);
 
   return (
     <DashboardCard
@@ -108,12 +111,26 @@ export default function PostForm({
             value={excerpt}
             onChange={(e) => setExcerpt(e.target.value)}
           />
+
+          <AiWritingAssistant
+            titleBlank={!title.trim()}
+            excerptBlank={!excerpt.trim()}
+            onGenerated={(result) => {
+              if (result.title && !title.trim()) setTitle(result.title);
+              if (result.excerpt && !excerpt.trim()) setExcerpt(result.excerpt);
+              setForceHtml(result.bodyHtml);
+              setForceToken((n) => n + 1);
+            }}
+          />
+
           <RichTextEditor
             name="body"
             label="Body"
             placeholder="Write the article…"
             minHeight={320}
             initialHtml={post?.body ?? ""}
+            forceHtml={forceHtml}
+            forceToken={forceToken}
           />
           <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
             <TextField

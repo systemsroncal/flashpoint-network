@@ -22,6 +22,9 @@ type Props = {
   placeholder?: string;
   minHeight?: number;
   onHtmlChange?: (html: string) => void;
+  /** When `forceToken` changes, replace editor content with `forceHtml`. */
+  forceHtml?: string | null;
+  forceToken?: number;
 };
 
 function toEditorHtml(value: string | null | undefined) {
@@ -43,6 +46,8 @@ export default function RichTextEditor({
   placeholder = "Write content…",
   minHeight = 220,
   onHtmlChange,
+  forceHtml,
+  forceToken,
 }: Props) {
   const seed = toEditorHtml(initialHtml);
   const [html, setHtml] = useState(seed || "<p></p>");
@@ -96,6 +101,15 @@ export default function RichTextEditor({
     // intentionally omit onHtmlChange — parent may pass unstable callbacks
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, seed]);
+
+  useEffect(() => {
+    if (!editor || forceToken == null || forceToken <= 0) return;
+    const next = toEditorHtml(forceHtml) || "<p></p>";
+    editor.commands.setContent(next, { emitUpdate: true });
+    setHtml(next);
+    onHtmlChange?.(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, forceToken]);
 
   const setLink = () => {
     if (!editor) return;

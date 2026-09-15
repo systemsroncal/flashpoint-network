@@ -1,0 +1,104 @@
+import "server-only";
+
+import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  AI_KEYS_SETTING,
+  AI_PROVIDERS,
+  type AiProviderId,
+  type AiProviderKeys,
+  type AiProviderStatus,
+} from "@/lib/ai/catalog";
+
+export type { AiProviderStatus };
+
+function requireAdmin() {
+  const client = createAdminClient();
+  if (!client) throw new Error("Supabase admin client is not configured");
+  return client;
+}
+
+function normalizeKeys(raw: unknown): AiProviderKeys {
+  const out: AiProviderKeys = {};
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return out;
+  const obj = raw as Record<string, unknown>;
+  for (const p of AI_PROVIDERS) {
+    const envFallback = process.env[`AI_${p.id.toUpperCase()}_API_KEY`]?.trim();
+    const fromDb =
+      typeof obj[p.id] === "string" ? String(obj[p.id]).trim() : "";
+    const value = fromDb || envFallback || "";
+    if (value) out[p.id] = value;
+  }
+  return out;
+}
+
+/** Server-only: full keys from site_settings (+ optional env overrides). */
+export async function getAiProviderKeys(): Promise<AiProviderKeys> {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", AI_KEYS_SETTING)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return normalizeKeys(data?.value ?? {});
+}
+
+/** Safe for admin UI — never returns full secrets. */
+export async function getAiProviderStatus(): Promise<AiProviderStatus[]> {
+  const keys = await getAiProviderKeys();
+  return AI_PROVIDERS.map((p) => {
+    const key = keys[p.id]?.trim() || "";
+    return {
+      id: p.id,
+      label: p.label,
+      settingLabel: p.settingLabel,
+      configured: Boolean(key),
+      hint: key ? `••••${key.slice(-4)}` : null,
+    };
+  });
+}
+
+/**
+ * Merge updates into stored keys.
+ * - empty string in updates = keep existing
+ * - explicit null / "__CLEAR__" = clear that provider
+ */
+export async function upsertAiProviderKeys(
+  updates: Partial<Record<AiProviderId, string | null>>,
+): Promise<void> {
+  const supabase = requireAdmin();
+  const current = await getAiProviderKeys();
+  // Strip env-only keys from persistence base — reload from DB only
+  const { data } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", AI_KEYS_SETTING)
+    .maybeSingle();
+  const base: AiProviderKeys = {};
+  if (data?.value && typeof data.value === "object" && !Array.isArray(data.value)) {
+    for (const p of AI_PROVIDERS) {
+      const v = (data.value as Record<string, unknown>)[p.id];
+      if (typeof v === "string" && v.trim()) base[p.id] = v.trim();
+    }
+  }
+
+  const next: AiProviderKeys = { ...base };
+  for (const p of AI_PROVIDERS) {
+    if (!(p.id in updates)) continue;
+    const val = updates[p.id];
+    if (val === null || val === "__CLEAR__") {
+      delete next[p.id];
+    } else if (typeof val === "string" && val.trim()) {
+      next[p.id] = val.trim();
+    }
+  }
+
+  const { error } = await supabase.from("site_settings").upsert({
+    key: AI_KEYS_SETTING,
+    value: next,
+  });
+  if (error) throw new Error(error.message);
+
+  // touch current for unused warning silence
+  void current;
+}

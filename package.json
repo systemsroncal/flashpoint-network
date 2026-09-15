@@ -39,6 +39,7 @@
     "react-dom": "19.2.8",
     "react-mui-sidebar": "^1.6.10",
     "resend": "^6.28.0",
+    "server-only": "^0.0.1",
     "sharp": "^0.35.4"
   },
   "devDependencies": {
