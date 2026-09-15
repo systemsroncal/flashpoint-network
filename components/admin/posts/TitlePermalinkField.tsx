@@ -71,6 +71,7 @@ export default function TitlePermalinkField({
     <Box>
       <TextField
         name="title"
+        label="Title"
         required
         fullWidth
         placeholder="Add title"
@@ -84,18 +85,6 @@ export default function TitlePermalinkField({
         }}
         inputProps={{
           "aria-label": "News title",
-          style: {
-            fontSize: "1.75rem",
-            fontWeight: 600,
-            lineHeight: 1.3,
-            paddingTop: 14,
-            paddingBottom: 14,
-          },
-        }}
-        sx={{
-          "& .MuiOutlinedInput-root": {
-            bgcolor: "background.paper",
-          },
         }}
       />
 
