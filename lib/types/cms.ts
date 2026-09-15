@@ -42,6 +42,12 @@ export type ClassicProgram = {
   updated_at?: string;
 };
 
+export type MinistryProgramStatus = ClassicProgramStatus;
+export type MinistryProgramsSortMode = ClassicProgramsSortMode;
+export type MinistryProgram = ClassicProgram & {
+  status: MinistryProgramStatus;
+};
+
 export type Category = {
   id: string;
   name: string;

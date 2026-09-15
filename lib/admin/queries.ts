@@ -4,6 +4,8 @@ import type {
   ClassicProgram,
   ClassicProgramsSortMode,
   EventItem,
+  MinistryProgram,
+  MinistryProgramsSortMode,
   Post,
   Profile,
   Tag,
@@ -223,6 +225,47 @@ export async function getClassicProgramsSortMode(): Promise<ClassicProgramsSortM
   const mode = typeof raw === "string" ? raw : String(raw ?? "manual").replace(/"/g, "");
   if (["manual", "a_z", "z_a", "random", "newest"].includes(mode)) {
     return mode as ClassicProgramsSortMode;
+  }
+  return "manual";
+}
+
+const MINISTRY_SELECT = CLASSIC_SELECT;
+
+export async function getAdminMinistryPrograms(): Promise<MinistryProgram[]> {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("ministry_programs")
+    .select(MINISTRY_SELECT)
+    .order("sort_order", { ascending: true })
+    .order("title", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data as MinistryProgram[]) ?? [];
+}
+
+export async function getAdminMinistryProgram(
+  id: string,
+): Promise<MinistryProgram | null> {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("ministry_programs")
+    .select(MINISTRY_SELECT)
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return (data as MinistryProgram) ?? null;
+}
+
+export async function getMinistryProgramsSortMode(): Promise<MinistryProgramsSortMode> {
+  const supabase = requireAdmin();
+  const { data } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", "ministry_programs_sort")
+    .maybeSingle();
+  const raw = data?.value;
+  const mode = typeof raw === "string" ? raw : String(raw ?? "manual").replace(/"/g, "");
+  if (["manual", "a_z", "z_a", "random", "newest"].includes(mode)) {
+    return mode as MinistryProgramsSortMode;
   }
   return "manual";
 }

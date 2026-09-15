@@ -85,6 +85,12 @@ export default async function SiteHeader() {
             Classics
           </Link>
           <Link
+            href="/ministry-programs"
+            className="hidden text-[13px] font-bold text-white/90 hover:text-white xl:inline"
+          >
+            Ministry
+          </Link>
+          <Link
             href="/events"
             className="hidden text-[13px] font-bold text-white/90 hover:text-white lg:inline"
           >

@@ -1,6 +1,7 @@
 import {
   IconCalendarEvent,
   IconCategory,
+  IconCross,
   IconDeviceTvOld,
   IconLayoutDashboard,
   IconMail,
@@ -44,6 +45,12 @@ const Menuitems = [
     title: "Classic Programs",
     icon: IconDeviceTvOld,
     href: "/admin/classic-programs",
+  },
+  {
+    id: "nav-ministry-programs",
+    title: "Ministry Programs",
+    icon: IconCross,
+    href: "/admin/ministry-programs",
   },
   {
     id: "nav-categories",

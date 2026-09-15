@@ -34,6 +34,7 @@ const COLUMNS = [
       { label: "Science", href: "/category/science" },
       { label: "Culture", href: "/category/lifestyle" },
       { label: "Classic Programs", href: "/classic-programs" },
+      { label: "Ministry Programs", href: "/ministry-programs" },
     ],
   },
 ];

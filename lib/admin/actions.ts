@@ -442,3 +442,78 @@ export async function saveClassicProgramsSortAction(formData: FormData) {
   revalidatePath("/classic-programs");
   revalidatePath("/admin/classic-programs");
 }
+
+export async function upsertMinistryProgramAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const id = String(formData.get("id") || "");
+  const title = String(formData.get("title") || "").trim();
+  if (!title) throw new Error("Title is required");
+  let slug = slugify(String(formData.get("slug") || "").trim() || title) || "program";
+  const status = (String(formData.get("status") || "published") ||
+    "published") as "draft" | "published" | "archived";
+  const sortOrder = Number(formData.get("sort_order") || 0);
+
+  const payload = {
+    title,
+    slug,
+    excerpt: String(formData.get("excerpt") || "").trim() || null,
+    description: String(formData.get("description") || "").trim() || null,
+    body: String(formData.get("body") || "").trim() || null,
+    featured_image_url:
+      String(formData.get("featured_image_url") || "").trim() || null,
+    external_url: String(formData.get("external_url") || "").trim() || null,
+    schedule_note: String(formData.get("schedule_note") || "").trim() || null,
+    sort_order: Number.isFinite(sortOrder) ? sortOrder : 0,
+    status,
+    source_url: String(formData.get("source_url") || "").trim() || null,
+  };
+
+  if (id) {
+    const { error } = await supabase
+      .from("ministry_programs")
+      .update(payload)
+      .eq("id", id);
+    if (error) throw new Error(error.message);
+  } else {
+    const { data, error } = await supabase
+      .from("ministry_programs")
+      .insert(payload)
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    revalidatePath("/ministry-programs");
+    revalidatePath("/admin/ministry-programs");
+    redirect(`/admin/ministry-programs/${data.id}`);
+  }
+
+  revalidatePath("/ministry-programs");
+  revalidatePath(`/ministry-programs/${slug}`);
+  revalidatePath("/admin/ministry-programs");
+  revalidatePath(`/admin/ministry-programs/${id}`);
+  redirect(`/admin/ministry-programs/${id}`);
+}
+
+export async function deleteMinistryProgramAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const id = String(formData.get("id") || "");
+  if (!id) throw new Error("Missing id");
+  const { error } = await supabase.from("ministry_programs").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/ministry-programs");
+  revalidatePath("/admin/ministry-programs");
+  redirect("/admin/ministry-programs");
+}
+
+export async function saveMinistryProgramsSortAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const mode = String(formData.get("sort_mode") || "manual").trim();
+  const allowed = ["manual", "a_z", "z_a", "random", "newest"];
+  const value = allowed.includes(mode) ? mode : "manual";
+  const { error } = await supabase.from("site_settings").upsert({
+    key: "ministry_programs_sort",
+    value,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/ministry-programs");
+  revalidatePath("/admin/ministry-programs");
+}

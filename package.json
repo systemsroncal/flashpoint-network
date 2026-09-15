@@ -9,7 +9,8 @@
     "lint": "eslint",
     "db:apply": "node scripts/apply-supabase.mjs",
     "users:ensure-staff": "node scripts/ensure-staff-users.mjs",
-    "seed:classic-programs": "node scripts/scrape-classic-programs.mjs"
+    "seed:classic-programs": "node scripts/scrape-classic-programs.mjs",
+    "seed:ministry-programs": "node scripts/scrape-ministry-programs.mjs"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

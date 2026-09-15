@@ -28,9 +28,12 @@ Dev server: **http://127.0.0.1:43125**
 | `/events/[slug]` | Event detail |
 | `/classic-programs` | Classic TV grid (sort mode from settings) |
 | `/classic-programs/[slug]` | Classic program detail |
+| `/ministry-programs` | Ministry / gospel grid |
+| `/ministry-programs/[slug]` | Ministry program detail |
 | `/login` `/register` `/forgot-password` | Auth flows |
 | `/admin` | Staff CMS (RBAC: superadmin/admin/editor/journalist) |
 | `/admin/classic-programs` | Classic Programs CRUD + grid sort |
+| `/admin/ministry-programs` | Ministry Programs CRUD + grid sort |
 | `/ads.txt` | Dynamic ads.txt from Settings |
 | `/api/health` | Health check |
 | `/api/revalidate` | On-demand path revalidation |
@@ -59,6 +62,7 @@ Scrape public HTML from fptn.com and upsert into Supabase:
 
 ```bash
 npm run seed:classic-programs
+npm run seed:ministry-programs
 ```
 
-Snapshot: `scripts/data/classic-programs-seed.json`. Images stay as remote GoDaddy CDN URLs.
+Snapshots: `scripts/data/classic-programs-seed.json`, `scripts/data/ministry-programs-seed.json`. Images stay as remote GoDaddy CDN URLs.
