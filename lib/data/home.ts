@@ -229,5 +229,34 @@ export async function getNavCategories(): Promise<Category[]> {
   return (data as Category[]) ?? [];
 }
 
+export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+  const supabase = await db();
+  if (!supabase) return null;
+  const { data } = await supabase
+    .from("categories")
+    .select("id, name, slug, description, sort_order")
+    .eq("slug", slug)
+    .maybeSingle();
+  return (data as Category) ?? null;
+}
+
+export async function getPostsByCategorySlug(
+  slug: string,
+  limit = 24,
+): Promise<Post[]> {
+  const supabase = await db();
+  if (!supabase) return [];
+  const category = await getCategoryBySlug(slug);
+  if (!category) return [];
+  const { data } = await supabase
+    .from("posts")
+    .select(POST_SELECT)
+    .eq("status", "published")
+    .eq("category_id", category.id)
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  return asPosts(data);
+}
+
 /** @deprecated use getNavCategories */
 export const getNavCategoriesAlias = getNavCategories;

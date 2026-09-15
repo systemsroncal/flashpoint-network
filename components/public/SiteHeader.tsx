@@ -58,7 +58,7 @@ export default async function SiteHeader() {
           {nav.map((category) => (
             <Link
               key={category.id}
-              href={`/?category=${category.slug}`}
+              href={`/category/${category.slug}`}
               className="inline-flex items-center gap-1 px-1.5 py-2 text-[13px] font-black text-white transition-opacity hover:opacity-80 2xl:px-2 2xl:text-[15px]"
             >
               {category.name}
