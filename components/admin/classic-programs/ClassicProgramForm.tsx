@@ -86,11 +86,38 @@ export default function ClassicProgramForm({
           </Stack>
           <TextField
             name="schedule_note"
-            label="Schedule note"
+            label="Schedule note (full)"
             fullWidth
             placeholder="Monday through Friday at 2:30PM (ET)"
+            helperText="Used in the detail modal days line when present"
             defaultValue={program?.schedule_note ?? ""}
           />
+          <TextField
+            name="schedule_line"
+            label="Schedule line (card)"
+            fullWidth
+            placeholder="Mon–Fri · 2:30 PM ET"
+            helperText="Compact line under the title on the public grid"
+            defaultValue={program?.schedule_line ?? ""}
+          />
+          <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+            <TextField
+              name="genre"
+              label="Genre badge"
+              fullWidth
+              placeholder="Comedy"
+              helperText="Short badge on the card image"
+              defaultValue={program?.genre ?? ""}
+            />
+            <TextField
+              name="genres_label"
+              label="Genres label (modal)"
+              fullWidth
+              placeholder="Comedy · Classic television"
+              helperText="Shown under the title in the detail modal"
+              defaultValue={program?.genres_label ?? ""}
+            />
+          </Stack>
           <TextField
             name="excerpt"
             label="Excerpt"

@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import ClassicProgramsView from "@/components/public/ClassicProgramsView";
-import {
-  getPublicClassicProgramsSortMode,
-  getPublishedClassicPrograms,
-} from "@/lib/data/classic-programs";
+import { getPublishedClassicPrograms } from "@/lib/data/classic-programs";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +11,6 @@ export const metadata: Metadata = {
 };
 
 export default async function ClassicProgramsPage() {
-  const [programs, sortMode] = await Promise.all([
-    getPublishedClassicPrograms(),
-    getPublicClassicProgramsSortMode(),
-  ]);
-
-  return <ClassicProgramsView programs={programs} sortMode={sortMode} />;
+  const programs = await getPublishedClassicPrograms();
+  return <ClassicProgramsView programs={programs} />;
 }

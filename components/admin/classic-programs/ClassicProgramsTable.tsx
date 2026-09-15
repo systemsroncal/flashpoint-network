@@ -94,6 +94,7 @@ export default function ClassicProgramsTable({
             <TableRow>
               <TableCell>Order</TableCell>
               <TableCell>Title</TableCell>
+              <TableCell>Genre</TableCell>
               <TableCell>Schedule</TableCell>
               <TableCell>Status</TableCell>
               <TableCell align="right">Actions</TableCell>
@@ -111,7 +112,12 @@ export default function ClassicProgramsTable({
                 </TableCell>
                 <TableCell>
                   <Typography variant="body2" color="textSecondary">
-                    {program.schedule_note || "—"}
+                    {program.genre || "—"}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" color="textSecondary">
+                    {program.schedule_line || program.schedule_note || "—"}
                   </Typography>
                 </TableCell>
                 <TableCell>
@@ -135,7 +141,7 @@ export default function ClassicProgramsTable({
             ))}
             {programs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5}>
+                <TableCell colSpan={6}>
                   <Typography color="textSecondary" sx={{ py: 2 }}>
                     No classic programs yet. Create one to get started.
                   </Typography>

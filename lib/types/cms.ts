@@ -35,6 +35,12 @@ export type ClassicProgram = {
   featured_image_url: string | null;
   external_url: string | null;
   schedule_note: string | null;
+  /** Short badge label, e.g. Comedy */
+  genre?: string | null;
+  /** Modal subtitle, e.g. Family comedy · Classic television */
+  genres_label?: string | null;
+  /** Compact card line, e.g. Mon–Fri · 3:00 PM ET */
+  schedule_line?: string | null;
   sort_order: number;
   status: ClassicProgramStatus;
   source_url: string | null;

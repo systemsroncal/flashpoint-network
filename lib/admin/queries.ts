@@ -191,6 +191,9 @@ export async function getRecentAdminPosts(limit = 8): Promise<Post[]> {
 }
 
 const CLASSIC_SELECT =
+  "id, title, slug, excerpt, description, body, featured_image_url, external_url, schedule_note, genre, genres_label, schedule_line, sort_order, status, source_url, created_at, updated_at";
+
+const MINISTRY_SELECT =
   "id, title, slug, excerpt, description, body, featured_image_url, external_url, schedule_note, sort_order, status, source_url, created_at, updated_at";
 
 export async function getAdminClassicPrograms(): Promise<ClassicProgram[]> {
@@ -231,8 +234,6 @@ export async function getClassicProgramsSortMode(): Promise<ClassicProgramsSortM
   }
   return "manual";
 }
-
-const MINISTRY_SELECT = CLASSIC_SELECT;
 
 export async function getAdminMinistryPrograms(): Promise<MinistryProgram[]> {
   const supabase = requireAdmin();

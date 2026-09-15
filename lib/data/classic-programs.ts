@@ -41,7 +41,7 @@ export async function getPublishedClassicPrograms(): Promise<ClassicProgram[]> {
   let query = supabase
     .from("classic_programs")
     .select(
-      "id, title, slug, excerpt, description, body, featured_image_url, external_url, schedule_note, sort_order, status, source_url, created_at, updated_at",
+      "id, title, slug, excerpt, description, body, featured_image_url, external_url, schedule_note, genre, genres_label, schedule_line, sort_order, status, source_url, created_at, updated_at",
     )
     .eq("status", "published");
 
@@ -75,7 +75,7 @@ export async function getClassicProgramBySlug(
   const { data } = await supabase
     .from("classic_programs")
     .select(
-      "id, title, slug, excerpt, description, body, featured_image_url, external_url, schedule_note, sort_order, status, source_url, created_at, updated_at",
+      "id, title, slug, excerpt, description, body, featured_image_url, external_url, schedule_note, genre, genres_label, schedule_line, sort_order, status, source_url, created_at, updated_at",
     )
     .eq("slug", slug)
     .eq("status", "published")
