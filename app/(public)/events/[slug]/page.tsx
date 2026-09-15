@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import RichHtml from "@/components/public/RichHtml";
 import { getEventBySlug } from "@/lib/data/home";
 import { formatDate } from "@/lib/format";
 
@@ -74,13 +75,10 @@ export default async function EventPage({ params }: Props) {
           <p className="text-lg leading-8 text-[#374151]">{event.description}</p>
         ) : null}
         {event.body ? (
-          <div className="prose prose-neutral mt-6 max-w-none font-serif text-lg leading-8">
-            {event.body.split(/\n+/).filter(Boolean).map((p, i) => (
-              <p key={i} className="mb-5">
-                {p.replace(/<[^>]+>/g, "")}
-              </p>
-            ))}
-          </div>
+          <RichHtml
+            html={event.body}
+            className="fpn-rich-html mt-6 font-serif text-lg leading-8 text-[#1F2937]"
+          />
         ) : null}
         {event.video_url ? (
           <p className="mt-6 text-sm">

@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
+import RichTextEditor from "@/components/admin/shared/RichTextEditor";
 import { deleteEventAction, upsertEventAction } from "@/lib/admin/actions";
 import type { EventItem } from "@/lib/types/cms";
 
@@ -51,13 +52,12 @@ export default function EventForm({ event }: { event?: EventItem | null }) {
             minRows={2}
             defaultValue={event?.description ?? ""}
           />
-          <TextField
+          <RichTextEditor
             name="body"
             label="Body"
-            fullWidth
-            multiline
-            minRows={4}
-            defaultValue={event?.body ?? ""}
+            placeholder="Event details…"
+            minHeight={260}
+            initialHtml={event?.body ?? ""}
           />
           <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
             <TextField select name="format" label="Format" fullWidth defaultValue={event?.format ?? "video"}>

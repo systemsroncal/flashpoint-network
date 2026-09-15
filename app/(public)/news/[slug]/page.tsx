@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import RichHtml from "@/components/public/RichHtml";
 import { getPostBySlug } from "@/lib/data/home";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 
@@ -72,16 +73,10 @@ export default async function NewsArticlePage({ params }: Props) {
           </div>
         ) : null}
 
-        <div className="prose prose-neutral mt-8 max-w-none font-serif text-lg leading-8 text-[#1F2937]">
-          {(post.body || post.excerpt || "")
-            .split(/\n+/)
-            .filter(Boolean)
-            .map((paragraph, index) => (
-              <p key={index} className="mb-5">
-                {paragraph.replace(/<[^>]+>/g, "")}
-              </p>
-            ))}
-        </div>
+        <RichHtml
+          html={post.body || (post.excerpt ? `<p>${post.excerpt}</p>` : "")}
+          className="fpn-rich-html mt-8 font-serif text-lg leading-8 text-[#1F2937]"
+        />
 
         <div className="mt-10 border-t border-black/10 pt-6">
           <Link

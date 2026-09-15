@@ -29,3 +29,51 @@ article h2,
 article h3 {
   font-family: "Times New Roman", Times, "Liberation Serif", Georgia, serif !important;
 }
+
+/* Public rich-text bodies from admin Tiptap */
+.fpn-rich-html p {
+  margin: 0 0 1.25rem;
+}
+
+.fpn-rich-html h2 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.fpn-rich-html h3 {
+  margin: 1.25rem 0 0.6rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.fpn-rich-html ul,
+.fpn-rich-html ol {
+  margin: 0 0 1.25rem;
+  padding-left: 1.4rem;
+}
+
+.fpn-rich-html li {
+  margin-bottom: 0.35rem;
+}
+
+.fpn-rich-html blockquote {
+  margin: 0 0 1.25rem;
+  padding-left: 1rem;
+  border-left: 3px solid #e85d04;
+  color: #4b5563;
+}
+
+.fpn-rich-html a {
+  color: #e85d04;
+  text-decoration: underline;
+}
+
+.fpn-rich-html img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1rem 0;
+}

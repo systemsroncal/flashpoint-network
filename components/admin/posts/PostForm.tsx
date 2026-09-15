@@ -12,6 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
+import RichTextEditor from "@/components/admin/shared/RichTextEditor";
 import { deletePostAction, upsertPostAction } from "@/lib/admin/actions";
 import type { Category, Post, PostStatus } from "@/lib/types/cms";
 
@@ -81,13 +82,12 @@ export default function PostForm({ post, categories }: Props) {
             minRows={2}
             defaultValue={post?.excerpt ?? ""}
           />
-          <TextField
+          <RichTextEditor
             name="body"
             label="Body"
-            fullWidth
-            multiline
-            minRows={8}
-            defaultValue={post?.body ?? ""}
+            placeholder="Write the article…"
+            minHeight={320}
+            initialHtml={post?.body ?? ""}
           />
           <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
             <TextField
