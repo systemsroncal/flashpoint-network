@@ -24,11 +24,11 @@ export default function PostCard({ post, variant = "grid" }: Props) {
   if (variant === "list" || variant === "latest") {
     return (
       <article className="border-b border-black/10 py-3 last:border-b-0">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-[#E10600]">
+        <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--fpn-red)]">
           {category}
         </p>
         <Link href={href} className="group mt-1 block">
-          <h3 className="font-article text-[15px] font-bold leading-snug text-black group-hover:text-[#E85D04]">
+          <h3 className="font-article text-[15px] font-bold leading-snug text-black group-hover:text-[var(--fpn-orange)]">
             {post.title}
           </h3>
         </Link>
@@ -55,12 +55,12 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           </Link>
         ) : null}
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-[#E10600]">
-            {category}
-          </p>
-          <Link
+      <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--fpn-red)]">
+          {category}
+        </p>
+        <Link
             href={href}
-            className="mt-1 block font-article text-[15px] font-bold leading-snug text-black hover:text-[#E85D04]"
+            className="mt-1 block font-article text-[15px] font-bold leading-snug text-black hover:text-[var(--fpn-orange)]"
           >
             {post.title}
           </Link>
@@ -92,10 +92,10 @@ export default function PostCard({ post, variant = "grid" }: Props) {
               </span>
             </span>
           </div>
-          <p className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-[#E10600]">
+          <p className="mt-2 text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--fpn-red)]">
             {category}
           </p>
-          <h3 className="mt-1 font-article text-base font-bold leading-snug text-black group-hover:text-[#E85D04]">
+          <h3 className="mt-1 font-article text-base font-bold leading-snug text-black group-hover:text-[var(--fpn-orange)]">
             {post.title}
           </h3>
           {meta}
@@ -122,16 +122,18 @@ export default function PostCard({ post, variant = "grid" }: Props) {
             />
           ) : null}
         </Link>
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-[#E10600]">
+        <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--fpn-red)]">
           {category}
         </p>
-        <h2 className="mt-2 font-article text-3xl font-bold leading-[1.15] text-black md:text-[2.15rem]">
-          <Link href={href} className="hover:text-[#E85D04]">
+        <h2 className="mt-2 font-article text-[1.85rem] font-bold leading-[1.12] text-black md:text-[2.25rem]">
+          <Link href={href} className="hover:text-[var(--fpn-orange)]">
             {post.title}
           </Link>
         </h2>
         {post.excerpt ? (
-          <p className="mt-3 text-sm leading-6 text-[#4B5563]">{post.excerpt}</p>
+          <p className="mt-3 text-[15px] leading-7 text-[var(--fpn-ink)]/80">
+            {post.excerpt}
+          </p>
         ) : null}
         {meta}
       </article>
@@ -166,11 +168,11 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           </span>
         ) : null}
       </Link>
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-[#E10600]">
+      <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--fpn-red)]">
         {category}
       </p>
       <h3 className="mt-1 font-article text-[17px] font-bold leading-snug text-black">
-        <Link href={href} className="hover:text-[#E85D04]">
+        <Link href={href} className="hover:text-[var(--fpn-orange)]">
           {post.title}
         </Link>
       </h3>
