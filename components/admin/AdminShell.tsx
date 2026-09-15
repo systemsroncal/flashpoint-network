@@ -4,6 +4,7 @@ import { styled, Container, Box } from "@mui/material";
 import React, { useState } from "react";
 import Header from "@/components/admin/layout/header/Header";
 import Sidebar from "@/components/admin/layout/sidebar/Sidebar";
+import type { Profile } from "@/lib/types/cms";
 
 const MainWrapper = styled("div")(() => ({
   display: "flex",
@@ -20,7 +21,13 @@ const PageWrapper = styled("div")(() => ({
   backgroundColor: "transparent",
 }));
 
-export default function AdminShell({ children }: { children: React.ReactNode }) {
+export default function AdminShell({
+  children,
+  profile,
+}: {
+  children: React.ReactNode;
+  profile: Profile;
+}) {
   const [isSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
@@ -32,7 +39,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         onSidebarClose={() => setMobileSidebarOpen(false)}
       />
       <PageWrapper className="page-wrapper">
-        <Header toggleMobileSidebar={() => setMobileSidebarOpen(true)} />
+        <Header
+          toggleMobileSidebar={() => setMobileSidebarOpen(true)}
+          profile={profile}
+        />
         <Container
           sx={{
             paddingTop: "20px",

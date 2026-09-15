@@ -80,13 +80,13 @@ export default async function SiteHeader() {
             <Image src="/brand/search.svg" alt="" width={23} height={23} />
           </button>
           <Link
-            href="/admin"
+            href="/register"
             className="hidden h-[38px] w-[105px] items-center justify-center rounded-md bg-white text-[14px] font-bold text-black sm:inline-flex"
           >
             Subscribe
           </Link>
           <Link
-            href="/admin"
+            href="/login"
             className="inline-flex h-[38px] w-[88px] items-center justify-center rounded-md border border-white text-[14px] font-black text-white sm:w-[105px]"
           >
             Login

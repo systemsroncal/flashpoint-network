@@ -11,11 +11,13 @@ import {
   Badge,
   Typography,
 } from "@mui/material";
-import Profile from "./Profile";
+import ProfileMenu from "./Profile";
 import { IconBellRinging, IconMenu } from "@tabler/icons-react";
+import type { Profile } from "@/lib/types/cms";
 
 interface ItemType {
   toggleMobileSidebar: (event: React.MouseEvent<HTMLElement>) => void;
+  profile: Profile;
 }
 
 const AppBarStyled = styled(AppBar)(({ theme }) => ({
@@ -33,7 +35,13 @@ const ToolbarStyled = styled(Toolbar)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-const Header = ({ toggleMobileSidebar }: ItemType) => {
+const Header = ({ toggleMobileSidebar, profile }: ItemType) => {
+  const label =
+    profile.full_name ||
+    [profile.first_name, profile.last_name].filter(Boolean).join(" ") ||
+    profile.email ||
+    "Staff";
+
   return (
     <AppBarStyled position="sticky" color="default">
       <ToolbarStyled>
@@ -70,9 +78,9 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
             color="textSecondary"
             sx={{ display: { xs: "none", sm: "block" } }}
           >
-            Editor mode
+            {label} · {profile.role}
           </Typography>
-          <Profile />
+          <ProfileMenu profile={profile} />
         </Stack>
       </ToolbarStyled>
     </AppBarStyled>

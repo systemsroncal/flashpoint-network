@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminEmailTemplatesPage() {
   const templates = await getAdminEmailTemplates();
   return (
-    <PageContainer title="Email templates" description="Transactional email stubs">
+    <PageContainer title="Email templates" description="Transactional email design and shortcodes">
       <EmailTemplatesManager
         templates={templates as never}
         siteName={getSiteName()}

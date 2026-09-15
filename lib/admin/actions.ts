@@ -299,4 +299,59 @@ export async function upsertSiteSettingAction(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/");
   revalidatePath("/admin/settings");
+  revalidatePath("/ads.txt");
+}
+
+export async function savePaywallSettingsAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const enabled = formData.get("enabled") === "on" || formData.get("enabled") === "true";
+  const freeArticleLimit = Math.max(
+    0,
+    Number(formData.get("free_article_limit") || 3) || 3,
+  );
+  const modalTitle =
+    String(formData.get("modal_title") || "").trim() || "Don't stop here";
+  const modalBody =
+    String(formData.get("modal_body") || "").trim() ||
+    "Create your FPN All Access account for free to keep reading and join the conversation.";
+
+  const { error } = await supabase.from("site_settings").upsert({
+    key: "paywall",
+    value: {
+      enabled,
+      free_article_limit: freeArticleLimit,
+      modal_title: modalTitle,
+      modal_body: modalBody,
+    },
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+  revalidatePath("/news");
+}
+
+export async function saveAdSenseSettingsAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const enabled = formData.get("enabled") === "on" || formData.get("enabled") === "true";
+  const clientId = String(formData.get("client_id") || "").trim();
+  const adsTxt = String(formData.get("ads_txt") || "").trim();
+
+  const { error: adsenseError } = await supabase.from("site_settings").upsert({
+    key: "adsense",
+    value: {
+      enabled,
+      client_id: clientId,
+    },
+  });
+  if (adsenseError) throw new Error(adsenseError.message);
+
+  const { error: adsTxtError } = await supabase.from("site_settings").upsert({
+    key: "ads_txt",
+    value: adsTxt,
+  });
+  if (adsTxtError) throw new Error(adsTxtError.message);
+
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+  revalidatePath("/ads.txt");
 }

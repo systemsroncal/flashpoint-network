@@ -1,10 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import PostCard from "@/components/public/PostCard";
+import PaywallGate from "@/components/public/PaywallGate";
 import RichHtml from "@/components/public/RichHtml";
 import ShareBar from "@/components/public/ShareBar";
 import VideoPlayer from "@/components/public/VideoPlayer";
 import type { Post } from "@/lib/types/cms";
+import type { PaywallSettings } from "@/lib/paywall/settings";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 
 type Props = {
@@ -14,6 +16,8 @@ type Props = {
   popular: Post[];
   previous: Post | null;
   next: Post | null;
+  paywall: PaywallSettings;
+  paywallBypass: boolean;
 };
 
 export default function NewsArticleView({
@@ -23,6 +27,8 @@ export default function NewsArticleView({
   popular,
   previous,
   next,
+  paywall,
+  paywallBypass,
 }: Props) {
   const category = (post.category?.name ?? "News").toUpperCase();
   const href = `/news/${post.slug}`;
@@ -122,10 +128,20 @@ export default function NewsArticleView({
             </div>
           ) : null}
 
-          <RichHtml
-            html={post.body || (post.excerpt ? `<p>${post.excerpt}</p>` : "")}
-            className="fpn-article-body"
-          />
+          <PaywallGate
+            postId={post.id}
+            isPremium={Boolean(post.is_premium)}
+            enabled={paywall.enabled}
+            freeArticleLimit={paywall.freeArticleLimit}
+            bypass={paywallBypass}
+            title={paywall.modalTitle}
+            body={paywall.modalBody}
+          >
+            <RichHtml
+              html={post.body || (post.excerpt ? `<p>${post.excerpt}</p>` : "")}
+              className="fpn-article-body"
+            />
+          </PaywallGate>
 
           {/* Gift CTA */}
           <div className="mt-10 flex items-center gap-4 border-y border-[#ccc] py-5">
@@ -139,35 +155,11 @@ export default function NewsArticleView({
               </p>
             </div>
             <Link
-              href="/admin"
+              href="/register"
               className="ml-auto hidden rounded-md bg-[var(--fpn-rojo)] px-4 py-2 text-sm font-bold text-white sm:inline-flex"
             >
               Gift now
             </Link>
-          </div>
-
-          {/* Soft paywall / continue CTA */}
-          <div className="relative mt-10 overflow-hidden rounded-[12px] bg-[#F3F3F3] px-6 py-12 text-center">
-            <div className="pointer-events-none absolute inset-x-0 -top-16 h-16 bg-gradient-to-b from-transparent to-[#F3F3F3]" />
-            <h2 className="font-article text-2xl font-black tracking-tight md:text-[1.75rem]">
-              Don&apos;t stop here
-            </h2>
-            <p className="mx-auto mt-2 max-w-md text-sm text-black/70">
-              Create your FPN All Access account for free to keep reading and join
-              the conversation.
-            </p>
-            <Link
-              href="/admin"
-              className="mt-5 inline-flex rounded-md bg-[var(--fpn-rojo)] px-6 py-3 text-sm font-bold text-white hover:brightness-110"
-            >
-              Create your FPN All Access account for free
-            </Link>
-            <p className="mt-3 text-sm text-black/60">
-              Already a subscriber?{" "}
-              <Link href="/admin" className="font-semibold underline">
-                Log In
-              </Link>
-            </p>
           </div>
 
           <div className="mt-10 lg:hidden">

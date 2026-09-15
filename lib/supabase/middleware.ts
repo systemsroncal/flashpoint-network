@@ -1,9 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const STAFF_ROLES = new Set(["superadmin", "admin", "editor", "journalist"]);
+
 /**
- * Session refresh helper for future auth middleware (Phase 2+).
- * Safe to call when env is present; no-ops when missing.
+ * Refresh the auth session and gate /admin behind staff roles.
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -34,8 +35,35 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Refresh auth token if present (no redirect logic in Phase 1).
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const path = request.nextUrl.pathname;
+  const isAdmin = path === "/admin" || path.startsWith("/admin/");
+
+  if (isAdmin) {
+    if (!user) {
+      const login = request.nextUrl.clone();
+      login.pathname = "/login";
+      login.searchParams.set("next", path);
+      return NextResponse.redirect(login);
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const role = (profile?.role as string | undefined) || "";
+    if (!STAFF_ROLES.has(role)) {
+      const denied = request.nextUrl.clone();
+      denied.pathname = "/";
+      denied.searchParams.set("admin_denied", "1");
+      return NextResponse.redirect(denied);
+    }
+  }
 
   return supabaseResponse;
 }

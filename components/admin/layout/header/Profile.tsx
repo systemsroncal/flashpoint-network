@@ -12,10 +12,19 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { IconListCheck, IconMail, IconUser } from "@tabler/icons-react";
+import { IconLogout, IconSettings, IconUser } from "@tabler/icons-react";
+import { signOutAction } from "@/lib/auth/actions";
+import type { Profile } from "@/lib/types/cms";
 
-const Profile = () => {
+export default function ProfileMenu({ profile }: { profile: Profile }) {
   const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
+  const initials =
+    [profile.first_name?.[0], profile.last_name?.[0]]
+      .filter(Boolean)
+      .join("")
+      .toUpperCase() ||
+    profile.email?.[0]?.toUpperCase() ||
+    "FP";
 
   const handleClick2 = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl2(event.currentTarget);
@@ -41,7 +50,8 @@ const Profile = () => {
         onClick={handleClick2}
       >
         <Avatar
-          alt="Editor"
+          alt={profile.full_name || "Staff"}
+          src={profile.avatar_url || undefined}
           sx={{
             width: 35,
             height: 35,
@@ -49,7 +59,7 @@ const Profile = () => {
             fontSize: 14,
           }}
         >
-          FP
+          {initials}
         </Avatar>
       </IconButton>
       <Menu
@@ -62,29 +72,27 @@ const Profile = () => {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         sx={{
           "& .MuiMenu-paper": {
-            width: "200px",
+            width: "220px",
           },
         }}
       >
-        <MenuItem>
+        <MenuItem component={Link} href="/admin/users" onClick={handleClose2}>
           <ListItemIcon>
             <IconUser width={20} />
           </ListItemIcon>
-          <ListItemText>My Profile</ListItemText>
+          <ListItemText>Users</ListItemText>
         </MenuItem>
-        <MenuItem>
+        <MenuItem
+          component={Link}
+          href="/admin/settings"
+          onClick={handleClose2}
+        >
           <ListItemIcon>
-            <IconMail width={20} />
+            <IconSettings width={20} />
           </ListItemIcon>
-          <ListItemText>My Account</ListItemText>
+          <ListItemText>Settings</ListItemText>
         </MenuItem>
-        <MenuItem>
-          <ListItemIcon>
-            <IconListCheck width={20} />
-          </ListItemIcon>
-          <ListItemText>My Tasks</ListItemText>
-        </MenuItem>
-        <Box mt={1} py={1} px={2}>
+        <Box mt={1} py={1} px={2} display="flex" flexDirection="column" gap={1}>
           <Button
             href="/"
             variant="outlined"
@@ -94,10 +102,19 @@ const Profile = () => {
           >
             View Site
           </Button>
+          <form action={signOutAction}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              startIcon={<IconLogout width={18} />}
+            >
+              Sign out
+            </Button>
+          </form>
         </Box>
       </Menu>
     </Box>
   );
-};
-
-export default Profile;
+}

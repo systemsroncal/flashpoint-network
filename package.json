@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start --hostname 127.0.0.1 --port 43125",
     "lint": "eslint",
-    "db:apply": "node scripts/apply-supabase.mjs"
+    "db:apply": "node scripts/apply-supabase.mjs",
+    "users:ensure-staff": "node scripts/ensure-staff-users.mjs"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

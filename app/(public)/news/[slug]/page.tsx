@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import NewsArticleView from "@/components/public/NewsArticleView";
+import { getCurrentProfile, isStaffRole } from "@/lib/auth/session";
 import { getArticleSidebar, getPostBySlug } from "@/lib/data/home";
 import { getSiteName, getSiteUrl } from "@/lib/env";
+import { getPaywallSettings } from "@/lib/paywall/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +58,18 @@ export default async function NewsArticlePage({ params }: Props) {
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  const sidebar = await getArticleSidebar(post.id);
+  const [sidebar, paywall, profile] = await Promise.all([
+    getArticleSidebar(post.id),
+    getPaywallSettings(),
+    getCurrentProfile(),
+  ]);
+
+  const paywallBypass = Boolean(
+    profile &&
+      (isStaffRole(profile.role) ||
+        profile.role === "subscriber" ||
+        profile.role === "guest"),
+  );
 
   return (
     <NewsArticleView
@@ -66,6 +79,8 @@ export default async function NewsArticlePage({ params }: Props) {
       popular={sidebar.popular}
       previous={sidebar.previous}
       next={sidebar.next}
+      paywall={paywall}
+      paywallBypass={paywallBypass}
     />
   );
 }
