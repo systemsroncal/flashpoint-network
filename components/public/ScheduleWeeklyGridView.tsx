@@ -67,16 +67,12 @@ function isoDate(d: Date) {
   return `${y}-${m}-${day}`;
 }
 
-/** First Sunday on or before the 1st, then prefer a week fully inside the month. */
+/** First Sunday that falls inside the displayed month. */
 function weekDates(year: number, month: number): string[] {
   const first = new Date(year, month - 1, 1);
-  const sunday = new Date(first);
-  sunday.setDate(first.getDate() - first.getDay());
-  // If that week is mostly previous month, jump to the next Sunday.
-  const thursday = new Date(sunday);
-  thursday.setDate(sunday.getDate() + 3);
-  const start =
-    thursday.getMonth() + 1 === month ? sunday : new Date(sunday.getTime() + 7 * 86400000);
+  const start = new Date(first);
+  const add = (7 - first.getDay()) % 7;
+  start.setDate(first.getDate() + add);
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(start);
     d.setDate(start.getDate() + i);
