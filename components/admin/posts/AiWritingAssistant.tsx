@@ -59,7 +59,12 @@ export default function AiWritingAssistant({
       const list = data.models || [];
       setModels(list);
       const firstEnabled = list.find((m) => m.enabled);
-      setModelId((prev) => prev || firstEnabled?.id || list[0]?.id || "");
+      setModelId((prev) => {
+        // Keep prior selection only if it is still an enabled model
+        if (prev && list.some((m) => m.id === prev && m.enabled)) return prev;
+        // Default to first configured/enabled model — never a disabled one
+        return firstEnabled?.id || "";
+      });
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Failed to load models");
     }
@@ -169,13 +174,46 @@ export default function AiWritingAssistant({
           onChange={(e) => setPrompt(e.target.value)}
         />
         <FormControl fullWidth>
-          <InputLabel id="ai-model-label">Model</InputLabel>
+          <InputLabel id="ai-model-label" shrink>
+            Model
+          </InputLabel>
           <Select
             labelId="ai-model-label"
             label="Model"
             value={modelId}
+            displayEmpty
+            notched
             onChange={(e) => setModelId(String(e.target.value))}
+            renderValue={(selected) => {
+              if (!selected) {
+                return (
+                  <Typography component="span" color="text.secondary">
+                    {enabledCount === 0
+                      ? "Configure API keys in Settings"
+                      : "Select a model"}
+                  </Typography>
+                );
+              }
+              const m = models.find((x) => x.id === selected);
+              if (!m) {
+                return (
+                  <Typography component="span" color="text.secondary">
+                    Select a model
+                  </Typography>
+                );
+              }
+              return `${m.label} · ${m.provider}${m.webGrounded ? " (web-grounded)" : ""}`;
+            }}
           >
+            {enabledCount === 0 ? (
+              <MenuItem value="" disabled>
+                Configure API keys in Settings
+              </MenuItem>
+            ) : (
+              <MenuItem value="" disabled>
+                Select a model
+              </MenuItem>
+            )}
             {models.map((m) => (
               <MenuItem key={m.id} value={m.id} disabled={!m.enabled}>
                 {m.label} · {m.provider}

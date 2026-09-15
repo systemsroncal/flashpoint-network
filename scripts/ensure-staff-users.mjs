@@ -63,6 +63,13 @@ const USERS = [
     role: "admin",
     passwordEnv: "STAFF_USER_2_PASSWORD",
   },
+  {
+    first_name: "Enrique",
+    last_name: "Roncal",
+    email: "development@dreamsanimation.com",
+    role: "superadmin",
+    passwordEnv: "STAFF_USER_3_PASSWORD",
+  },
 ];
 
 async function findUserByEmail(admin, email) {
@@ -199,10 +206,13 @@ async function main() {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  // Default passwords from task; prefer env overrides in CI
+  // Prefer per-user env overrides; shared STAFF_DEFAULT_PASSWORD as fallback.
+  // Do not print passwords.
+  const fallback = process.env.STAFF_DEFAULT_PASSWORD || process.env.STAFF_USER_1_PASSWORD;
   const defaults = [
-    process.env.STAFF_USER_1_PASSWORD || "TheNumber1!2030@@",
-    process.env.STAFF_USER_2_PASSWORD || "TheNumber1!2030@@",
+    process.env.STAFF_USER_1_PASSWORD || fallback,
+    process.env.STAFF_USER_2_PASSWORD || fallback,
+    process.env.STAFF_USER_3_PASSWORD || fallback,
   ];
 
   await ensureSiteSettings(admin);
@@ -210,7 +220,11 @@ async function main() {
   for (let i = 0; i < USERS.length; i++) {
     const spec = USERS[i];
     const password = process.env[spec.passwordEnv] || defaults[i];
-    if (!password) throw new Error(`Missing password for ${spec.email}`);
+    if (!password) {
+      throw new Error(
+        `Missing password for ${spec.email}. Set ${spec.passwordEnv} or STAFF_DEFAULT_PASSWORD.`,
+      );
+    }
     await ensureUser(admin, spec, password);
   }
 
