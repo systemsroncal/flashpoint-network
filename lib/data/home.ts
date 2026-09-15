@@ -221,6 +221,18 @@ export async function getEventBySlug(slug: string): Promise<EventItem | null> {
   return (data as EventItem) ?? null;
 }
 
+export async function getPublicEvents(limit = 40): Promise<EventItem[]> {
+  const supabase = await db();
+  if (!supabase) return [];
+  const { data } = await supabase
+    .from("events")
+    .select("*")
+    .order("is_live", { ascending: false })
+    .order("starts_at", { ascending: false })
+    .limit(limit);
+  return (data as EventItem[]) ?? [];
+}
+
 export async function getNavCategories(): Promise<Category[]> {
   const supabase = await db();
   if (!supabase) return [];

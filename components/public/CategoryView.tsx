@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
 import type { Category, Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
@@ -39,6 +40,23 @@ export default function CategoryView({
         <div className="mt-8 grid gap-10 lg:mt-10 lg:grid-cols-[minmax(0,1.7fr)_370px] lg:gap-12">
           {/* Main column */}
           <div className="min-w-0 space-y-10">
+            {posts.length === 0 ? (
+              <div className="rounded-[12px] border border-dashed border-black/15 px-6 py-14 text-center">
+                <h2 className="font-article text-2xl font-black tracking-tight">
+                  No stories in {category.name} yet
+                </h2>
+                <p className="mx-auto mt-2 max-w-md text-sm text-black/60">
+                  Editors haven&apos;t published coverage in this section. Browse
+                  other categories or the latest on the home page.
+                </p>
+                <Link
+                  href="/"
+                  className="mt-6 inline-flex rounded-md bg-[var(--fpn-rojo)] px-5 py-2.5 text-sm font-bold text-white"
+                >
+                  Back to home
+                </Link>
+              </div>
+            ) : null}
             {featured ? (
               <article>
                 <Link
@@ -122,7 +140,7 @@ export default function CategoryView({
                 </p>
               </div>
               <Link
-                href="/admin"
+                href="/register"
                 className="inline-flex rounded-full bg-[var(--fpn-rojo)] px-7 py-3 text-sm font-bold text-white hover:brightness-110"
               >
                 Subscribe
@@ -254,7 +272,7 @@ export default function CategoryView({
                 Pair today&apos;s {category.name} coverage with FPN essentials.
               </p>
               <Link
-                href="/admin"
+                href="/register"
                 className="mt-4 inline-flex rounded-md bg-white px-4 py-2 text-sm font-bold text-black"
               >
                 View offer
@@ -289,20 +307,7 @@ export default function CategoryView({
           <h2 className="mx-auto max-w-xl font-article text-[1.75rem] font-black leading-snug tracking-tight">
             The biggest stories of the day delivered to your inbox
           </h2>
-          <form className="mx-auto mt-6 flex max-w-lg flex-col gap-2 sm:flex-row">
-            <input
-              type="email"
-              required
-              placeholder="Email address"
-              className="flex-1 border border-black/15 bg-white px-3 py-3 text-sm outline-none focus:border-[var(--fpn-rojo)]"
-            />
-            <button
-              type="submit"
-              className="rounded-md bg-[var(--fpn-rojo)] px-5 py-3 text-sm font-bold text-white hover:brightness-110"
-            >
-              Sign me up
-            </button>
-          </form>
+          <NewsletterSignup />
         </section>
       </div>
     </div>

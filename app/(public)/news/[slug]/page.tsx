@@ -71,16 +71,55 @@ export default async function NewsArticlePage({ params }: Props) {
         profile.role === "guest"),
   );
 
+  const siteUrl = getSiteUrl().replace(/\/$/, "");
+  const url = `${siteUrl}/news/${post.slug}`;
+  const authorName =
+    post.author?.full_name ||
+    [post.author?.first_name, post.author?.last_name].filter(Boolean).join(" ") ||
+    getSiteName();
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: post.seo_title?.trim() || post.title,
+    description: post.seo_description?.trim() || post.excerpt || undefined,
+    image: post.featured_image_url ? [post.featured_image_url] : undefined,
+    datePublished: post.published_at || undefined,
+    author: {
+      "@type": "Person",
+      name: authorName,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: getSiteName(),
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteUrl}/brand/fpn-logo-mark.svg`,
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": url,
+    },
+    articleSection: post.category?.name || undefined,
+    isAccessibleForFree: !post.is_premium,
+  };
+
   return (
-    <NewsArticleView
-      post={post}
-      latest={sidebar.latest}
-      podcasts={sidebar.podcasts}
-      popular={sidebar.popular}
-      previous={sidebar.previous}
-      next={sidebar.next}
-      paywall={paywall}
-      paywallBypass={paywallBypass}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <NewsArticleView
+        post={post}
+        latest={sidebar.latest}
+        podcasts={sidebar.podcasts}
+        popular={sidebar.popular}
+        previous={sidebar.previous}
+        next={sidebar.next}
+        paywall={paywall}
+        paywallBypass={paywallBypass}
+      />
+    </>
   );
 }

@@ -221,7 +221,7 @@ export default function NewsArticleView({
               Only FPN all-access subscribers can comment.
             </p>
             <Link
-              href="/admin"
+              href="/register"
               className="mt-4 inline-flex rounded-md bg-[var(--fpn-rojo)] px-5 py-3 text-sm font-bold text-white hover:brightness-110"
             >
               Unlock FPN All-Access to join the conversation
@@ -242,7 +242,7 @@ export default function NewsArticleView({
               Pair coverage with the books shaping tonight&apos;s conversation.
             </p>
             <Link
-              href="/admin"
+              href="/register"
               className="mt-4 inline-flex rounded-md bg-white px-4 py-2 text-sm font-bold text-black"
             >
               View offer

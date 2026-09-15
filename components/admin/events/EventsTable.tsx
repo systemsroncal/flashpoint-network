@@ -67,6 +67,16 @@ export default function EventsTable({ events }: { events: EventItem[] }) {
               </TableCell>
             </TableRow>
           ))}
+          {events.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5}>
+                <Typography color="textSecondary" sx={{ py: 2 }}>
+                  No events yet. Create one to feature live coverage on the home
+                  page.
+                </Typography>
+              </TableCell>
+            </TableRow>
+          ) : null}
         </TableBody>
       </Table>
     </DashboardCard>

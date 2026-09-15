@@ -101,12 +101,18 @@ export default async function EventPage({ params }: Props) {
             />
           </div>
         ) : null}
-        <div className="mt-10 border-t border-black/10 pt-6">
+        <div className="mt-10 flex flex-wrap gap-4 border-t border-black/10 pt-6">
           <Link
-            href="/"
+            href="/events"
             className="text-sm font-semibold uppercase tracking-wide text-[#E85D04] hover:underline"
           >
-            ← Back to home
+            ← All events
+          </Link>
+          <Link
+            href="/"
+            className="text-sm font-semibold uppercase tracking-wide text-black/55 hover:underline"
+          >
+            Home
           </Link>
         </div>
       </div>

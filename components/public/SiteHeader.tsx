@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import MobileNav from "@/components/public/MobileNav";
 import { getNavCategories } from "@/lib/data/home";
+import { getSiteName } from "@/lib/env";
 
 const FALLBACK_NAV = [
   { name: "U.S.", chevron: true },
@@ -15,6 +17,7 @@ const FALLBACK_NAV = [
 ];
 
 export default async function SiteHeader() {
+  const siteName = getSiteName();
   const categories = await getNavCategories();
   const fromDb = categories.filter((c) => c.slug !== "video").slice(0, 9);
   const nav =
@@ -35,24 +38,27 @@ export default async function SiteHeader() {
   return (
     <header className="relative z-20 bg-[var(--fpn-navy)] text-white">
       <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--fpn-rojo)]" />
-      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-3 md:px-8 lg:px-10">
-        <Link href="/" className="relative z-10 shrink-0">
-          <span className="flex w-[112px] flex-col overflow-hidden rounded-[3px] border-2 border-white bg-black sm:w-[130px]">
-            <span className="relative flex h-[58px] items-center justify-center bg-black px-2 sm:h-[68px]">
-              <Image
-                src="/brand/fpn-logo-mark.svg"
-                alt="Flash Point"
-                width={110}
-                height={52}
-                className="h-11 w-auto sm:h-[52px]"
-                priority
-              />
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-3 md:gap-4 md:px-8 lg:px-10">
+        <div className="flex items-center gap-3">
+          <MobileNav items={nav.map(({ id, name, slug }) => ({ id, name, slug }))} />
+          <Link href="/" className="relative z-10 shrink-0" aria-label={siteName}>
+            <span className="flex w-[100px] flex-col overflow-hidden rounded-[3px] border-2 border-white bg-black sm:w-[130px]">
+              <span className="relative flex h-[52px] items-center justify-center bg-black px-2 sm:h-[68px]">
+                <Image
+                  src="/brand/fpn-logo-mark.svg"
+                  alt={siteName}
+                  width={110}
+                  height={52}
+                  className="h-10 w-auto sm:h-[52px]"
+                  priority
+                />
+              </span>
+              <span className="bg-[var(--fpn-rojo)] py-1 text-center text-[10px] font-bold uppercase tracking-[0.35em] text-white sm:text-[11px]">
+                Network
+              </span>
             </span>
-            <span className="bg-[var(--fpn-rojo)] py-1 text-center text-[10px] font-bold uppercase tracking-[0.35em] text-white sm:text-[11px]">
-              Network
-            </span>
-          </span>
-        </Link>
+          </Link>
+        </div>
 
         <nav className="hidden flex-1 items-center justify-center gap-1 xl:flex 2xl:gap-2">
           {nav.map((category) => (
@@ -71,11 +77,19 @@ export default async function SiteHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <Link
+            href="/events"
+            className="hidden text-[13px] font-bold text-white/90 hover:text-white lg:inline"
+          >
+            Events
+          </Link>
           <button
             type="button"
-            aria-label="Search"
-            className="inline-flex h-6 w-6 items-center justify-center"
+            aria-label="Search (coming soon)"
+            title="Search coming soon"
+            disabled
+            className="inline-flex h-6 w-6 items-center justify-center opacity-60"
           >
             <Image src="/brand/search.svg" alt="" width={23} height={23} />
           </button>
@@ -87,7 +101,7 @@ export default async function SiteHeader() {
           </Link>
           <Link
             href="/login"
-            className="inline-flex h-[38px] w-[88px] items-center justify-center rounded-md border border-white text-[14px] font-black text-white sm:w-[105px]"
+            className="inline-flex h-[38px] min-w-[72px] items-center justify-center rounded-md border border-white px-3 text-[14px] font-black text-white sm:w-[105px]"
           >
             Login
           </Link>

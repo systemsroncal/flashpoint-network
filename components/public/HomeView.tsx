@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
 import VideoPlayer from "@/components/public/VideoPlayer";
 import type { HomePayload } from "@/lib/types/cms";
@@ -51,6 +52,35 @@ export default function HomeView({ data }: { data: HomePayload }) {
           </time>
         </div>
       </div>
+
+      {!data.featured &&
+      !data.liveEvent &&
+      data.grid.length === 0 &&
+      data.latest.length === 0 ? (
+        <div className="mx-auto max-w-[1440px] px-4 py-16 text-center md:px-8 lg:px-10">
+          <h1 className="font-article text-3xl font-black tracking-tight md:text-4xl">
+            Stories are on the way
+          </h1>
+          <p className="mx-auto mt-3 max-w-lg text-sm text-black/65">
+            The newsroom hasn&apos;t published coverage yet. Check Events or
+            sign in if you&apos;re on staff.
+          </p>
+          <div className="mt-6 flex justify-center gap-3">
+            <Link
+              href="/events"
+              className="rounded-md bg-[var(--fpn-rojo)] px-5 py-2.5 text-sm font-bold text-white"
+            >
+              Browse events
+            </Link>
+            <Link
+              href="/login"
+              className="rounded-md border border-black/15 px-5 py-2.5 text-sm font-bold"
+            >
+              Staff login
+            </Link>
+          </div>
+        </div>
+      ) : null}
 
       {/* Live hero */}
       {data.liveEvent ? (
@@ -212,7 +242,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
             </p>
           </div>
           <Link
-            href="/admin"
+            href="/register"
             className="inline-flex rounded-md bg-[var(--fpn-rojo)] px-7 py-3 text-sm font-bold text-white hover:brightness-110"
           >
             Subscribe
@@ -492,20 +522,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
           <h2 className="mx-auto max-w-xl font-article text-[1.75rem] font-black leading-snug tracking-tight">
             The biggest stories of the day delivered to your inbox
           </h2>
-          <form className="mx-auto mt-6 flex max-w-lg flex-col gap-2 sm:flex-row">
-            <input
-              type="email"
-              required
-              placeholder="Email address"
-              className="flex-1 border border-black/15 bg-white px-3 py-3 text-sm outline-none focus:border-[var(--fpn-rojo)]"
-            />
-            <button
-              type="submit"
-              className="rounded-md bg-[var(--fpn-rojo)] px-5 py-3 text-sm font-bold text-white hover:brightness-110"
-            >
-              Sign up
-            </button>
-          </form>
+          <NewsletterSignup />
         </section>
       </div>
     </div>
