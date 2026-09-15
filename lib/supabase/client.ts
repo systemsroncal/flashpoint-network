@@ -1,11 +1,17 @@
 "use client";
 
 import { createBrowserClient } from "@supabase/ssr";
-import { getSupabaseAnonKey, getSupabaseUrl, isSupabaseConfigured } from "@/lib/env";
+import {
+  getSupabaseAnonKey,
+  getSupabaseUrl,
+  isSupabaseConfigured,
+} from "@/lib/env";
 
 /**
- * Browser Supabase client. Returns null when credentials are not configured
- * so Phase 1 can run without a real project.
+ * Browser Supabase client via @supabase/ssr.
+ * Uses NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY
+ * (or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY as fallback).
+ * Returns null when credentials are not configured.
  */
 export function createClient() {
   if (!isSupabaseConfigured()) {

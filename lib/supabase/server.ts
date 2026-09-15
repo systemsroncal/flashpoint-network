@@ -1,9 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { getSupabaseAnonKey, getSupabaseUrl, isSupabaseConfigured } from "@/lib/env";
+import {
+  getSupabaseAnonKey,
+  getSupabaseUrl,
+  isSupabaseConfigured,
+} from "@/lib/env";
 
 /**
- * Server Supabase client stub. Safe no-op when env is missing.
+ * Server Supabase client via @supabase/ssr.
+ * Uses NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY
+ * (or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY as fallback).
+ * Returns null when credentials are not configured.
  */
 export async function createClient() {
   if (!isSupabaseConfigured()) {
