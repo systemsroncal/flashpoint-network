@@ -112,19 +112,6 @@ export default function MinistryProgramForm({
             label="Featured image"
             defaultValue={program?.featured_image_url ?? ""}
           />
-          <TextField
-            name="external_url"
-            label="External URL"
-            fullWidth
-            placeholder="https://fptn.com/ministry-programs"
-            defaultValue={program?.external_url ?? ""}
-          />
-          <TextField
-            name="source_url"
-            label="Source URL"
-            fullWidth
-            defaultValue={program?.source_url ?? ""}
-          />
           <RichTextEditor
             name="body"
             label="Body (optional)"

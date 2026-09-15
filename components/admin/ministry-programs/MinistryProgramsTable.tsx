@@ -78,7 +78,7 @@ export default function MinistryProgramsTable({
 
       <DashboardCard
         title="Ministry Programs"
-        subtitle={`${programs.length} total · seeded from fptn.com/ministry-programs`}
+        subtitle={`${programs.length} total`}
         action={
           <Button
             component={Link}
@@ -137,9 +137,7 @@ export default function MinistryProgramsTable({
               <TableRow>
                 <TableCell colSpan={5}>
                   <Typography color="textSecondary" sx={{ py: 2 }}>
-                    No ministry programs yet. Run{" "}
-                    <code>node scripts/scrape-ministry-programs.mjs</code> or
-                    create one.
+                    No ministry programs yet. Create one to get started.
                   </Typography>
                 </TableCell>
               </TableRow>

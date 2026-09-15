@@ -69,7 +69,7 @@ export default function ImageUploadField({
           />
         </Button>
         <Typography variant="caption" color="text.secondary" sx={{ pt: 1 }}>
-          Sharp → WebP → Supabase Storage (`media`). Or paste a URL below.
+          Sharp → WebP → project Storage (`media`). Prefer upload over pasting remote URLs.
         </Typography>
       </Stack>
       <TextField
@@ -78,7 +78,7 @@ export default function ImageUploadField({
         fullWidth
         value={url}
         onChange={(e) => setAndNotify(e.target.value)}
-        helperText={error ?? "Public URL used on the site and in Media."}
+          helperText={error ?? "Hosted on this project’s media Storage."}
         error={Boolean(error)}
       />
       {url ? (

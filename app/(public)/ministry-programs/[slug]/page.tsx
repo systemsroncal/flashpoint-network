@@ -89,16 +89,6 @@ export default async function MinistryProgramPage({ params }: Props) {
             >
               All ministry programs
             </Link>
-            {program.external_url ? (
-              <a
-                href={program.external_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex rounded-md border border-black/20 px-5 py-2.5 text-sm font-bold text-black transition hover:border-black/40"
-              >
-                Source page
-              </a>
-            ) : null}
           </div>
         </div>
       </div>

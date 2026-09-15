@@ -78,7 +78,7 @@ export default function ClassicProgramsTable({
 
       <DashboardCard
         title="Classic Programs"
-        subtitle={`${programs.length} total · seeded from fptn.com/classic-programs`}
+        subtitle={`${programs.length} total`}
         action={
           <Button
             component={Link}
@@ -137,9 +137,7 @@ export default function ClassicProgramsTable({
               <TableRow>
                 <TableCell colSpan={5}>
                   <Typography color="textSecondary" sx={{ py: 2 }}>
-                    No classic programs yet. Run{" "}
-                    <code>node scripts/scrape-classic-programs.mjs</code> or
-                    create one.
+                    No classic programs yet. Create one to get started.
                   </Typography>
                 </TableCell>
               </TableRow>

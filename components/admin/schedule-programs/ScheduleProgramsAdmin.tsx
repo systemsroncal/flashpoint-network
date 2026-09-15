@@ -125,7 +125,7 @@ export default function ScheduleProgramsAdmin({
 
       <DashboardCard
         title="Schedule entries"
-        subtitle={`${entries.length} in this month · seeded from September 2026 PDF`}
+        subtitle={`${entries.length} in this month`}
         action={
           <Stack direction="row" spacing={1}>
             <Button

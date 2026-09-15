@@ -11,7 +11,8 @@
     "users:ensure-staff": "node scripts/ensure-staff-users.mjs",
     "seed:classic-programs": "node scripts/scrape-classic-programs.mjs",
     "seed:ministry-programs": "node scripts/scrape-ministry-programs.mjs",
-    "seed:schedule-programs": "node scripts/seed-schedule-programs.mjs"
+    "seed:schedule-programs": "node scripts/seed-schedule-programs.mjs",
+    "seed:program-images": "node scripts/migrate-program-images.mjs"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

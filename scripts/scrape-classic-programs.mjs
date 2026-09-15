@@ -184,11 +184,11 @@ async function main() {
       description: c.alt || excerpt,
       body: null,
       featured_image_url: c.featured_image_url,
-      external_url: SOURCE,
+      external_url: null,
       schedule_note: c.schedule_note,
       sort_order: c.sort_order,
       status: "published",
-      source_url: SOURCE,
+      source_url: null,
     };
   });
 

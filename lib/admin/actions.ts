@@ -386,11 +386,11 @@ export async function upsertClassicProgramAction(formData: FormData) {
     body: String(formData.get("body") || "").trim() || null,
     featured_image_url:
       String(formData.get("featured_image_url") || "").trim() || null,
-    external_url: String(formData.get("external_url") || "").trim() || null,
+    external_url: null,
     schedule_note: String(formData.get("schedule_note") || "").trim() || null,
     sort_order: Number.isFinite(sortOrder) ? sortOrder : 0,
     status,
-    source_url: String(formData.get("source_url") || "").trim() || null,
+    source_url: null,
   };
 
   if (id) {
@@ -461,11 +461,11 @@ export async function upsertMinistryProgramAction(formData: FormData) {
     body: String(formData.get("body") || "").trim() || null,
     featured_image_url:
       String(formData.get("featured_image_url") || "").trim() || null,
-    external_url: String(formData.get("external_url") || "").trim() || null,
+    external_url: null,
     schedule_note: String(formData.get("schedule_note") || "").trim() || null,
     sort_order: Number.isFinite(sortOrder) ? sortOrder : 0,
     status,
-    source_url: String(formData.get("source_url") || "").trim() || null,
+    source_url: null,
   };
 
   if (id) {
