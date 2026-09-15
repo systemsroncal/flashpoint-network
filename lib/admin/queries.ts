@@ -138,7 +138,7 @@ export async function getAdminEmailTemplates() {
   const { data, error } = await supabase
     .from("email_templates")
     .select(
-      "id, name, slug, subject, body_html, header_bg_color, footer_bg_color, logo_url, max_width, updated_at",
+      "id, name, slug, subject, body_html, header_bg_color, footer_bg_color, logo_url, logo_align, max_width, updated_at",
     )
     .order("name", { ascending: true });
   if (error) throw new Error(error.message);

@@ -18,22 +18,22 @@ interface ItemType {
   toggleMobileSidebar: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
+const AppBarStyled = styled(AppBar)(({ theme }) => ({
+  boxShadow: "none",
+  background: theme.palette.background.paper,
+  justifyContent: "center",
+  backdropFilter: "blur(4px)",
+  [theme.breakpoints.up("lg")]: {
+    minHeight: "70px",
+  },
+}));
+
+const ToolbarStyled = styled(Toolbar)(({ theme }) => ({
+  width: "100%",
+  color: theme.palette.text.secondary,
+}));
+
 const Header = ({ toggleMobileSidebar }: ItemType) => {
-  const AppBarStyled = styled(AppBar)(({ theme }) => ({
-    boxShadow: "none",
-    background: theme.palette.background.paper,
-    justifyContent: "center",
-    backdropFilter: "blur(4px)",
-    [theme.breakpoints.up("lg")]: {
-      minHeight: "70px",
-    },
-  }));
-
-  const ToolbarStyled = styled(Toolbar)(({ theme }) => ({
-    width: "100%",
-    color: theme.palette.text.secondary,
-  }));
-
   return (
     <AppBarStyled position="sticky" color="default">
       <ToolbarStyled>
@@ -65,7 +65,11 @@ const Header = ({ toggleMobileSidebar }: ItemType) => {
 
         <Box flexGrow={1} />
         <Stack spacing={1} direction="row" alignItems="center">
-          <Typography variant="body2" color="textSecondary" sx={{ display: { xs: "none", sm: "block" } }}>
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            sx={{ display: { xs: "none", sm: "block" } }}
+          >
             Editor mode
           </Typography>
           <Profile />

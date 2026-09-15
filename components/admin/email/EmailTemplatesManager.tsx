@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import {
   Box,
   Button,
+  ButtonGroup,
   Grid,
   Stack,
   TextField,
@@ -15,6 +16,7 @@ import { upsertEmailTemplateAction } from "@/lib/admin/actions";
 import {
   compileEmailPreviewHtml,
   type EmailDesign,
+  type LogoAlign,
 } from "@/lib/email/preview";
 
 export type EmailTemplate = {
@@ -26,10 +28,16 @@ export type EmailTemplate = {
   header_bg_color?: string | null;
   footer_bg_color?: string | null;
   logo_url?: string | null;
+  logo_align?: string | null;
   max_width?: number | null;
 };
 
 const DEFAULT_LOGO = "/brand/fpn-logo-mark.svg";
+
+function asLogoAlign(value: string | null | undefined): LogoAlign {
+  if (value === "left" || value === "right" || value === "center") return value;
+  return "center";
+}
 
 function TemplateEditor({
   template,
@@ -56,6 +64,9 @@ function TemplateEditor({
   const [logoUrl, setLogoUrl] = useState(
     template?.logo_url ?? DEFAULT_LOGO,
   );
+  const [logoAlign, setLogoAlign] = useState<LogoAlign>(
+    asLogoAlign(template?.logo_align),
+  );
   const [maxWidth, setMaxWidth] = useState(
     String(template?.max_width ?? 600),
   );
@@ -66,8 +77,9 @@ function TemplateEditor({
       footerBgColor: footerBg,
       logoUrl,
       maxWidth: Number(maxWidth) || 600,
+      logoAlign,
     }),
-    [headerBg, footerBg, logoUrl, maxWidth],
+    [headerBg, footerBg, logoUrl, maxWidth, logoAlign],
   );
 
   const previewHtml = useMemo(
@@ -158,6 +170,24 @@ function TemplateEditor({
                 onChange={(e) => setLogoUrl(e.target.value)}
                 helperText="Shown in the email header"
               />
+              <Box>
+                <Typography variant="caption" color="text.secondary" display="block" mb={0.75}>
+                  Logo alignment
+                </Typography>
+                <input type="hidden" name="logo_align" value={logoAlign} />
+                <ButtonGroup size="small" variant="outlined">
+                  {(["left", "center", "right"] as LogoAlign[]).map((align) => (
+                    <Button
+                      key={align}
+                      type="button"
+                      variant={logoAlign === align ? "contained" : "outlined"}
+                      onClick={() => setLogoAlign(align)}
+                    >
+                      {align[0].toUpperCase() + align.slice(1)}
+                    </Button>
+                  ))}
+                </ButtonGroup>
+              </Box>
 
               <RichTextEditor
                 name="body_html"

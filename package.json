@@ -17,6 +17,7 @@
     "@mui/icons-material": "^7.3.11",
     "@mui/lab": "^7.0.1-beta.19",
     "@mui/material": "^7.3.11",
+    "@mui/material-nextjs": "^9.4.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.116.0",
     "@tabler/icons-react": "^3.46.0",

@@ -252,6 +252,9 @@ export async function upsertEmailTemplateAction(formData: FormData) {
   const footerBgColor =
     String(formData.get("footer_bg_color") || "").trim() || "#111111";
   const logoUrl = String(formData.get("logo_url") || "").trim() || null;
+  const logoAlignRaw = String(formData.get("logo_align") || "center").trim();
+  const logoAlign =
+    logoAlignRaw === "left" || logoAlignRaw === "right" ? logoAlignRaw : "center";
   const maxWidthRaw = Number(formData.get("max_width") || 600);
   const maxWidth = Number.isFinite(maxWidthRaw)
     ? Math.min(Math.max(maxWidthRaw, 320), 900)
@@ -265,6 +268,7 @@ export async function upsertEmailTemplateAction(formData: FormData) {
     header_bg_color: headerBgColor,
     footer_bg_color: footerBgColor,
     logo_url: logoUrl,
+    logo_align: logoAlign,
     max_width: maxWidth,
   };
   if (id) {

@@ -9,15 +9,15 @@ import {
   IconTags,
   IconUsers,
 } from "@tabler/icons-react";
-import { uniqueId } from "lodash";
 
+/** Stable ids — avoid lodash uniqueId() (SSR/client mismatch). */
 const Menuitems = [
   {
     navlabel: true,
     subheader: "HOME",
   },
   {
-    id: uniqueId(),
+    id: "nav-dashboard",
     title: "Dashboard",
     icon: IconLayoutDashboard,
     href: "/admin",
@@ -27,31 +27,31 @@ const Menuitems = [
     subheader: "CONTENT",
   },
   {
-    id: uniqueId(),
+    id: "nav-news",
     title: "News",
     icon: IconNews,
     href: "/admin/posts",
   },
   {
-    id: uniqueId(),
+    id: "nav-events",
     title: "Events",
     icon: IconCalendarEvent,
     href: "/admin/events",
   },
   {
-    id: uniqueId(),
+    id: "nav-categories",
     title: "Categories",
     icon: IconCategory,
     href: "/admin/categories",
   },
   {
-    id: uniqueId(),
+    id: "nav-tags",
     title: "Tags",
     icon: IconTags,
     href: "/admin/tags",
   },
   {
-    id: uniqueId(),
+    id: "nav-media",
     title: "Media",
     icon: IconPhoto,
     href: "/admin/media",
@@ -61,19 +61,19 @@ const Menuitems = [
     subheader: "SYSTEM",
   },
   {
-    id: uniqueId(),
+    id: "nav-users",
     title: "Users",
     icon: IconUsers,
     href: "/admin/users",
   },
   {
-    id: uniqueId(),
+    id: "nav-email-templates",
     title: "Email Templates",
     icon: IconMail,
     href: "/admin/email-templates",
   },
   {
-    id: uniqueId(),
+    id: "nav-settings",
     title: "Settings",
     icon: IconSettings,
     href: "/admin/settings",
