@@ -25,6 +25,7 @@ const COLUMNS = [
       { label: "Editorials", href: "/category/opinion" },
       { label: "Columns", href: "/category/opinion" },
       { label: "Events", href: "/events" },
+      { label: "Schedule", href: "/schedule-programs" },
     ],
   },
   {

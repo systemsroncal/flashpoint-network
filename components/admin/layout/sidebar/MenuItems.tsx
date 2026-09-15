@@ -53,6 +53,12 @@ const Menuitems = [
     href: "/admin/ministry-programs",
   },
   {
+    id: "nav-schedule-programs",
+    title: "Schedule Programs",
+    icon: IconCalendarEvent,
+    href: "/admin/schedule-programs",
+  },
+  {
     id: "nav-categories",
     title: "Categories",
     icon: IconCategory,

@@ -48,6 +48,31 @@ export type MinistryProgram = ClassicProgram & {
   status: MinistryProgramStatus;
 };
 
+export type ScheduleDisplayMode = "dynamic" | "pdf" | "both";
+
+export type ScheduleEntry = {
+  id: string;
+  air_date: string;
+  start_time: string;
+  end_time: string | null;
+  title: string;
+  description: string | null;
+  category: string | null;
+  color: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type SchedulePdf = {
+  id: string;
+  year: number;
+  month: number;
+  title: string;
+  pdf_url: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
 export type Category = {
   id: string;
   name: string;

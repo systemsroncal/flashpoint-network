@@ -517,3 +517,91 @@ export async function saveMinistryProgramsSortAction(formData: FormData) {
   revalidatePath("/ministry-programs");
   revalidatePath("/admin/ministry-programs");
 }
+
+export async function upsertScheduleEntryAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const id = String(formData.get("id") || "");
+  const title = String(formData.get("title") || "").trim();
+  const airDate = String(formData.get("air_date") || "").trim();
+  const startTime = String(formData.get("start_time") || "").trim();
+  if (!title || !airDate || !startTime) {
+    throw new Error("Title, date, and start time are required");
+  }
+  const endRaw = String(formData.get("end_time") || "").trim();
+  const payload = {
+    title,
+    air_date: airDate,
+    start_time: startTime.length === 5 ? `${startTime}:00` : startTime,
+    end_time: endRaw
+      ? endRaw.length === 5
+        ? `${endRaw}:00`
+        : endRaw
+      : null,
+    description: String(formData.get("description") || "").trim() || null,
+    category: String(formData.get("category") || "").trim() || null,
+    color: String(formData.get("color") || "").trim() || null,
+  };
+
+  if (id) {
+    const { error } = await supabase
+      .from("schedule_entries")
+      .update(payload)
+      .eq("id", id);
+    if (error) throw new Error(error.message);
+  } else {
+    const { data, error } = await supabase
+      .from("schedule_entries")
+      .insert(payload)
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    revalidatePath("/schedule-programs");
+    revalidatePath("/admin/schedule-programs");
+    redirect(`/admin/schedule-programs/${data.id}`);
+  }
+
+  revalidatePath("/schedule-programs");
+  revalidatePath("/admin/schedule-programs");
+  revalidatePath(`/admin/schedule-programs/${id}`);
+  redirect(`/admin/schedule-programs/${id}`);
+}
+
+export async function deleteScheduleEntryAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const id = String(formData.get("id") || "");
+  if (!id) throw new Error("Missing id");
+  const { error } = await supabase.from("schedule_entries").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/schedule-programs");
+  revalidatePath("/admin/schedule-programs");
+  redirect("/admin/schedule-programs");
+}
+
+export async function saveScheduleDisplayModeAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const mode = String(formData.get("display_mode") || "dynamic").trim();
+  const value = ["dynamic", "pdf", "both"].includes(mode) ? mode : "dynamic";
+  const { error } = await supabase.from("site_settings").upsert({
+    key: "schedule_display_mode",
+    value,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/schedule-programs");
+  revalidatePath("/admin/schedule-programs");
+}
+
+export async function saveSchedulePdfAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const year = Number(formData.get("year") || 2026);
+  const month = Number(formData.get("month") || 9);
+  const title = String(formData.get("title") || "").trim() || `Schedule ${year}-${month}`;
+  const pdfUrl = String(formData.get("pdf_url") || "").trim();
+  if (!pdfUrl) throw new Error("PDF URL is required");
+  const { error } = await supabase.from("schedule_pdfs").upsert(
+    { year, month, title, pdf_url: pdfUrl },
+    { onConflict: "year,month" },
+  );
+  if (error) throw new Error(error.message);
+  revalidatePath("/schedule-programs");
+  revalidatePath("/admin/schedule-programs");
+}

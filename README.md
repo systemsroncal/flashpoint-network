@@ -30,10 +30,12 @@ Dev server: **http://127.0.0.1:43125**
 | `/classic-programs/[slug]` | Classic program detail |
 | `/ministry-programs` | Ministry / gospel grid |
 | `/ministry-programs/[slug]` | Ministry program detail |
+| `/schedule-programs` | Broadcast schedule (day grid + optional PDF) |
 | `/login` `/register` `/forgot-password` | Auth flows |
 | `/admin` | Staff CMS (RBAC: superadmin/admin/editor/journalist) |
 | `/admin/classic-programs` | Classic Programs CRUD + grid sort |
 | `/admin/ministry-programs` | Ministry Programs CRUD + grid sort |
+| `/admin/schedule-programs` | Schedule entries + display mode + PDF |
 | `/ads.txt` | Dynamic ads.txt from Settings |
 | `/api/health` | Health check |
 | `/api/revalidate` | On-demand path revalidation |
@@ -63,6 +65,7 @@ Scrape public HTML from fptn.com and upsert into Supabase:
 ```bash
 npm run seed:classic-programs
 npm run seed:ministry-programs
+npm run seed:schedule-programs
 ```
 
-Snapshots: `scripts/data/classic-programs-seed.json`, `scripts/data/ministry-programs-seed.json`. Images stay as remote GoDaddy CDN URLs.
+Snapshots under `scripts/data/`. Classic/ministry images stay as remote GoDaddy CDN URLs. Schedule seeds dated entries for September 2026 from the PDF grid and copies the PDF to `public/schedules/`.

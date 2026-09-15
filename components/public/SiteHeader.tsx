@@ -79,6 +79,12 @@ export default async function SiteHeader() {
 
         <div className="flex items-center gap-2 sm:gap-4">
           <Link
+            href="/schedule-programs"
+            className="hidden text-[13px] font-bold text-white/90 hover:text-white lg:inline"
+          >
+            Schedule
+          </Link>
+          <Link
             href="/classic-programs"
             className="hidden text-[13px] font-bold text-white/90 hover:text-white lg:inline"
           >
