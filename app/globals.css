@@ -2,9 +2,11 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-  --fpn-navy: #001f3f;
-  --fpn-cta: #e85d04;
+  --foreground: #111111;
+  --fpn-black: #000000;
+  --fpn-red: #e10600;
+  --fpn-orange: #ff4500;
+  --font-article: "Times New Roman", Times, "Liberation Serif", serif;
 }
 
 @theme inline {
@@ -18,4 +20,12 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Publication titles: Times New Roman */
+.font-article,
+article h1,
+article h2,
+article h3 {
+  font-family: "Times New Roman", Times, "Liberation Serif", Georgia, serif !important;
 }

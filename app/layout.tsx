@@ -15,19 +15,23 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: {
     default: "Flash Point Network",
-    template: "%s · FP Network",
+    template: "%s · Flash Point Network",
   },
   description:
-    "Flash Point Network — digital newspaper platform with public portal and editorial admin.",
+    "Flash Point Network — digital newspaper. Get The Full Story. As It Is.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white text-[#171717]">
+      <body className="flex min-h-full flex-col bg-white text-[#111111]">
         {children}
       </body>
     </html>
