@@ -67,7 +67,7 @@ export default function PostCard({ post, variant = "grid" }: Props) {
       <article className="flex gap-3.5 border-b border-[#ccc]/80 py-3.5 last:border-b-0">
         <Link
           href={href}
-          className="relative aspect-video w-[118px] shrink-0 overflow-hidden rounded-md bg-neutral-200 sm:w-[132px]"
+          className="relative aspect-video w-[128px] shrink-0 overflow-hidden rounded-[8px] bg-neutral-200 sm:w-[140px]"
         >
           {podcastThumb ? (
             <Image
@@ -75,14 +75,14 @@ export default function PostCard({ post, variant = "grid" }: Props) {
               alt=""
               fill
               className="object-cover"
-              sizes="132px"
+              sizes="140px"
             />
           ) : null}
           <span className="absolute bottom-1.5 left-1.5">
             <Image src="/brand/play-btn.svg" alt="" width={22} height={22} />
           </span>
         </Link>
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 self-center">
           <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
             {category}
           </p>
@@ -102,7 +102,7 @@ export default function PostCard({ post, variant = "grid" }: Props) {
       <article className="border-b border-[#ccc]/80 py-4 last:border-b-0">
         <Link
           href={href}
-          className="relative mb-3 block aspect-[16/10] overflow-hidden rounded-[12px] bg-neutral-200"
+          className="relative mb-3 block aspect-video overflow-hidden rounded-[10px] bg-neutral-200"
         >
           {post.featured_image_url ? (
             <Image
@@ -192,7 +192,7 @@ export default function PostCard({ post, variant = "grid" }: Props) {
       <article>
         <Link
           href={href}
-          className="relative mb-4 block aspect-[16/10] overflow-hidden rounded-[15px] bg-neutral-200"
+          className="relative mb-4 block aspect-video overflow-hidden rounded-[24px] bg-neutral-200"
         >
           {post.featured_image_url ? (
             <Image

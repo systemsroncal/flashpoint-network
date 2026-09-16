@@ -185,7 +185,7 @@ export async function getHomePayload(): Promise<HomePayload> {
     secondary: latestPool.slice(1, 3),
     podcasts: asPosts(podcastsRes.data),
     grid: [...politics, ...world],
-    latest: latestPool.slice(3, 8),
+    latest: latestPool.slice(3, 8), // continue same feed beside/below (≈5 → total 8)
     politics,
     world,
     mustWatch: asPosts(mustWatchRes.data),

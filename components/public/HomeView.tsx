@@ -161,25 +161,51 @@ export default function HomeView({ data }: { data: HomePayload }) {
       ) : null}
 
       <div className="mx-auto max-w-[1440px] space-y-12 px-4 py-10 md:px-8 lg:px-10 lg:py-12">
-        {/* Latest News: hero + 2 sides + podcasts/latest strip (~8 total) */}
-        <section className="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.95fr)_minmax(0,1.15fr)] lg:gap-7 lg:items-start">
-          <div>
-            {data.featured ? (
-              <PostCard post={data.featured} variant="hero" />
+        {/* Figma Frame 23: left (hero+2 + Politics/World) | right (Podcasts + Latest) */}
+        <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(280px,370px)] lg:gap-10 lg:items-start">
+          <div className="min-w-0 space-y-10">
+            {/* Hero + 2 side stories (newest) */}
+            <div className="grid gap-7 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)] lg:gap-7">
+              <div>
+                {data.featured ? (
+                  <PostCard post={data.featured} variant="hero" />
+                ) : null}
+              </div>
+              <div className="flex flex-col border-t border-[#ccc] lg:border-t-0 lg:border-l lg:border-[#ccc] lg:pl-7">
+                {data.secondary.map((post) => (
+                  <PostCard key={post.id} post={post} variant="stack" />
+                ))}
+              </div>
+            </div>
+
+            {/* Politics (4) + World (4) — under hero, left column, Figma card grid */}
+            {politicsWorld.length > 0 ? (
+              <div className="space-y-5">
+                <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#ccc] pb-2">
+                  <h2 className="font-article text-[1.35rem] font-black tracking-tight md:text-[1.55rem]">
+                    Politics &amp; World
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <SeeMore href="/category/politics" label="Ver más · Politics" />
+                    <SeeMore href="/category/world" label="Ver más · World" />
+                  </div>
+                </div>
+                <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
+                  {politicsWorld.map((post) => (
+                    <PostCard key={post.id} post={post} />
+                  ))}
+                </div>
+              </div>
             ) : null}
           </div>
-          <div className="flex flex-col">
-            {data.secondary.map((post) => (
-              <PostCard key={post.id} post={post} variant="stack" />
-            ))}
-          </div>
-          <aside className="min-w-0 space-y-6">
+
+          <aside className="min-w-0 space-y-8 lg:sticky lg:top-24">
             <div>
               <div className="mb-2 flex items-end justify-between gap-3">
                 <h2 className="font-article text-[1.65rem] font-black leading-none tracking-tight">
                   Podcasts
                 </h2>
-                <SeeMore href="/feed/podcasts" />
+                <SeeMore href="/feed/podcasts" label="See all" />
               </div>
               <div className="border-t border-[#ccc]">
                 {data.podcasts.map((post) => (
@@ -202,42 +228,6 @@ export default function HomeView({ data }: { data: HomePayload }) {
             </div>
           </aside>
         </section>
-
-        {/* Politics (4) + World (4) */}
-        {politicsWorld.length > 0 ? (
-          <section className="space-y-8">
-            {data.politics.length > 0 ? (
-              <div>
-                <div className="mb-5 flex items-end justify-between gap-3 border-b border-[#ccc] pb-2">
-                  <h2 className="font-article text-[1.65rem] font-black tracking-tight md:text-[1.85rem]">
-                    Politics
-                  </h2>
-                  <SeeMore href="/category/politics" />
-                </div>
-                <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
-                  {data.politics.map((post) => (
-                    <PostCard key={post.id} post={post} />
-                  ))}
-                </div>
-              </div>
-            ) : null}
-            {data.world.length > 0 ? (
-              <div>
-                <div className="mb-5 flex items-end justify-between gap-3 border-b border-[#ccc] pb-2">
-                  <h2 className="font-article text-[1.65rem] font-black tracking-tight md:text-[1.85rem]">
-                    World
-                  </h2>
-                  <SeeMore href="/category/world" />
-                </div>
-                <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
-                  {data.world.map((post) => (
-                    <PostCard key={post.id} post={post} />
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </section>
-        ) : null}
 
         {/* Subscribe banner */}
         <section className="flex flex-col items-center justify-between gap-5 overflow-hidden rounded-[12px] bg-black px-6 py-7 text-white md:flex-row md:px-10">
