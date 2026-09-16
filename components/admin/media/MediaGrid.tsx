@@ -52,9 +52,10 @@ export default function MediaGrid({ items }: { items: MediaItem[] }) {
     >
       <Stack spacing={2} mb={3}>
         <Typography variant="body2" color="text.secondary">
-          Upload optimizes with Sharp (WebP) and stores in the public Supabase{" "}
-          <code>media</code> bucket. Paste the URL into a News featured image
-          field.
+          Upload optimizes with Sharp (WebP) and saves on the server under{" "}
+          <code>public/uploads/</code> (public URL <code>/uploads/…</code>).
+          Paste the URL into a News featured image field. Existing Supabase
+          Storage URLs keep working as-is.
         </Typography>
         <Button
           variant="contained"

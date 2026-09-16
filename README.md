@@ -5,8 +5,8 @@ Digital newspaper: public SEO portal + Flash Point Network admin CMS on Next.js 
 ## Stack
 
 - Next.js App Router (TypeScript) + Tailwind
-- Supabase (Auth, Postgres, Storage, RLS)
-- Sharp, Tiptap, Resend/Nodemailer, Plyr
+- Supabase (Auth, Postgres, RLS; legacy Storage URLs still load)
+- Sharp → local `public/uploads/` for new admin images; Tiptap, Resend/Nodemailer, Plyr
 - Admin UI (MUI) branded with Flash Point Network orange (`--fpn-rojo` / `#FF490D`)
 
 ## Getting started
@@ -73,11 +73,19 @@ npm run seed:schedule-programs
 Snapshots under `scripts/data/`. Program posters live in the repo at `public/media/programs/` (full Storage dump under `public/media/`) so a new host does not depend on fptn.com or a cold bucket.
 
 ```bash
-npm run seed:program-images   # remote posters → Supabase Storage (service role)
+npm run seed:program-images   # remote posters → Supabase Storage (legacy; prefer local)
 npm run vendor:media          # Storage bucket → public/media (commit the files)
 ```
 
 Classic/Ministry pages rewrite Storage URLs to `/media/...`. Schedule seeds dated entries for September 2026 and copies the PDF to `public/schedules/`.
+
+## Admin image uploads (local disk)
+
+New admin uploads (Sharp → WebP) are written to **`public/uploads/YYYY-MM-DD/<uuid>.webp`** and served as **`/uploads/...`** through Next (port 43125 behind OLS). They are **not** sent to Supabase Storage.
+
+- Binaries are gitignored; keep `public/uploads/.gitkeep`.
+- On the VPS the folder persists across deploys — `scripts/deploy-from-github.sh` excludes `public/uploads` from `git clean`.
+- Older posts that already store full Supabase Storage URLs continue to work unchanged.
 
 ## Deploy / VPS (pm2)
 

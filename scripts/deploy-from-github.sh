@@ -131,8 +131,15 @@ sync_git() {
     git reset --hard "origin/$BRANCH"
   fi
 
-  # Drop untracked junk but keep env files
-  git clean -fd -e .env.local -e .env.production -e '.env.local.*' -e '.env.production.*'
+  # Drop untracked junk but keep env files and runtime media uploads on disk.
+  # public/uploads must survive deploys (admin Sharp → local files, not Storage).
+  git clean -fd \
+    -e .env.local \
+    -e .env.production \
+    -e '.env.local.*' \
+    -e '.env.production.*' \
+    -e public/uploads \
+    -e 'public/uploads/**'
 }
 
 pm2_restart_or_start() {
