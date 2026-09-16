@@ -19,7 +19,34 @@ export type GenerateNewsResult = {
   excerpt?: string;
   bodyHtml: string;
   researchNotes?: string;
+  mock?: boolean;
 };
+
+function allowMockFallback() {
+  if (process.env.AI_MOCK === "1" || process.env.AI_MOCK === "true") return true;
+  // Local/dev without keys: keep the editor usable
+  return process.env.NODE_ENV !== "production";
+}
+
+function mockArticle(input: GenerateNewsInput): GenerateNewsResult {
+  const topic = input.prompt.slice(0, 120).replace(/\s+/g, " ").trim();
+  const title = input.fillTitle
+    ? `FlashPoint desk draft: ${topic.slice(0, 72) || "Untitled"}`
+    : undefined;
+  const excerpt = input.fillExcerpt
+    ? `A newsroom draft generated locally without a live provider key. Topic: ${topic.slice(0, 140)}.`
+    : undefined;
+  const bodyHtml = [
+    `<p><em>Mock AI draft</em> — no live API key was used. Add <code>AI_NVIDIA_API_KEY</code> (or another provider key) on the server for real generation.</p>`,
+    `<p>Assignment: ${escapeHtml(topic || "general coverage")}</p>`,
+    `<h2>What we know</h2>`,
+    `<p>Editors should replace this placeholder with reported facts, attributed quotes, and verified context before publishing.</p>`,
+    `<h2>Why it matters</h2>`,
+    `<p>This scaffold keeps the News AI button functional in development and on misconfigured hosts so workflows are not blocked.</p>`,
+    `<ul><li>Verify sources</li><li>Update the dek and headline</li><li>Remove the mock notice</li></ul>`,
+  ].join("");
+  return { title, excerpt, bodyHtml, mock: true };
+}
 
 async function gatherWebNotes(query: string): Promise<string> {
   try {
@@ -127,12 +154,32 @@ function escapeHtml(s: string) {
     .replace(/>/g, "&gt;");
 }
 
+/** NVIDIA / OpenAI-compatible error bodies vary: error.message, detail, title. */
+function providerErrorMessage(data: unknown, status: number): string {
+  if (!data || typeof data !== "object") {
+    return `Provider error (${status})`;
+  }
+  const obj = data as Record<string, unknown>;
+  const nested = obj.error;
+  if (nested && typeof nested === "object") {
+    const msg = (nested as { message?: unknown }).message;
+    if (typeof msg === "string" && msg.trim()) return msg.trim();
+  }
+  if (typeof obj.detail === "string" && obj.detail.trim()) return obj.detail.trim();
+  if (typeof obj.title === "string" && obj.title.trim()) {
+    return `${obj.title}${obj.detail ? `: ${String(obj.detail)}` : ""} (${status})`;
+  }
+  if (typeof obj.message === "string" && obj.message.trim()) return obj.message.trim();
+  return `Provider error (${status})`;
+}
+
 async function callOpenAiCompatible(options: {
   endpoint: string;
   apiKey: string;
   model: string;
   system: string;
   user: string;
+  maxTokens?: number;
   extraHeaders?: Record<string, string>;
 }): Promise<string> {
   const res = await fetch(options.endpoint, {
@@ -140,11 +187,14 @@ async function callOpenAiCompatible(options: {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${options.apiKey}`,
+      Accept: "application/json",
       ...(options.extraHeaders || {}),
     },
     body: JSON.stringify({
       model: options.model,
       temperature: 0.5,
+      max_tokens: options.maxTokens ?? 4096,
+      stream: false,
       messages: [
         { role: "system", content: options.system },
         { role: "user", content: options.user },
@@ -152,14 +202,14 @@ async function callOpenAiCompatible(options: {
     }),
     signal: AbortSignal.timeout(90000),
   });
-  const data = (await res.json().catch(() => ({}))) as {
-    error?: { message?: string };
-    choices?: { message?: { content?: string } }[];
-  };
+  const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) {
-    throw new Error(data.error?.message || `Provider error (${res.status})`);
+    throw new Error(providerErrorMessage(data, res.status));
   }
-  const content = data.choices?.[0]?.message?.content;
+  const choices = data.choices as
+    | { message?: { content?: string } }[]
+    | undefined;
+  const content = choices?.[0]?.message?.content;
   if (!content) throw new Error("Empty model response");
   return content;
 }
@@ -185,14 +235,12 @@ async function callAnthropic(
     }),
     signal: AbortSignal.timeout(90000),
   });
-  const data = (await res.json().catch(() => ({}))) as {
-    error?: { message?: string };
-    content?: { type: string; text?: string }[];
-  };
+  const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) {
-    throw new Error(data.error?.message || `Anthropic error (${res.status})`);
+    throw new Error(providerErrorMessage(data, res.status));
   }
-  const text = data.content?.find((c) => c.type === "text")?.text;
+  const content = data.content as { type: string; text?: string }[] | undefined;
+  const text = content?.find((c) => c.type === "text")?.text;
   if (!text) throw new Error("Empty Anthropic response");
   return text;
 }
@@ -214,16 +262,14 @@ async function callGemini(
     }),
     signal: AbortSignal.timeout(90000),
   });
-  const data = (await res.json().catch(() => ({}))) as {
-    error?: { message?: string };
-    candidates?: { content?: { parts?: { text?: string }[] } }[];
-  };
+  const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) {
-    throw new Error(data.error?.message || `Gemini error (${res.status})`);
+    throw new Error(providerErrorMessage(data, res.status));
   }
-  const text = data.candidates?.[0]?.content?.parts
-    ?.map((p) => p.text || "")
-    .join("");
+  const candidates = data.candidates as
+    | { content?: { parts?: { text?: string }[] } }[]
+    | undefined;
+  const text = candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("");
   if (!text) throw new Error("Empty Gemini response");
   return text;
 }
@@ -259,6 +305,7 @@ async function invokeProvider(
         model: modelId,
         system,
         user,
+        maxTokens: 4096,
       });
     case "perplexity":
       return callOpenAiCompatible({
@@ -281,20 +328,25 @@ export async function generateNewsArticle(
   input: GenerateNewsInput,
 ): Promise<GenerateNewsResult> {
   const model = findAiModel(input.modelId);
-  if (!model) throw new Error("Unknown model");
+  if (!model) {
+    throw new Error(
+      `Unknown model "${input.modelId}". Refresh the page and pick a current NVIDIA NIM model.`,
+    );
+  }
   const apiKey = input.keys[model.provider]?.trim();
   if (!apiKey) {
+    if (allowMockFallback()) {
+      return mockArticle(input);
+    }
     throw new Error(
-      `No API key configured for ${model.provider}. Add it in Settings.`,
+      `No API key configured for ${model.provider}. Add AI_NVIDIA_API_KEY (or NVIDIA_API_KEY) in .env.local / Settings, then restart PM2 with --update-env.`,
     );
   }
 
   let researchNotes = "";
   if (model.webGrounded && model.provider === "perplexity") {
-    researchNotes =
-      "(Perplexity model will perform its own web research.)";
+    researchNotes = "(Perplexity model will perform its own web research.)";
   } else if (input.keys.perplexity && model.provider !== "perplexity") {
-    // Optional: quick Perplexity research pass
     try {
       const research = await callOpenAiCompatible({
         endpoint: "https://api.perplexity.ai/chat/completions",
@@ -303,6 +355,7 @@ export async function generateNewsArticle(
         system:
           "Summarize the latest relevant facts for a news desk in 8 short bullet points. No fluff.",
         user: input.prompt,
+        maxTokens: 1024,
       });
       researchNotes = research;
     } catch {
@@ -319,19 +372,30 @@ export async function generateNewsArticle(
     input.fillTitle,
     input.fillExcerpt,
   );
-  const raw = await invokeProvider(
-    model.provider,
-    model.id,
-    apiKey,
-    system,
-    user,
-  );
-  const parsed = extractJson(raw);
 
-  return {
-    title: input.fillTitle ? parsed.title : undefined,
-    excerpt: input.fillExcerpt ? parsed.excerpt : undefined,
-    bodyHtml: parsed.bodyHtml,
-    researchNotes: researchNotes || undefined,
-  };
+  try {
+    const raw = await invokeProvider(
+      model.provider,
+      model.id,
+      apiKey,
+      system,
+      user,
+    );
+    const parsed = extractJson(raw);
+    return {
+      title: input.fillTitle ? parsed.title : undefined,
+      excerpt: input.fillExcerpt ? parsed.excerpt : undefined,
+      bodyHtml: parsed.bodyHtml,
+      researchNotes: researchNotes || undefined,
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Generation failed";
+    // EOL / gone models: surface a clear next step
+    if (/end of life|no longer available|Gone/i.test(message)) {
+      throw new Error(
+        `${message} Pick an updated NVIDIA model (e.g. Nemotron 70B) from the list.`,
+      );
+    }
+    throw new Error(message);
+  }
 }

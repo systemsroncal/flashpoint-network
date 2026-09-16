@@ -263,10 +263,13 @@ export default function SettingsManager({
           <Stack spacing={2}>
             <Alert severity="info">
               Leave a field blank to keep the current key. Check “Clear” to remove
-              a saved key. Optional env overrides:{" "}
+              a saved key. Env overrides (any alias works for NVIDIA):{" "}
+              <code>AI_NVIDIA_API_KEY</code>, <code>NVIDIA_API_KEY</code>,{" "}
+              <code>NGC_API_KEY</code>. Also{" "}
               <code>AI_GOOGLE_API_KEY</code>, <code>AI_OPENAI_API_KEY</code>,{" "}
               <code>AI_XAI_API_KEY</code>, <code>AI_ANTHROPIC_API_KEY</code>,{" "}
-              <code>AI_NVIDIA_API_KEY</code>, <code>AI_PERPLEXITY_API_KEY</code>.
+              <code>AI_PERPLEXITY_API_KEY</code>. After editing env on the VPS,
+              run <code>pm2 restart fptn --update-env</code>.
             </Alert>
             {aiProviders.map((p) => (
               <Box

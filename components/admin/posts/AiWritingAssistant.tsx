@@ -111,6 +111,7 @@ export default function AiWritingAssistant({
         title?: string | null;
         excerpt?: string | null;
         bodyHtml?: string;
+        mock?: boolean;
       };
       if (!res.ok || !data.bodyHtml) {
         throw new Error(data.error || "Generation failed");
@@ -120,7 +121,11 @@ export default function AiWritingAssistant({
         excerpt: data.excerpt || undefined,
         bodyHtml: data.bodyHtml,
       });
-      setOkMsg("Draft inserted into the body editor.");
+      setOkMsg(
+        data.mock
+          ? "Mock draft inserted (no live API key). Set AI_NVIDIA_API_KEY on the server for real generation."
+          : "Draft inserted into the body editor.",
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Generation failed");
     } finally {

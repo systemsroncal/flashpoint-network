@@ -53,18 +53,28 @@ export const AI_MODELS: AiModelDef[] = [
     provider: "anthropic",
   },
   {
-    id: "meta/llama-3.1-70b-instruct",
-    label: "Llama 3.1 70B (NIM)",
-    provider: "nvidia",
-  },
-  {
-    id: "meta/llama-3.1-8b-instruct",
-    label: "Llama 3.1 8B (NIM)",
-    provider: "nvidia",
-  },
-  {
     id: "nvidia/llama-3.1-nemotron-70b-instruct",
     label: "Nemotron 70B (NIM)",
+    provider: "nvidia",
+  },
+  {
+    id: "nvidia/llama-3.1-nemotron-51b-instruct",
+    label: "Nemotron 51B (NIM)",
+    provider: "nvidia",
+  },
+  {
+    id: "mistralai/mistral-large-2-instruct",
+    label: "Mistral Large 2 (NIM)",
+    provider: "nvidia",
+  },
+  {
+    id: "google/gemma-3-12b-it",
+    label: "Gemma 3 12B (NIM)",
+    provider: "nvidia",
+  },
+  {
+    id: "mistralai/mistral-7b-instruct-v0.3",
+    label: "Mistral 7B (NIM)",
     provider: "nvidia",
   },
   {
@@ -94,5 +104,14 @@ export type AiProviderStatus = {
 };
 
 export function findAiModel(modelId: string): AiModelDef | undefined {
-  return AI_MODELS.find((m) => m.id === modelId);
+  const direct = AI_MODELS.find((m) => m.id === modelId);
+  if (direct) return direct;
+  // Retired NIM IDs → closest current model (avoids EOL 410 after catalog refresh)
+  const aliases: Record<string, string> = {
+    "meta/llama-3.1-70b-instruct": "nvidia/llama-3.1-nemotron-70b-instruct",
+    "meta/llama-3.1-8b-instruct": "mistralai/mistral-7b-instruct-v0.3",
+    "meta/llama-3.3-70b-instruct": "nvidia/llama-3.1-nemotron-70b-instruct",
+  };
+  const mapped = aliases[modelId];
+  return mapped ? AI_MODELS.find((m) => m.id === mapped) : undefined;
 }
