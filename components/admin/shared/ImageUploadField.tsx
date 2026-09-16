@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -9,7 +9,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { uploadMediaAction } from "@/lib/admin/upload";
 
 type Props = {
   name?: string;
@@ -17,6 +16,10 @@ type Props = {
   defaultValue?: string | null;
   onUrlChange?: (url: string) => void;
 };
+
+type UploadResponse =
+  | { ok: true; url: string }
+  | { ok: false; error: string };
 
 export default function ImageUploadField({
   name = "featured_image_url",
@@ -26,7 +29,7 @@ export default function ImageUploadField({
 }: Props) {
   const [url, setUrl] = useState(defaultValue ?? "");
   const [error, setError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+  const [pending, setPending] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const setAndNotify = (next: string) => {
@@ -34,19 +37,40 @@ export default function ImageUploadField({
     onUrlChange?.(next);
   };
 
-  const onFile = (file: File | null) => {
+  const onFile = async (file: File | null) => {
     if (!file) return;
     setError(null);
-    const fd = new FormData();
-    fd.set("file", file);
-    startTransition(async () => {
-      const result = await uploadMediaAction(fd);
+    setPending(true);
+    try {
+      const fd = new FormData();
+      fd.set("file", file);
+      const res = await fetch("/api/admin/media/upload", {
+        method: "POST",
+        body: fd,
+        credentials: "same-origin",
+      });
+      let result: UploadResponse;
+      try {
+        result = (await res.json()) as UploadResponse;
+      } catch {
+        setError(
+          res.status === 413
+            ? "Image is too large for the server (max 10MB)."
+            : `Upload failed (${res.status}).`,
+        );
+        return;
+      }
       if (!result.ok) {
-        setError(result.error);
+        setError(result.error || `Upload failed (${res.status}).`);
         return;
       }
       setAndNotify(result.url);
-    });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setPending(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
   };
 
   return (
@@ -65,7 +89,7 @@ export default function ImageUploadField({
             hidden
             type="file"
             accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-            onChange={(e) => onFile(e.target.files?.[0] ?? null)}
+            onChange={(e) => void onFile(e.target.files?.[0] ?? null)}
           />
         </Button>
         <Typography variant="caption" color="text.secondary" sx={{ pt: 1 }}>

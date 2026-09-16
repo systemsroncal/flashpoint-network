@@ -81,11 +81,13 @@ Classic/Network pages rewrite Storage URLs to `/media/...`. Schedule seeds dated
 
 ## Admin image uploads (local disk)
 
-New admin uploads (Sharp → WebP) are written to **`public/uploads/YYYY-MM-DD/<uuid>.webp`** and served as **`/uploads/...`** through Next (port 43125 behind OLS). They are **not** sent to Supabase Storage.
+New admin uploads go through **`POST /api/admin/media/upload`** (Route Handler — not a Server Action), run Sharp → WebP, and write to **`public/uploads/YYYY-MM-DD/<uuid>.webp`**, served as **`/uploads/...`** through Next (port 43125 behind OLS). They are **not** sent to Supabase Storage.
 
+- Max size **10MB**. Server Actions also allow up to **11MB** (`experimental.serverActions.bodySizeLimit`) for other form posts.
 - Binaries are gitignored; keep `public/uploads/.gitkeep`.
 - On the VPS the folder persists across deploys — `scripts/deploy-from-github.sh` excludes `public/uploads` from `git clean`.
 - Older posts that already store full Supabase Storage URLs continue to work unchanged.
+- If PM2 has `SITE_URL=https://fptn.com, https://fptn.com`, scrub it to a single origin (`https://fptn.com`) so Next stops throwing `ERR_INVALID_URL`.
 
 ## Deploy / VPS (pm2)
 

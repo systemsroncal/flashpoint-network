@@ -240,7 +240,7 @@ export default function CategoryView({
                   href="/feed/podcasts"
                   className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
                 >
-                  Ver más
+                  See more
                 </Link>
               </div>
               <div className="border-t border-[#ccc]">
@@ -259,7 +259,7 @@ export default function CategoryView({
                   href="/feed/latest"
                   className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
                 >
-                  Ver más
+                  See more
                 </Link>
               </div>
               <div className="border-t border-[#ccc]">
@@ -296,7 +296,7 @@ export default function CategoryView({
                   href="/feed/popular"
                   className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
                 >
-                  Ver más
+                  See more
                 </Link>
               </div>
               <ol className="divide-y divide-[#ccc] border-t border-[#ccc]">

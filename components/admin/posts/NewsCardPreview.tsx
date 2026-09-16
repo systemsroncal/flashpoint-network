@@ -1,6 +1,7 @@
 "use client";
 
 import { Box, Chip, Link as MuiLink, Stack, Typography } from "@mui/material";
+import { normalizePublicUrl } from "@/lib/env";
 
 export type NewsCardPreviewProps = {
   title: string;
@@ -66,7 +67,7 @@ export default function NewsCardPreview({
   });
   const origin = (() => {
     try {
-      return new URL(siteUrl).origin.replace(/\/$/, "");
+      return new URL(normalizePublicUrl(siteUrl)).origin.replace(/\/$/, "");
     } catch {
       return siteUrl.replace(/\/$/, "") || "";
     }

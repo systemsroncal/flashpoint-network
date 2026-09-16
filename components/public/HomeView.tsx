@@ -12,7 +12,7 @@ import {
 } from "@/lib/format";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
 
-function SeeMore({ href, label = "Ver más" }: { href: string; label?: string }) {
+function SeeMore({ href, label = "See more" }: { href: string; label?: string }) {
   return (
     <Link
       href={href}
@@ -196,8 +196,8 @@ export default function HomeView({ data }: { data: HomePayload }) {
             {politicsWorld.length > 0 ? (
               <div>
                 <div className="mb-1 flex flex-wrap items-center justify-end gap-4">
-                  <SeeMore href="/category/politics" label="Ver más · Politics" />
-                  <SeeMore href="/category/world" label="Ver más · World" />
+                  <SeeMore href="/category/politics" label="See more · Politics" />
+                  <SeeMore href="/category/world" label="See more · World" />
                 </div>
                 <div className="grid gap-x-[21px] gap-y-2 sm:grid-cols-2 xl:grid-cols-3">
                   {politicsWorld.map((post) => (

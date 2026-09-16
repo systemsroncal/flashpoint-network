@@ -258,7 +258,7 @@ export default function NewsArticleView({
                 href="/feed/latest"
                 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
               >
-                Ver más
+                See more
               </Link>
             </div>
             <div className="mt-2 border-t border-[#ccc]">
@@ -277,7 +277,7 @@ export default function NewsArticleView({
                 href="/feed/podcasts"
                 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
               >
-                Ver más
+                See more
               </Link>
             </div>
             <div className="border-t border-[#ccc]">
@@ -301,7 +301,7 @@ export default function NewsArticleView({
                 href="/feed/popular"
                 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
               >
-                Ver más
+                See more
               </Link>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
