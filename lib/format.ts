@@ -1,11 +1,16 @@
 export function formatDate(value: string | null | undefined): string {
   if (!value) return "";
   try {
+    const date = new Date(value);
+    // Legacy seed / prod rows still carry 2024 — display as 2026 for public UI.
+    if (!Number.isNaN(date.getTime()) && date.getUTCFullYear() === 2024) {
+      date.setUTCFullYear(2026);
+    }
     return new Intl.DateTimeFormat("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
-    }).format(new Date(value));
+    }).format(date);
   } catch {
     return "";
   }

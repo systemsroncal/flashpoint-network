@@ -162,20 +162,31 @@ export async function getHomePayload(): Promise<HomePayload> {
       .select(POST_SELECT)
       .eq("status", "published")
       .eq("category_id", POLITICS_ID)
+      .eq("is_podcast", false)
+      .eq("is_video", false)
       .order("published_at", { ascending: false })
-      .limit(4),
+      .limit(16),
     supabase
       .from("posts")
       .select(POST_SELECT)
       .eq("status", "published")
       .eq("category_id", WORLD_ID)
+      .eq("is_podcast", false)
+      .eq("is_video", false)
       .order("published_at", { ascending: false })
-      .limit(4),
+      .limit(16),
   ]);
 
   const latestPool = asPosts(latestPoolRes.data);
-  const politics = asPosts(politicsRes.data);
-  const world = asPosts(worldRes.data);
+  // Hero + 2 sides + Latest rail share one chronological pool (~8). Keep Politics/World
+  // distinct so the left-column band is not a duplicate of the top Latest block.
+  const usedInLatest = new Set(latestPool.map((p) => p.id));
+  const politics = asPosts(politicsRes.data)
+    .filter((p) => !usedInLatest.has(p.id))
+    .slice(0, 4);
+  const world = asPosts(worldRes.data)
+    .filter((p) => !usedInLatest.has(p.id))
+    .slice(0, 4);
 
   return {
     categories: (categoriesRes.data as Category[]) ?? [],
@@ -185,7 +196,7 @@ export async function getHomePayload(): Promise<HomePayload> {
     secondary: latestPool.slice(1, 3),
     podcasts: asPosts(podcastsRes.data),
     grid: [...politics, ...world],
-    latest: latestPool.slice(3, 8), // continue same feed beside/below (≈5 → total 8)
+    latest: latestPool.slice(3, 7), // 4 text items under Podcasts (hero+2+4 ≈ 7–8)
     politics,
     world,
     mustWatch: asPosts(mustWatchRes.data),

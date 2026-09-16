@@ -29,7 +29,8 @@ export default function HomeView({ data }: { data: HomePayload }) {
   const sideVideos = data.mustWatch.slice(1, 5);
   const mainExclusive = data.exclusives[0];
   const exclusiveRows = data.exclusives.slice(1, 5);
-  const politicsWorld = [...data.politics, ...data.world];
+  // Figma left-column band: 4 Politics + 4 World in a 3-col wrap (not full-bleed).
+  const politicsWorld = [...data.politics.slice(0, 4), ...data.world.slice(0, 4)];
 
   return (
     <div className="bg-white text-black">
@@ -160,37 +161,33 @@ export default function HomeView({ data }: { data: HomePayload }) {
         </section>
       ) : null}
 
-      <div className="mx-auto max-w-[1440px] space-y-12 px-4 py-10 md:px-8 lg:px-10 lg:py-12">
-        {/* Figma Frame 23: left (hero+2 + Politics/World) | right (Podcasts + Latest) */}
-        <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(280px,370px)] lg:gap-10 lg:items-start">
-          <div className="min-w-0 space-y-10">
-            {/* Hero + 2 side stories (newest) */}
-            <div className="grid gap-7 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)] lg:gap-7">
-              <div>
+      <div className="mx-auto max-w-[1654px] space-y-12 px-4 py-10 md:px-8 lg:px-10 lg:py-12">
+        {/* Figma 34:12522 — left ~1236 (hero+2 + 3-col Politics/World) | right 370 (Podcasts + Latest) */}
+        <section className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(280px,370px)] lg:gap-12">
+          <div className="min-w-0 space-y-9">
+            {/* Hero + 2 stacked sides (~775 + divider + ~373) */}
+            <div className="grid gap-0 lg:grid-cols-[minmax(0,2.08fr)_1px_minmax(0,1fr)]">
+              <div className="min-w-0 lg:pr-7">
                 {data.featured ? (
                   <PostCard post={data.featured} variant="hero" />
                 ) : null}
               </div>
-              <div className="flex flex-col border-t border-[#ccc] lg:border-t-0 lg:border-l lg:border-[#ccc] lg:pl-7">
+              <div className="hidden bg-[#ccc] lg:block" aria-hidden />
+              <div className="mt-8 flex flex-col border-t border-[#ccc] lg:mt-0 lg:border-t-0 lg:pl-7">
                 {data.secondary.map((post) => (
                   <PostCard key={post.id} post={post} variant="stack" />
                 ))}
               </div>
             </div>
 
-            {/* Politics (4) + World (4) — under hero, left column, Figma card grid */}
+            {/* 4 Politics + 4 World — Figma 3-col wrap under hero, same left column as Podcasts rail */}
             {politicsWorld.length > 0 ? (
-              <div className="space-y-5">
-                <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#ccc] pb-2">
-                  <h2 className="font-article text-[1.35rem] font-black tracking-tight md:text-[1.55rem]">
-                    Politics &amp; World
-                  </h2>
-                  <div className="flex flex-wrap items-center gap-4">
-                    <SeeMore href="/category/politics" label="Ver más · Politics" />
-                    <SeeMore href="/category/world" label="Ver más · World" />
-                  </div>
+              <div>
+                <div className="mb-1 flex flex-wrap items-center justify-end gap-4">
+                  <SeeMore href="/category/politics" label="Ver más · Politics" />
+                  <SeeMore href="/category/world" label="Ver más · World" />
                 </div>
-                <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid gap-x-[21px] gap-y-2 sm:grid-cols-2 xl:grid-cols-3">
                   {politicsWorld.map((post) => (
                     <PostCard key={post.id} post={post} />
                   ))}
@@ -199,13 +196,13 @@ export default function HomeView({ data }: { data: HomePayload }) {
             ) : null}
           </div>
 
-          <aside className="min-w-0 space-y-8 lg:sticky lg:top-24">
+          <aside className="min-w-0 space-y-8">
             <div>
-              <div className="mb-2 flex items-end justify-between gap-3">
-                <h2 className="font-article text-[1.65rem] font-black leading-none tracking-tight">
+              <div className="mb-4 flex items-end justify-between gap-3">
+                <h2 className="font-article text-[2rem] font-black leading-none tracking-tight md:text-[2.4rem]">
                   Podcasts
                 </h2>
-                <SeeMore href="/feed/podcasts" label="See all" />
+                <SeeMore href="/feed/podcasts" label="SEE ALL" />
               </div>
               <div className="border-t border-[#ccc]">
                 {data.podcasts.map((post) => (
@@ -214,8 +211,8 @@ export default function HomeView({ data }: { data: HomePayload }) {
               </div>
             </div>
             <div>
-              <div className="mb-2 flex items-end justify-between gap-3">
-                <h2 className="font-article text-[1.65rem] font-black leading-none tracking-tight">
+              <div className="mb-4 flex items-end justify-between gap-3">
+                <h2 className="font-article text-[2rem] font-black leading-none tracking-tight md:text-[2.4rem]">
                   Latest News
                 </h2>
                 <SeeMore href="/feed/latest" />
@@ -247,25 +244,25 @@ export default function HomeView({ data }: { data: HomePayload }) {
           </Link>
         </section>
 
-        {/* Must-watch */}
+        {/* Must-watch — Figma ~2/3 featured + 4 stacked */}
         <section>
           <div className="mb-6 flex items-end justify-between gap-3">
-            <h2 className="font-article text-[1.85rem] font-black tracking-tight md:text-[2.1rem]">
+            <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[2.4rem]">
               Must-Watch Videos
             </h2>
             <SeeMore href="/feed/videos" />
           </div>
-          <div className="grid gap-6 md:grid-cols-[1.35fr_1fr]">
+          <div className="grid items-start gap-8 md:grid-cols-[minmax(0,1.85fr)_minmax(280px,1fr)]">
             {mainVideo ? <PostCard post={mainVideo} variant="video" /> : null}
-            <div className="flex flex-col divide-y divide-[#ccc]/80 border-t border-[#ccc]/80">
+            <div className="flex flex-col divide-y divide-[#ccc] border-t border-[#ccc]">
               {sideVideos.map((post) => {
                 const thumb =
                   youtubeThumbnailUrl(post.video_url) || post.featured_image_url;
                 return (
-                  <article key={post.id} className="flex gap-4 py-4">
+                  <article key={post.id} className="flex gap-4 py-5">
                     <Link
                       href={`/news/${post.slug}`}
-                      className="relative aspect-video w-[140px] shrink-0 overflow-hidden rounded-[10px] bg-neutral-200"
+                      className="relative aspect-video w-[148px] shrink-0 overflow-hidden rounded-[10px] bg-neutral-200 sm:w-[168px]"
                     >
                       {thumb ? (
                         <Image
@@ -273,7 +270,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
                           alt=""
                           fill
                           className="object-cover"
-                          sizes="140px"
+                          sizes="168px"
                         />
                       ) : null}
                       <span className="absolute bottom-2 left-2">
@@ -285,16 +282,41 @@ export default function HomeView({ data }: { data: HomePayload }) {
                         />
                       </span>
                     </Link>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
+                        {(post.category?.name ?? "Politics").toUpperCase()}
+                      </p>
                       <Link
                         href={`/news/${post.slug}`}
-                        className="font-article text-[16px] font-black leading-snug tracking-tight text-black hover:text-[var(--fpn-rojo)]"
+                        className="mt-1 block font-article text-[17px] font-black leading-snug tracking-tight text-black hover:text-[var(--fpn-rojo)]"
                       >
                         {post.title}
                       </Link>
-                      <p className="mt-2 text-[13px] text-[var(--fpn-rojo)]">
-                        {formatDate(post.published_at)}
-                      </p>
+                      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[13px]">
+                        <span className="inline-flex items-center gap-3 text-[var(--fpn-meta)]">
+                          <span className="inline-flex items-center gap-1.5">
+                            <Image
+                              src="/brand/icon-clock.svg"
+                              alt=""
+                              width={14}
+                              height={14}
+                            />
+                            {formatReadTime(post.reading_time_minutes)}
+                          </span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <Image
+                              src="/brand/icon-comments.svg"
+                              alt=""
+                              width={13}
+                              height={13}
+                            />
+                            {formatViews(post.view_count)}
+                          </span>
+                        </span>
+                        <span className="text-[var(--fpn-rojo)]">
+                          {formatDate(post.published_at)}
+                        </span>
+                      </div>
                     </div>
                   </article>
                 );
@@ -303,15 +325,15 @@ export default function HomeView({ data }: { data: HomePayload }) {
           </div>
         </section>
 
-        {/* Elections */}
+        {/* Elections — Figma 4×2 */}
         <section>
           <div className="mb-6 flex items-end justify-between gap-3">
-            <h2 className="font-article text-[1.85rem] font-black tracking-tight md:text-[2.1rem]">
+            <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[2.4rem]">
               Elections
             </h2>
             <SeeMore href="/category/elections" />
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
             {data.elections.map((post) => (
               <PostCard key={post.id} post={{ ...post, is_video: true }} />
             ))}
@@ -339,19 +361,19 @@ export default function HomeView({ data }: { data: HomePayload }) {
         </section>
       </div>
 
-      {/* Exclusive Content */}
+      {/* Exclusive Content + Popular — Figma 34:12523 */}
       <section className="bg-[#F5F5F5]">
-        <div className="mx-auto max-w-[1440px] px-4 py-12 md:px-8 lg:px-10 lg:py-14">
+        <div className="mx-auto max-w-[1654px] px-4 py-12 md:px-8 lg:px-10 lg:py-14">
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <Image
                 src="/brand/exclusive-star.svg"
                 alt=""
-                width={48}
-                height={48}
-                className="h-10 w-10 md:h-12 md:w-12"
+                width={60}
+                height={60}
+                className="h-12 w-12 md:h-[60px] md:w-[60px]"
               />
-              <h2 className="font-article text-[1.85rem] font-black tracking-tight md:text-[2.4rem]">
+              <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[2.4rem]">
                 Exclusive Content
               </h2>
             </div>
@@ -359,7 +381,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
           </div>
 
           {mainExclusive ? (
-            <div className="mb-10 grid items-center gap-6 rounded-[24px] bg-black p-3 text-white md:grid-cols-2 md:gap-8 md:rounded-[33px] md:p-4">
+            <div className="mb-10 grid items-center gap-6 rounded-[24px] bg-black p-3.5 text-white md:grid-cols-2 md:gap-9 md:rounded-[33px] md:p-4">
               <Link
                 href={`/news/${mainExclusive.slug}`}
                 className="relative aspect-[16/10] overflow-hidden rounded-[18px] md:aspect-[775/434] md:rounded-[24px]"
@@ -377,15 +399,15 @@ export default function HomeView({ data }: { data: HomePayload }) {
                   <Image
                     src="/brand/exclusive-star.svg"
                     alt=""
-                    width={40}
-                    height={40}
+                    width={48}
+                    height={48}
                   />
                 </span>
               </Link>
               <div className="px-2 pb-3 md:pr-4 md:pb-2">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="text-[15px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)] md:text-[18px]">
-                    {mainExclusive.category?.name ?? "Politics"}
+                    {(mainExclusive.category?.name ?? "Politics").toUpperCase()}
                   </p>
                   <span className="inline-flex items-center gap-3 text-[13px] text-[var(--fpn-meta)]">
                     <span className="inline-flex items-center gap-1.5">
@@ -428,18 +450,18 @@ export default function HomeView({ data }: { data: HomePayload }) {
             </div>
           ) : null}
 
-          <div className="grid gap-10 lg:grid-cols-[1.55fr_0.7fr]">
-            <div className="divide-y divide-[#ccc]">
+          <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(280px,370px)] lg:gap-12">
+            <div className="divide-y divide-[#ccc] border-t border-[#ccc]">
               {exclusiveRows.map((post) => (
                 <article
                   key={post.id}
-                  className="grid gap-5 py-6 md:grid-cols-[1fr_0.85fr] md:items-center"
+                  className="grid gap-5 py-7 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:items-center"
                 >
                   <div>
                     <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
                       {(post.category?.name ?? "News").toUpperCase()}
                     </p>
-                    <h3 className="mt-1 font-article text-[1.25rem] font-black leading-snug tracking-tight md:text-[1.5rem]">
+                    <h3 className="mt-1 font-article text-[1.35rem] font-black leading-snug tracking-tight md:text-[1.55rem]">
                       <Link
                         href={`/news/${post.slug}`}
                         className="hover:text-[var(--fpn-rojo)]"
@@ -448,11 +470,11 @@ export default function HomeView({ data }: { data: HomePayload }) {
                       </Link>
                     </h3>
                     {post.excerpt ? (
-                      <p className="mt-2 line-clamp-2 text-[15px] leading-6 text-black/80">
+                      <p className="mt-2 line-clamp-2 text-[15px] leading-6 text-black/80 md:text-[16px]">
                         {post.excerpt}
                       </p>
                     ) : null}
-                    <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[13px]">
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-[13px]">
                       <span className="inline-flex items-center gap-3 text-[var(--fpn-meta)]">
                         <span className="inline-flex items-center gap-1.5">
                           <Image
@@ -480,7 +502,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
                   </div>
                   <Link
                     href={`/news/${post.slug}`}
-                    className="relative aspect-[16/10] overflow-hidden rounded-[12px] bg-neutral-200"
+                    className="relative aspect-[556/311] overflow-hidden rounded-[12px] bg-neutral-200"
                   >
                     {post.featured_image_url ? (
                       <Image
@@ -495,8 +517,8 @@ export default function HomeView({ data }: { data: HomePayload }) {
                       <Image
                         src="/brand/exclusive-star.svg"
                         alt=""
-                        width={36}
-                        height={36}
+                        width={40}
+                        height={40}
                       />
                     </span>
                   </Link>
@@ -504,22 +526,22 @@ export default function HomeView({ data }: { data: HomePayload }) {
               ))}
             </div>
 
-            <aside>
+            <aside className="min-w-0">
               <div className="mb-4 flex items-end justify-between gap-3">
-                <h2 className="font-article text-[1.85rem] font-black tracking-tight">
+                <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[2.4rem]">
                   Popular
                 </h2>
                 <SeeMore href="/feed/popular" />
               </div>
               <ol className="divide-y divide-[#ccc] border-t border-[#ccc]">
-                {data.popular.map((post, index) => (
+                {data.popular.slice(0, 5).map((post, index) => (
                   <li key={post.id} className="py-4">
-                    <p className="text-[22px] font-medium leading-none text-[var(--fpn-rojo)]">
+                    <p className="text-[24px] font-medium leading-none text-[var(--fpn-rojo)]">
                       {index + 1}
                     </p>
                     <Link
                       href={`/news/${post.slug}`}
-                      className="mt-1 block font-article text-[1.05rem] font-black leading-snug tracking-tight text-black hover:text-[var(--fpn-rojo)]"
+                      className="mt-1 block font-article text-[1.1rem] font-black leading-snug tracking-tight text-black hover:text-[var(--fpn-rojo)]"
                     >
                       {post.title}
                     </Link>
@@ -531,7 +553,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
         </div>
       </section>
 
-      <div className="mx-auto max-w-[1440px] px-4 py-12 md:px-8 lg:px-10">
+      <div className="mx-auto max-w-[1654px] px-4 py-12 md:px-8 lg:px-10">
         <section className="border border-black/10 bg-white px-6 py-12 text-center">
           <h2 className="mx-auto max-w-xl font-article text-[1.75rem] font-black leading-snug tracking-tight">
             The biggest stories of the day delivered to your inbox

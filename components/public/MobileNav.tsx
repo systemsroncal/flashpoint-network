@@ -98,7 +98,7 @@ export default function MobileNav({
               <Link
                 href="/login"
                 onClick={() => setOpen(false)}
-                className="inline-flex h-11 items-center justify-center rounded-md border border-white text-sm font-black"
+                className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--fpn-rojo)] text-sm font-black text-white"
               >
                 Login
               </Link>

@@ -181,10 +181,10 @@ insert into public.posts (
 -- Secondary stack (2)
 (
   'e1000000-0000-4000-8000-000000000002',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Transition briefers clash over who authorized the late-night memo',
   'army-secretary-secondary-brief',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero.</p>',
+  'Sources describe a scramble inside the E-ring after the resignation landed.',
+  '<p>Sources describe a scramble inside the E-ring after the resignation landed.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
@@ -193,12 +193,12 @@ insert into public.posts (
 ),
 (
   'e1000000-0000-4000-8000-000000000003',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Pentagon aides circulate a 12-point continuity checklist',
   'army-secretary-tertiary-brief',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed cursus ante dapibus diam.</p>',
+  'The checklist covers press posture, allied calls, and overnight watches.',
+  '<p>The checklist covers press posture, allied calls, and overnight watches.</p>',
   'published',
-  'b1000000-0000-4000-8000-000000000002',
+  'b1000000-0000-4000-8000-000000000001',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=800&q=80',
   false, false, false, false, false, 8, 2300, '2026-09-02 13:00:00+00'
@@ -252,78 +252,102 @@ insert into public.posts (
   'https://images.unsplash.com/photo-1485579149621-3123dd979885?auto=format&fit=crop&w=600&q=80',
   false, false, false, true, false, 8, 1800, '2026-09-02 09:00:00+00'
 ),
--- Secondary six-card grid
+-- Politics / World band (4 + 4) — distinct from Latest hero pool
 (
   'e1000000-0000-4000-8000-000000000020',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'House panel presses Pentagon on overnight chain-of-command gaps',
   'grid-story-01',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+  'Committee members demand a timeline for who held operational authority after the resignation.',
+  '<p>Committee members demand a timeline for who held operational authority after the resignation.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-02 08:50:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-01 14:50:00+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000021',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Governors weigh emergency staffing as transition clocks tick',
   'grid-story-02',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+  'Statehouses prepare contingency plans for federal liaison blackouts.',
+  '<p>Statehouses prepare contingency plans for federal liaison blackouts.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-02 08:40:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-01 14:40:00+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000022',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Allies seek clarity after Washington signals a hard reset abroad',
   'grid-story-03',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+  'Capitals from London to Tokyo scramble for readouts on the next 72 hours.',
+  '<p>Capitals from London to Tokyo scramble for readouts on the next 72 hours.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-02 08:30:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-01 14:30:00+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000023',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Border corridors tighten as regional partners reopen talks',
   'grid-story-04',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+  'Trade and migration desks coordinate overnight briefings across three time zones.',
+  '<p>Trade and migration desks coordinate overnight briefings across three time zones.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-02 08:20:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-01 14:20:00+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000024',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Energy markets jump on overseas reserve rumors',
   'grid-story-05',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+  'Traders watch Gulf and North Sea flows after an unconfirmed policy leak.',
+  '<p>Traders watch Gulf and North Sea flows after an unconfirmed policy leak.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-02 08:10:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-01 14:10:00+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000025',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Summit planners redraw the guest list after last-minute walkouts',
   'grid-story-06',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+  'Diplomatic protocol teams rewrite seating charts before dawn.',
+  '<p>Diplomatic protocol teams rewrite seating charts before dawn.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-02 08:00:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-01 14:00:00+00'
+),
+(
+  'e1000000-0000-4000-8000-000000000026',
+  'Senate whip count flips on emergency funding package',
+  'grid-story-07',
+  'Floor managers track late switches as the cloture window narrows.',
+  '<p>Floor managers track late switches as the cloture window narrows.</p>',
+  'published',
+  'b1000000-0000-4000-8000-000000000002',
+  'f1000000-0000-4000-8000-000000000001'::uuid,
+  'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=900&q=80',
+  false, false, false, false, false, 7, 2100, '2026-09-01 13:50:00+00'
+),
+(
+  'e1000000-0000-4000-8000-000000000027',
+  'Campaign finance desks flag a surge in same-day PAC filings',
+  'grid-story-08',
+  'Watchdogs say the filings cluster around swing districts overnight.',
+  '<p>Watchdogs say the filings cluster around swing districts overnight.</p>',
+  'published',
+  'b1000000-0000-4000-8000-000000000002',
+  'f1000000-0000-4000-8000-000000000001'::uuid,
+  'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=900&q=80',
+  false, false, false, false, false, 6, 1900, '2026-09-01 13:40:00+00'
 ),
 -- Latest news (4 text-forward)
 (
@@ -641,13 +665,13 @@ insert into public.posts (
   'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=400&q=80',
   false, true, false, false, false, 7, 2250, '2026-09-01 14:40:00+00'
 ),
--- Popular sidebar (5) — high view_count
+-- Popular sidebar (5) — admin is_popular flag
 (
   'e1000000-0000-4000-8000-000000000070',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Why the overnight briefing changed the map overnight',
   'popular-01',
-  'Lorem ipsum dolor sit amet.',
-  '<p>Lorem ipsum dolor sit amet.</p>',
+  'Readers flooded the story after the first on-camera confirmation.',
+  '<p>Readers flooded the story after the first on-camera confirmation.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
@@ -656,10 +680,10 @@ insert into public.posts (
 ),
 (
   'e1000000-0000-4000-8000-000000000071',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Five charts that explain the succession scramble',
   'popular-02',
-  'Lorem ipsum dolor sit amet.',
-  '<p>Lorem ipsum dolor sit amet.</p>',
+  'Data desks mapped the handoff minute by minute.',
+  '<p>Data desks mapped the handoff minute by minute.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000001',
   'f1000000-0000-4000-8000-000000000001'::uuid,
@@ -668,10 +692,10 @@ insert into public.posts (
 ),
 (
   'e1000000-0000-4000-8000-000000000072',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'World desks react as partners demand a timeline',
   'popular-03',
-  'Lorem ipsum dolor sit amet.',
-  '<p>Lorem ipsum dolor sit amet.</p>',
+  'Capitals want names, not talking points, before markets open.',
+  '<p>Capitals want names, not talking points, before markets open.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
@@ -680,10 +704,10 @@ insert into public.posts (
 ),
 (
   'e1000000-0000-4000-8000-000000000073',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Tech briefers flood transition war rooms with AI drafts',
   'popular-04',
-  'Lorem ipsum dolor sit amet.',
-  '<p>Lorem ipsum dolor sit amet.</p>',
+  'Staffers say the first auto-summaries landed before sunrise.',
+  '<p>Staffers say the first auto-summaries landed before sunrise.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000009',
   'f1000000-0000-4000-8000-000000000001'::uuid,
@@ -692,10 +716,10 @@ insert into public.posts (
 ),
 (
   'e1000000-0000-4000-8000-000000000074',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Faith leaders call for calm as rumors outpace facts',
   'popular-05',
-  'Lorem ipsum dolor sit amet.',
-  '<p>Lorem ipsum dolor sit amet.</p>',
+  'Pastors and chaplains urge congregations to wait for verified updates.',
+  '<p>Pastors and chaplains urge congregations to wait for verified updates.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000006',
   'f1000000-0000-4000-8000-000000000001'::uuid,

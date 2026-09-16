@@ -133,7 +133,7 @@ export default async function SiteHeader({
           </Link>
           <Link
             href="/login"
-            className="inline-flex h-[38px] min-w-[72px] items-center justify-center rounded-md border border-white px-3 text-[14px] font-black text-white sm:w-[105px]"
+            className="inline-flex h-[38px] min-w-[72px] items-center justify-center rounded-md bg-[var(--fpn-rojo)] px-3 text-[14px] font-black text-white hover:brightness-110 sm:w-[105px]"
           >
             Login
           </Link>
