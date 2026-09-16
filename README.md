@@ -12,6 +12,8 @@ Digital newspaper: public SEO portal + Modernize admin CMS on Next.js + Supabase
 ## Getting started
 
 ```bash
+git clone https://github.com/systemsroncal/flashpoint-network.git
+cd flashpoint-network
 npm install
 cp .env.example .env.local
 npm run dev
@@ -68,4 +70,11 @@ npm run seed:ministry-programs
 npm run seed:schedule-programs
 ```
 
-Snapshots under `scripts/data/`. After scraping remote posters, run `npm run seed:program-images` so images land in Supabase Storage (`media`). Schedule seeds dated entries for September 2026 and copies the PDF to `public/schedules/`.
+Snapshots under `scripts/data/`. Program posters live in the repo at `public/media/programs/` (full Storage dump under `public/media/`) so a new host does not depend on fptn.com or a cold bucket.
+
+```bash
+npm run seed:program-images   # remote posters → Supabase Storage (service role)
+npm run vendor:media          # Storage bucket → public/media (commit the files)
+```
+
+Classic/Ministry pages rewrite Storage URLs to `/media/...`. Schedule seeds dated entries for September 2026 and copies the PDF to `public/schedules/`.

@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# keep brand assets and vendored Storage copies under public/
+# (do not ignore /public or /public/media)
+
 # vercel
 .vercel
 

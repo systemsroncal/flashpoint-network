@@ -6,6 +6,7 @@ import type {
   ClassicProgram,
   ClassicProgramsSortMode,
 } from "@/lib/types/cms";
+import { withLocalFeaturedImage } from "@/lib/media/prefer-local";
 
 async function db() {
   return (await createClient()) ?? createAdminClient();
@@ -64,7 +65,7 @@ export async function getPublishedClassicPrograms(): Promise<ClassicProgram[]> {
   if (mode === "random") {
     rows = [...rows].sort(() => Math.random() - 0.5);
   }
-  return rows;
+  return rows.map((row) => withLocalFeaturedImage(row));
 }
 
 export async function getClassicProgramBySlug(
@@ -80,5 +81,5 @@ export async function getClassicProgramBySlug(
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
-  return (data as ClassicProgram) ?? null;
+  return data ? withLocalFeaturedImage(data as ClassicProgram) : null;
 }

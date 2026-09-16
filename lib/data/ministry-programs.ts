@@ -6,6 +6,7 @@ import type {
   MinistryProgram,
   MinistryProgramsSortMode,
 } from "@/lib/types/cms";
+import { withLocalFeaturedImage } from "@/lib/media/prefer-local";
 
 async function db() {
   return (await createClient()) ?? createAdminClient();
@@ -63,7 +64,7 @@ export async function getPublishedMinistryPrograms(): Promise<MinistryProgram[]>
   if (mode === "random") {
     rows = [...rows].sort(() => Math.random() - 0.5);
   }
-  return rows;
+  return rows.map((row) => withLocalFeaturedImage(row));
 }
 
 export async function getMinistryProgramBySlug(
@@ -79,5 +80,5 @@ export async function getMinistryProgramBySlug(
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
-  return (data as MinistryProgram) ?? null;
+  return data ? withLocalFeaturedImage(data as MinistryProgram) : null;
 }
