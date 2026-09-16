@@ -220,75 +220,26 @@ export default function HomeView({ data }: { data: HomePayload }) {
           </div>
 
           <aside className="min-w-0 space-y-8">
-            {/* Promo banners above Podcasts — Figma Full Story + FP Army creatives */}
-            <div className="space-y-4">
-              <Link
-                href="/register"
-                className="relative flex overflow-hidden rounded-[10px] bg-black text-white"
-              >
-                <span className="relative hidden h-auto min-h-[112px] w-[88px] shrink-0 self-stretch sm:block">
-                  <Image
-                    src="/brand/banners/fpn-full-story-couple.webp"
-                    alt=""
-                    fill
-                    className="object-cover object-top"
-                    sizes="88px"
-                  />
-                </span>
-                <span className="flex flex-1 flex-col justify-center gap-1.5 px-3.5 py-3.5">
-                  <span className="font-article text-[1.05rem] font-black leading-tight tracking-tight">
-                    Get The Full Story. As It Is.
-                  </span>
-                  <span className="text-[12px] text-white/75">
-                    Subscribe for complete FPN access
-                  </span>
-                  <span className="mt-1 inline-flex w-fit rounded-md bg-[var(--fpn-rojo)] px-3 py-1.5 text-[11px] font-black uppercase tracking-wide">
-                    Subscribe
-                  </span>
-                </span>
-              </Link>
-
-              <Link
-                href="/register"
-                className="relative block overflow-hidden rounded-[10px] bg-[#2c372a] text-white"
-              >
-                <span className="relative block aspect-[370/186] w-full">
-                  <Image
-                    src="/brand/banners/fpn-patriot-people.webp"
-                    alt=""
-                    fill
-                    className="object-cover object-left"
-                    sizes="(max-width:1024px) 100vw, 370px"
-                  />
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#2c372a]/55 to-[#2c372a]" />
-                  <span className="absolute inset-0 flex flex-col justify-end p-3.5">
-                    <span className="mb-1.5 inline-flex items-center gap-2">
-                      <Image
-                        src="/brand/banners/fpn-army-mark.svg"
-                        alt=""
-                        width={28}
-                        height={28}
-                        className="h-7 w-7"
-                      />
-                      <span className="text-[13px] font-black uppercase tracking-[0.12em]">
-                        FP Army
-                      </span>
-                    </span>
-                    <span className="text-[1.05rem] font-black uppercase leading-tight tracking-wide">
-                      Are You a{" "}
-                      <span className="text-[#ffcb2c]">Patriot?</span>
-                    </span>
-                    <span className="mt-1 line-clamp-2 text-[11px] leading-snug text-white/85">
-                      Connect locally. Stand for faith, freedom, and truth.
-                    </span>
-                  </span>
-                </span>
-              </Link>
-            </div>
+            {/* Figma sidebar ad above Podcasts — MyPillow only */}
+            <a
+              href="https://www.mypillow.com"
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              className="relative block aspect-[370/186] w-full overflow-hidden rounded-[10px] bg-neutral-100"
+              aria-label="MyPillow advertisement — open mypillow.com"
+            >
+              <Image
+                src="/brand/ads/mypillow-banner.webp"
+                alt="MyPillow — use promo code NTD77"
+                fill
+                className="object-cover"
+                sizes="(max-width:1024px) 100vw, 370px"
+              />
+            </a>
 
             <div>
               <div className="mb-4 flex items-end justify-between gap-3">
-                <h2 className="font-article text-[2rem] font-black leading-none tracking-tight md:text-[2.4rem]">
+                <h2 className="font-article text-[2rem] font-black leading-none tracking-tight md:text-[45.5px]">
                   Podcasts
                 </h2>
                 <SeeMore href="/feed/podcasts" label="SEE ALL" />
@@ -301,7 +252,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
             </div>
             <div>
               <div className="mb-4 flex items-end justify-between gap-3">
-                <h2 className="font-article text-[2rem] font-black leading-none tracking-tight md:text-[2.4rem]">
+                <h2 className="font-article text-[2rem] font-black leading-none tracking-tight md:text-[45.5px]">
                   Latest News
                 </h2>
                 <SeeMore href="/feed/latest" />
@@ -347,7 +298,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
         {/* Must-watch — Figma ~2/3 featured + 4 stacked */}
         <section>
           <div className="mb-6 flex items-end justify-between gap-3">
-            <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[2.4rem]">
+            <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[45.5px]">
               Must-Watch Videos
             </h2>
             <SeeMore href="/feed/videos" />
@@ -388,7 +339,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
                       </p>
                       <Link
                         href={`/news/${post.slug}`}
-                        className="mt-1 block font-article text-[17px] font-black leading-snug tracking-tight text-black hover:text-[var(--fpn-rojo)]"
+                        className="mt-1 block font-article text-[1.1rem] font-black leading-snug tracking-[-0.03em] text-black hover:text-[var(--fpn-rojo)] md:text-[24.73px] md:leading-[31px]"
                       >
                         {post.title}
                       </Link>
@@ -480,7 +431,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
         {/* Elections — Figma 4×2 */}
         <section>
           <div className="mb-6 flex items-end justify-between gap-3">
-            <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[2.4rem]">
+            <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[45.5px]">
               Elections
             </h2>
             <SeeMore href="/category/elections" />
@@ -525,7 +476,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
                 height={60}
                 className="h-12 w-12 md:h-[60px] md:w-[60px]"
               />
-              <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[2.4rem]">
+              <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[45.5px]">
                 Exclusive Content
               </h2>
             </div>
@@ -582,7 +533,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
                     </span>
                   </span>
                 </div>
-                <h3 className="mt-3 font-article text-[1.65rem] font-black leading-[1.15] tracking-tight md:text-[2.15rem]">
+                <h3 className="mt-3 font-article text-[1.65rem] font-black leading-[1.15] tracking-[-0.5568px] md:text-[53px] md:leading-[64.6px]">
                   <Link
                     href={`/news/${mainExclusive.slug}`}
                     className="hover:text-[var(--fpn-rojo)]"
@@ -613,7 +564,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
                     <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
                       {(post.category?.name ?? "News").toUpperCase()}
                     </p>
-                    <h3 className="mt-1 font-article text-[1.35rem] font-black leading-snug tracking-tight md:text-[1.55rem]">
+                    <h3 className="mt-1 font-article text-[1.35rem] font-black leading-snug tracking-[-0.04em] md:text-[33.57px] md:leading-[39px]">
                       <Link
                         href={`/news/${post.slug}`}
                         className="hover:text-[var(--fpn-rojo)]"
@@ -680,7 +631,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
 
             <aside className="min-w-0">
               <div className="mb-4 flex items-end justify-between gap-3">
-                <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[2.4rem]">
+                <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[45.5px]">
                   Popular
                 </h2>
                 <SeeMore href="/feed/popular" />
@@ -731,7 +682,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
                     </div>
                     <Link
                       href={`/news/${post.slug}`}
-                      className="mt-1 block font-article text-[1.1rem] font-black leading-snug tracking-tight text-black hover:text-[var(--fpn-rojo)]"
+                      className="mt-1 block font-article text-[1.1rem] font-black leading-snug tracking-[-0.03em] text-black hover:text-[var(--fpn-rojo)] md:text-[24.73px] md:leading-[31px]"
                     >
                       {post.title}
                     </Link>

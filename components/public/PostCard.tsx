@@ -51,11 +51,12 @@ export default function PostCard({ post, variant = "grid" }: Props) {
   if (variant === "list" || variant === "latest") {
     return (
       <article className="border-b border-[#ccc]/80 py-4 last:border-b-0">
-        <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
+        <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)] md:text-[15.6px]">
           {category}
         </p>
         <Link href={href} className="group mt-1 block">
-          <h3 className="font-article text-[17px] font-black leading-snug tracking-tight text-black group-hover:text-[var(--fpn-rojo)]">
+          {/* Figma Latest: 24.73px */}
+          <h3 className="font-article text-[1.1rem] font-black leading-snug tracking-[-0.03em] text-black group-hover:text-[var(--fpn-rojo)] md:text-[24.73px] md:leading-[31px]">
             {post.title}
           </h3>
         </Link>
@@ -85,12 +86,13 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           </span>
         </Link>
         <div className="min-w-0 flex-1 self-center">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)] md:text-[15.6px]">
             {category}
           </p>
+          {/* Figma Podcasts: 24.73px */}
           <Link
             href={href}
-            className="mt-0.5 line-clamp-3 block font-article text-[15px] font-black leading-snug tracking-tight text-black hover:text-[var(--fpn-rojo)]"
+            className="mt-0.5 line-clamp-3 block font-article text-[1.05rem] font-black leading-snug tracking-[-0.03em] text-black hover:text-[var(--fpn-rojo)] md:text-[24.73px] md:leading-[31px]"
           >
             {post.title}
           </Link>
@@ -117,7 +119,7 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           ) : null}
         </Link>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
+          <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)] md:text-[15.6px]">
             {category}
           </p>
           <span className="inline-flex items-center gap-1.5 text-[12px] text-[var(--fpn-meta)]">
@@ -129,13 +131,14 @@ export default function PostCard({ post, variant = "grid" }: Props) {
             {formatViews(post.view_count)}
           </span>
         </div>
+        {/* Figma stacked sides: 26.729px */}
         <Link
           href={href}
-          className="mt-1.5 block font-article text-[1.15rem] font-black leading-snug tracking-tight text-black hover:text-[var(--fpn-rojo)]"
+          className="mt-1.5 block font-article text-[1.2rem] font-black leading-snug tracking-[-0.03em] text-black hover:text-[var(--fpn-rojo)] md:text-[26.73px] md:leading-[31px]"
         >
           {post.title}
         </Link>
-        <p className="mt-2 text-[13px] text-[var(--fpn-rojo)]">
+        <p className="mt-2 text-[13px] text-[var(--fpn-rojo)] md:text-[18.7px]">
           {formatDate(post.published_at)}
         </p>
       </article>
@@ -180,7 +183,8 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           <p className="mt-3 text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
             {category}
           </p>
-          <h3 className="mt-1 font-article text-xl font-black leading-snug tracking-tight text-black group-hover:text-[var(--fpn-rojo)]">
+          {/* Figma Must-Watch featured title: 33.73px */}
+          <h3 className="mt-1 font-article text-[1.35rem] font-black leading-snug tracking-[-0.03em] text-black group-hover:text-[var(--fpn-rojo)] md:text-[33.73px] md:leading-[44px]">
             {post.title}
           </h3>
           <MetaRow post={post} dateRight />
@@ -208,29 +212,30 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           ) : null}
         </Link>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <p className="text-[13px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
+          <p className="text-[13px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)] md:text-[28.2px]">
             {category}
           </p>
-          <span className="inline-flex items-center gap-1.5 text-[13px] text-[var(--fpn-meta)]">
+          <span className="inline-flex items-center gap-1.5 text-[13px] text-[var(--fpn-meta)] md:text-[21px]">
             <Image src="/brand/icon-clock.svg" alt="" width={16} height={16} />
             {formatReadTime(post.reading_time_minutes)}
           </span>
-          <span className="inline-flex items-center gap-1.5 text-[13px] text-[var(--fpn-meta)]">
+          <span className="inline-flex items-center gap-1.5 text-[13px] text-[var(--fpn-meta)] md:text-[21px]">
             <Image src="/brand/icon-comments.svg" alt="" width={15} height={15} />
             {formatViews(post.view_count)}
           </span>
         </div>
-        <h2 className="mt-2 font-article text-[2rem] font-black leading-[1.2] tracking-[-0.02em] text-black md:text-[53px] md:leading-[1.21]">
+        {/* Figma featured left: 53.457px / weight 900 */}
+        <h2 className="mt-2 font-article text-[2rem] font-black leading-[1.2] tracking-[-0.5568px] text-black md:text-[53px] md:leading-[64.6px]">
           <Link href={href} className="hover:text-[var(--fpn-rojo)]">
             {post.title}
           </Link>
         </h2>
         {post.excerpt ? (
-          <p className="mt-3 text-[15px] leading-7 text-[var(--fpn-ink)]/85">
+          <p className="mt-3 text-[15px] leading-7 text-[var(--fpn-ink)]/85 md:text-[25px] md:leading-[39px]">
             {post.excerpt}
           </p>
         ) : null}
-        <p className="mt-3 text-[14px] text-[var(--fpn-rojo)]">
+        <p className="mt-3 text-[14px] text-[var(--fpn-rojo)] md:text-[21.2px]">
           {formatDate(post.published_at)}
         </p>
       </article>
@@ -258,10 +263,11 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           </span>
         ) : null}
       </Link>
-      <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
+      <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)] md:text-[15.6px]">
         {category}
       </p>
-      <h3 className="mt-1 font-article text-[17px] font-black leading-snug tracking-tight text-black">
+      {/* Figma Politics/World + Elections grid: 26.729px */}
+      <h3 className="mt-1 font-article text-[1.15rem] font-black leading-snug tracking-[-0.03em] text-black md:text-[26.73px] md:leading-[31px]">
         <Link href={href} className="hover:text-[var(--fpn-rojo)]">
           {post.title}
         </Link>
