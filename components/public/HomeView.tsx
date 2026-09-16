@@ -333,7 +333,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
                       </p>
                       <Link
                         href={`/news/${post.slug}`}
-                        className="mt-1 block font-article text-[1.1rem] font-black leading-snug tracking-[-0.03em] text-black hover:text-[var(--fpn-rojo)] md:text-[24.73px] md:leading-[31px]"
+                        className="mt-1 block font-article text-[clamp(19px,1.6vw,1.5rem)] font-black leading-[1.3] tracking-[-0.03em] text-black hover:text-[var(--fpn-rojo)]"
                       >
                         {post.title}
                       </Link>
@@ -527,7 +527,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
                     </span>
                   </span>
                 </div>
-                <h3 className="mt-3 font-article text-[1.65rem] font-black leading-[1.15] tracking-[-0.5568px] md:text-[53px] md:leading-[64.6px]">
+                <h3 className="mt-3 font-article text-[clamp(19px,1.6vw,1.5rem)] font-black leading-[1.3] tracking-[-0.5568px] lg:text-[53px] lg:leading-[64.6px]">
                   <Link
                     href={`/news/${mainExclusive.slug}`}
                     className="hover:text-[var(--fpn-rojo)]"
@@ -558,7 +558,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
                     <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
                       {(post.category?.name ?? "News").toUpperCase()}
                     </p>
-                    <h3 className="mt-1 font-article text-[1.35rem] font-black leading-snug tracking-[-0.04em] md:text-[33.57px] md:leading-[39px]">
+                    <h3 className="mt-1 font-article text-[clamp(19px,1.6vw,1.5rem)] font-black leading-[1.3] tracking-[-0.04em] md:text-[33.57px] md:leading-[39px]">
                       <Link
                         href={`/news/${post.slug}`}
                         className="hover:text-[var(--fpn-rojo)]"
@@ -676,7 +676,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
                     </div>
                     <Link
                       href={`/news/${post.slug}`}
-                      className="mt-1 block font-article text-[1.1rem] font-black leading-snug tracking-[-0.03em] text-black hover:text-[var(--fpn-rojo)] md:text-[24.73px] md:leading-[31px]"
+                      className="mt-1 block font-article text-[clamp(19px,1.6vw,1.5rem)] font-black leading-[1.3] tracking-[-0.03em] text-black hover:text-[var(--fpn-rojo)]"
                     >
                       {post.title}
                     </Link>

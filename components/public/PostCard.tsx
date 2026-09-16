@@ -6,6 +6,14 @@ import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
 import { resolveMediaUrl } from "@/lib/media/public-url";
 
+/** Small home grids / lists (Politics/World, Elections, stack, podcasts, latest). */
+const TITLE_SMALL =
+  "font-article text-[clamp(19px,1.6vw,1.5rem)] font-black leading-[1.3] tracking-[-0.03em]";
+
+/** Featured left / large exclusive — Figma 53px on lg+; clamp when columns stack. */
+const TITLE_FEATURED =
+  "font-article text-[clamp(19px,1.6vw,1.5rem)] font-black leading-[1.3] tracking-[-0.5568px] lg:text-[53px] lg:leading-[64.6px]";
+
 type Props = {
   post: Post;
   variant?: "hero" | "stack" | "grid" | "list" | "video" | "latest" | "podcast";
@@ -55,8 +63,7 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           {category}
         </p>
         <Link href={href} className="group mt-1 block">
-          {/* Figma Latest: 24.73px */}
-          <h3 className="font-article text-[1.1rem] font-black leading-snug tracking-[-0.03em] text-black group-hover:text-[var(--fpn-rojo)] md:text-[24.73px] md:leading-[31px]">
+          <h3 className={`${TITLE_SMALL} text-black group-hover:text-[var(--fpn-rojo)]`}>
             {post.title}
           </h3>
         </Link>
@@ -89,10 +96,9 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)] md:text-[15.6px]">
             {category}
           </p>
-          {/* Figma Podcasts: 24.73px */}
           <Link
             href={href}
-            className="mt-0.5 line-clamp-3 block font-article text-[1.05rem] font-black leading-snug tracking-[-0.03em] text-black hover:text-[var(--fpn-rojo)] md:text-[24.73px] md:leading-[31px]"
+            className={`mt-0.5 line-clamp-3 block ${TITLE_SMALL} text-black hover:text-[var(--fpn-rojo)]`}
           >
             {post.title}
           </Link>
@@ -131,10 +137,9 @@ export default function PostCard({ post, variant = "grid" }: Props) {
             {formatViews(post.view_count)}
           </span>
         </div>
-        {/* Figma stacked sides: 26.729px */}
         <Link
           href={href}
-          className="mt-1.5 block font-article text-[1.2rem] font-black leading-snug tracking-[-0.03em] text-black hover:text-[var(--fpn-rojo)] md:text-[26.73px] md:leading-[31px]"
+          className={`mt-1.5 block ${TITLE_SMALL} text-black hover:text-[var(--fpn-rojo)]`}
         >
           {post.title}
         </Link>
@@ -183,8 +188,8 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           <p className="mt-3 text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
             {category}
           </p>
-          {/* Figma Must-Watch featured title: 33.73px */}
-          <h3 className="mt-1 font-article text-[1.35rem] font-black leading-snug tracking-[-0.03em] text-black group-hover:text-[var(--fpn-rojo)] md:text-[33.73px] md:leading-[44px]">
+          {/* Must-Watch featured: clamp when stacked; larger from md up */}
+          <h3 className={`mt-1 ${TITLE_SMALL} text-black group-hover:text-[var(--fpn-rojo)] md:text-[33.73px] md:leading-[44px]`}>
             {post.title}
           </h3>
           <MetaRow post={post} dateRight />
@@ -224,8 +229,7 @@ export default function PostCard({ post, variant = "grid" }: Props) {
             {formatViews(post.view_count)}
           </span>
         </div>
-        {/* Figma featured left: 53.457px / weight 900 */}
-        <h2 className="mt-2 font-article text-[2rem] font-black leading-[1.2] tracking-[-0.5568px] text-black md:text-[53px] md:leading-[64.6px]">
+        <h2 className={`mt-2 ${TITLE_FEATURED} text-black`}>
           <Link href={href} className="hover:text-[var(--fpn-rojo)]">
             {post.title}
           </Link>
@@ -266,8 +270,8 @@ export default function PostCard({ post, variant = "grid" }: Props) {
       <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)] md:text-[15.6px]">
         {category}
       </p>
-      {/* Figma Politics/World + Elections grid: 26.729px */}
-      <h3 className="mt-1 font-article text-[1.15rem] font-black leading-snug tracking-[-0.03em] text-black md:text-[26.73px] md:leading-[31px]">
+      {/* Politics/World + Elections grid */}
+      <h3 className={`mt-1 ${TITLE_SMALL} text-black`}>
         <Link href={href} className="hover:text-[var(--fpn-rojo)]">
           {post.title}
         </Link>
