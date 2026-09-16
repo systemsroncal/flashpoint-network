@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { compileEmailPreviewHtml, replaceEmailShortcodes } from "@/lib/email/preview";
 import { sendEmail } from "@/lib/email";
-import { getSiteName, getSiteUrl } from "@/lib/env";
+import { getSiteName, getSiteUrl, scrubSiteUrlEnv } from "@/lib/env";
 
 function rethrowRedirect(error: unknown) {
   if (
@@ -27,6 +27,25 @@ function safeNext(path: string | null | undefined) {
 const AUTH_UNAVAILABLE =
   "Sign-in is temporarily unavailable. Try again in a few minutes.";
 
+const SITE_URL_MISCONFIGURED =
+  "Site URL is misconfigured on the server. Ask an admin to fix NEXT_PUBLIC_SITE_URL and rebuild.";
+
+function friendlyAuthMessage(error: unknown, fallback: string): string {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "string"
+        ? error
+        : "";
+  if (
+    (error instanceof TypeError && /Invalid URL/i.test(message)) ||
+    /ERR_INVALID_URL|Invalid URL/i.test(message)
+  ) {
+    return SITE_URL_MISCONFIGURED;
+  }
+  return fallback;
+}
+
 function fail(path: string, message: string, extra?: string): never {
   const qs = new URLSearchParams({ error: message });
   if (extra) qs.set("next", extra);
@@ -34,10 +53,13 @@ function fail(path: string, message: string, extra?: string): never {
 }
 
 export async function signInAction(formData: FormData) {
+  const next = safeNext(String(formData.get("next") || "/"));
   try {
+    scrubSiteUrlEnv();
     const email = String(formData.get("email") || "").trim();
     const password = String(formData.get("password") || "");
-    const next = safeNext(String(formData.get("next") || "/"));
+    // Touch site URL early so a bad env fails inside this try, not later.
+    void getSiteUrl();
     const supabase = await createClient();
     if (!supabase) fail("/login", AUTH_UNAVAILABLE, next);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -65,7 +87,7 @@ export async function signInAction(formData: FormData) {
   } catch (error) {
     rethrowRedirect(error);
     console.error("[auth] signInAction", error);
-    fail("/login", AUTH_UNAVAILABLE);
+    fail("/login", friendlyAuthMessage(error, AUTH_UNAVAILABLE), next);
   }
 }
 
@@ -104,7 +126,7 @@ export async function signUpAction(formData: FormData) {
   } catch (error) {
     rethrowRedirect(error);
     console.error("[auth] signUpAction", error);
-    fail("/register", AUTH_UNAVAILABLE);
+    fail("/register", friendlyAuthMessage(error, AUTH_UNAVAILABLE));
   }
 }
 
@@ -138,7 +160,7 @@ export async function requestPasswordResetAction(formData: FormData) {
   } catch (error) {
     rethrowRedirect(error);
     console.error("[auth] requestPasswordResetAction", error);
-    fail("/forgot-password", AUTH_UNAVAILABLE);
+    fail("/forgot-password", friendlyAuthMessage(error, AUTH_UNAVAILABLE));
   }
 }
 

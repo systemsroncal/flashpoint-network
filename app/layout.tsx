@@ -4,6 +4,14 @@ import PerformanceMeasureGuard from "@/components/dev/PerformanceMeasureGuard";
 import { getSiteUrl } from "@/lib/env";
 import "./globals.css";
 
+function safeMetadataBase(): URL {
+  try {
+    return new URL(getSiteUrl());
+  } catch {
+    return new URL("http://127.0.0.1:43125");
+  }
+}
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -34,7 +42,7 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(getSiteUrl()),
+  metadataBase: safeMetadataBase(),
   title: {
     default: "Flash Point Network",
     template: "%s · Flash Point Network",

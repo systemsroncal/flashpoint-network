@@ -1,13 +1,48 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  normalizeForwardedHost,
+  normalizePublicUrl,
+  scrubSiteUrlEnv,
+} from "@/lib/env";
 
 const STAFF_ROLES = new Set(["superadmin", "admin", "editor", "journalist"]);
+
+/**
+ * OLS/proxy sometimes duplicates Origin / X-Forwarded-Host
+ * (`https://fptn.com, https://fptn.com`). Next Server Actions call
+ * `new URL(...)` on those headers and throw ERR_INVALID_URL before
+ * the action body — which paints (auth)/error.tsx.
+ */
+function sanitizedRequestHeaders(request: NextRequest): Headers {
+  // Also scrub PM2-dumped env (middleware runs even if instrumentation lagged).
+  scrubSiteUrlEnv();
+
+  const headers = new Headers(request.headers);
+
+  const origin = headers.get("origin");
+  if (origin && /[,;]/.test(origin)) {
+    const cleaned = normalizePublicUrl(origin, "");
+    if (cleaned) headers.set("origin", cleaned);
+  }
+
+  const xfHost = headers.get("x-forwarded-host");
+  if (xfHost && /[\s,;]/.test(xfHost)) {
+    const host = normalizeForwardedHost(xfHost);
+    if (host) headers.set("x-forwarded-host", host);
+  }
+
+  return headers;
+}
 
 /**
  * Refresh the auth session and gate /admin behind staff roles.
  */
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+  const requestHeaders = sanitizedRequestHeaders(request);
+  let supabaseResponse = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key =
@@ -27,7 +62,9 @@ export async function updateSession(request: NextRequest) {
         cookiesToSet.forEach(({ name, value }) => {
           request.cookies.set(name, value);
         });
-        supabaseResponse = NextResponse.next({ request });
+        supabaseResponse = NextResponse.next({
+          request: { headers: requestHeaders },
+        });
         cookiesToSet.forEach(({ name, value, options }) => {
           supabaseResponse.cookies.set(name, value, options);
         });
