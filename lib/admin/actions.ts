@@ -15,6 +15,7 @@ import {
   normalizeHtmlMediaForStorage,
   normalizeStoredMediaUrl,
 } from "@/lib/media/public-url";
+import { isAdminPostSlugAvailable } from "@/lib/admin/queries";
 
 function boolFromForm(value: FormDataEntryValue | null): boolean {
   return value === "on" || value === "true" || value === "1";
@@ -83,6 +84,13 @@ export async function upsertPostAction(formData: FormData) {
 
   let slug = String(formData.get("slug") || "").trim() || slugify(title);
   slug = slugify(slug) || "untitled";
+
+  const slugFree = await isAdminPostSlugAvailable(slug, id || null);
+  if (!slugFree) {
+    throw new Error(
+      "This slug is already used by another post. Choose a different permalink.",
+    );
+  }
 
   const status = (String(formData.get("status") || "draft") as PostStatus) || "draft";
   const categoryId = String(formData.get("category_id") || "") || null;
@@ -185,14 +193,28 @@ export async function upsertPostAction(formData: FormData) {
 
   if (id) {
     const { error } = await supabase.from("posts").update(payload).eq("id", id);
-    if (error) throw new Error(error.message);
+    if (error) {
+      if (error.code === "23505" || /duplicate key|unique/i.test(error.message)) {
+        throw new Error(
+          "This slug is already used by another post. Choose a different permalink.",
+        );
+      }
+      throw new Error(error.message);
+    }
   } else {
     const { data, error } = await supabase
       .from("posts")
       .insert(payload)
       .select("id")
       .single();
-    if (error) throw new Error(error.message);
+    if (error) {
+      if (error.code === "23505" || /duplicate key|unique/i.test(error.message)) {
+        throw new Error(
+          "This slug is already used by another post. Choose a different permalink.",
+        );
+      }
+      throw new Error(error.message);
+    }
     revalidatePath("/");
     revalidatePath("/admin");
     revalidatePath("/admin/posts");

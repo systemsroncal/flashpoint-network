@@ -76,13 +76,101 @@ export async function getAdminStats() {
 }
 
 export async function getAdminPosts(): Promise<Post[]> {
+  const result = await getAdminPostsPage({});
+  return result.posts;
+}
+
+export type AdminPostsQuery = {
+  q?: string;
+  categoryId?: string;
+  tagId?: string;
+  page?: number;
+  pageSize?: number;
+};
+
+export type AdminPostsPageResult = {
+  posts: Post[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};
+
+const DEFAULT_PAGE_SIZE = 20;
+
+export async function getAdminPostsPage(
+  query: AdminPostsQuery = {},
+): Promise<AdminPostsPageResult> {
   const supabase = requireAdmin();
-  const { data, error } = await supabase
+  const pageSize = Math.min(Math.max(query.pageSize ?? DEFAULT_PAGE_SIZE, 5), 100);
+  const page = Math.max(query.page ?? 1, 1);
+  const q = (query.q ?? "").trim();
+  const categoryId = (query.categoryId ?? "").trim();
+  const tagId = (query.tagId ?? "").trim();
+
+  let postIdFilter: string[] | null = null;
+  if (tagId) {
+    const { data: links, error: tagErr } = await supabase
+      .from("post_tags")
+      .select("post_id")
+      .eq("tag_id", tagId);
+    if (tagErr) throw new Error(tagErr.message);
+    postIdFilter = (links ?? []).map((row) => row.post_id as string);
+    if (postIdFilter.length === 0) {
+      return { posts: [], total: 0, page, pageSize, totalPages: 0 };
+    }
+  }
+
+  let builder = supabase
     .from("posts")
-    .select(POST_SELECT)
+    .select(POST_SELECT, { count: "exact" })
     .order("updated_at", { ascending: false });
+
+  if (categoryId) {
+    builder = builder.eq("category_id", categoryId);
+  }
+  if (postIdFilter) {
+    builder = builder.in("id", postIdFilter);
+  }
+  if (q) {
+    const safe = q.replace(/[%_",]/g, "").slice(0, 120).trim();
+    if (safe) {
+      const pattern = `%${safe}%`;
+      // Quoted values so spaces don't break PostgREST `or`
+      builder = builder.or(
+        `title.ilike."${pattern}",slug.ilike."${pattern}",excerpt.ilike."${pattern}",body.ilike."${pattern}"`,
+      );
+    }
+  }
+
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  const { data, error, count } = await builder.range(from, to);
   if (error) throw new Error(error.message);
-  return ((data as unknown[]) ?? []).map(normalizePost);
+
+  const total = count ?? 0;
+  return {
+    posts: ((data as unknown[]) ?? []).map(normalizePost),
+    total,
+    page,
+    pageSize,
+    totalPages: total === 0 ? 0 : Math.ceil(total / pageSize),
+  };
+}
+
+/** True when slug is free (or belongs to excludeId). */
+export async function isAdminPostSlugAvailable(
+  slug: string,
+  excludeId?: string | null,
+): Promise<boolean> {
+  const normalized = slug.trim();
+  if (!normalized) return false;
+  const supabase = requireAdmin();
+  let q = supabase.from("posts").select("id").eq("slug", normalized).limit(1);
+  if (excludeId) q = q.neq("id", excludeId);
+  const { data, error } = await q.maybeSingle();
+  if (error && error.code !== "PGRST116") throw new Error(error.message);
+  return !data;
 }
 
 export async function getAdminPost(id: string): Promise<Post | null> {

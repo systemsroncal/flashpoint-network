@@ -99,7 +99,10 @@ export default function PostForm({
   const [isPopular, setIsPopular] = useState(Boolean(post?.is_popular));
   const [saveError, setSaveError] = useState<string | null>(null);
   const [staleDeploy, setStaleDeploy] = useState(false);
+  const [slugValid, setSlugValid] = useState(true);
   const [saving, startSave] = useTransition();
+  const pendingStatusRef = useRef<PostStatus | null>(null);
+  const saveBlocked = !slugValid || !title.trim();
 
   const categoryName = useMemo(() => {
     return categories.find((c) => c.id === categoryId)?.name ?? post?.category?.name ?? null;
@@ -171,6 +174,16 @@ export default function PostForm({
   };
 
   const onSave = (formData: FormData) => {
+    if (!slugValid) {
+      setSaveError(
+        "This slug is already used by another post. Choose a different permalink.",
+      );
+      return;
+    }
+    if (pendingStatusRef.current) {
+      formData.set("status", pendingStatusRef.current);
+      pendingStatusRef.current = null;
+    }
     setSaveError(null);
     setStaleDeploy(false);
     startSave(async () => {
@@ -185,9 +198,22 @@ export default function PostForm({
           );
           return;
         }
-        setSaveError(err instanceof Error ? err.message : "Save failed");
+        const msg = err instanceof Error ? err.message : "Save failed";
+        setSaveError(msg);
+        if (/slug is already used/i.test(msg)) {
+          setSlugValid(false);
+        }
       }
     });
+  };
+
+  const submitWithStatus = (nextStatus: PostStatus) => {
+    if (saveBlocked || saving) return;
+    const form = formRef.current;
+    if (!form) return;
+    pendingStatusRef.current = nextStatus;
+    setStatus(nextStatus);
+    form.requestSubmit();
   };
 
   return (
@@ -234,9 +260,11 @@ export default function PostForm({
               title={title}
               slug={slug}
               autoSlug={autoSlug}
+              excludeId={postId || undefined}
               onTitleChange={setTitle}
               onSlugChange={setSlug}
               onAutoSlugChange={setAutoSlug}
+              onSlugValidChange={setSlugValid}
               onPreview={() => void onPreview()}
               previewBusy={previewBusy}
               canViewPublic={status === "published" && Boolean(slug)}
@@ -420,15 +448,12 @@ export default function PostForm({
               onChange={(patch) => setSeo((s) => ({ ...s, ...patch }))}
             />
 
-            <Stack direction="row" spacing={1.5} flexWrap="wrap">
-              <Button type="submit" variant="contained" disabled={saving}>
-                {saving ? "Saving…" : postId ? "Save changes" : "Create news"}
-              </Button>
+            <Stack direction="row" spacing={1.5} flexWrap="wrap" sx={{ pb: 10 }}>
               <Button
                 type="button"
                 variant="outlined"
                 onClick={() => void onPreview()}
-                disabled={previewBusy}
+                disabled={previewBusy || saveBlocked}
               >
                 {previewBusy ? "Saving preview…" : "Preview changes"}
               </Button>
@@ -437,6 +462,61 @@ export default function PostForm({
               </Button>
             </Stack>
           </Stack>
+
+          {/* Floating sticky publish bar — always reachable without scrolling */}
+          <Box
+            sx={{
+              position: "fixed",
+              left: { xs: 0, lg: 270 },
+              right: 0,
+              bottom: 0,
+              zIndex: (theme) => theme.zIndex.appBar,
+              bgcolor: "background.paper",
+              borderTop: "1px solid",
+              borderColor: "divider",
+              boxShadow: "0 -4px 24px rgba(15, 23, 42, 0.08)",
+              px: { xs: 2, md: 3 },
+              py: 1.5,
+            }}
+          >
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={1.25}
+              alignItems={{ sm: "center" }}
+              justifyContent="space-between"
+              maxWidth={1200}
+              mx="auto"
+            >
+              <Typography variant="body2" color="text.secondary">
+                {saveBlocked
+                  ? slugValid
+                    ? "Add a title to save."
+                    : "Fix the permalink before saving."
+                  : status === "published"
+                    ? "Live on the public site after save."
+                    : "Ready to save as draft or publish."}
+              </Typography>
+              <Stack direction="row" spacing={1.25} flexWrap="wrap" useFlexGap>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  disabled={saving || saveBlocked}
+                  onClick={() => submitWithStatus("draft")}
+                >
+                  {saving && status === "draft" ? "Saving…" : "Save Draft"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="contained"
+                  color="primary"
+                  disabled={saving || saveBlocked}
+                  onClick={() => submitWithStatus("published")}
+                >
+                  {saving && status === "published" ? "Publishing…" : "Publish"}
+                </Button>
+              </Stack>
+            </Stack>
+          </Box>
         </Box>
 
         <NewsCardPreview
