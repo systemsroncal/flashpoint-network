@@ -1,21 +1,35 @@
 /** Extract an 11-char YouTube video id from common URL shapes or a bare id. */
 export function extractYoutubeId(url: string): string | null {
   if (!url) return null;
+  const asId = (raw: string | null | undefined) => {
+    if (!raw) return null;
+    const id = raw.trim().split(/[?#&]/)[0];
+    return /^[\w-]{11}$/.test(id) ? id : null;
+  };
+
   try {
-    const u = new URL(url);
-    if (u.hostname.includes("youtu.be")) {
-      return u.pathname.replace(/^\//, "").slice(0, 11) || null;
+    const u = new URL(url.trim());
+    const host = u.hostname.replace(/^www\./, "");
+
+    if (host === "youtu.be") {
+      return asId(u.pathname.replace(/^\//, ""));
     }
-    if (u.searchParams.get("v")) return u.searchParams.get("v");
-    const embed = u.pathname.match(/\/embed\/([^/?]+)/);
-    if (embed) return embed[1];
-    const shorts = u.pathname.match(/\/shorts\/([^/?]+)/);
-    if (shorts) return shorts[1];
+
+    if (host.endsWith("youtube.com") || host.endsWith("youtube-nocookie.com")) {
+      const fromV = asId(u.searchParams.get("v"));
+      if (fromV) return fromV;
+
+      // /embed/ID, /shorts/ID, /live/ID, /v/ID, /watch/ID (rare)
+      const fromPath = u.pathname.match(
+        /\/(?:embed|shorts|live|v|watch)\/([^/?#]+)/i,
+      );
+      if (fromPath) return asId(fromPath[1]);
+    }
   } catch {
     /* plain id */
   }
-  if (/^[\w-]{11}$/.test(url.trim())) return url.trim();
-  return null;
+
+  return asId(url);
 }
 
 /** hqdefault thumbnail URL, or null when the URL is not YouTube. */
