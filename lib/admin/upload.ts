@@ -11,6 +11,7 @@ import { saveUploadedImage } from "@/lib/admin/upload-core";
 export async function uploadMediaAction(formData: FormData): Promise<{
   ok: true;
   url: string;
+  absoluteUrl: string;
 } | {
   ok: false;
   error: string;
