@@ -220,7 +220,7 @@ export default function PostCard({ post, variant = "grid" }: Props) {
             {formatViews(post.view_count)}
           </span>
         </div>
-        <h2 className="mt-2 font-article text-[1.75rem] font-black leading-[1.12] tracking-tight text-black md:text-[2.15rem]">
+        <h2 className="mt-2 font-article text-[2rem] font-black leading-[1.2] tracking-[-0.02em] text-black md:text-[53px] md:leading-[1.21]">
           <Link href={href} className="hover:text-[var(--fpn-rojo)]">
             {post.title}
           </Link>

@@ -220,6 +220,72 @@ export default function HomeView({ data }: { data: HomePayload }) {
           </div>
 
           <aside className="min-w-0 space-y-8">
+            {/* Promo banners above Podcasts — Figma Full Story + FP Army creatives */}
+            <div className="space-y-4">
+              <Link
+                href="/register"
+                className="relative flex overflow-hidden rounded-[10px] bg-black text-white"
+              >
+                <span className="relative hidden h-auto min-h-[112px] w-[88px] shrink-0 self-stretch sm:block">
+                  <Image
+                    src="/brand/banners/fpn-full-story-couple.webp"
+                    alt=""
+                    fill
+                    className="object-cover object-top"
+                    sizes="88px"
+                  />
+                </span>
+                <span className="flex flex-1 flex-col justify-center gap-1.5 px-3.5 py-3.5">
+                  <span className="font-article text-[1.05rem] font-black leading-tight tracking-tight">
+                    Get The Full Story. As It Is.
+                  </span>
+                  <span className="text-[12px] text-white/75">
+                    Subscribe for complete FPN access
+                  </span>
+                  <span className="mt-1 inline-flex w-fit rounded-md bg-[var(--fpn-rojo)] px-3 py-1.5 text-[11px] font-black uppercase tracking-wide">
+                    Subscribe
+                  </span>
+                </span>
+              </Link>
+
+              <Link
+                href="/register"
+                className="relative block overflow-hidden rounded-[10px] bg-[#2c372a] text-white"
+              >
+                <span className="relative block aspect-[370/186] w-full">
+                  <Image
+                    src="/brand/banners/fpn-patriot-people.webp"
+                    alt=""
+                    fill
+                    className="object-cover object-left"
+                    sizes="(max-width:1024px) 100vw, 370px"
+                  />
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#2c372a]/55 to-[#2c372a]" />
+                  <span className="absolute inset-0 flex flex-col justify-end p-3.5">
+                    <span className="mb-1.5 inline-flex items-center gap-2">
+                      <Image
+                        src="/brand/banners/fpn-army-mark.svg"
+                        alt=""
+                        width={28}
+                        height={28}
+                        className="h-7 w-7"
+                      />
+                      <span className="text-[13px] font-black uppercase tracking-[0.12em]">
+                        FP Army
+                      </span>
+                    </span>
+                    <span className="text-[1.05rem] font-black uppercase leading-tight tracking-wide">
+                      Are You a{" "}
+                      <span className="text-[#ffcb2c]">Patriot?</span>
+                    </span>
+                    <span className="mt-1 line-clamp-2 text-[11px] leading-snug text-white/85">
+                      Connect locally. Stand for faith, freedom, and truth.
+                    </span>
+                  </span>
+                </span>
+              </Link>
+            </div>
+
             <div>
               <div className="mb-4 flex items-end justify-between gap-3">
                 <h2 className="font-article text-[2rem] font-black leading-none tracking-tight md:text-[2.4rem]">
@@ -249,22 +315,33 @@ export default function HomeView({ data }: { data: HomePayload }) {
           </aside>
         </section>
 
-        {/* Subscribe banner */}
-        <section className="flex flex-col items-center justify-between gap-5 overflow-hidden rounded-[12px] bg-black px-6 py-7 text-white md:flex-row md:px-10">
-          <div>
-            <h2 className="font-article text-[1.75rem] font-black leading-tight md:text-[2rem]">
-              Get The Full Story. As It Is.
-            </h2>
-            <p className="mt-1.5 text-sm text-white/70">
-              Subscribe for complete FPN access.
-            </p>
+        {/* Subscribe banner — Figma Group 29790 */}
+        <section className="flex flex-col overflow-hidden rounded-[12px] bg-black text-white md:flex-row md:items-stretch">
+          <div className="relative mx-auto h-[160px] w-[160px] shrink-0 md:mx-0 md:h-auto md:w-[197px]">
+            <Image
+              src="/brand/banners/fpn-full-story-couple.webp"
+              alt="FlashPoint Network hosts"
+              fill
+              className="object-cover object-top"
+              sizes="197px"
+            />
           </div>
-          <Link
-            href="/register"
-            className="inline-flex rounded-md bg-[var(--fpn-rojo)] px-7 py-3 text-sm font-bold text-white hover:brightness-110"
-          >
-            Subscribe
-          </Link>
+          <div className="flex flex-1 flex-col items-start justify-center gap-2 px-6 py-6 md:flex-row md:items-center md:justify-between md:gap-6 md:px-8 md:py-7">
+            <div>
+              <h2 className="font-article text-[1.75rem] font-black leading-tight tracking-tight md:text-[2.45rem]">
+                Get The Full Story. As It Is.
+              </h2>
+              <p className="mt-1.5 text-sm text-white/80 md:text-[1.05rem]">
+                Subscribe for complete FPN access
+              </p>
+            </div>
+            <Link
+              href="/register"
+              className="inline-flex shrink-0 rounded-md bg-[var(--fpn-rojo)] px-7 py-3 text-sm font-black text-white hover:brightness-110"
+            >
+              Subscribe
+            </Link>
+          </div>
         </section>
 
         {/* Must-watch — Figma ~2/3 featured + 4 stacked */}
@@ -344,6 +421,58 @@ export default function HomeView({ data }: { data: HomePayload }) {
                   </article>
                 );
               })}
+            </div>
+          </div>
+        </section>
+
+        {/* FP Army / Are You a Patriot — Figma Group 29802 (between Must-Watch & Elections) */}
+        <section className="overflow-hidden rounded-[22px] bg-[#2c372a] text-white">
+          <div className="grid md:grid-cols-2">
+            <div className="relative min-h-[220px] md:min-h-[291px]">
+              <Image
+                src="/brand/banners/fpn-patriot-people.webp"
+                alt="FP Army community"
+                fill
+                className="object-cover object-left"
+                sizes="(max-width:768px) 100vw, 50vw"
+              />
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent to-[#2c372a] md:via-[#2c372a]/40" />
+            </div>
+            <div className="flex flex-col justify-center gap-4 px-6 py-7 md:px-8 md:py-8">
+              <div className="flex items-center gap-3.5">
+                <span className="inline-flex size-[50px] items-center justify-center rounded-[12px] border border-[#4e4d4d] bg-[#363636]">
+                  <Image
+                    src="/brand/banners/fpn-army-mark.svg"
+                    alt=""
+                    width={36}
+                    height={34}
+                  />
+                </span>
+                <div>
+                  <p className="text-[1.7rem] font-black leading-none tracking-tight">
+                    FP ARMY
+                  </p>
+                  <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.35em] text-[#989898]">
+                    Chapters
+                  </p>
+                </div>
+              </div>
+              <h2 className="text-[1.85rem] font-black uppercase leading-none tracking-[0.04em] md:text-[2.4rem]">
+                Are You a <span className="text-[#ffcb2c]">Patriot?</span>
+              </h2>
+              <p className="max-w-md text-[15px] leading-relaxed tracking-wide text-white/90 md:text-[17px]">
+                Connect locally. Stand for faith, freedom, and truth. Be part of
+                something bigger.
+              </p>
+              <Link
+                href="/register"
+                className="inline-flex w-fit items-center gap-2 rounded-[12px] border border-[#ffcb2c] bg-[#0d0d0d] px-5 py-3 text-[15px] font-bold tracking-wide text-white hover:bg-black"
+              >
+                Join a Chapter
+                <span aria-hidden className="text-[#ffcb2c]">
+                  ›
+                </span>
+              </Link>
             </div>
           </div>
         </section>
