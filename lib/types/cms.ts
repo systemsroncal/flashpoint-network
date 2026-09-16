@@ -128,7 +128,11 @@ export type Post = {
   is_video: boolean;
   is_podcast: boolean;
   is_popular?: boolean;
-  /** When false, hero hides the image and may place the player there (video/podcast). */
+  /**
+   * Article-page hero only. When false, NewsArticleView hides the hero image
+   * and may place the video player there. Home cards / SEO always keep
+   * featured_image_url (and og_image_url).
+   */
   show_featured_image?: boolean;
   /**
    * Home first section pin: 1 = large left, 2–3 = stacked right.

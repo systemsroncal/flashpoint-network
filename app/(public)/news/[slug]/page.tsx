@@ -29,9 +29,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ogTitle = post.og_title?.trim() || title;
   const ogDescription =
     post.og_description?.trim() || description || undefined;
-  // Social / meta image is always the featured image (absolute for crawlers)
+  // Social / meta image ignores show_featured_image (article-hero switch only).
   const ogImage =
-    absoluteMediaUrl(post.featured_image_url)?.trim() || undefined;
+    absoluteMediaUrl(post.og_image_url)?.trim() ||
+    absoluteMediaUrl(post.featured_image_url)?.trim() ||
+    undefined;
   const url = `${getSiteUrl().replace(/\/$/, "")}/news/${post.slug}`;
 
   return {
@@ -86,9 +88,12 @@ export default async function NewsArticlePage({ params }: Props) {
     "@type": "NewsArticle",
     headline: post.seo_title?.trim() || post.title,
     description: post.seo_description?.trim() || post.excerpt || undefined,
-    image: absoluteMediaUrl(post.featured_image_url)
-      ? [absoluteMediaUrl(post.featured_image_url) as string]
-      : undefined,
+    image: (() => {
+      const img =
+        absoluteMediaUrl(post.og_image_url) ||
+        absoluteMediaUrl(post.featured_image_url);
+      return img ? [img] : undefined;
+    })(),
     datePublished: post.published_at || undefined,
     author: {
       "@type": "Person",

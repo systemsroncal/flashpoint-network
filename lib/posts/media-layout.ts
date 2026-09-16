@@ -30,10 +30,17 @@ export function isVideoOrPodcastPost(post: MediaHints): boolean {
 }
 
 /**
- * Whether the public single should render the featured image in the hero.
+ * Article-page hero only.
+ *
+ * `show_featured_image` controls whether NewsArticleView renders the featured
+ * image in the single-post hero (when false + video_url, the player occupies
+ * that slot). It must NOT gate:
+ * - Home grids / PostCards / category lists / podcasts rail thumbs
+ * - SEO / Open Graph / Twitter / JSON-LD (always use featured_image_url / og_image)
+ *
  * Explicit column wins; otherwise default hide for video/podcast.
  */
-export function shouldShowFeaturedImage(
+export function shouldShowFeaturedImageInArticleHero(
   post: Pick<Post, "show_featured_image"> & MediaHints,
 ): boolean {
   if (typeof post.show_featured_image === "boolean") {
@@ -41,6 +48,9 @@ export function shouldShowFeaturedImage(
   }
   return !isVideoOrPodcastPost(post);
 }
+
+/** @deprecated Use shouldShowFeaturedImageInArticleHero — name clarifies scope. */
+export const shouldShowFeaturedImage = shouldShowFeaturedImageInArticleHero;
 
 /** Default for a new/edited form when category or flags become media. */
 export function defaultShowFeaturedImage(hints: MediaHints): boolean {

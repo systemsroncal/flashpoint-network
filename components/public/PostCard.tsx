@@ -52,6 +52,7 @@ function MetaRow({
 export default function PostCard({ post, variant = "grid" }: Props) {
   const href = `/news/${post.slug}`;
   const category = (post.category?.name ?? "News").toUpperCase();
+  // Always use featured_image_url here — show_featured_image is article-hero only.
   const featured = resolveMediaUrl(post.featured_image_url);
   const podcastThumb =
     youtubeThumbnailUrl(post.video_url) || featured;

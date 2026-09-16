@@ -11,7 +11,7 @@ import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media/public-url";
 import {
   isVideoOrPodcastPost,
-  shouldShowFeaturedImage,
+  shouldShowFeaturedImageInArticleHero,
 } from "@/lib/posts/media-layout";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
 
@@ -40,7 +40,8 @@ export default function NewsArticleView({
   const href = `/news/${post.slug}`;
   const featured = resolveMediaUrl(post.featured_image_url);
   const mediaPost = isVideoOrPodcastPost(post);
-  const showFeatured = shouldShowFeaturedImage(post);
+  // Switch is article-hero only — cards/home/SEO always keep featured_image_url.
+  const showFeatured = shouldShowFeaturedImageInArticleHero(post);
   const playerInHero = Boolean(post.video_url) && !showFeatured;
   const caption =
     post.excerpt ||

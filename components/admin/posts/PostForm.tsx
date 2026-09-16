@@ -523,14 +523,14 @@ export default function PostForm({
             />
             <Typography variant="caption" color="text.secondary" display="block" mt={-1}>
               {isMediaPost
-                ? "Video/Podcast default to hide — the player moves into the hero slot on the public page."
-                : "When hidden on Video/Podcast posts, the player replaces the hero image."}
+                ? "Affects only the single post page hero (default hide — player moves into that slot). Home cards, grids, thumbs, and SEO/OG still use the featured image."
+                : "Affects only the single post page hero. Home cards, lists, and social/SEO images always keep the featured image."}
             </Typography>
             <TextField
               name="video_url"
               label="Video URL (YouTube)"
               fullWidth
-              helperText="Used by Must-Watch / video embeds (Plyr). On Video/Podcast with featured image hidden, this plays in the hero."
+              helperText="Used by Must-Watch / video embeds (Plyr). On Video/Podcast with featured image hidden on the article page, this plays in the hero — home thumbs still use the featured image."
               defaultValue={post?.video_url ?? ""}
             />
             <input
