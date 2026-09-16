@@ -218,6 +218,46 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
   return asPosts(data ? [data] : [])[0] ?? null;
 }
 
+/** Case-insensitive title/excerpt search for published posts. */
+export async function searchPosts(query: string, limit = 40): Promise<Post[]> {
+  const q = query.trim().slice(0, 120);
+  if (!q) return [];
+  const supabase = await db();
+  if (!supabase) return [];
+
+  const pattern = `%${q.replace(/[%_]/g, "")}%`;
+  if (pattern === "%%") return [];
+
+  const [titleRes, excerptRes] = await Promise.all([
+    supabase
+      .from("posts")
+      .select(POST_SELECT)
+      .eq("status", "published")
+      .ilike("title", pattern)
+      .order("published_at", { ascending: false })
+      .limit(limit),
+    supabase
+      .from("posts")
+      .select(POST_SELECT)
+      .eq("status", "published")
+      .ilike("excerpt", pattern)
+      .order("published_at", { ascending: false })
+      .limit(limit),
+  ]);
+
+  const byId = new Map<string, Post>();
+  for (const post of [...asPosts(titleRes.data), ...asPosts(excerptRes.data)]) {
+    byId.set(post.id, post);
+  }
+  return Array.from(byId.values())
+    .sort((a, b) => {
+      const ta = a.published_at ? Date.parse(a.published_at) : 0;
+      const tb = b.published_at ? Date.parse(b.published_at) : 0;
+      return tb - ta;
+    })
+    .slice(0, limit);
+}
+
 export async function getArticleSidebar(excludeId?: string): Promise<{
   latest: Post[];
   podcasts: Post[];

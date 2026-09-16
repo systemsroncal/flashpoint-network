@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import EventsTicker from "@/components/public/EventsTicker";
+import LatestNewsBar from "@/components/public/LatestNewsBar";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
+import VideoPlayer from "@/components/public/VideoPlayer";
 import type { HomePayload } from "@/lib/types/cms";
 import {
   formatDate,
@@ -36,7 +37,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
 
   return (
     <div className="bg-white text-black">
-      <EventsTicker events={data.tickerEvents} />
+      <LatestNewsBar post={data.featured} />
 
       {!data.featured &&
       !data.liveEvent &&
@@ -67,7 +68,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
         </div>
       ) : null}
 
-      {/* Live hero — Figma 7:9354: full-bleed black studio band, poster + circular play (no VideoPlayer) */}
+      {/* Live hero — autoplay video when URL is set; otherwise poster still */}
       {data.liveEvent ? (
         <section className="relative overflow-hidden bg-black text-white">
           <div
@@ -89,36 +90,46 @@ export default function HomeView({ data }: { data: HomePayload }) {
           </div>
 
           <div className="relative mx-auto flex max-w-[1440px] flex-col items-center gap-8 px-4 py-10 md:flex-row md:gap-12 md:px-8 lg:gap-[49px] lg:px-10 lg:py-12">
-            <Link
-              href={`/events/${data.liveEvent.slug}`}
-              className="relative block w-full max-w-[700px] shrink-0 overflow-hidden rounded-[15px] md:w-[52%]"
-              aria-label={`Watch live: ${data.liveEvent.title}`}
-            >
-              <span className="relative block aspect-[700/394] bg-[#0B1220]">
-                {data.liveEvent.thumbnail_url ? (
-                  <Image
-                    src={data.liveEvent.thumbnail_url}
-                    alt=""
-                    fill
-                    priority
-                    className="object-cover"
-                    sizes="(max-width:768px) 100vw, 700px"
-                  />
-                ) : (
-                  <span className="absolute inset-0 bg-gradient-to-br from-[#1b2a64] via-black to-[#ff490d]/40" />
-                )}
-                <span className="absolute inset-0 bg-black/25" />
-                <span className="absolute bottom-0 left-0 z-10">
-                  <Image
-                    src="/brand/live-play-circle.svg"
-                    alt=""
-                    width={200}
-                    height={200}
-                    className="h-[110px] w-[110px] sm:h-[150px] sm:w-[150px] md:h-[200px] md:w-[200px]"
-                  />
-                </span>
-              </span>
-            </Link>
+            <div className="relative w-full max-w-[700px] shrink-0 overflow-hidden rounded-[15px] md:w-[52%]">
+              {data.liveEvent.video_url ? (
+                <VideoPlayer
+                  url={data.liveEvent.video_url}
+                  title={data.liveEvent.title}
+                  poster={
+                    data.liveEvent.thumbnail_url ||
+                    youtubeThumbnailUrl(data.liveEvent.video_url)
+                  }
+                  autoplay
+                  loop
+                  className="aspect-[700/394] w-full [&_.plyr]:rounded-[15px]"
+                />
+              ) : (
+                <div className="relative block aspect-[700/394] bg-[#0B1220]">
+                  {data.liveEvent.thumbnail_url ? (
+                    <Image
+                      src={data.liveEvent.thumbnail_url}
+                      alt=""
+                      fill
+                      priority
+                      className="object-cover"
+                      sizes="(max-width:768px) 100vw, 700px"
+                    />
+                  ) : (
+                    <span className="absolute inset-0 bg-gradient-to-br from-[#1b2a64] via-black to-[#ff490d]/40" />
+                  )}
+                  <span className="absolute inset-0 bg-black/25" />
+                  <span className="absolute bottom-0 left-0 z-10">
+                    <Image
+                      src="/brand/live-play-circle.svg"
+                      alt=""
+                      width={200}
+                      height={200}
+                      className="h-[110px] w-[110px] sm:h-[150px] sm:w-[150px] md:h-[200px] md:w-[200px]"
+                    />
+                  </span>
+                </div>
+              )}
+            </div>
 
             <div className="w-full md:flex-1 md:max-w-[602px]">
               <div className="flex flex-wrap items-center gap-3">

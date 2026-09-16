@@ -2,7 +2,7 @@ import AdSenseScript from "@/components/public/AdSenseScript";
 import MaintenanceWithProgramException from "@/components/public/MaintenanceWithProgramException";
 import SiteFooter from "@/components/public/SiteFooter";
 import SiteHeader from "@/components/public/SiteHeader";
-import { getCurrentProfile, isAdminRole } from "@/lib/auth/session";
+import { getCurrentProfile, isAdminRole, isStaffRole } from "@/lib/auth/session";
 import { getSiteName } from "@/lib/env";
 import { getProgramModules } from "@/lib/features/program-modules-server";
 import { getMaintenanceSettings } from "@/lib/maintenance/settings";
@@ -41,7 +41,11 @@ export default async function PublicLayout({
         </div>
       ) : null}
       <AdSenseScript />
-      <SiteHeader modules={modules} />
+      <SiteHeader
+        modules={modules}
+        isLoggedIn={Boolean(profile)}
+        isStaff={Boolean(profile && isStaffRole(profile.role))}
+      />
       <main className="flex-1">{children}</main>
       <SiteFooter siteName={siteName} modules={modules} />
     </>

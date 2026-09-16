@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import HeaderSearch from "@/components/public/HeaderSearch";
 
 type NavItem = {
   id: string;
@@ -13,10 +14,14 @@ export default function MobileNav({
   items,
   showClassic = false,
   showSchedule = false,
+  isLoggedIn = false,
+  isStaff = false,
 }: {
   items: NavItem[];
   showClassic?: boolean;
   showSchedule?: boolean;
+  isLoggedIn?: boolean;
+  isStaff?: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -73,6 +78,12 @@ export default function MobileNav({
             </button>
           </div>
           <nav className="mx-auto max-h-[calc(100vh-5rem)] max-w-[1440px] overflow-y-auto px-4 pb-10 md:px-8">
+            <div className="mb-6 flex items-center justify-between gap-3 rounded-md border border-white/20 px-3 py-2">
+              <p className="text-xs font-bold uppercase tracking-wide text-white/60">
+                Search
+              </p>
+              <HeaderSearch />
+            </div>
             <ul className="divide-y divide-white/15 border-t border-white/15">
               {items.map((item) => (
                 <li key={item.id}>
@@ -87,21 +98,35 @@ export default function MobileNav({
                 </li>
               ))}
             </ul>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/register"
-                onClick={() => setOpen(false)}
-                className="inline-flex h-11 items-center justify-center rounded-md bg-white text-sm font-bold text-black"
-              >
-                Subscribe
-              </Link>
-              <Link
-                href="/login"
-                onClick={() => setOpen(false)}
-                className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--fpn-rojo)] text-sm font-black text-white"
-              >
-                Login
-              </Link>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              {isLoggedIn ? (
+                isStaff ? (
+                  <Link
+                    href="/admin"
+                    onClick={() => setOpen(false)}
+                    className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--fpn-rojo)] text-sm font-black text-white"
+                  >
+                    Admin
+                  </Link>
+                ) : null
+              ) : (
+                <>
+                  <Link
+                    href="/register"
+                    onClick={() => setOpen(false)}
+                    className="inline-flex h-11 items-center justify-center rounded-md bg-white text-sm font-bold text-black"
+                  >
+                    Subscribe
+                  </Link>
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--fpn-rojo)] text-sm font-black text-white"
+                  >
+                    Login
+                  </Link>
+                </>
+              )}
               {showSchedule ? (
                 <Link
                   href="/schedule-programs"
@@ -120,20 +145,6 @@ export default function MobileNav({
                   Classics
                 </Link>
               ) : null}
-              <Link
-                href="/network-programs"
-                onClick={() => setOpen(false)}
-                className="inline-flex h-11 items-center justify-center rounded-md border border-white/40 text-sm font-semibold"
-              >
-                Network
-              </Link>
-              <Link
-                href="/events"
-                onClick={() => setOpen(false)}
-                className="inline-flex h-11 items-center justify-center rounded-md border border-white/40 text-sm font-semibold"
-              >
-                Events
-              </Link>
             </div>
           </nav>
         </div>

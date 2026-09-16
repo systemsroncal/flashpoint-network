@@ -93,7 +93,8 @@ export default function ImageUploadField({
           />
         </Button>
         <Typography variant="caption" color="text.secondary" sx={{ pt: 1 }}>
-          Sharp → WebP → server disk (`/uploads/…`). Prefer upload over pasting remote URLs.
+          Auto-resizes to max 1920px wide (height scales), converts to WebP on
+          disk (`/uploads/…`).
         </Typography>
       </Stack>
       <TextField
