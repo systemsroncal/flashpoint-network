@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import {
+  getSupabaseUrl,
   normalizeForwardedHost,
   normalizePublicUrl,
   scrubSiteUrlEnv,
@@ -15,7 +16,7 @@ const STAFF_ROLES = new Set(["superadmin", "admin", "editor", "journalist"]);
  * the action body — which paints (auth)/error.tsx.
  */
 function sanitizedRequestHeaders(request: NextRequest): Headers {
-  // Also scrub PM2-dumped env (middleware runs even if instrumentation lagged).
+  // Also scrub PM2/CyberPanel-dumped env (middleware runs even if instrumentation lagged).
   scrubSiteUrlEnv();
 
   const headers = new Headers(request.headers);
@@ -32,6 +33,12 @@ function sanitizedRequestHeaders(request: NextRequest): Headers {
     if (host) headers.set("x-forwarded-host", host);
   }
 
+  const host = headers.get("host");
+  if (host && /[\s,;]/.test(host)) {
+    const cleaned = normalizeForwardedHost(host);
+    if (cleaned) headers.set("host", cleaned);
+  }
+
   return headers;
 }
 
@@ -44,33 +51,46 @@ export async function updateSession(request: NextRequest) {
     request: { headers: requestHeaders },
   });
 
-  const url = normalizePublicUrl(process.env.NEXT_PUBLIC_SUPABASE_URL, "");
   const key =
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+  let url = "";
+  try {
+    url = getSupabaseUrl();
+  } catch (err) {
+    console.error("[middleware] getSupabaseUrl failed", err);
+    return supabaseResponse;
+  }
 
   if (!url || !key || url.includes("placeholder") || url.includes("YOUR_PROJECT")) {
     return supabaseResponse;
   }
 
-  const supabase = createServerClient(url, key, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
+  let supabase;
+  try {
+    supabase = createServerClient(url, key, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => {
+            request.cookies.set(name, value);
+          });
+          supabaseResponse = NextResponse.next({
+            request: { headers: requestHeaders },
+          });
+          cookiesToSet.forEach(({ name, value, options }) => {
+            supabaseResponse.cookies.set(name, value, options);
+          });
+        },
       },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => {
-          request.cookies.set(name, value);
-        });
-        supabaseResponse = NextResponse.next({
-          request: { headers: requestHeaders },
-        });
-        cookiesToSet.forEach(({ name, value, options }) => {
-          supabaseResponse.cookies.set(name, value, options);
-        });
-      },
-    },
-  });
+    });
+  } catch (err) {
+    console.error("[middleware] createServerClient failed", err);
+    return supabaseResponse;
+  }
 
   try {
     const {

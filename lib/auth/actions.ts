@@ -93,6 +93,7 @@ export async function signInAction(formData: FormData) {
 
 export async function signUpAction(formData: FormData) {
   try {
+    scrubSiteUrlEnv();
     const email = String(formData.get("email") || "").trim();
     const password = String(formData.get("password") || "");
     const firstName = String(formData.get("first_name") || "").trim();
@@ -142,6 +143,7 @@ export async function signOutAction() {
 
 export async function requestPasswordResetAction(formData: FormData) {
   try {
+    scrubSiteUrlEnv();
     const email = String(formData.get("email") || "").trim();
     const supabase = await createClient();
     if (!supabase) fail("/forgot-password", AUTH_UNAVAILABLE);

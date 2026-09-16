@@ -21,7 +21,7 @@ export default function AuthError({
 
   const loginHref = isBadSiteUrl
     ? `/login?error=${encodeURIComponent(
-        "Site URL is misconfigured on the server. Ask an admin to fix NEXT_PUBLIC_SITE_URL (PM2 --update-env) and rebuild.",
+        "Site URL is misconfigured (app env, PM2, or Supabase Auth → Site URL). Use a single origin like https://fptn.com, then rebuild and pm2 restart --update-env.",
       )}`
     : "/login";
 
@@ -32,7 +32,7 @@ export default function AuthError({
       </h1>
       <p className="mt-2 text-sm text-black/65">
         {isBadSiteUrl
-          ? "The server has a duplicated or invalid site URL. Sign in again after an admin cleans env and restarts PM2 with --update-env."
+          ? "Duplicated or invalid site URL detected. Check Supabase Auth Site URL and PM2 env, then sign in again."
           : "We couldn&apos;t finish that request. You can try again or return to sign in — the form is still available."}
       </p>
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">

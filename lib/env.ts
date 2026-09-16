@@ -129,13 +129,17 @@ export function getSiteName(): string {
 }
 
 /**
- * Rewrite process.env site URL keys in-place so PM2-dumped duplicates
+ * Rewrite process.env URL keys in-place so PM2/CyberPanel-dumped duplicates
  * (`https://fptn.com, https://fptn.com`) cannot reach Next internals or
  * third-party `new URL(process.env.*)`. Call from instrumentation on boot.
  */
 export function scrubSiteUrlEnv(): { key: string; before: string; after: string }[] {
   const changed: { key: string; before: string; after: string }[] = [];
-  for (const key of ["NEXT_PUBLIC_SITE_URL", "SITE_URL"] as const) {
+  for (const key of [
+    "NEXT_PUBLIC_SITE_URL",
+    "SITE_URL",
+    "NEXT_PUBLIC_SUPABASE_URL",
+  ] as const) {
     const before = process.env[key];
     if (!before || !/[,;]/.test(before)) continue;
     const after = normalizePublicUrl(before, "");
