@@ -23,7 +23,7 @@ export default function Error({
         Couldn&apos;t load this page
       </h1>
       <p className="mt-3 text-sm text-black/65">
-        {error.message || "An unexpected error occurred."}
+        An unexpected error occurred. Try again, or go back home.
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <button
