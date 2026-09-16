@@ -35,35 +35,40 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  const path = request.nextUrl.pathname;
-  const isAdmin = path === "/admin" || path.startsWith("/admin/");
+    const path = request.nextUrl.pathname;
+    const isAdmin = path === "/admin" || path.startsWith("/admin/");
 
-  if (isAdmin) {
-    if (!user) {
-      const login = request.nextUrl.clone();
-      login.pathname = "/login";
-      login.searchParams.set("next", path);
-      return NextResponse.redirect(login);
+    if (isAdmin) {
+      if (!user) {
+        const login = request.nextUrl.clone();
+        login.pathname = "/login";
+        login.searchParams.set("next", path);
+        return NextResponse.redirect(login);
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      const role = (profile?.role as string | undefined) || "";
+      if (!STAFF_ROLES.has(role)) {
+        const denied = request.nextUrl.clone();
+        denied.pathname = "/";
+        denied.searchParams.set("admin_denied", "1");
+        return NextResponse.redirect(denied);
+      }
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    const role = (profile?.role as string | undefined) || "";
-    if (!STAFF_ROLES.has(role)) {
-      const denied = request.nextUrl.clone();
-      denied.pathname = "/";
-      denied.searchParams.set("admin_denied", "1");
-      return NextResponse.redirect(denied);
-    }
+    return supabaseResponse;
+  } catch (err) {
+    console.error("[middleware] session check failed", err);
+    return supabaseResponse;
   }
-
-  return supabaseResponse;
 }
