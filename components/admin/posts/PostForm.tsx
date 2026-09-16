@@ -104,6 +104,14 @@ export default function PostForm({
   const pendingStatusRef = useRef<PostStatus | null>(null);
   const saveBlocked = !slugValid || !title.trim();
 
+  // Exact ISO from DB + the datetime-local string we showed — used so save/preview
+  // can keep published_at unchanged when the editor only edits title/body.
+  const publishedAtOriginal = post?.published_at ?? "";
+  const publishedAtDisplay = useMemo(
+    () => toLocalInput(post?.published_at),
+    [post?.published_at],
+  );
+
   const categoryName = useMemo(() => {
     return categories.find((c) => c.id === categoryId)?.name ?? post?.category?.name ?? null;
   }, [categories, categoryId, post?.category?.name]);
@@ -130,6 +138,8 @@ export default function PostForm({
       video_url: String(fd.get("video_url") || ""),
       reading_time_minutes: Number(fd.get("reading_time_minutes") || 5),
       published_at: String(fd.get("published_at") || ""),
+      published_at_display: publishedAtDisplay,
+      published_at_original: publishedAtOriginal,
       is_featured: isFeatured,
       is_premium: isPremium,
       is_video: isVideo,
@@ -371,14 +381,24 @@ export default function PostForm({
               helperText="Used by Must-Watch / video embeds (Plyr)"
               defaultValue={post?.video_url ?? ""}
             />
+            <input
+              type="hidden"
+              name="published_at_original"
+              value={publishedAtOriginal}
+            />
+            <input
+              type="hidden"
+              name="published_at_display"
+              value={publishedAtDisplay}
+            />
             <TextField
               name="published_at"
               label="Published at"
               type="datetime-local"
               fullWidth
               InputLabelProps={{ shrink: true }}
-              defaultValue={toLocalInput(post?.published_at)}
-              helperText="Leave blank on edit to keep the existing publish time (sort order / home slots)."
+              defaultValue={publishedAtDisplay}
+              helperText="Home and lists sort by this date. Leave unchanged (or blank) to keep the existing publish time — editing title/body alone will not reshuffle."
             />
             <Box>
               <Typography variant="subtitle2" gutterBottom>

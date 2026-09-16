@@ -121,10 +121,12 @@ export async function getAdminPostsPage(
     }
   }
 
+  // Sort by publish time (same as home). Do not use updated_at — edits would
+  // reshuffle the News list even when published_at is unchanged.
   let builder = supabase
     .from("posts")
     .select(POST_SELECT, { count: "exact" })
-    .order("updated_at", { ascending: false });
+    .order("published_at", { ascending: false, nullsFirst: false });
 
   if (categoryId) {
     builder = builder.eq("category_id", categoryId);

@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteUrl } from "@/lib/env";
 import { slugify } from "@/lib/slug";
 import type { PostStatus } from "@/lib/types/cms";
+import { resolvePublishedAt } from "@/lib/admin/published-at";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -63,6 +64,9 @@ export async function POST(request: Request) {
 
   const featuredImageUrl = String(body.featured_image_url || "").trim() || null;
   const publishedAtRaw = String(body.published_at || "");
+  const publishedAtDisplay = String(body.published_at_display || "");
+  const publishedAtOriginal =
+    String(body.published_at_original || "").trim() || null;
 
   type Existing = {
     is_featured: boolean;
@@ -86,19 +90,13 @@ export async function POST(request: Request) {
     existing = (data as Existing | null) ?? null;
   }
 
-  let publishedAt: string | null;
-  if (publishedAtRaw) {
-    const parsed = new Date(publishedAtRaw);
-    publishedAt = Number.isNaN(parsed.getTime())
-      ? (existing?.published_at ?? null)
-      : parsed.toISOString();
-  } else if (existing?.published_at) {
-    publishedAt = existing.published_at;
-  } else if (status === "published") {
-    publishedAt = new Date().toISOString();
-  } else {
-    publishedAt = null;
-  }
+  const publishedAt = resolvePublishedAt({
+    submittedRaw: publishedAtRaw,
+    displayInitial: publishedAtDisplay,
+    originalIso: publishedAtOriginal ?? existing?.published_at ?? null,
+    existingIso: existing?.published_at ?? null,
+    status,
+  });
 
   const payload = {
     title,

@@ -16,6 +16,7 @@ import {
   normalizeStoredMediaUrl,
 } from "@/lib/media/public-url";
 import { isAdminPostSlugAvailable } from "@/lib/admin/queries";
+import { resolvePublishedAt } from "@/lib/admin/published-at";
 
 function boolFromForm(value: FormDataEntryValue | null): boolean {
   return value === "on" || value === "true" || value === "1";
@@ -109,6 +110,11 @@ export async function upsertPostAction(formData: FormData) {
     String(formData.get("og_description") || "").trim() || null;
   const readingTime = Number(formData.get("reading_time_minutes") || 5);
   const publishedAtRaw = String(formData.get("published_at") || "");
+  const publishedAtDisplay = String(
+    formData.get("published_at_display") || "",
+  );
+  const publishedAtOriginal =
+    String(formData.get("published_at_original") || "").trim() || null;
 
   // Default author: seeded FPN desk editor (creates only)
   const defaultAuthorId = "f1000000-0000-4000-8000-000000000001";
@@ -126,20 +132,15 @@ export async function upsertPostAction(formData: FormData) {
     existing = (data as PlacementFields | null) ?? null;
   }
 
-  // Preserve published_at on edit when the datetime field is empty (do not bump to "now").
-  let publishedAt: string | null;
-  if (publishedAtRaw) {
-    const parsed = new Date(publishedAtRaw);
-    publishedAt = Number.isNaN(parsed.getTime())
-      ? (existing?.published_at ?? null)
-      : parsed.toISOString();
-  } else if (existing?.published_at) {
-    publishedAt = existing.published_at;
-  } else if (status === "published") {
-    publishedAt = new Date().toISOString();
-  } else {
-    publishedAt = null;
-  }
+  // Keep exact published_at when the editor did not change the datetime-local
+  // display (avoids TZ round-trip reshuffling home / lists).
+  const publishedAt = resolvePublishedAt({
+    submittedRaw: publishedAtRaw,
+    displayInitial: publishedAtDisplay,
+    originalIso: publishedAtOriginal ?? existing?.published_at ?? null,
+    existingIso: existing?.published_at ?? null,
+    status,
+  });
 
   // Placement flags: prefer explicit form values; if a field is missing from FormData
   // (e.g. unchecked MUI checkbox never serializes), keep the existing DB value on update.
