@@ -28,8 +28,11 @@ export default function HomeView({ data }: { data: HomePayload }) {
   const sideVideos = data.mustWatch.slice(1, 5);
   const mainExclusive = data.exclusives[0];
   const exclusiveRows = data.exclusives.slice(1, 5);
-  // Figma left-column band: 4 Politics + 4 World in a 3-col wrap (not full-bleed).
-  const politicsWorld = [...data.politics.slice(0, 4), ...data.world.slice(0, 4)];
+  // Second band under hero: max 6 cards (2×3). Prefer Politics then World.
+  const politicsWorld = [
+    ...data.politics.slice(0, 3),
+    ...data.world.slice(0, 3),
+  ].slice(0, 6);
 
   return (
     <div className="bg-white text-black">
@@ -189,7 +192,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
               </div>
             </div>
 
-            {/* 4 Politics + 4 World — Figma 3-col wrap under hero, same left column as Podcasts rail */}
+            {/* Politics + World — max 6 cards in 3-col grid under hero */}
             {politicsWorld.length > 0 ? (
               <div>
                 <div className="mb-1 flex flex-wrap items-center justify-end gap-4">
