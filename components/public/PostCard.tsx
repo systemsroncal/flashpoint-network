@@ -64,10 +64,10 @@ export default function PostCard({ post, variant = "grid" }: Props) {
 
   if (variant === "podcast") {
     return (
-      <article className="flex gap-4 border-b border-[#ccc] py-4 last:border-b-0">
+      <article className="flex gap-3.5 border-b border-[#ccc] py-3.5 last:border-b-0">
         <Link
           href={href}
-          className="relative h-[117px] w-[117px] shrink-0 overflow-hidden rounded-[8px] bg-neutral-200"
+          className="relative aspect-video w-[128px] shrink-0 overflow-hidden rounded-[8px] bg-neutral-200 sm:w-[148px]"
         >
           {podcastThumb ? (
             <Image
@@ -75,17 +75,20 @@ export default function PostCard({ post, variant = "grid" }: Props) {
               alt=""
               fill
               className="object-cover"
-              sizes="117px"
+              sizes="148px"
             />
           ) : null}
+          <span className="absolute bottom-1.5 left-1.5">
+            <Image src="/brand/play-btn.svg" alt="" width={22} height={22} />
+          </span>
         </Link>
-        <div className="min-w-0 flex-1">
-          <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
+        <div className="min-w-0 flex-1 self-center">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
             {category}
           </p>
           <Link
             href={href}
-            className="mt-0.5 line-clamp-3 block font-article text-[1.05rem] font-black leading-snug tracking-tight text-black hover:text-[var(--fpn-rojo)]"
+            className="mt-0.5 line-clamp-3 block font-article text-[15px] font-black leading-snug tracking-tight text-black hover:text-[var(--fpn-rojo)]"
           >
             {post.title}
           </Link>

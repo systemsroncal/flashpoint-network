@@ -3,7 +3,6 @@ import Link from "next/link";
 import EventsTicker from "@/components/public/EventsTicker";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
-import VideoPlayer from "@/components/public/VideoPlayer";
 import type { HomePayload } from "@/lib/types/cms";
 import {
   formatDate,
@@ -65,78 +64,88 @@ export default function HomeView({ data }: { data: HomePayload }) {
         </div>
       ) : null}
 
-      {/* Live hero */}
+      {/* Live hero — Figma 7:9354: full-bleed black studio band, poster + circular play (no VideoPlayer) */}
       {data.liveEvent ? (
-        <section className="bg-black text-white">
-          <div className="mx-auto flex max-w-[1440px] flex-col items-center gap-10 px-4 py-8 md:flex-row md:gap-12 md:px-8 lg:px-10 lg:py-10">
-            <div className="relative w-full max-w-[700px] shrink-0 overflow-hidden rounded-[15px] md:w-[52%]">
-              {data.liveEvent.video_url ? (
-                <VideoPlayer
-                  url={data.liveEvent.video_url}
-                  title={data.liveEvent.title}
-                  poster={data.liveEvent.thumbnail_url}
-                  className="aspect-video w-full"
-                />
-              ) : (
-                <Link
-                  href={`/events/${data.liveEvent.slug}`}
-                  className="relative block aspect-[700/394] bg-[#0B1220]"
-                >
-                  {data.liveEvent.thumbnail_url ? (
-                    <Image
-                      src={data.liveEvent.thumbnail_url}
-                      alt=""
-                      fill
-                      priority
-                      className="object-cover opacity-90"
-                      sizes="(max-width:768px) 100vw, 52vw"
-                    />
-                  ) : null}
-                  <span className="absolute inset-0 bg-gradient-to-r from-[#1b2a64]/40 via-transparent to-[#ff490d]/20" />
-                  <span className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6">
-                    <Image
-                      src="/brand/play-btn.svg"
-                      alt=""
-                      width={72}
-                      height={72}
-                      className="h-14 w-14 sm:h-[72px] sm:w-[72px]"
-                    />
-                  </span>
-                </Link>
-              )}
-            </div>
+        <section className="relative overflow-hidden bg-black text-white">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-40"
+          >
+            {data.liveEvent.thumbnail_url ? (
+              <Image
+                src={data.liveEvent.thumbnail_url}
+                alt=""
+                fill
+                priority
+                className="object-cover"
+                sizes="100vw"
+              />
+            ) : null}
+            <span className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-[#1b2a64]/55" />
+            <span className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(255,73,13,0.18),transparent_55%)]" />
+          </div>
 
-            <div className="w-full md:flex-1">
+          <div className="relative mx-auto flex max-w-[1440px] flex-col items-center gap-8 px-4 py-10 md:flex-row md:gap-12 md:px-8 lg:gap-[49px] lg:px-10 lg:py-12">
+            <Link
+              href={`/events/${data.liveEvent.slug}`}
+              className="relative block w-full max-w-[700px] shrink-0 overflow-hidden rounded-[15px] md:w-[52%]"
+              aria-label={`Watch live: ${data.liveEvent.title}`}
+            >
+              <span className="relative block aspect-[700/394] bg-[#0B1220]">
+                {data.liveEvent.thumbnail_url ? (
+                  <Image
+                    src={data.liveEvent.thumbnail_url}
+                    alt=""
+                    fill
+                    priority
+                    className="object-cover"
+                    sizes="(max-width:768px) 100vw, 700px"
+                  />
+                ) : (
+                  <span className="absolute inset-0 bg-gradient-to-br from-[#1b2a64] via-black to-[#ff490d]/40" />
+                )}
+                <span className="absolute inset-0 bg-black/25" />
+                <span className="absolute bottom-0 left-0 z-10">
+                  <Image
+                    src="/brand/live-play-circle.svg"
+                    alt=""
+                    width={200}
+                    height={200}
+                    className="h-[110px] w-[110px] sm:h-[150px] sm:w-[150px] md:h-[200px] md:w-[200px]"
+                  />
+                </span>
+              </span>
+            </Link>
+
+            <div className="w-full md:flex-1 md:max-w-[602px]">
               <div className="flex flex-wrap items-center gap-3">
-                {data.liveEvent.is_live ? (
-                  <span className="inline-flex h-[30px] items-center gap-2 rounded-[5px] bg-[var(--fpn-rojo)] px-2.5 text-[13px] font-black uppercase tracking-wide text-white">
-                    <span className="relative inline-block h-[17px] w-[17px]">
-                      <Image
-                        src="/brand/live-signal-2.svg"
-                        alt=""
-                        width={17}
-                        height={17}
-                        className="fpn-signal-b absolute inset-0"
-                      />
-                      <Image
-                        src="/brand/live-signal-3.svg"
-                        alt=""
-                        width={12}
-                        height={12}
-                        className="fpn-signal-c absolute left-0 top-[5px]"
-                      />
-                      <Image
-                        src="/brand/live-signal-1.svg"
-                        alt=""
-                        width={5}
-                        height={5}
-                        className="fpn-signal-a absolute left-0 top-[14px]"
-                      />
-                    </span>
-                    On Live
+                <span className="inline-flex h-[30px] min-w-[101px] items-center justify-center gap-2 rounded-[5px] bg-[var(--fpn-rojo)] px-2.5 text-[13px] font-black uppercase tracking-wide text-white">
+                  <span className="relative inline-block h-[17px] w-[17px]">
+                    <Image
+                      src="/brand/live-signal-2.svg"
+                      alt=""
+                      width={17}
+                      height={17}
+                      className="fpn-signal-b absolute inset-0"
+                    />
+                    <Image
+                      src="/brand/live-signal-3.svg"
+                      alt=""
+                      width={12}
+                      height={12}
+                      className="fpn-signal-c absolute left-0 top-[5px]"
+                    />
+                    <Image
+                      src="/brand/live-signal-1.svg"
+                      alt=""
+                      width={5}
+                      height={5}
+                      className="fpn-signal-a absolute left-0 top-[14px]"
+                    />
                   </span>
-                ) : null}
-                <span className="text-[15px] font-medium text-white">
+                  LIVE
+                </span>
+                <span className="text-[15px] font-medium text-white md:text-[17px]">
                   {data.liveEvent.starts_at
                     ? formatTickerTime(new Date(data.liveEvent.starts_at))
                     : "8:00 PM"}
@@ -145,10 +154,10 @@ export default function HomeView({ data }: { data: HomePayload }) {
                     : ""}
                 </span>
               </div>
-              <p className="mt-5 text-[22px] font-extrabold italic leading-tight text-white md:text-[26px]">
-                Now: {data.liveEvent.host_name || "FlashPoint Live"}
+              <p className="mt-5 text-[22px] font-extrabold italic leading-tight tracking-tight text-white md:text-[29px]">
+                Now: FlashPoint Live
               </p>
-              <h1 className="mt-3 max-w-xl font-article text-[2rem] font-bold leading-[1.15] tracking-tight text-white md:text-[2.5rem]">
+              <h1 className="mt-4 max-w-xl font-article text-[2rem] font-bold leading-[1.15] tracking-tight text-white md:text-[2.75rem]">
                 <Link
                   href={`/events/${data.liveEvent.slug}`}
                   className="hover:text-[var(--fpn-rojo)]"
@@ -536,9 +545,47 @@ export default function HomeView({ data }: { data: HomePayload }) {
               <ol className="divide-y divide-[#ccc] border-t border-[#ccc]">
                 {data.popular.slice(0, 5).map((post, index) => (
                   <li key={post.id} className="py-4">
-                    <p className="text-[24px] font-medium leading-none text-[var(--fpn-rojo)]">
-                      {index + 1}
-                    </p>
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <p className="text-[24px] font-medium leading-none text-[var(--fpn-rojo)]">
+                        {index + 1}
+                      </p>
+                      {post.is_premium ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-[4px] bg-[var(--fpn-rojo)] px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-white">
+                          <Image
+                            src="/brand/exclusive-star.svg"
+                            alt=""
+                            width={16}
+                            height={16}
+                            className="h-4 w-4"
+                          />
+                          Exclusive
+                        </span>
+                      ) : null}
+                      {post.is_featured ? (
+                        <span className="inline-flex items-center gap-1 rounded-[4px] border border-[var(--fpn-rojo)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--fpn-rojo)]">
+                          <Image
+                            src="/brand/fpn-logo-mark.svg"
+                            alt=""
+                            width={12}
+                            height={12}
+                            className="h-3 w-3"
+                          />
+                          Featured
+                        </span>
+                      ) : null}
+                      {!post.is_premium && !post.is_featured ? (
+                        <span className="inline-flex items-center gap-1 rounded-[4px] bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                          <Image
+                            src="/brand/exclusive-star.svg"
+                            alt=""
+                            width={14}
+                            height={14}
+                            className="h-3.5 w-3.5 invert"
+                          />
+                          Popular
+                        </span>
+                      ) : null}
+                    </div>
                     <Link
                       href={`/news/${post.slug}`}
                       className="mt-1 block font-article text-[1.1rem] font-black leading-snug tracking-tight text-black hover:text-[var(--fpn-rojo)]"
