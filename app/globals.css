@@ -184,3 +184,42 @@ article h3 {
 .fpn-signal-c {
   animation: fpn-signal-c 2s ease-in-out infinite;
 }
+
+/* Orange home ticker — continuous event marquee */
+.fpn-ticker-mask {
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 12px,
+    #000 calc(100% - 12px),
+    transparent
+  );
+}
+
+.fpn-ticker-track {
+  display: flex;
+  width: max-content;
+  animation-name: fpn-ticker-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.fpn-ticker-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes fpn-ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fpn-ticker-track {
+    animation: none;
+  }
+}

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import EventsTicker from "@/components/public/EventsTicker";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
 import VideoPlayer from "@/components/public/VideoPlayer";
@@ -7,7 +8,6 @@ import type { HomePayload } from "@/lib/types/cms";
 import {
   formatDate,
   formatReadTime,
-  formatTickerDate,
   formatTickerTime,
   formatViews,
 } from "@/lib/format";
@@ -17,41 +17,10 @@ export default function HomeView({ data }: { data: HomePayload }) {
   const sideVideos = data.mustWatch.slice(1, 5);
   const mainExclusive = data.exclusives[0];
   const exclusiveRows = data.exclusives.slice(1, 5);
-  const now = new Date();
-  const tickerDate = formatTickerDate(now);
-  const tickerTime = formatTickerTime(now);
-  const breaking =
-    data.featured?.title ||
-    data.liveEvent?.title ||
-    "Outgoing Army secretary breaks silence after submitting resignation";
 
   return (
     <div className="bg-white text-black">
-      {/* Orange ticker — date is always current */}
-      <div className="bg-[var(--fpn-rojo)] text-white">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-3 md:px-8 lg:px-10">
-          <div className="flex min-w-0 items-center gap-3">
-            <p className="min-w-0 truncate text-sm font-bold sm:text-base md:text-[18px]">
-              Today {tickerTime}{" "}
-              <span className="font-bold opacity-90">|</span> Public Defender:{" "}
-              {breaking}
-            </p>
-            <Image
-              src="/brand/ticker-next.svg"
-              alt=""
-              width={28}
-              height={28}
-              className="hidden shrink-0 sm:block"
-            />
-          </div>
-          <time
-            dateTime={now.toISOString().slice(0, 10)}
-            className="hidden shrink-0 text-[15px] font-medium tabular-nums sm:inline"
-          >
-            {tickerDate}
-          </time>
-        </div>
-      </div>
+      <EventsTicker events={data.tickerEvents} />
 
       {!data.featured &&
       !data.liveEvent &&

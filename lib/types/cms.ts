@@ -153,6 +153,7 @@ export type EventItem = {
 export type HomePayload = {
   categories: Category[];
   liveEvent: EventItem | null;
+  tickerEvents: EventItem[];
   featured: Post | null;
   secondary: Post[];
   podcasts: Post[];

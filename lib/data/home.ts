@@ -28,6 +28,7 @@ export async function getHomePayload(): Promise<HomePayload> {
   const empty: HomePayload = {
     categories: [],
     liveEvent: null,
+    tickerEvents: [],
     featured: null,
     secondary: [],
     podcasts: [],
@@ -45,6 +46,7 @@ export async function getHomePayload(): Promise<HomePayload> {
   const [
     categoriesRes,
     eventsRes,
+    tickerEventsRes,
     featuredRes,
     publishedRes,
     podcastsRes,
@@ -64,6 +66,12 @@ export async function getHomePayload(): Promise<HomePayload> {
       .order("is_live", { ascending: false })
       .order("starts_at", { ascending: false })
       .limit(1),
+    supabase
+      .from("events")
+      .select("*")
+      .order("is_live", { ascending: false })
+      .order("starts_at", { ascending: true })
+      .limit(30),
     supabase
       .from("posts")
       .select(POST_SELECT)
@@ -122,6 +130,7 @@ export async function getHomePayload(): Promise<HomePayload> {
   return {
     categories: (categoriesRes.data as Category[]) ?? [],
     liveEvent: ((eventsRes.data as EventItem[]) ?? [])[0] ?? null,
+    tickerEvents: (tickerEventsRes.data as EventItem[]) ?? [],
     featured,
     secondary: published.slice(0, 2),
     podcasts: asPosts(podcastsRes.data),
