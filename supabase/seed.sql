@@ -176,7 +176,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?auto=format&fit=crop&w=1600&q=80',
-  true, false, false, false, false, 8, 2300, '2026-09-02 14:00:00+00'
+  true, false, false, false, false, 8, 2300, '2026-09-15 00:00:00+00'
 ),
 -- Secondary stack (2)
 (
@@ -189,7 +189,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=800&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-02 13:30:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 00:55:21+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000003',
@@ -201,7 +201,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000001',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=800&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-02 13:00:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 01:50:43+00'
 ),
 -- Podcasts (4)
 (
@@ -214,7 +214,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=600&q=80',
-  false, false, false, true, false, 8, 2300, '2026-09-02 12:00:00+00'
+  false, false, false, true, false, 8, 2300, '2026-09-15 02:46:05+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000011',
@@ -226,7 +226,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=600&q=80',
-  false, false, false, true, false, 8, 2100, '2026-09-02 11:00:00+00'
+  false, false, false, true, false, 8, 2100, '2026-09-15 03:41:27+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000012',
@@ -238,7 +238,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000001',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80',
-  false, false, false, true, false, 8, 1900, '2026-09-02 10:00:00+00'
+  false, false, false, true, false, 8, 1900, '2026-09-15 04:36:49+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000013',
@@ -250,7 +250,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1485579149621-3123dd979885?auto=format&fit=crop&w=600&q=80',
-  false, false, false, true, false, 8, 1800, '2026-09-02 09:00:00+00'
+  false, false, false, true, false, 8, 1800, '2026-09-15 05:32:11+00'
 ),
 -- Politics / World band (4 + 4) — distinct from Latest hero pool
 (
@@ -263,7 +263,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-01 14:50:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 06:27:33+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000021',
@@ -275,7 +275,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-01 14:40:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 07:22:55+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000022',
@@ -287,7 +287,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-01 14:30:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 08:18:17+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000023',
@@ -299,7 +299,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-01 14:20:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 09:13:39+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000024',
@@ -311,7 +311,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-01 14:10:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 10:09:01+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000025',
@@ -323,7 +323,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-01 14:00:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 11:04:23+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000026',
@@ -335,7 +335,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 7, 2100, '2026-09-01 13:50:00+00'
+  false, false, false, false, false, 7, 2100, '2026-09-15 11:59:45+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000027',
@@ -347,7 +347,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 6, 1900, '2026-09-01 13:40:00+00'
+  false, false, false, false, false, 6, 1900, '2026-09-15 12:55:06+00'
 ),
 -- Latest news (4 text-forward)
 (
@@ -360,7 +360,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000001',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, false, 5, 1200, '2026-09-02 07:50:00+00'
+  false, false, false, false, false, 5, 1200, '2026-09-15 13:50:28+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000031',
@@ -372,7 +372,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, false, 5, 1100, '2026-09-02 07:40:00+00'
+  false, false, false, false, false, 5, 1100, '2026-09-15 14:45:50+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000032',
@@ -384,7 +384,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000005',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, false, 5, 1000, '2026-09-02 07:30:00+00'
+  false, false, false, false, false, 5, 1000, '2026-09-15 15:41:12+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000033',
@@ -396,7 +396,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000009',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, false, 5, 980, '2026-09-02 07:20:00+00'
+  false, false, false, false, false, 5, 980, '2026-09-15 16:36:34+00'
 ),
 -- Must-watch videos (1 large + 4 small)
 (
@@ -409,7 +409,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000b',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=1400&q=80',
-  true, false, true, false, false, 8, 4500, '2026-09-02 07:00:00+00'
+  true, false, true, false, false, 8, 4500, '2026-09-15 17:31:56+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000041',
@@ -421,7 +421,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000b',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1611162616475-46b635cb6868?auto=format&fit=crop&w=700&q=80',
-  false, false, true, false, false, 6, 2200, '2026-09-02 06:50:00+00'
+  false, false, true, false, false, 6, 2200, '2026-09-15 18:27:18+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000042',
@@ -433,7 +433,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000b',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1611162616475-46b635cb6868?auto=format&fit=crop&w=700&q=80',
-  false, false, true, false, false, 6, 2100, '2026-09-02 06:40:00+00'
+  false, false, true, false, false, 6, 2100, '2026-09-15 19:22:40+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000043',
@@ -445,7 +445,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000b',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=700&q=80',
-  false, false, true, false, false, 6, 2000, '2026-09-02 06:30:00+00'
+  false, false, true, false, false, 6, 2000, '2026-09-15 20:18:02+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000044',
@@ -457,7 +457,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000b',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=700&q=80',
-  false, false, true, false, false, 6, 1950, '2026-09-02 06:20:00+00'
+  false, false, true, false, false, 6, 1950, '2026-09-15 21:13:24+00'
 ),
 -- Elections block (8)
 (
@@ -470,7 +470,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-01 18:00:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 22:08:46+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000051',
@@ -482,7 +482,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-01 17:50:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 23:04:08+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000052',
@@ -494,7 +494,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-01 17:40:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 23:59:30+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000053',
@@ -506,7 +506,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-01 17:30:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-16 00:54:51+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000054',
@@ -518,7 +518,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-01 17:20:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-16 01:50:13+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000055',
@@ -530,7 +530,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-01 17:10:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-16 02:45:35+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000056',
@@ -542,7 +542,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-01 17:00:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-16 03:40:57+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000057',
@@ -554,7 +554,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 8, 2300, '2026-09-01 16:50:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-16 04:36:19+00'
 ),
 -- Exclusive / premium (main + 4 grid + 4 list)
 (
@@ -567,7 +567,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=1400&q=80',
-  true, true, false, false, false, 10, 3200, '2026-09-01 16:00:00+00'
+  true, true, false, false, false, 10, 3200, '2026-09-16 05:31:41+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000061',
@@ -579,7 +579,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=700&q=80',
-  false, true, false, false, false, 8, 2800, '2026-09-01 15:50:00+00'
+  false, true, false, false, false, 8, 2800, '2026-09-16 06:27:03+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000062',
@@ -591,7 +591,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=700&q=80',
-  false, true, false, false, false, 8, 2700, '2026-09-01 15:40:00+00'
+  false, true, false, false, false, 8, 2700, '2026-09-16 07:22:25+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000063',
@@ -603,7 +603,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000009',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=700&q=80',
-  false, true, false, false, false, 8, 2600, '2026-09-01 15:30:00+00'
+  false, true, false, false, false, 8, 2600, '2026-09-16 08:17:47+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000064',
@@ -615,7 +615,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=700&q=80',
-  false, true, false, false, false, 8, 2500, '2026-09-01 15:20:00+00'
+  false, true, false, false, false, 8, 2500, '2026-09-16 09:13:09+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000065',
@@ -627,7 +627,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=400&q=80',
-  false, true, false, false, false, 7, 2400, '2026-09-01 15:10:00+00'
+  false, true, false, false, false, 7, 2400, '2026-09-16 10:08:31+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000066',
@@ -639,7 +639,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000004',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=400&q=80',
-  false, true, false, false, false, 7, 2350, '2026-09-01 15:00:00+00'
+  false, true, false, false, false, 7, 2350, '2026-09-16 11:03:53+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000067',
@@ -651,7 +651,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000005',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&q=80',
-  false, true, false, false, false, 7, 2300, '2026-09-01 14:50:00+00'
+  false, true, false, false, false, 7, 2300, '2026-09-16 11:59:15+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000068',
@@ -663,7 +663,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000008',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=400&q=80',
-  false, true, false, false, false, 7, 2250, '2026-09-01 14:40:00+00'
+  false, true, false, false, false, 7, 2250, '2026-09-16 12:54:36+00'
 ),
 -- Popular sidebar (5) — admin is_popular flag
 (
@@ -676,7 +676,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, true, 8, 9800, '2026-09-01 12:00:00+00'
+  false, false, false, false, true, 8, 9800, '2026-09-16 13:49:58+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000071',
@@ -688,7 +688,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000001',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, true, 8, 8700, '2026-09-01 11:50:00+00'
+  false, false, false, false, true, 8, 8700, '2026-09-16 14:45:20+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000072',
@@ -700,7 +700,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, true, 8, 7600, '2026-09-01 11:40:00+00'
+  false, false, false, false, true, 8, 7600, '2026-09-16 15:40:42+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000073',
@@ -712,7 +712,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000009',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, true, 8, 6500, '2026-09-01 11:30:00+00'
+  false, false, false, false, true, 8, 6500, '2026-09-16 16:36:04+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000074',
@@ -724,7 +724,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000006',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, true, 8, 5400, '2026-09-01 11:20:00+00'
+  false, false, false, false, true, 8, 5400, '2026-09-16 17:31:26+00'
 ),
 -- Extra variety for World / Opinion / Business / Science / Lifestyle / Health / Tech
 (
@@ -737,7 +737,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 6, 1400, '2026-09-01 10:00:00+00'
+  false, false, false, false, false, 6, 1400, '2026-09-16 18:26:48+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000081',
@@ -749,7 +749,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000004',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 7, 1600, '2026-09-01 09:50:00+00'
+  false, false, false, false, false, 7, 1600, '2026-09-16 19:22:10+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000082',
@@ -761,7 +761,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000005',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 6, 1500, '2026-09-01 09:40:00+00'
+  false, false, false, false, false, 6, 1500, '2026-09-16 20:17:32+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000083',
@@ -773,7 +773,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000006',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 6, 1300, '2026-09-01 09:30:00+00'
+  false, false, false, false, false, 6, 1300, '2026-09-16 21:12:54+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000084',
@@ -785,7 +785,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000007',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 5, 1100, '2026-09-01 09:20:00+00'
+  false, false, false, false, false, 5, 1100, '2026-09-16 22:08:16+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000085',
@@ -797,7 +797,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000008',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 5, 1050, '2026-09-01 09:10:00+00'
+  false, false, false, false, false, 5, 1050, '2026-09-16 23:03:38+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000086',
@@ -809,7 +809,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000009',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, false, 6, 2100, '2026-09-01 09:00:00+00'
+  false, false, false, false, false, 6, 2100, '2026-09-16 23:59:00+00'
 )
 on conflict (slug) do update set
   title = excluded.title,
