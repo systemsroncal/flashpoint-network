@@ -12,7 +12,12 @@ export function createAdminClient() {
     process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
   if (!key) return null;
 
-  return createClient(getSupabaseUrl(), key, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  try {
+    return createClient(getSupabaseUrl(), key, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+  } catch (err) {
+    console.error("[supabase/admin] createAdminClient failed", err);
+    return null;
+  }
 }
