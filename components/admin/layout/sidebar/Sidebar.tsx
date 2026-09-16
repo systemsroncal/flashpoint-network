@@ -3,12 +3,15 @@
 import { useMediaQuery, Box, Drawer } from "@mui/material";
 import SidebarItems from "./SidebarItems";
 import type { UserRole } from "@/lib/types/cms";
+import type { ProgramModules } from "@/lib/features/program-modules";
+import { DEFAULT_PROGRAM_MODULES } from "@/lib/features/program-modules";
 
 interface ItemType {
   isMobileSidebarOpen: boolean;
   onSidebarClose: (event: React.MouseEvent<HTMLElement>) => void;
   isSidebarOpen: boolean;
   role: UserRole;
+  modules?: ProgramModules;
 }
 
 const MSidebar = ({
@@ -16,6 +19,7 @@ const MSidebar = ({
   onSidebarClose,
   isSidebarOpen,
   role,
+  modules = DEFAULT_PROGRAM_MODULES,
 }: ItemType) => {
   const lgUp = useMediaQuery((theme: { breakpoints: { up: (k: string) => string } }) =>
     theme.breakpoints.up("lg"),
@@ -57,7 +61,7 @@ const MSidebar = ({
         >
           <Box sx={{ height: "100%" }}>
             <Box>
-              <SidebarItems role={role} />
+              <SidebarItems role={role} modules={modules} />
             </Box>
           </Box>
         </Drawer>
@@ -81,7 +85,7 @@ const MSidebar = ({
       }}
     >
       <Box>
-        <SidebarItems role={role} />
+        <SidebarItems role={role} modules={modules} />
       </Box>
     </Drawer>
   );

@@ -5,6 +5,8 @@ import React, { useState } from "react";
 import Header from "@/components/admin/layout/header/Header";
 import Sidebar from "@/components/admin/layout/sidebar/Sidebar";
 import type { Profile } from "@/lib/types/cms";
+import type { ProgramModules } from "@/lib/features/program-modules";
+import { DEFAULT_PROGRAM_MODULES } from "@/lib/features/program-modules";
 
 const MainWrapper = styled("div")(() => ({
   display: "flex",
@@ -24,9 +26,11 @@ const PageWrapper = styled("div")(() => ({
 export default function AdminShell({
   children,
   profile,
+  modules = DEFAULT_PROGRAM_MODULES,
 }: {
   children: React.ReactNode;
   profile: Profile;
+  modules?: ProgramModules;
 }) {
   const [isSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -38,6 +42,7 @@ export default function AdminShell({
         isMobileSidebarOpen={isMobileSidebarOpen}
         onSidebarClose={() => setMobileSidebarOpen(false)}
         role={profile.role}
+        modules={modules}
       />
       <PageWrapper className="page-wrapper">
         <Header

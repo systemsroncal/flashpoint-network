@@ -17,6 +17,7 @@ import {
   saveAdSenseSettingsAction,
   saveMaintenanceSettingsAction,
   savePaywallSettingsAction,
+  saveProgramModulesAction,
   upsertSiteSettingAction,
 } from "@/lib/admin/actions";
 import type { AiProviderStatus } from "@/lib/ai/catalog";
@@ -51,6 +52,7 @@ export default function SettingsManager({
   const paywall = asObject(byKey.get("paywall")?.value);
   const adsense = asObject(byKey.get("adsense")?.value);
   const maintenance = asObject(byKey.get("maintenance")?.value);
+  const programModules = asObject(byKey.get("program_modules")?.value);
   const adsTxtValue = byKey.get("ads_txt")?.value;
   const adsTxt =
     typeof adsTxtValue === "string"
@@ -64,6 +66,7 @@ export default function SettingsManager({
     "adsense",
     "ads_txt",
     "maintenance",
+    "program_modules",
     AI_KEYS_SETTING,
   ]);
   const visibleSettings = settings.filter((s) => !hiddenKeys.has(s.key));
@@ -104,6 +107,45 @@ export default function SettingsManager({
             />
             <Button type="submit" variant="contained" sx={{ alignSelf: "flex-start" }}>
               Save maintenance
+            </Button>
+          </Stack>
+        </Box>
+      </DashboardCard>
+
+      <DashboardCard
+        title="Program modules"
+        subtitle="Temporarily hide Classic and Schedule from the public site and admin. Ministry is unchanged. No role bypass while a module is off."
+      >
+        <Box component="form" action={saveProgramModulesAction}>
+          <Stack spacing={2}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="classic"
+                  defaultChecked={
+                    typeof programModules.classic === "boolean"
+                      ? programModules.classic
+                      : false
+                  }
+                />
+              }
+              label="Enable Classic Programs (public + admin)"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="schedule"
+                  defaultChecked={
+                    typeof programModules.schedule === "boolean"
+                      ? programModules.schedule
+                      : false
+                  }
+                />
+              }
+              label="Enable Schedule Programs (public + admin)"
+            />
+            <Button type="submit" variant="contained" sx={{ alignSelf: "flex-start" }}>
+              Save program modules
             </Button>
           </Stack>
         </Box>

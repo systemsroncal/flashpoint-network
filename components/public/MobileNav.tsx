@@ -9,7 +9,15 @@ type NavItem = {
   slug: string;
 };
 
-export default function MobileNav({ items }: { items: NavItem[] }) {
+export default function MobileNav({
+  items,
+  showClassic = false,
+  showSchedule = false,
+}: {
+  items: NavItem[];
+  showClassic?: boolean;
+  showSchedule?: boolean;
+}) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -94,20 +102,24 @@ export default function MobileNav({ items }: { items: NavItem[] }) {
               >
                 Login
               </Link>
-              <Link
-                href="/schedule-programs"
-                onClick={() => setOpen(false)}
-                className="inline-flex h-11 items-center justify-center rounded-md border border-white/40 text-sm font-semibold"
-              >
-                Schedule
-              </Link>
-              <Link
-                href="/classic-programs"
-                onClick={() => setOpen(false)}
-                className="inline-flex h-11 items-center justify-center rounded-md border border-white/40 text-sm font-semibold"
-              >
-                Classics
-              </Link>
+              {showSchedule ? (
+                <Link
+                  href="/schedule-programs"
+                  onClick={() => setOpen(false)}
+                  className="inline-flex h-11 items-center justify-center rounded-md border border-white/40 text-sm font-semibold"
+                >
+                  Schedule
+                </Link>
+              ) : null}
+              {showClassic ? (
+                <Link
+                  href="/classic-programs"
+                  onClick={() => setOpen(false)}
+                  className="inline-flex h-11 items-center justify-center rounded-md border border-white/40 text-sm font-semibold"
+                >
+                  Classics
+                </Link>
+              ) : null}
               <Link
                 href="/ministry-programs"
                 onClick={() => setOpen(false)}

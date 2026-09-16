@@ -13,16 +13,21 @@ import { IconPoint } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { UserRole } from "@/lib/types/cms";
+import type { ProgramModules } from "@/lib/features/program-modules";
+import { DEFAULT_PROGRAM_MODULES } from "@/lib/features/program-modules";
 
 function filterMenuItems(
   items: MenuItemConfig[],
   role: UserRole,
+  modules: ProgramModules,
 ): MenuItemConfig[] {
   const filtered: MenuItemConfig[] = [];
   for (const item of items) {
     if (item.roles && !item.roles.includes(role)) continue;
+    if (item.module === "classic" && !modules.classic) continue;
+    if (item.module === "schedule" && !modules.schedule) continue;
     if (item.children) {
-      const children = filterMenuItems(item.children, role);
+      const children = filterMenuItems(item.children, role, modules);
       if (!children.length) continue;
       filtered.push({ ...item, children });
       continue;
@@ -91,9 +96,15 @@ const renderMenuItems = (items: MenuItemConfig[], pathDirect: string) => {
   });
 };
 
-const SidebarItems = ({ role }: { role: UserRole }) => {
+const SidebarItems = ({
+  role,
+  modules = DEFAULT_PROGRAM_MODULES,
+}: {
+  role: UserRole;
+  modules?: ProgramModules;
+}) => {
   const pathname = usePathname();
-  const items = filterMenuItems(Menuitems, role);
+  const items = filterMenuItems(Menuitems, role, modules);
 
   return (
     <>

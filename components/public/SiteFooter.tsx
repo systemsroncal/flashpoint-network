@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { ProgramModules } from "@/lib/features/program-modules";
+import { DEFAULT_PROGRAM_MODULES } from "@/lib/features/program-modules";
 
 const COLUMNS = [
   {
@@ -43,9 +45,11 @@ const COLUMNS = [
 export default function SiteFooter({
   siteName = "Flash Point Network",
   tagline = "Get The Full Story. As It Is.",
+  modules = DEFAULT_PROGRAM_MODULES,
 }: {
   siteName?: string;
   tagline?: string;
+  modules?: ProgramModules;
 }) {
   return (
     <footer className="mt-auto bg-[#111111] text-white">
@@ -94,7 +98,13 @@ export default function SiteFooter({
                   {col.title}
                 </h3>
                 <ul className="mt-3.5 space-y-2.5 text-sm text-white/55">
-                  {col.links.map((link) => (
+                  {col.links
+                    .filter((link) => {
+                      if (link.href === "/classic-programs") return modules.classic;
+                      if (link.href === "/schedule-programs") return modules.schedule;
+                      return true;
+                    })
+                    .map((link) => (
                     <li key={link.label}>
                       <Link
                         href={link.href}

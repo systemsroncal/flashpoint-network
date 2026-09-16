@@ -1,9 +1,10 @@
 import AdSenseScript from "@/components/public/AdSenseScript";
-import MaintenanceView from "@/components/public/MaintenanceView";
+import MaintenanceWithProgramException from "@/components/public/MaintenanceWithProgramException";
 import SiteFooter from "@/components/public/SiteFooter";
 import SiteHeader from "@/components/public/SiteHeader";
 import { getCurrentProfile, isAdminRole } from "@/lib/auth/session";
 import { getSiteName } from "@/lib/env";
+import { getProgramModules } from "@/lib/features/program-modules-server";
 import { getMaintenanceSettings } from "@/lib/maintenance/settings";
 
 export const dynamic = "force-dynamic";
@@ -13,16 +14,21 @@ export default async function PublicLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [maintenance, profile] = await Promise.all([
+  const [maintenance, profile, modules] = await Promise.all([
     getMaintenanceSettings(),
     getCurrentProfile(),
+    getProgramModules(),
   ]);
 
   // Only admin / superadmin bypass Coming Soon on the public site.
   const adminBypass = Boolean(profile && isAdminRole(profile.role));
 
   if (maintenance.enabled && !adminBypass) {
-    return <MaintenanceView message={maintenance.message} />;
+    return (
+      <MaintenanceWithProgramException message={maintenance.message}>
+        {children}
+      </MaintenanceWithProgramException>
+    );
   }
 
   const siteName = getSiteName();
@@ -35,9 +41,9 @@ export default async function PublicLayout({
         </div>
       ) : null}
       <AdSenseScript />
-      <SiteHeader />
+      <SiteHeader modules={modules} />
       <main className="flex-1">{children}</main>
-      <SiteFooter siteName={siteName} />
+      <SiteFooter siteName={siteName} modules={modules} />
     </>
   );
 }

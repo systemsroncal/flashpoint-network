@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/slug";
 import type { PostStatus } from "@/lib/types/cms";
+import { getProgramModules } from "@/lib/features/program-modules-server";
 
 function boolFromForm(value: FormDataEntryValue | null): boolean {
   return value === "on" || value === "true" || value === "1";
@@ -14,6 +15,16 @@ function requireAdmin() {
   const client = createAdminClient();
   if (!client) throw new Error("Supabase admin client is not configured");
   return client;
+}
+
+async function assertClassicProgramsEnabled() {
+  const modules = await getProgramModules();
+  if (!modules.classic) redirect("/admin");
+}
+
+async function assertScheduleProgramsEnabled() {
+  const modules = await getProgramModules();
+  if (!modules.schedule) redirect("/admin");
 }
 
 export async function upsertPostAction(formData: FormData) {
@@ -371,7 +382,30 @@ export async function saveMaintenanceSettingsAction(formData: FormData) {
   revalidatePath("/admin/settings");
 }
 
+export async function saveProgramModulesAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const classic =
+    formData.get("classic") === "on" || formData.get("classic") === "true";
+  const schedule =
+    formData.get("schedule") === "on" || formData.get("schedule") === "true";
+
+  const { error } = await supabase.from("site_settings").upsert({
+    key: "program_modules",
+    value: { classic, schedule },
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/classic-programs");
+  revalidatePath("/ministry-programs");
+  revalidatePath("/schedule-programs");
+  revalidatePath("/admin");
+  revalidatePath("/admin/classic-programs");
+  revalidatePath("/admin/schedule-programs");
+  revalidatePath("/admin/settings");
+}
+
 export async function upsertClassicProgramAction(formData: FormData) {
+  await assertClassicProgramsEnabled();
   const supabase = requireAdmin();
   const id = String(formData.get("id") || "");
   const title = String(formData.get("title") || "").trim();
@@ -425,6 +459,7 @@ export async function upsertClassicProgramAction(formData: FormData) {
 }
 
 export async function deleteClassicProgramAction(formData: FormData) {
+  await assertClassicProgramsEnabled();
   const supabase = requireAdmin();
   const id = String(formData.get("id") || "");
   if (!id) throw new Error("Missing id");
@@ -436,6 +471,7 @@ export async function deleteClassicProgramAction(formData: FormData) {
 }
 
 export async function saveClassicProgramsSortAction(formData: FormData) {
+  await assertClassicProgramsEnabled();
   const supabase = requireAdmin();
   const mode = String(formData.get("sort_mode") || "manual").trim();
   const allowed = ["manual", "a_z", "z_a", "random", "newest"];
@@ -525,6 +561,7 @@ export async function saveMinistryProgramsSortAction(formData: FormData) {
 }
 
 export async function upsertScheduleEntryAction(formData: FormData) {
+  await assertScheduleProgramsEnabled();
   const supabase = requireAdmin();
   const id = String(formData.get("id") || "");
   const title = String(formData.get("title") || "").trim();
@@ -573,6 +610,7 @@ export async function upsertScheduleEntryAction(formData: FormData) {
 }
 
 export async function deleteScheduleEntryAction(formData: FormData) {
+  await assertScheduleProgramsEnabled();
   const supabase = requireAdmin();
   const id = String(formData.get("id") || "");
   if (!id) throw new Error("Missing id");
@@ -584,6 +622,7 @@ export async function deleteScheduleEntryAction(formData: FormData) {
 }
 
 export async function saveScheduleDisplayModeAction(formData: FormData) {
+  await assertScheduleProgramsEnabled();
   const supabase = requireAdmin();
   const mode = String(formData.get("display_mode") || "dynamic").trim();
   const value = ["dynamic", "pdf", "both"].includes(mode) ? mode : "dynamic";
@@ -597,6 +636,7 @@ export async function saveScheduleDisplayModeAction(formData: FormData) {
 }
 
 export async function saveScheduleLayoutTemplateAction(formData: FormData) {
+  await assertScheduleProgramsEnabled();
   const supabase = requireAdmin();
   const raw = String(formData.get("layout_template") || "template_1").trim();
   const value = raw === "template_2" ? "template_2" : "template_1";
@@ -610,6 +650,7 @@ export async function saveScheduleLayoutTemplateAction(formData: FormData) {
 }
 
 export async function saveSchedulePdfAction(formData: FormData) {
+  await assertScheduleProgramsEnabled();
   const supabase = requireAdmin();
   const year = Number(formData.get("year") || 2026);
   const month = Number(formData.get("month") || 9);

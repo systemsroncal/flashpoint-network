@@ -3,6 +3,8 @@ import Link from "next/link";
 import MobileNav from "@/components/public/MobileNav";
 import { getNavCategories } from "@/lib/data/home";
 import { getSiteName } from "@/lib/env";
+import type { ProgramModules } from "@/lib/features/program-modules";
+import { DEFAULT_PROGRAM_MODULES } from "@/lib/features/program-modules";
 
 const FALLBACK_NAV = [
   { name: "U.S.", chevron: true },
@@ -16,7 +18,11 @@ const FALLBACK_NAV = [
   { name: "Tech & AI", chevron: true },
 ];
 
-export default async function SiteHeader() {
+export default async function SiteHeader({
+  modules = DEFAULT_PROGRAM_MODULES,
+}: {
+  modules?: ProgramModules;
+}) {
   const siteName = getSiteName();
   const categories = await getNavCategories();
   const fromDb = categories.filter((c) => c.slug !== "video").slice(0, 9);
@@ -40,7 +46,11 @@ export default async function SiteHeader() {
       <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--fpn-rojo)]" />
       <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-3 md:gap-4 md:px-8 lg:px-10">
         <div className="flex items-center gap-3">
-          <MobileNav items={nav.map(({ id, name, slug }) => ({ id, name, slug }))} />
+          <MobileNav
+            items={nav.map(({ id, name, slug }) => ({ id, name, slug }))}
+            showClassic={modules.classic}
+            showSchedule={modules.schedule}
+          />
           <Link href="/" className="relative z-10 shrink-0" aria-label={siteName}>
             <span className="flex w-[100px] flex-col overflow-hidden rounded-[3px] border-2 border-white bg-black sm:w-[130px]">
               <span className="relative flex h-[52px] items-center justify-center bg-black px-2 sm:h-[68px]">
@@ -78,18 +88,22 @@ export default async function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          <Link
-            href="/schedule-programs"
-            className="hidden text-[13px] font-bold text-white/90 hover:text-white lg:inline"
-          >
-            Schedule
-          </Link>
-          <Link
-            href="/classic-programs"
-            className="hidden text-[13px] font-bold text-white/90 hover:text-white lg:inline"
-          >
-            Classics
-          </Link>
+          {modules.schedule ? (
+            <Link
+              href="/schedule-programs"
+              className="hidden text-[13px] font-bold text-white/90 hover:text-white lg:inline"
+            >
+              Schedule
+            </Link>
+          ) : null}
+          {modules.classic ? (
+            <Link
+              href="/classic-programs"
+              className="hidden text-[13px] font-bold text-white/90 hover:text-white lg:inline"
+            >
+              Classics
+            </Link>
+          ) : null}
           <Link
             href="/ministry-programs"
             className="hidden text-[13px] font-bold text-white/90 hover:text-white xl:inline"
