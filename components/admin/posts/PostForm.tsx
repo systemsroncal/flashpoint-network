@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
   Alert,
   Box,
@@ -11,6 +11,7 @@ import {
   FormControlLabel,
   MenuItem,
   Stack,
+  Switch,
   TextField,
   Typography,
 } from "@mui/material";
@@ -22,6 +23,10 @@ import NewsCardPreview from "@/components/admin/posts/NewsCardPreview";
 import SeoPanel, { type SeoValues } from "@/components/admin/posts/SeoPanel";
 import TitlePermalinkField from "@/components/admin/posts/TitlePermalinkField";
 import { deletePostAction, upsertPostAction } from "@/lib/admin/actions";
+import {
+  defaultShowFeaturedImage,
+  isVideoOrPodcastPost,
+} from "@/lib/posts/media-layout";
 import { slugify } from "@/lib/slug";
 import type { Category, Post, PostStatus } from "@/lib/types/cms";
 
@@ -97,6 +102,18 @@ export default function PostForm({
   const [isVideo, setIsVideo] = useState(Boolean(post?.is_video));
   const [isPodcast, setIsPodcast] = useState(Boolean(post?.is_podcast));
   const [isPopular, setIsPopular] = useState(Boolean(post?.is_popular));
+  const [showFeaturedImage, setShowFeaturedImage] = useState(() => {
+    if (typeof post?.show_featured_image === "boolean") {
+      return post.show_featured_image;
+    }
+    return defaultShowFeaturedImage({
+      is_video: post?.is_video,
+      is_podcast: post?.is_podcast,
+      category: post?.category,
+      category_id: post?.category_id,
+    });
+  });
+  const showFeaturedTouched = useRef(Boolean(post?.id));
   const [saveError, setSaveError] = useState<string | null>(null);
   const [staleDeploy, setStaleDeploy] = useState(false);
   const [slugValid, setSlugValid] = useState(true);
@@ -115,6 +132,35 @@ export default function PostForm({
   const categoryName = useMemo(() => {
     return categories.find((c) => c.id === categoryId)?.name ?? post?.category?.name ?? null;
   }, [categories, categoryId, post?.category?.name]);
+
+  const selectedCategory = useMemo(
+    () => categories.find((c) => c.id === categoryId) ?? post?.category ?? null,
+    [categories, categoryId, post?.category],
+  );
+
+  const isMediaPost = useMemo(
+    () =>
+      isVideoOrPodcastPost({
+        is_video: isVideo,
+        is_podcast: isPodcast,
+        category: selectedCategory,
+        category_id: categoryId || null,
+      }),
+    [isVideo, isPodcast, selectedCategory, categoryId],
+  );
+
+  // New posts (or untouched switch): Video/Podcast default to hide featured image.
+  useEffect(() => {
+    if (showFeaturedTouched.current) return;
+    setShowFeaturedImage(
+      defaultShowFeaturedImage({
+        is_video: isVideo,
+        is_podcast: isPodcast,
+        category: selectedCategory,
+        category_id: categoryId || null,
+      }),
+    );
+  }, [isVideo, isPodcast, selectedCategory, categoryId]);
 
   const onPreview = async () => {
     setPreviewError(null);
@@ -145,6 +191,7 @@ export default function PostForm({
       is_video: isVideo,
       is_podcast: isPodcast,
       is_popular: isPopular,
+      show_featured_image: showFeaturedImage,
       seo_title: seo.seo_title,
       seo_description: seo.seo_description,
       seo_keywords: seo.seo_keywords,
@@ -263,6 +310,11 @@ export default function PostForm({
           <input type="hidden" name="is_video" value={isVideo ? "true" : "false"} />
           <input type="hidden" name="is_podcast" value={isPodcast ? "true" : "false"} />
           <input type="hidden" name="is_popular" value={isPopular ? "true" : "false"} />
+          <input
+            type="hidden"
+            name="show_featured_image"
+            value={showFeaturedImage ? "true" : "false"}
+          />
 
           <Stack spacing={2.5}>
             <TitlePermalinkField
@@ -374,11 +426,31 @@ export default function PostForm({
               defaultValue={featuredImageUrl}
               onUrlChange={setFeaturedImageUrl}
             />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={showFeaturedImage}
+                  onChange={(e) => {
+                    showFeaturedTouched.current = true;
+                    setShowFeaturedImage(e.target.checked);
+                  }}
+                  color="primary"
+                />
+              }
+              label={
+                showFeaturedImage ? "Show featured image" : "Hide featured image"
+              }
+            />
+            <Typography variant="caption" color="text.secondary" display="block" mt={-1}>
+              {isMediaPost
+                ? "Video/Podcast default to hide — the player moves into the hero slot on the public page."
+                : "When hidden on Video/Podcast posts, the player replaces the hero image."}
+            </Typography>
             <TextField
               name="video_url"
               label="Video URL (YouTube)"
               fullWidth
-              helperText="Used by Must-Watch / video embeds (Plyr)"
+              helperText="Used by Must-Watch / video embeds (Plyr). On Video/Podcast with featured image hidden, this plays in the hero."
               defaultValue={post?.video_url ?? ""}
             />
             <input

@@ -116,6 +116,11 @@ export async function POST(request: Request) {
     isVideo: explicitBool(body, "is_video", existing?.is_video ?? false),
     isPodcast: explicitBool(body, "is_podcast", existing?.is_podcast ?? false),
     isPopular: explicitBool(body, "is_popular", existing?.is_popular ?? false),
+    showFeaturedImage: explicitBool(
+      body,
+      "show_featured_image",
+      existing?.show_featured_image ?? true,
+    ),
     readingTime: Number(body.reading_time_minutes) || 5,
     publishedAt,
   });

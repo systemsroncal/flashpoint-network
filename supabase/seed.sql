@@ -897,6 +897,13 @@ update public.posts set video_url = 'https://www.youtube.com/watch?v=ro3XhGvcag4
 update public.posts set video_url = 'https://www.youtube.com/watch?v=FN-Pec2eVy4'
   where is_podcast = true and coalesce(video_url, '') = '';
 
+-- Video / Podcast: hide featured image by default (player takes the hero slot)
+update public.posts
+set show_featured_image = false
+where is_video = true
+   or is_podcast = true
+   or category_id = 'b1000000-0000-4000-8000-00000000000b';
+
 -- Sample SEO for the flagship story
 update public.posts set
   seo_title = 'Army secretary breaks silence | FPN',

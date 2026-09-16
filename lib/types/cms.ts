@@ -128,6 +128,8 @@ export type Post = {
   is_video: boolean;
   is_podcast: boolean;
   is_popular?: boolean;
+  /** When false, hero hides the image and may place the player there (video/podcast). */
+  show_featured_image?: boolean;
   reading_time_minutes: number;
   view_count: number;
   published_at: string | null;

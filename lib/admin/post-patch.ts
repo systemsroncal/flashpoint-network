@@ -26,6 +26,7 @@ export type PostWritable = {
   is_video: boolean;
   is_podcast: boolean;
   is_popular: boolean;
+  show_featured_image: boolean;
   reading_time_minutes: number;
   published_at: string | null;
 };
@@ -35,7 +36,7 @@ export type PostExistingRow = PostWritable & {
 };
 
 export const POST_EXISTING_SELECT =
-  "title, slug, excerpt, body, status, category_id, author_id, featured_image_url, video_url, seo_title, seo_description, seo_keywords, og_title, og_description, og_image_url, is_featured, is_premium, is_video, is_podcast, is_popular, reading_time_minutes, published_at";
+  "title, slug, excerpt, body, status, category_id, author_id, featured_image_url, video_url, seo_title, seo_description, seo_keywords, og_title, og_description, og_image_url, is_featured, is_premium, is_video, is_podcast, is_popular, show_featured_image, reading_time_minutes, published_at";
 
 export type PublishedAtInput = {
   submittedRaw: string;
@@ -154,6 +155,12 @@ export function diffPostPatch(
   if (candidate.is_popular !== Boolean(existing.is_popular)) {
     patch.is_popular = candidate.is_popular;
   }
+  if (
+    candidate.show_featured_image !==
+    Boolean(existing.show_featured_image ?? true)
+  ) {
+    patch.show_featured_image = candidate.show_featured_image;
+  }
   if (candidate.reading_time_minutes !== existing.reading_time_minutes) {
     patch.reading_time_minutes = candidate.reading_time_minutes;
   }
@@ -200,6 +207,7 @@ export function buildCandidateFromFormValues(input: {
   isVideo: boolean;
   isPodcast: boolean;
   isPopular: boolean;
+  showFeaturedImage: boolean;
   readingTime: number;
   publishedAt: string | null;
 }): PostWritable {
@@ -224,6 +232,7 @@ export function buildCandidateFromFormValues(input: {
     is_video: input.isVideo,
     is_podcast: input.isPodcast,
     is_popular: input.isPopular,
+    show_featured_image: input.showFeaturedImage,
     reading_time_minutes: input.readingTime,
     published_at: input.publishedAt,
   };

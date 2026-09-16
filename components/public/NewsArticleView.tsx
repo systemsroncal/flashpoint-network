@@ -9,6 +9,11 @@ import type { Post } from "@/lib/types/cms";
 import type { PaywallSettings } from "@/lib/paywall/settings";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media/public-url";
+import {
+  isVideoOrPodcastPost,
+  shouldShowFeaturedImage,
+} from "@/lib/posts/media-layout";
+import { youtubeThumbnailUrl } from "@/lib/media/youtube";
 
 type Props = {
   post: Post;
@@ -34,6 +39,9 @@ export default function NewsArticleView({
   const category = (post.category?.name ?? "News").toUpperCase();
   const href = `/news/${post.slug}`;
   const featured = resolveMediaUrl(post.featured_image_url);
+  const mediaPost = isVideoOrPodcastPost(post);
+  const showFeatured = shouldShowFeaturedImage(post);
+  const playerInHero = Boolean(post.video_url) && !showFeatured;
   const caption =
     post.excerpt ||
     "Photo courtesy of Flash Point Network coverage.";
@@ -56,7 +64,19 @@ export default function NewsArticleView({
       <div className="mx-auto max-w-[1440px] px-4 md:px-8 lg:px-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-center lg:gap-8">
           <div className="w-full max-w-[1100px] flex-1">
-            {featured ? (
+            {playerInHero && post.video_url ? (
+              <div className="overflow-hidden rounded-[13px] bg-black">
+                <VideoPlayer
+                  url={post.video_url}
+                  title={post.title}
+                  poster={
+                    featured ||
+                    youtubeThumbnailUrl(post.video_url) ||
+                    null
+                  }
+                />
+              </div>
+            ) : showFeatured && featured ? (
               <div className="relative aspect-[16/9] overflow-hidden rounded-[13px] bg-neutral-200 lg:aspect-[1245/697]">
                 <Image
                   src={featured}
@@ -67,9 +87,9 @@ export default function NewsArticleView({
                   sizes="(max-width:1024px) 100vw, 1100px"
                 />
               </div>
-            ) : (
+            ) : showFeatured ? (
               <div className="aspect-[16/9] rounded-[13px] bg-neutral-200" />
-            )}
+            ) : null}
           </div>
 
           <aside className="flex w-full shrink-0 flex-row flex-wrap items-start justify-between gap-6 border-t border-[#ccc] pt-4 lg:w-[140px] lg:flex-col lg:border-t-0 lg:pt-0">
@@ -116,16 +136,22 @@ export default function NewsArticleView({
       {/* Body + sidebar */}
       <div className="mx-auto mt-10 grid max-w-[1440px] gap-10 px-4 pb-6 md:px-8 lg:mt-12 lg:grid-cols-[minmax(0,1fr)_370px] lg:gap-12 lg:px-10">
         <div className="mx-auto w-full max-w-[906px] lg:mx-0">
-          <p className="mb-6 font-article text-[15px] leading-relaxed text-[#111] md:text-[16px]">
-            {caption}
-          </p>
+          {/* Photo caption under hero — not used for Video/Podcast */}
+          {!mediaPost ? (
+            <p className="mb-6 font-article text-[15px] leading-relaxed text-[#111] md:text-[16px]">
+              {caption}
+            </p>
+          ) : null}
 
-          {post.video_url ? (
+          {/* Player in body only when hero still shows the featured image */}
+          {post.video_url && showFeatured ? (
             <div className="mb-8">
               <VideoPlayer
                 url={post.video_url}
                 title={post.title}
-                poster={featured}
+                poster={
+                  featured || youtubeThumbnailUrl(post.video_url) || null
+                }
               />
             </div>
           ) : null}

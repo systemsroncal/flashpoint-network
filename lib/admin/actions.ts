@@ -135,6 +135,11 @@ export async function upsertPostAction(formData: FormData) {
     "is_popular",
     existing?.is_popular ?? false,
   );
+  const showFeaturedImage = explicitBool(
+    formData,
+    "show_featured_image",
+    existing?.show_featured_image ?? true,
+  );
 
   const publishedAtInput = {
     submittedRaw: publishedAtRaw,
@@ -168,6 +173,7 @@ export async function upsertPostAction(formData: FormData) {
     isVideo,
     isPodcast,
     isPopular,
+    showFeaturedImage,
     readingTime: Number.isFinite(readingTime) ? readingTime : 5,
     publishedAt,
   });
