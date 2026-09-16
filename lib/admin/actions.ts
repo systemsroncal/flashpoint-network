@@ -4,8 +4,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/slug";
-import type { PostStatus } from "@/lib/types/cms";
-import { getCurrentProfile, getSessionUser } from "@/lib/auth/session";
+import type { PostStatus, UserRole } from "@/lib/types/cms";
+import {
+  getCurrentProfile,
+  getSessionUser,
+  requireStaffProfile,
+} from "@/lib/auth/session";
 import {
   PROGRAM_MODULES_SETTING,
   isProgramModulesOwnerEmail,
@@ -882,4 +886,94 @@ export async function saveSchedulePdfAction(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/schedule-programs");
   revalidatePath("/admin/schedule-programs");
+}
+
+const ASSIGNABLE_ROLES: UserRole[] = [
+  "subscriber",
+  "guest",
+  "journalist",
+  "editor",
+  "admin",
+  "superadmin",
+];
+
+function parseAssignableRole(raw: FormDataEntryValue | null): UserRole {
+  const role = String(raw || "").trim() as UserRole;
+  if (ASSIGNABLE_ROLES.includes(role)) return role;
+  return "subscriber";
+}
+
+function usersRedirect(params: Record<string, string>): never {
+  const qs = new URLSearchParams(params);
+  redirect(`/admin/users?${qs.toString()}`);
+}
+
+/**
+ * Staff-only: create Auth user + profiles row (trigger + upsert for role/name).
+ */
+export async function createAdminUserAction(formData: FormData) {
+  const staff = await requireStaffProfile();
+  if (!staff) {
+    usersRedirect({ error: "Unauthorized — staff login required." });
+  }
+
+  const name = String(formData.get("name") || "").trim();
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+  const password = String(formData.get("password") || "");
+  const role = parseAssignableRole(formData.get("role"));
+
+  if (!name) usersRedirect({ error: "Name is required." });
+  if (!email || !email.includes("@")) {
+    usersRedirect({ error: "A valid email is required." });
+  }
+  if (password.length < 8) {
+    usersRedirect({ error: "Password must be at least 8 characters." });
+  }
+
+  const parts = name.split(/\s+/).filter(Boolean);
+  const firstName = parts[0] ?? name;
+  const lastName = parts.length > 1 ? parts.slice(1).join(" ") : "";
+  const fullName = name;
+
+  const supabase = requireAdmin();
+  const { data, error } = await supabase.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: {
+      first_name: firstName,
+      last_name: lastName || null,
+      full_name: fullName,
+      role,
+    },
+  });
+
+  if (error || !data.user) {
+    usersRedirect({
+      error: error?.message || "Could not create the auth user.",
+    });
+  }
+
+  // Trigger inserts profile from metadata; upsert ensures role/name stick
+  // even if the conflict path only refreshed email.
+  const { error: profileError } = await supabase.from("profiles").upsert(
+    {
+      id: data.user.id,
+      email,
+      full_name: fullName,
+      first_name: firstName,
+      last_name: lastName || null,
+      role,
+    },
+    { onConflict: "id" },
+  );
+
+  if (profileError) {
+    usersRedirect({
+      error: `Auth user created, but profile failed: ${profileError.message}`,
+    });
+  }
+
+  revalidatePath("/admin/users");
+  usersRedirect({ created: "1", email });
 }
