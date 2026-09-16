@@ -13,6 +13,7 @@ export type NewsCardPreviewProps = {
   isPremium: boolean;
   isVideo: boolean;
   isPodcast: boolean;
+  isPopular: boolean;
   siteUrl: string;
   publicHref?: string | null;
 };
@@ -22,19 +23,19 @@ function homeSlots(flags: {
   isPremium: boolean;
   isVideo: boolean;
   isPodcast: boolean;
+  isPopular: boolean;
   status: string;
 }): string[] {
   if (flags.status !== "published") {
     return ["Not on home (not published)"];
   }
   const slots: string[] = [];
-  if (flags.isFeatured) slots.push("Featured hero");
+  slots.push("Latest News (by publish date)");
+  if (flags.isFeatured) slots.push("Featured badge");
   if (flags.isPodcast) slots.push("Podcasts");
   if (flags.isVideo) slots.push("Must-Watch");
   if (flags.isPremium) slots.push("Exclusives");
-  if (!flags.isPodcast && !flags.isVideo && !flags.isPremium) {
-    slots.push("Top stories / Latest / Grid");
-  }
+  if (flags.isPopular) slots.push("Popular");
   return slots.length ? slots : ["Published feed"];
 }
 
@@ -49,6 +50,7 @@ export default function NewsCardPreview({
   isPremium,
   isVideo,
   isPodcast,
+  isPopular,
   siteUrl,
   publicHref,
 }: NewsCardPreviewProps) {
@@ -59,6 +61,7 @@ export default function NewsCardPreview({
     isPremium,
     isVideo,
     isPodcast,
+    isPopular,
     status,
   });
   const origin = (() => {

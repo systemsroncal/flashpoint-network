@@ -36,6 +36,7 @@ type PlacementFields = {
   is_premium: boolean;
   is_video: boolean;
   is_podcast: boolean;
+  is_popular: boolean;
   published_at: string | null;
   category_id: string | null;
   author_id: string | null;
@@ -103,7 +104,7 @@ export async function upsertPostAction(formData: FormData) {
     const { data, error } = await supabase
       .from("posts")
       .select(
-        "is_featured, is_premium, is_video, is_podcast, published_at, category_id, author_id",
+        "is_featured, is_premium, is_video, is_podcast, is_popular, published_at, category_id, author_id",
       )
       .eq("id", id)
       .maybeSingle();
@@ -144,6 +145,11 @@ export async function upsertPostAction(formData: FormData) {
     "is_podcast",
     existing?.is_podcast ?? false,
   );
+  const isPopular = explicitBool(
+    formData,
+    "is_popular",
+    existing?.is_popular ?? false,
+  );
 
   const payload = {
     title,
@@ -166,6 +172,7 @@ export async function upsertPostAction(formData: FormData) {
     is_premium: isPremium,
     is_video: isVideo,
     is_podcast: isPodcast,
+    is_popular: isPopular,
     reading_time_minutes: Number.isFinite(readingTime) ? readingTime : 5,
     published_at: publishedAt,
   };

@@ -6,11 +6,15 @@ const POST_SELECT = `
   id, title, slug, excerpt, body, status, category_id, author_id,
   featured_image_url, video_url, seo_title, seo_description, seo_keywords,
   og_title, og_description, og_image_url,
-  is_featured, is_premium, is_video, is_podcast,
+  is_featured, is_premium, is_video, is_podcast, is_popular,
   reading_time_minutes, view_count, published_at,
   category:categories ( id, name, slug, description, sort_order ),
   author:profiles ( id, email, full_name, first_name, last_name, role, avatar_url )
 `;
+
+const POLITICS_ID = "b1000000-0000-4000-8000-000000000002";
+const WORLD_ID = "b1000000-0000-4000-8000-000000000003";
+const ELECTIONS_ID = "b1000000-0000-4000-8000-00000000000a";
 
 async function db() {
   return (await createClient()) ?? createAdminClient();
@@ -24,6 +28,40 @@ function asPosts(data: unknown): Post[] {
   }));
 }
 
+export type FeedKind =
+  | "latest"
+  | "podcasts"
+  | "videos"
+  | "premium"
+  | "popular";
+
+export async function getFeedPosts(
+  kind: FeedKind,
+  limit = 40,
+): Promise<Post[]> {
+  const supabase = await db();
+  if (!supabase) return [];
+
+  let q = supabase
+    .from("posts")
+    .select(POST_SELECT)
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(limit);
+
+  if (kind === "podcasts") q = q.eq("is_podcast", true);
+  else if (kind === "videos") q = q.eq("is_video", true);
+  else if (kind === "premium") q = q.eq("is_premium", true);
+  else if (kind === "popular") q = q.eq("is_popular", true);
+  else {
+    // latest: regular news feed (exclude podcast/video rails)
+    q = q.eq("is_podcast", false).eq("is_video", false);
+  }
+
+  const { data } = await q;
+  return asPosts(data);
+}
+
 export async function getHomePayload(): Promise<HomePayload> {
   const empty: HomePayload = {
     categories: [],
@@ -34,6 +72,8 @@ export async function getHomePayload(): Promise<HomePayload> {
     podcasts: [],
     grid: [],
     latest: [],
+    politics: [],
+    world: [],
     mustWatch: [],
     elections: [],
     exclusives: [],
@@ -47,13 +87,14 @@ export async function getHomePayload(): Promise<HomePayload> {
     categoriesRes,
     eventsRes,
     tickerEventsRes,
-    featuredRes,
-    publishedRes,
+    latestPoolRes,
     podcastsRes,
     mustWatchRes,
     electionsRes,
     exclusivesRes,
     popularRes,
+    politicsRes,
+    worldRes,
   ] = await Promise.all([
     supabase
       .from("categories")
@@ -72,22 +113,15 @@ export async function getHomePayload(): Promise<HomePayload> {
       .order("is_live", { ascending: false })
       .order("starts_at", { ascending: true })
       .limit(30),
-    supabase
-      .from("posts")
-      .select(POST_SELECT)
-      .eq("status", "published")
-      .eq("is_featured", true)
-      .order("published_at", { ascending: false })
-      .limit(1),
+    // Truly latest news pool (~8 for hero + sides + strip)
     supabase
       .from("posts")
       .select(POST_SELECT)
       .eq("status", "published")
       .eq("is_podcast", false)
       .eq("is_video", false)
-      .eq("is_premium", false)
       .order("published_at", { ascending: false })
-      .limit(16),
+      .limit(8),
     supabase
       .from("posts")
       .select(POST_SELECT)
@@ -106,7 +140,7 @@ export async function getHomePayload(): Promise<HomePayload> {
       .from("posts")
       .select(POST_SELECT)
       .eq("status", "published")
-      .eq("category_id", "b1000000-0000-4000-8000-00000000000a")
+      .eq("category_id", ELECTIONS_ID)
       .order("published_at", { ascending: false })
       .limit(8),
     supabase
@@ -120,22 +154,40 @@ export async function getHomePayload(): Promise<HomePayload> {
       .from("posts")
       .select(POST_SELECT)
       .eq("status", "published")
-      .order("view_count", { ascending: false })
+      .eq("is_popular", true)
+      .order("published_at", { ascending: false })
       .limit(5),
+    supabase
+      .from("posts")
+      .select(POST_SELECT)
+      .eq("status", "published")
+      .eq("category_id", POLITICS_ID)
+      .order("published_at", { ascending: false })
+      .limit(4),
+    supabase
+      .from("posts")
+      .select(POST_SELECT)
+      .eq("status", "published")
+      .eq("category_id", WORLD_ID)
+      .order("published_at", { ascending: false })
+      .limit(4),
   ]);
 
-  const featured = asPosts(featuredRes.data)[0] ?? null;
-  const published = asPosts(publishedRes.data).filter((p) => p.id !== featured?.id);
+  const latestPool = asPosts(latestPoolRes.data);
+  const politics = asPosts(politicsRes.data);
+  const world = asPosts(worldRes.data);
 
   return {
     categories: (categoriesRes.data as Category[]) ?? [],
     liveEvent: ((eventsRes.data as EventItem[]) ?? [])[0] ?? null,
     tickerEvents: (tickerEventsRes.data as EventItem[]) ?? [],
-    featured,
-    secondary: published.slice(0, 2),
+    featured: latestPool[0] ?? null,
+    secondary: latestPool.slice(1, 3),
     podcasts: asPosts(podcastsRes.data),
-    grid: published.slice(2, 8),
-    latest: published.slice(0, 4),
+    grid: [...politics, ...world],
+    latest: latestPool.slice(3, 8),
+    politics,
+    world,
     mustWatch: asPosts(mustWatchRes.data),
     elections: asPosts(electionsRes.data),
     exclusives: asPosts(exclusivesRes.data),
@@ -176,6 +228,8 @@ export async function getArticleSidebar(excludeId?: string): Promise<{
     .from("posts")
     .select(POST_SELECT)
     .eq("status", "published")
+    .eq("is_podcast", false)
+    .eq("is_video", false)
     .order("published_at", { ascending: false })
     .limit(5);
   if (excludeId) latestQ = latestQ.neq("id", excludeId);
@@ -193,8 +247,9 @@ export async function getArticleSidebar(excludeId?: string): Promise<{
       .from("posts")
       .select(POST_SELECT)
       .eq("status", "published")
-      .order("view_count", { ascending: false })
-      .limit(3),
+      .eq("is_popular", true)
+      .order("published_at", { ascending: false })
+      .limit(5),
     excludeId
       ? supabase
           .from("posts")
@@ -213,7 +268,7 @@ export async function getArticleSidebar(excludeId?: string): Promise<{
   return {
     latest: asPosts(latestRes.data).slice(0, 4),
     podcasts: asPosts(podcastsRes.data),
-    popular: asPosts(popularRes.data).filter((p) => p.id !== excludeId).slice(0, 3),
+    popular: asPosts(popularRes.data).filter((p) => p.id !== excludeId).slice(0, 5),
     previous,
     next,
   };

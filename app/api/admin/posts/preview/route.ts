@@ -69,6 +69,7 @@ export async function POST(request: Request) {
     is_premium: boolean;
     is_video: boolean;
     is_podcast: boolean;
+    is_popular: boolean;
     published_at: string | null;
     author_id: string | null;
   };
@@ -77,7 +78,9 @@ export async function POST(request: Request) {
   if (id) {
     const { data } = await supabase
       .from("posts")
-      .select("is_featured, is_premium, is_video, is_podcast, published_at, author_id")
+      .select(
+        "is_featured, is_premium, is_video, is_podcast, is_popular, published_at, author_id",
+      )
       .eq("id", id)
       .maybeSingle();
     existing = (data as Existing | null) ?? null;
@@ -117,6 +120,7 @@ export async function POST(request: Request) {
     is_premium: explicitBool(body, "is_premium", existing?.is_premium ?? false),
     is_video: explicitBool(body, "is_video", existing?.is_video ?? false),
     is_podcast: explicitBool(body, "is_podcast", existing?.is_podcast ?? false),
+    is_popular: explicitBool(body, "is_popular", existing?.is_popular ?? false),
     reading_time_minutes: Number(body.reading_time_minutes) || 5,
     published_at: publishedAt,
   };

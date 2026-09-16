@@ -96,6 +96,7 @@ export default function PostForm({
   const [isPremium, setIsPremium] = useState(Boolean(post?.is_premium));
   const [isVideo, setIsVideo] = useState(Boolean(post?.is_video));
   const [isPodcast, setIsPodcast] = useState(Boolean(post?.is_podcast));
+  const [isPopular, setIsPopular] = useState(Boolean(post?.is_popular));
   const [saveError, setSaveError] = useState<string | null>(null);
   const [staleDeploy, setStaleDeploy] = useState(false);
   const [saving, startSave] = useTransition();
@@ -130,6 +131,7 @@ export default function PostForm({
       is_premium: isPremium,
       is_video: isVideo,
       is_podcast: isPodcast,
+      is_popular: isPopular,
       seo_title: seo.seo_title,
       seo_description: seo.seo_description,
       seo_keywords: seo.seo_keywords,
@@ -224,6 +226,7 @@ export default function PostForm({
           <input type="hidden" name="is_premium" value={isPremium ? "true" : "false"} />
           <input type="hidden" name="is_video" value={isVideo ? "true" : "false"} />
           <input type="hidden" name="is_podcast" value={isPodcast ? "true" : "false"} />
+          <input type="hidden" name="is_popular" value={isPopular ? "true" : "false"} />
 
           <Stack spacing={2.5}>
             <TitlePermalinkField
@@ -394,6 +397,15 @@ export default function PostForm({
                   }
                   label="Podcast"
                 />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isPopular}
+                      onChange={(e) => setIsPopular(e.target.checked)}
+                    />
+                  }
+                  label="Popular"
+                />
               </Stack>
             </Box>
 
@@ -438,6 +450,7 @@ export default function PostForm({
           isPremium={isPremium}
           isVideo={isVideo}
           isPodcast={isPodcast}
+          isPopular={isPopular}
           siteUrl={siteUrl}
           publicHref={status === "published" && slug ? `/news/${slug}` : null}
         />
