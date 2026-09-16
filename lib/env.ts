@@ -76,8 +76,21 @@ export function getResendApiKey(): string | null {
   return process.env.RESEND_API_KEY || null;
 }
 
+/**
+ * Canonical public origin. Prefers NEXT_PUBLIC_SITE_URL, then SITE_URL
+ * (CyberPanel/OLS sometimes injects a comma-separated SITE_URL that is not
+ * in .env.local). Each value is normalized independently — never concatenated.
+ */
 export function getSiteUrl(): string {
-  return normalizePublicUrl(process.env.NEXT_PUBLIC_SITE_URL, FALLBACK_SITE_URL);
+  for (const raw of [
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.SITE_URL,
+  ]) {
+    if (!raw) continue;
+    const origin = normalizePublicUrl(raw, "");
+    if (origin) return origin;
+  }
+  return FALLBACK_SITE_URL;
 }
 
 export function getSiteName(): string {
