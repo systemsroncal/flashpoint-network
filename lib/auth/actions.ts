@@ -28,7 +28,7 @@ const AUTH_UNAVAILABLE =
   "Sign-in is temporarily unavailable. Try again in a few minutes.";
 
 const SITE_URL_MISCONFIGURED =
-  "Site URL is misconfigured on the server. Ask an admin to fix NEXT_PUBLIC_SITE_URL and rebuild.";
+  "Site URL is misconfigured (app env, PM2, or Supabase Auth → Site URL). It must be a single origin like https://fptn.com — then rebuild and pm2 restart --update-env.";
 
 function friendlyAuthMessage(error: unknown, fallback: string): string {
   const message =
