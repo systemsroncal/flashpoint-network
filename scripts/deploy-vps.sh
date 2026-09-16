@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
+# Thin wrapper — canonical deploy is scripts/deploy-from-github.sh
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-BRANCH="${1:-cursor/admin-brand-orange-987f}"
-cd "$ROOT"
-git fetch origin
-git checkout "$BRANCH"
-git pull origin "$BRANCH"
-npm run build
-pm2 restart fptn --update-env
-pm2 flush
-echo "Deploy OK → $BRANCH"
+# Optional positional branch → GIT_BRANCH for the canonical script
+if [[ $# -ge 1 && -z "${GIT_BRANCH:-}" ]]; then
+  export GIT_BRANCH="$1"
+  shift
+fi
+exec bash "$ROOT/scripts/deploy-from-github.sh" "$@"
