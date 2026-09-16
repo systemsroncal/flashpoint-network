@@ -203,18 +203,12 @@ export default function HomeView({ data }: { data: HomePayload }) {
               </div>
             </div>
 
-            {/* Politics + World — max 6 cards in 3-col grid under hero */}
+            {/* Politics + World — max 6 cards in 3-col grid under hero (no section header links) */}
             {politicsWorld.length > 0 ? (
-              <div>
-                <div className="mb-1 flex flex-wrap items-center justify-end gap-4">
-                  <SeeMore href="/category/politics" label="See more · Politics" />
-                  <SeeMore href="/category/world" label="See more · World" />
-                </div>
-                <div className="grid gap-x-[21px] gap-y-2 sm:grid-cols-2 xl:grid-cols-3">
-                  {politicsWorld.map((post) => (
-                    <PostCard key={post.id} post={post} />
-                  ))}
-                </div>
+              <div className="grid gap-x-[21px] gap-y-2 sm:grid-cols-2 xl:grid-cols-3">
+                {politicsWorld.map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))}
               </div>
             ) : null}
           </div>
@@ -266,8 +260,8 @@ export default function HomeView({ data }: { data: HomePayload }) {
           </aside>
         </section>
 
-        {/* Subscribe banner — Figma Group 29790 */}
-        <section className="flex flex-col overflow-hidden rounded-[12px] bg-black text-white md:flex-row md:items-stretch">
+        {/* Subscribe banner — Figma Group 29790 (1435px, inset ~242 on 1920) */}
+        <section className="mx-auto flex w-full max-w-[1435px] flex-col overflow-hidden rounded-[12px] bg-black text-white md:flex-row md:items-stretch">
           <div className="relative mx-auto h-[160px] w-[160px] shrink-0 md:mx-0 md:h-auto md:w-[197px]">
             <Image
               src="/brand/banners/fpn-full-story-couple.webp"
@@ -376,8 +370,8 @@ export default function HomeView({ data }: { data: HomePayload }) {
           </div>
         </section>
 
-        {/* FP Army / Are You a Patriot — Figma Group 29802 (between Must-Watch & Elections) */}
-        <section className="overflow-hidden rounded-[22px] bg-[#2c372a] text-white">
+        {/* FP Army / Are You a Patriot — Figma Group 29802 (1282px, inset ~319 on 1920) */}
+        <section className="mx-auto w-full max-w-[1282px] overflow-hidden rounded-[22px] bg-[#2c372a] text-white">
           <div className="grid md:grid-cols-2">
             <div className="relative min-h-[220px] md:min-h-[291px]">
               <Image
@@ -385,7 +379,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
                 alt="FP Army community"
                 fill
                 className="object-cover object-left"
-                sizes="(max-width:768px) 100vw, 50vw"
+                sizes="(max-width:768px) 100vw, 641px"
               />
               <span className="absolute inset-0 bg-gradient-to-r from-transparent to-[#2c372a] md:via-[#2c372a]/40" />
             </div>
