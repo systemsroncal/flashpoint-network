@@ -2,6 +2,8 @@ import "server-only";
 
 import {
   findAiModel,
+  NVIDIA_CHAT_COMPLETIONS_URL,
+  NVIDIA_FALLBACK_MODEL_IDS,
   type AiProviderId,
   type AiProviderKeys,
 } from "@/lib/ai/catalog";
@@ -20,12 +22,17 @@ export type GenerateNewsResult = {
   bodyHtml: string;
   researchNotes?: string;
   mock?: boolean;
+  /** When a fallback NVIDIA model was used instead of the selected one */
+  usedModelId?: string;
 };
 
-function allowMockFallback() {
-  if (process.env.AI_MOCK === "1" || process.env.AI_MOCK === "true") return true;
-  // Local/dev without keys: keep the editor usable
-  return process.env.NODE_ENV !== "production";
+export class ProviderHttpError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ProviderHttpError";
+    this.status = status;
+  }
 }
 
 function mockArticle(input: GenerateNewsInput): GenerateNewsResult {
@@ -37,7 +44,7 @@ function mockArticle(input: GenerateNewsInput): GenerateNewsResult {
     ? `A newsroom draft generated locally without a live provider key. Topic: ${topic.slice(0, 140)}.`
     : undefined;
   const bodyHtml = [
-    `<p><em>Mock AI draft</em> — no live API key was used. Add <code>AI_NVIDIA_API_KEY</code> (or another provider key) on the server for real generation.</p>`,
+    `<p><em>Mock AI draft</em> — no live API key was used. Add <code>AI_NVIDIA_API_KEY</code> (nvapi-… from build.nvidia.com) on the server for real generation.</p>`,
     `<p>Assignment: ${escapeHtml(topic || "general coverage")}</p>`,
     `<h2>What we know</h2>`,
     `<p>Editors should replace this placeholder with reported facts, attributed quotes, and verified context before publishing.</p>`,
@@ -167,10 +174,37 @@ function providerErrorMessage(data: unknown, status: number): string {
   }
   if (typeof obj.detail === "string" && obj.detail.trim()) return obj.detail.trim();
   if (typeof obj.title === "string" && obj.title.trim()) {
-    return `${obj.title}${obj.detail ? `: ${String(obj.detail)}` : ""} (${status})`;
+    const detail =
+      typeof obj.detail === "string" && obj.detail.trim()
+        ? `: ${obj.detail.trim()}`
+        : "";
+    return `${obj.title}${detail} (${status})`;
   }
   if (typeof obj.message === "string" && obj.message.trim()) return obj.message.trim();
   return `Provider error (${status})`;
+}
+
+export function isNvidiaFunctionNotFound(message: string): boolean {
+  return /function\s+['`]?[0-9a-f-]{8,}['`]?\s*:\s*not found for account/i.test(
+    message,
+  ) || /not found for account/i.test(message);
+}
+
+function actionableNvidiaMessage(raw: string, modelId: string): string {
+  if (isNvidiaFunctionNotFound(raw) || /404|not found/i.test(raw)) {
+    return (
+      `NVIDIA model "${modelId}" is not available for this API key ` +
+      `(function not found / not entitled on integrate.api.nvidia.com). ` +
+      `Pick another model (try Nemotron Nano 8B) or generate a new nvapi- key at build.nvidia.com. ` +
+      `Raw: ${raw}`
+    );
+  }
+  if (/end of life|no longer available|Gone|410/i.test(raw)) {
+    return (
+      `${raw} This model ID was retired. Pick Nemotron Nano 8B or another current NVIDIA model from the list.`
+    );
+  }
+  return raw;
 }
 
 async function callOpenAiCompatible(options: {
@@ -204,7 +238,7 @@ async function callOpenAiCompatible(options: {
   });
   const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) {
-    throw new Error(providerErrorMessage(data, res.status));
+    throw new ProviderHttpError(providerErrorMessage(data, res.status), res.status);
   }
   const choices = data.choices as
     | { message?: { content?: string } }[]
@@ -237,7 +271,7 @@ async function callAnthropic(
   });
   const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) {
-    throw new Error(providerErrorMessage(data, res.status));
+    throw new ProviderHttpError(providerErrorMessage(data, res.status), res.status);
   }
   const content = data.content as { type: string; text?: string }[] | undefined;
   const text = content?.find((c) => c.type === "text")?.text;
@@ -264,7 +298,7 @@ async function callGemini(
   });
   const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) {
-    throw new Error(providerErrorMessage(data, res.status));
+    throw new ProviderHttpError(providerErrorMessage(data, res.status), res.status);
   }
   const candidates = data.candidates as
     | { content?: { parts?: { text?: string }[] } }[]
@@ -300,7 +334,7 @@ async function invokeProvider(
       });
     case "nvidia":
       return callOpenAiCompatible({
-        endpoint: "https://integrate.api.nvidia.com/v1/chat/completions",
+        endpoint: NVIDIA_CHAT_COMPLETIONS_URL,
         apiKey,
         model: modelId,
         system,
@@ -324,23 +358,74 @@ async function invokeProvider(
   }
 }
 
+function shouldRetryNvidia(err: unknown): boolean {
+  if (err instanceof ProviderHttpError) {
+    if (err.status === 404 || err.status === 410) return true;
+    return isNvidiaFunctionNotFound(err.message);
+  }
+  if (err instanceof Error) {
+    return isNvidiaFunctionNotFound(err.message) || /end of life|Gone/i.test(err.message);
+  }
+  return false;
+}
+
+async function invokeNvidiaWithFallback(
+  preferredModelId: string,
+  apiKey: string,
+  system: string,
+  user: string,
+): Promise<{ content: string; usedModelId: string }> {
+  const tried = new Set<string>();
+  const queue = [
+    preferredModelId,
+    ...NVIDIA_FALLBACK_MODEL_IDS.filter((id) => id !== preferredModelId),
+  ];
+
+  let lastError: unknown;
+  for (const modelId of queue) {
+    if (tried.has(modelId)) continue;
+    tried.add(modelId);
+    try {
+      const content = await invokeProvider("nvidia", modelId, apiKey, system, user);
+      return { content, usedModelId: modelId };
+    } catch (err) {
+      lastError = err;
+      if (!shouldRetryNvidia(err)) break;
+      console.warn(
+        `[ai/generate] NVIDIA model ${modelId} failed; trying fallback:`,
+        err instanceof Error ? err.message : err,
+      );
+    }
+  }
+
+  const raw =
+    lastError instanceof Error ? lastError.message : "NVIDIA generation failed";
+  const status =
+    lastError instanceof ProviderHttpError ? lastError.status : 502;
+  throw new ProviderHttpError(
+    actionableNvidiaMessage(raw, preferredModelId),
+    status === 404 || status === 410 ? 400 : status >= 400 && status < 600 ? status : 502,
+  );
+}
+
 export async function generateNewsArticle(
   input: GenerateNewsInput,
 ): Promise<GenerateNewsResult> {
+  if (process.env.AI_MOCK === "1" || process.env.AI_MOCK === "true") {
+    return mockArticle(input);
+  }
+
   const model = findAiModel(input.modelId);
   if (!model) {
-    throw new Error(
-      `Unknown model "${input.modelId}". Refresh the page and pick a current NVIDIA NIM model.`,
+    throw new ProviderHttpError(
+      `Unknown model "${input.modelId}". Refresh the page and pick a current NVIDIA model (e.g. Nemotron Nano 8B).`,
+      400,
     );
   }
   const apiKey = input.keys[model.provider]?.trim();
   if (!apiKey) {
-    if (allowMockFallback()) {
-      return mockArticle(input);
-    }
-    throw new Error(
-      `No API key configured for ${model.provider}. Add AI_NVIDIA_API_KEY (or NVIDIA_API_KEY) in .env.local / Settings, then restart PM2 with --update-env.`,
-    );
+    // Missing key: mock draft so Generate always works; UI shows mock banner.
+    return mockArticle(input);
   }
 
   let researchNotes = "";
@@ -374,6 +459,23 @@ export async function generateNewsArticle(
   );
 
   try {
+    if (model.provider === "nvidia") {
+      const { content, usedModelId } = await invokeNvidiaWithFallback(
+        model.id,
+        apiKey,
+        system,
+        user,
+      );
+      const parsed = extractJson(content);
+      return {
+        title: input.fillTitle ? parsed.title : undefined,
+        excerpt: input.fillExcerpt ? parsed.excerpt : undefined,
+        bodyHtml: parsed.bodyHtml,
+        researchNotes: researchNotes || undefined,
+        usedModelId,
+      };
+    }
+
     const raw = await invokeProvider(
       model.provider,
       model.id,
@@ -387,14 +489,13 @@ export async function generateNewsArticle(
       excerpt: input.fillExcerpt ? parsed.excerpt : undefined,
       bodyHtml: parsed.bodyHtml,
       researchNotes: researchNotes || undefined,
+      usedModelId: model.id,
     };
   } catch (err) {
+    if (err instanceof ProviderHttpError) throw err;
     const message = err instanceof Error ? err.message : "Generation failed";
-    // EOL / gone models: surface a clear next step
-    if (/end of life|no longer available|Gone/i.test(message)) {
-      throw new Error(
-        `${message} Pick an updated NVIDIA model (e.g. Nemotron 70B) from the list.`,
-      );
+    if (model.provider === "nvidia") {
+      throw new ProviderHttpError(actionableNvidiaMessage(message, model.id), 400);
     }
     throw new Error(message);
   }

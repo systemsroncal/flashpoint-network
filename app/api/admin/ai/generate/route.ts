@@ -1,11 +1,34 @@
 import { NextResponse } from "next/server";
-import { generateNewsArticle } from "@/lib/ai/generate";
+import {
+  generateNewsArticle,
+  ProviderHttpError,
+  isNvidiaFunctionNotFound,
+} from "@/lib/ai/generate";
 import { getAiProviderKeys } from "@/lib/ai/keys";
 import { requireStaffProfile } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
+
+function httpStatusForError(err: unknown): number {
+  if (err instanceof ProviderHttpError) {
+    // Never leak opaque NVIDIA entitlement 404s as 502
+    if (err.status === 404 || err.status === 410) return 400;
+    if (err.status >= 400 && err.status < 600) return err.status;
+    return 502;
+  }
+  const message = err instanceof Error ? err.message : "";
+  if (
+    /unauthorized|api key|configure|unknown model|not available for this API key|function not found|end of life|no longer available|pick another model/i.test(
+      message,
+    ) ||
+    isNvidiaFunctionNotFound(message)
+  ) {
+    return 400;
+  }
+  return 502;
+}
 
 export async function POST(request: Request) {
   const profile = await requireStaffProfile();
@@ -53,16 +76,13 @@ export async function POST(request: Request) {
       excerpt: result.excerpt ?? null,
       bodyHtml: result.bodyHtml,
       mock: Boolean(result.mock),
+      usedModelId: result.usedModelId ?? null,
     });
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Generation failed. Try again.";
-    const status =
-      /unauthorized|api key|configure/i.test(message)
-        ? 400
-        : /end of life|no longer available|unknown model/i.test(message)
-          ? 400
-          : 502;
+    const status = httpStatusForError(err);
+    console.error("[ai/generate]", status, message);
     return NextResponse.json({ error: message }, { status });
   }
 }

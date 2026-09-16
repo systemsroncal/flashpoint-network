@@ -31,6 +31,69 @@ export const AI_PROVIDERS: {
   },
 ];
 
+/**
+ * NVIDIA Integrate API (https://integrate.api.nvidia.com/v1) model IDs.
+ * Sourced from docs.api.nvidia.com/nim/reference/llm-apis (2026 catalog).
+ * Prefer Nano / Mini first — more often entitled on free build.nvidia.com keys.
+ */
+export const NVIDIA_INTEGRATE_MODELS: AiModelDef[] = [
+  {
+    id: "nvidia/llama-3.1-nemotron-nano-8b-v1",
+    label: "Nemotron Nano 8B (recommended)",
+    provider: "nvidia",
+  },
+  {
+    id: "nvidia/nvidia-nemotron-nano-9b-v2",
+    label: "Nemotron Nano 9B v2",
+    provider: "nvidia",
+  },
+  {
+    id: "nvidia/nemotron-mini-4b-instruct",
+    label: "Nemotron Mini 4B",
+    provider: "nvidia",
+  },
+  {
+    id: "microsoft/phi-4-mini-instruct",
+    label: "Phi-4 Mini (NIM)",
+    provider: "nvidia",
+  },
+  {
+    id: "mistralai/mistral-nemotron",
+    label: "Mistral Nemotron (NIM)",
+    provider: "nvidia",
+  },
+  {
+    id: "deepseek-ai/deepseek-v4-flash",
+    label: "DeepSeek V4 Flash (NIM)",
+    provider: "nvidia",
+  },
+  {
+    id: "meta/llama-3.3-70b-instruct",
+    label: "Llama 3.3 70B (NIM)",
+    provider: "nvidia",
+  },
+  {
+    id: "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+    label: "Nemotron Super 49B v1.5",
+    provider: "nvidia",
+  },
+  {
+    id: "openai/gpt-oss-20b",
+    label: "GPT-OSS 20B (NIM)",
+    provider: "nvidia",
+  },
+];
+
+/** Tried automatically when the selected NVIDIA model returns function-not-found. */
+export const NVIDIA_FALLBACK_MODEL_IDS: string[] = [
+  "nvidia/llama-3.1-nemotron-nano-8b-v1",
+  "nvidia/nvidia-nemotron-nano-9b-v2",
+  "nvidia/nemotron-mini-4b-instruct",
+  "microsoft/phi-4-mini-instruct",
+  "deepseek-ai/deepseek-v4-flash",
+  "mistralai/mistral-nemotron",
+];
+
 export const AI_MODELS: AiModelDef[] = [
   { id: "gemini-2.0-flash", label: "Gemini 2.0 Flash", provider: "google" },
   { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash", provider: "google" },
@@ -52,31 +115,7 @@ export const AI_MODELS: AiModelDef[] = [
     label: "Claude 3.5 Haiku",
     provider: "anthropic",
   },
-  {
-    id: "nvidia/llama-3.1-nemotron-70b-instruct",
-    label: "Nemotron 70B (NIM)",
-    provider: "nvidia",
-  },
-  {
-    id: "nvidia/llama-3.1-nemotron-51b-instruct",
-    label: "Nemotron 51B (NIM)",
-    provider: "nvidia",
-  },
-  {
-    id: "mistralai/mistral-large-2-instruct",
-    label: "Mistral Large 2 (NIM)",
-    provider: "nvidia",
-  },
-  {
-    id: "google/gemma-3-12b-it",
-    label: "Gemma 3 12B (NIM)",
-    provider: "nvidia",
-  },
-  {
-    id: "mistralai/mistral-7b-instruct-v0.3",
-    label: "Mistral 7B (NIM)",
-    provider: "nvidia",
-  },
+  ...NVIDIA_INTEGRATE_MODELS,
   {
     id: "sonar",
     label: "Perplexity Sonar",
@@ -103,15 +142,30 @@ export type AiProviderStatus = {
   hint: string | null;
 };
 
+/** Retired / wrong catalog IDs → current Integrate API IDs */
+const NVIDIA_ALIASES: Record<string, string> = {
+  "meta/llama-3.1-70b-instruct": "meta/llama-3.3-70b-instruct",
+  "meta/llama-3.1-8b-instruct": "nvidia/llama-3.1-nemotron-nano-8b-v1",
+  "nvidia/llama-3.1-nemotron-70b-instruct":
+    "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+  "nvidia/llama-3.1-nemotron-51b-instruct":
+    "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+  "mistralai/mistral-large-2-instruct": "mistralai/mistral-nemotron",
+  "mistralai/mistral-7b-instruct-v0.3": "mistralai/mistral-nemotron",
+  "mistralai/mistral-7b-instruct": "mistralai/mistral-nemotron",
+  "google/gemma-3-12b-it": "microsoft/phi-4-mini-instruct",
+  "google/gemma-2-9b-it": "microsoft/phi-4-mini-instruct",
+};
+
 export function findAiModel(modelId: string): AiModelDef | undefined {
   const direct = AI_MODELS.find((m) => m.id === modelId);
   if (direct) return direct;
-  // Retired NIM IDs → closest current model (avoids EOL 410 after catalog refresh)
-  const aliases: Record<string, string> = {
-    "meta/llama-3.1-70b-instruct": "nvidia/llama-3.1-nemotron-70b-instruct",
-    "meta/llama-3.1-8b-instruct": "mistralai/mistral-7b-instruct-v0.3",
-    "meta/llama-3.3-70b-instruct": "nvidia/llama-3.1-nemotron-70b-instruct",
-  };
-  const mapped = aliases[modelId];
+  const mapped = NVIDIA_ALIASES[modelId];
   return mapped ? AI_MODELS.find((m) => m.id === mapped) : undefined;
 }
+
+export const NVIDIA_CHAT_COMPLETIONS_URL =
+  "https://integrate.api.nvidia.com/v1/chat/completions";
+
+export const NVIDIA_MODELS_LIST_URL =
+  "https://integrate.api.nvidia.com/v1/models";

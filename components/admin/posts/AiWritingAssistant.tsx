@@ -112,6 +112,7 @@ export default function AiWritingAssistant({
         excerpt?: string | null;
         bodyHtml?: string;
         mock?: boolean;
+        usedModelId?: string | null;
       };
       if (!res.ok || !data.bodyHtml) {
         throw new Error(data.error || "Generation failed");
@@ -121,11 +122,17 @@ export default function AiWritingAssistant({
         excerpt: data.excerpt || undefined,
         bodyHtml: data.bodyHtml,
       });
-      setOkMsg(
-        data.mock
-          ? "Mock draft inserted (no live API key). Set AI_NVIDIA_API_KEY on the server for real generation."
-          : "Draft inserted into the body editor.",
-      );
+      if (data.mock) {
+        setOkMsg(
+          "Mock draft inserted (no live API key). Set AI_NVIDIA_API_KEY=nvapi-… on the VPS, then pm2 restart fptn --update-env.",
+        );
+      } else if (data.usedModelId && data.usedModelId !== modelId) {
+        setOkMsg(
+          `Draft inserted using fallback model ${data.usedModelId} (selected model was not entitled for this NVIDIA key).`,
+        );
+      } else {
+        setOkMsg("Draft inserted into the body editor.");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Generation failed");
     } finally {
@@ -162,9 +169,10 @@ export default function AiWritingAssistant({
 
       {enabledCount === 0 && !loadError ? (
         <Alert severity="info" sx={{ mb: 2 }}>
-          No provider keys configured yet. Add keys in{" "}
-          <strong>Settings → AI provider API keys</strong>. You can still compose
-          prompts here; Generate will explain what&apos;s missing.
+          No provider keys configured yet. Add <code>AI_NVIDIA_API_KEY=nvapi-…</code>{" "}
+          (build.nvidia.com) in Settings / VPS env — or Generate will insert a{" "}
+          <strong>mock draft</strong> so the workflow stays unblocked. Prefer{" "}
+          <strong>Nemotron Nano 8B</strong> after the key is set.
         </Alert>
       ) : null}
 
