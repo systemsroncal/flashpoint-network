@@ -24,7 +24,7 @@ type MediaItem = {
 };
 
 type UploadResponse =
-  | { ok: true; url: string }
+  | { ok: true; url: string; absoluteUrl?: string }
   | { ok: false; error: string };
 
 export default function MediaGrid({ items }: { items: MediaItem[] }) {
@@ -60,7 +60,7 @@ export default function MediaGrid({ items }: { items: MediaItem[] }) {
         setError(result.error || `Upload failed (${res.status}).`);
         return;
       }
-      setUploadedUrl(result.url);
+      setUploadedUrl(result.absoluteUrl || result.url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {

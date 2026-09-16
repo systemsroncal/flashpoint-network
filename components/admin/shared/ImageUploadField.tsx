@@ -18,7 +18,7 @@ type Props = {
 };
 
 type UploadResponse =
-  | { ok: true; url: string }
+  | { ok: true; url: string; absoluteUrl?: string }
   | { ok: false; error: string };
 
 export default function ImageUploadField({
@@ -64,7 +64,8 @@ export default function ImageUploadField({
         setError(result.error || `Upload failed (${res.status}).`);
         return;
       }
-      setAndNotify(result.url);
+      // Prefer absolute URL for form value / previews; relative still works same-origin.
+      setAndNotify(result.absoluteUrl || result.url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {

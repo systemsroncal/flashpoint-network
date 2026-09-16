@@ -4,6 +4,7 @@ import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
 import type { Category, Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
+import { resolveMediaUrl } from "@/lib/media/public-url";
 
 type Props = {
   category: Category;
@@ -21,6 +22,7 @@ export default function CategoryView({
   popular,
 }: Props) {
   const featured = posts[0] ?? null;
+  const featuredSrc = resolveMediaUrl(featured?.featured_image_url);
   const grid = posts.slice(1, 4);
   const list = posts.slice(4);
   const label = category.name.toUpperCase();
@@ -63,9 +65,9 @@ export default function CategoryView({
                   href={`/news/${featured.slug}`}
                   className="relative mb-5 block aspect-[16/9] overflow-hidden rounded-[24px] bg-neutral-200 lg:aspect-[1192/668]"
                 >
-                  {featured.featured_image_url ? (
+                  {featuredSrc ? (
                     <Image
-                      src={featured.featured_image_url}
+                      src={featuredSrc!}
                       alt=""
                       fill
                       priority
@@ -201,9 +203,9 @@ export default function CategoryView({
                       href={`/news/${post.slug}`}
                       className="relative aspect-[16/10] overflow-hidden rounded-[12px] bg-neutral-200"
                     >
-                      {post.featured_image_url ? (
+                      {resolveMediaUrl(post.featured_image_url) ? (
                         <Image
-                          src={post.featured_image_url}
+                          src={resolveMediaUrl(post.featured_image_url) || ""}
                           alt=""
                           fill
                           className="object-cover"

@@ -4,6 +4,7 @@ import VideoPlayer from "@/components/public/VideoPlayer";
 import type { Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
+import { resolveMediaUrl } from "@/lib/media/public-url";
 
 type Props = {
   post: Post;
@@ -43,8 +44,9 @@ function MetaRow({
 export default function PostCard({ post, variant = "grid" }: Props) {
   const href = `/news/${post.slug}`;
   const category = (post.category?.name ?? "News").toUpperCase();
+  const featured = resolveMediaUrl(post.featured_image_url);
   const podcastThumb =
-    youtubeThumbnailUrl(post.video_url) || post.featured_image_url;
+    youtubeThumbnailUrl(post.video_url) || featured;
 
   if (variant === "list" || variant === "latest") {
     return (
@@ -104,9 +106,9 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           href={href}
           className="relative mb-3 block aspect-video overflow-hidden rounded-[10px] bg-neutral-200"
         >
-          {post.featured_image_url ? (
+          {featured ? (
             <Image
-              src={post.featured_image_url}
+              src={featured}
               alt=""
               fill
               className="object-cover"
@@ -149,16 +151,16 @@ export default function PostCard({ post, variant = "grid" }: Props) {
               url={post.video_url}
               title={post.title}
               poster={
-                youtubeThumbnailUrl(post.video_url) || post.featured_image_url
+                youtubeThumbnailUrl(post.video_url) || featured
               }
               className="aspect-video w-full md:min-h-[360px]"
             />
           ) : (
             <Link href={href} className="block">
               <div className="relative aspect-[4/5] md:aspect-[16/11] md:min-h-[360px]">
-                {post.featured_image_url ? (
+                {featured ? (
                   <Image
-                    src={post.featured_image_url}
+                    src={featured}
                     alt=""
                     fill
                     className="object-cover opacity-95 transition group-hover:opacity-100"
@@ -194,9 +196,9 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           href={href}
           className="relative mb-4 block aspect-video overflow-hidden rounded-[24px] bg-neutral-200"
         >
-          {post.featured_image_url ? (
+          {featured ? (
             <Image
-              src={post.featured_image_url}
+              src={featured}
               alt=""
               fill
               priority
@@ -241,9 +243,9 @@ export default function PostCard({ post, variant = "grid" }: Props) {
         href={href}
         className="relative mb-3 aspect-[16/10] overflow-hidden rounded-[12px] bg-neutral-200"
       >
-        {post.featured_image_url ? (
+        {featured ? (
           <Image
-            src={post.featured_image_url}
+            src={featured}
             alt=""
             fill
             className="object-cover transition duration-300 group-hover:scale-[1.02]"

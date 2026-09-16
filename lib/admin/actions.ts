@@ -11,6 +11,10 @@ import {
   isProgramModulesOwnerEmail,
 } from "@/lib/features/program-modules";
 import { getProgramModules } from "@/lib/features/program-modules-server";
+import {
+  normalizeHtmlMediaForStorage,
+  normalizeStoredMediaUrl,
+} from "@/lib/media/public-url";
 
 function boolFromForm(value: FormDataEntryValue | null): boolean {
   return value === "on" || value === "true" || value === "1";
@@ -83,8 +87,10 @@ export async function upsertPostAction(formData: FormData) {
   const status = (String(formData.get("status") || "draft") as PostStatus) || "draft";
   const categoryId = String(formData.get("category_id") || "") || null;
   const excerpt = String(formData.get("excerpt") || "");
-  const body = String(formData.get("body") || "");
-  const featuredImageUrl = String(formData.get("featured_image_url") || "") || null;
+  const body = normalizeHtmlMediaForStorage(String(formData.get("body") || ""));
+  const featuredImageUrl = normalizeStoredMediaUrl(
+    String(formData.get("featured_image_url") || "") || null,
+  );
   const videoUrl = String(formData.get("video_url") || "") || null;
   const seoTitle = String(formData.get("seo_title") || "").trim() || null;
   const seoDescription =

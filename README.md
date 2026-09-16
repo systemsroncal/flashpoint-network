@@ -81,13 +81,25 @@ Classic/Network pages rewrite Storage URLs to `/media/...`. Schedule seeds dated
 
 ## Admin image uploads (local disk)
 
-New admin uploads go through **`POST /api/admin/media/upload`** (Route Handler — not a Server Action), run Sharp → WebP, and write to **`public/uploads/YYYY-MM-DD/<uuid>.webp`**, served as **`/uploads/...`** through Next (port 43125 behind OLS). They are **not** sent to Supabase Storage.
+New admin uploads go through **`POST /api/admin/media/upload`** (Route Handler — not a Server Action), run Sharp → WebP (max width **1920px**), and write to **`public/uploads/YYYY-MM-DD/<uuid>.webp`**.
+
+Public URLs are **`/uploads/...`**. Next rewrites those to **`/api/media/...`**, which reads the same folder from disk — this avoids OpenLiteSpeed/CyberPanel static docroots returning 404 before the request reaches Node. Relative `/uploads` still works same-origin; rich HTML / OG / JSON-LD concatenate `SITE_URL` so `src` is absolute when needed.
 
 - Max size **10MB**. Server Actions also allow up to **11MB** (`experimental.serverActions.bodySizeLimit`) for other form posts.
 - Binaries are gitignored; keep `public/uploads/.gitkeep`.
 - On the VPS the folder persists across deploys — `scripts/deploy-from-github.sh` excludes `public/uploads` from `git clean`.
+- Optional: set `UPLOADS_DIR=/absolute/path/to/public/uploads` in PM2/env if `process.cwd()` is wrong.
 - Older posts that already store full Supabase Storage URLs continue to work unchanged.
 - If PM2 has `SITE_URL=https://fptn.com, https://fptn.com`, scrub it to a single origin (`https://fptn.com`) so Next stops throwing `ERR_INVALID_URL`.
+
+### VPS verify after upload
+
+```bash
+cd /home/fptn.com/app/flashpoint-network
+ls -la public/uploads/$(date -u +%F)/
+curl -sI "https://fptn.com/uploads/YYYY-MM-DD/<uuid>.webp" | head -20
+# Expect HTTP/2 200 and content-type: image/webp
+```
 
 ## Deploy / VPS (pm2)
 

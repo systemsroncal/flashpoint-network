@@ -34,8 +34,34 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Route /uploads through the Node handler so OLS static docroots cannot 404
+  // before the request reaches Next (files still live under public/uploads).
+  async rewrites() {
+    return [
+      {
+        source: "/uploads/:path*",
+        destination: "/api/media/:path*",
+      },
+    ];
+  },
   images: {
     remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "fptn.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.fptn.com",
+      },
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
       {
         protocol: "https",
         hostname: "images.unsplash.com",
