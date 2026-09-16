@@ -127,6 +127,7 @@ export type Post = {
   is_premium: boolean;
   is_video: boolean;
   is_podcast: boolean;
+  is_popular?: boolean;
   reading_time_minutes: number;
   view_count: number;
   published_at: string | null;
@@ -154,11 +155,19 @@ export type HomePayload = {
   categories: Category[];
   liveEvent: EventItem | null;
   tickerEvents: EventItem[];
+  /** Newest published story — hero main image (Latest News). */
   featured: Post | null;
+  /** Next two newest — side stories beside the hero. */
   secondary: Post[];
   podcasts: Post[];
+  /** @deprecated Prefer politics + world. Kept as politics∪world for callers. */
   grid: Post[];
+  /** Continuación del feed Latest (después de hero + 2 sides); con ellos ≈ 8. */
   latest: Post[];
+  /** Últimas 4 de Politics. */
+  politics: Post[];
+  /** Últimas 4 de World. */
+  world: Post[];
   mustWatch: Post[];
   elections: Post[];
   exclusives: Post[];

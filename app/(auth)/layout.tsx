@@ -1,6 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 
+/**
+ * Auth shell must never throw — a layout failure would skip (auth)/error.tsx
+ * and paint the global "Couldn't load this page" boundary.
+ */
 export default function AuthLayout({
   children,
 }: {
@@ -13,6 +17,7 @@ export default function AuthLayout({
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.12]"
+        aria-hidden
         style={{
           backgroundImage:
             "radial-gradient(circle at 20% 20%, #e85d04 0%, transparent 40%), radial-gradient(circle at 80% 0%, #1b2a64 0%, transparent 35%)",

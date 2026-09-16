@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
+import { extractYoutubeId } from "@/lib/media/youtube";
+
+export { extractYoutubeId } from "@/lib/media/youtube";
 
 type Props = {
   url: string;
@@ -8,25 +11,6 @@ type Props = {
   className?: string;
   poster?: string | null;
 };
-
-export function extractYoutubeId(url: string): string | null {
-  if (!url) return null;
-  try {
-    const u = new URL(url);
-    if (u.hostname.includes("youtu.be")) {
-      return u.pathname.replace(/^\//, "").slice(0, 11) || null;
-    }
-    if (u.searchParams.get("v")) return u.searchParams.get("v");
-    const embed = u.pathname.match(/\/embed\/([^/?]+)/);
-    if (embed) return embed[1];
-    const shorts = u.pathname.match(/\/shorts\/([^/?]+)/);
-    if (shorts) return shorts[1];
-  } catch {
-    /* plain id */
-  }
-  if (/^[\w-]{11}$/.test(url.trim())) return url.trim();
-  return null;
-}
 
 /**
  * Plyr player for YouTube — loads Plyr only in the browser (avoids SSR `document`).

@@ -250,9 +250,17 @@ export default function NewsArticleView({
           </div>
 
           <div>
-            <h2 className="font-article text-[1.75rem] font-black tracking-tight md:text-[2rem]">
-              Latest News
-            </h2>
+            <div className="mb-2 flex items-end justify-between gap-3">
+              <h2 className="font-article text-[1.75rem] font-black tracking-tight md:text-[2rem]">
+                Latest News
+              </h2>
+              <Link
+                href="/feed/latest"
+                className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
+              >
+                Ver más
+              </Link>
+            </div>
             <div className="mt-2 border-t border-[#ccc]">
               {latest.map((item) => (
                 <PostCard key={item.id} post={item} variant="latest" />
@@ -266,10 +274,10 @@ export default function NewsArticleView({
                 Podcasts
               </h2>
               <Link
-                href="/?type=podcast"
+                href="/feed/podcasts"
                 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
               >
-                See all
+                Ver más
               </Link>
             </div>
             <div className="border-t border-[#ccc]">
@@ -285,9 +293,17 @@ export default function NewsArticleView({
       {popular.length > 0 ? (
         <section className="border-t border-[#ccc] bg-white">
           <div className="mx-auto max-w-[1440px] px-4 py-12 md:px-8 lg:px-10">
-            <h2 className="mb-6 font-article text-[1.85rem] font-black tracking-tight md:text-[2.2rem]">
-              Popular
-            </h2>
+            <div className="mb-6 flex items-end justify-between gap-3">
+              <h2 className="font-article text-[1.85rem] font-black tracking-tight md:text-[2.2rem]">
+                Popular
+              </h2>
+              <Link
+                href="/feed/popular"
+                className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
+              >
+                Ver más
+              </Link>
+            </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {popular.map((item) => (
                 <PostCard key={item.id} post={item} />

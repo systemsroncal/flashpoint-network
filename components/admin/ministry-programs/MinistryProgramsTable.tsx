@@ -77,7 +77,7 @@ export default function MinistryProgramsTable({
       </DashboardCard>
 
       <DashboardCard
-        title="Ministry Programs"
+        title="Network Programs"
         subtitle={`${programs.length} total`}
         action={
           <Button
