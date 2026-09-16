@@ -76,9 +76,8 @@ export default function MaintenanceView({ message }: Props) {
       </p>
 
       <div className="relative z-10 mx-auto flex w-full max-w-[1166px] flex-1 flex-col items-center px-4 pb-16 pt-10 sm:pt-14 md:pt-[6.5rem]">
-        {/* Logo lockup — Flash Point badge + NETWORK bar */}
-        <Link
-          href="/login"
+        {/* Logo lockup — Flash Point badge + NETWORK bar (not a link) */}
+        <div
           className="flex w-[min(100%,256px)] flex-col overflow-hidden rounded-[6px] border-[4px] border-white bg-black"
           aria-label="Flash Point Network"
         >
@@ -95,7 +94,7 @@ export default function MaintenanceView({ message }: Props) {
           <span className="bg-[var(--fpn-rojo)] py-2 text-center text-[clamp(0.85rem,2.5vw,1.05rem)] font-bold uppercase tracking-[0.55em] text-white">
             Network
           </span>
-        </Link>
+        </div>
 
         <h1 className="mt-8 text-center font-article text-[clamp(2.25rem,6vw,3.35rem)] font-black leading-tight tracking-[-0.01em] text-white md:mt-10">
           COMING SOON
