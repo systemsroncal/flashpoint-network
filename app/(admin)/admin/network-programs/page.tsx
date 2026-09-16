@@ -1,5 +1,5 @@
 import PageContainer from "@/components/admin/shared/PageContainer";
-import MinistryProgramsTable from "@/components/admin/ministry-programs/MinistryProgramsTable";
+import MinistryProgramsTable from "@/components/admin/network-programs/MinistryProgramsTable";
 import {
   getAdminMinistryPrograms,
   getMinistryProgramsSortMode,

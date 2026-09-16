@@ -117,7 +117,7 @@ export default function SettingsManager({
       {canManageProgramModules ? (
       <DashboardCard
         title="Program modules"
-        subtitle="Temporarily hide Classic and Schedule from the public site and admin. Ministry is unchanged. No role bypass while a module is off."
+        subtitle="Temporarily hide Classic and Schedule from the public site and admin. Network Programs is unchanged. No role bypass while a module is off."
       >
         <Box component="form" action={saveProgramModulesAction}>
           <Stack spacing={2}>

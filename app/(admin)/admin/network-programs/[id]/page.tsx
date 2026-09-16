@@ -1,5 +1,5 @@
 import PageContainer from "@/components/admin/shared/PageContainer";
-import MinistryProgramForm from "@/components/admin/ministry-programs/MinistryProgramForm";
+import MinistryProgramForm from "@/components/admin/network-programs/MinistryProgramForm";
 import { getAdminMinistryProgram } from "@/lib/admin/queries";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +21,7 @@ export default async function EditMinistryProgramPage({ params }: Props) {
   }
 
   return (
-    <PageContainer title="Edit ministry program" description={program.title}>
+    <PageContainer title="Edit network program" description={program.title}>
       <MinistryProgramForm program={program} />
     </PageContainer>
   );

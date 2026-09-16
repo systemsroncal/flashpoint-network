@@ -472,7 +472,7 @@ export async function saveMaintenanceSettingsAction(formData: FormData) {
   revalidatePath("/events");
   revalidatePath("/category");
   revalidatePath("/classic-programs");
-  revalidatePath("/ministry-programs");
+  revalidatePath("/network-programs");
   revalidatePath("/schedule-programs");
   revalidatePath("/admin/settings");
 }
@@ -492,7 +492,7 @@ export async function saveProgramModulesAction(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/");
   revalidatePath("/classic-programs");
-  revalidatePath("/ministry-programs");
+  revalidatePath("/network-programs");
   revalidatePath("/schedule-programs");
   revalidatePath("/admin");
   revalidatePath("/admin/classic-programs");
@@ -619,16 +619,16 @@ export async function upsertMinistryProgramAction(formData: FormData) {
       .select("id")
       .single();
     if (error) throw new Error(error.message);
-    revalidatePath("/ministry-programs");
-    revalidatePath("/admin/ministry-programs");
-    redirect(`/admin/ministry-programs/${data.id}`);
+    revalidatePath("/network-programs");
+    revalidatePath("/admin/network-programs");
+    redirect(`/admin/network-programs/${data.id}`);
   }
 
-  revalidatePath("/ministry-programs");
-  revalidatePath(`/ministry-programs/${slug}`);
-  revalidatePath("/admin/ministry-programs");
-  revalidatePath(`/admin/ministry-programs/${id}`);
-  redirect(`/admin/ministry-programs/${id}`);
+  revalidatePath("/network-programs");
+  revalidatePath(`/network-programs/${slug}`);
+  revalidatePath("/admin/network-programs");
+  revalidatePath(`/admin/network-programs/${id}`);
+  redirect(`/admin/network-programs/${id}`);
 }
 
 export async function deleteMinistryProgramAction(formData: FormData) {
@@ -637,9 +637,9 @@ export async function deleteMinistryProgramAction(formData: FormData) {
   if (!id) throw new Error("Missing id");
   const { error } = await supabase.from("ministry_programs").delete().eq("id", id);
   if (error) throw new Error(error.message);
-  revalidatePath("/ministry-programs");
-  revalidatePath("/admin/ministry-programs");
-  redirect("/admin/ministry-programs");
+  revalidatePath("/network-programs");
+  revalidatePath("/admin/network-programs");
+  redirect("/admin/network-programs");
 }
 
 export async function saveMinistryProgramsSortAction(formData: FormData) {
@@ -652,8 +652,8 @@ export async function saveMinistryProgramsSortAction(formData: FormData) {
     value,
   });
   if (error) throw new Error(error.message);
-  revalidatePath("/ministry-programs");
-  revalidatePath("/admin/ministry-programs");
+  revalidatePath("/network-programs");
+  revalidatePath("/admin/network-programs");
 }
 
 export async function upsertScheduleEntryAction(formData: FormData) {

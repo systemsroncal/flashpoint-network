@@ -105,10 +105,10 @@ export default async function SiteHeader({
             </Link>
           ) : null}
           <Link
-            href="/ministry-programs"
+            href="/network-programs"
             className="hidden text-[13px] font-bold text-white/90 hover:text-white xl:inline"
           >
-            Ministry
+            Network
           </Link>
           <Link
             href="/events"

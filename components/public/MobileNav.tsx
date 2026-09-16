@@ -121,11 +121,11 @@ export default function MobileNav({
                 </Link>
               ) : null}
               <Link
-                href="/ministry-programs"
+                href="/network-programs"
                 onClick={() => setOpen(false)}
                 className="inline-flex h-11 items-center justify-center rounded-md border border-white/40 text-sm font-semibold"
               >
-                Ministry
+                Network
               </Link>
               <Link
                 href="/events"

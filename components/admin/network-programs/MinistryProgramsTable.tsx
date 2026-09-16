@@ -40,7 +40,7 @@ export default function MinistryProgramsTable({
     <Stack spacing={3}>
       <DashboardCard
         title="Public grid sort"
-        subtitle="Controls ordering on /ministry-programs"
+        subtitle="Controls ordering on /network-programs"
       >
         <Stack
           component="form"
@@ -67,7 +67,7 @@ export default function MinistryProgramsTable({
           </Button>
           <Button
             component={Link}
-            href="/ministry-programs"
+            href="/network-programs"
             target="_blank"
             variant="outlined"
           >
@@ -82,7 +82,7 @@ export default function MinistryProgramsTable({
         action={
           <Button
             component={Link}
-            href="/admin/ministry-programs/new"
+            href="/admin/network-programs/new"
             variant="contained"
           >
             New program
@@ -106,7 +106,7 @@ export default function MinistryProgramsTable({
                 <TableCell>
                   <Typography variant="subtitle2">{program.title}</Typography>
                   <Typography variant="caption" color="textSecondary">
-                    /ministry-programs/{program.slug}
+                    /network-programs/{program.slug}
                   </Typography>
                 </TableCell>
                 <TableCell>
@@ -124,7 +124,7 @@ export default function MinistryProgramsTable({
                 <TableCell align="right">
                   <Button
                     component={Link}
-                    href={`/admin/ministry-programs/${program.id}`}
+                    href={`/admin/network-programs/${program.id}`}
                     size="small"
                     variant="outlined"
                   >
@@ -137,7 +137,7 @@ export default function MinistryProgramsTable({
               <TableRow>
                 <TableCell colSpan={5}>
                   <Typography color="textSecondary" sx={{ py: 2 }}>
-                    No ministry programs yet. Create one to get started.
+                    No network programs yet. Create one to get started.
                   </Typography>
                 </TableCell>
               </TableRow>

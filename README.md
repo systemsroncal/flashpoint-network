@@ -30,13 +30,13 @@ Dev server: **http://127.0.0.1:43125**
 | `/events/[slug]` | Event detail |
 | `/classic-programs` | Classic TV grid (sort mode from settings) |
 | `/classic-programs/[slug]` | Classic program detail |
-| `/ministry-programs` | Ministry / gospel grid |
-| `/ministry-programs/[slug]` | Ministry program detail |
+| `/network-programs` | Network / gospel grid |
+| `/network-programs/[slug]` | Network program detail |
 | `/schedule-programs` | Broadcast schedule (day grid + optional PDF) |
 | `/login` `/register` `/forgot-password` | Auth flows |
 | `/admin` | Staff CMS (RBAC: superadmin/admin/editor/journalist) |
 | `/admin/classic-programs` | Classic Programs CRUD + grid sort |
-| `/admin/ministry-programs` | Network Programs CRUD + grid sort |
+| `/admin/network-programs` | Network Programs CRUD + grid sort |
 | `/admin/schedule-programs` | Schedule entries + display mode + PDF |
 | `/ads.txt` | Dynamic ads.txt from Settings |
 | `/api/health` | Health check |
@@ -77,7 +77,7 @@ npm run seed:program-images   # remote posters → Supabase Storage (legacy; pre
 npm run vendor:media          # Storage bucket → public/media (commit the files)
 ```
 
-Classic/Ministry pages rewrite Storage URLs to `/media/...`. Schedule seeds dated entries for September 2026 and copies the PDF to `public/schedules/`.
+Classic/Network pages rewrite Storage URLs to `/media/...`. Schedule seeds dated entries for September 2026 and copies the PDF to `public/schedules/`.
 
 ## Admin image uploads (local disk)
 
