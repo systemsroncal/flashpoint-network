@@ -23,12 +23,32 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html {
+  min-height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 body {
   min-height: 100vh;
   min-height: 100dvh;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-ui);
+}
+
+html:has([data-auth-shell]),
+body:has([data-auth-shell]) {
+  background-color: #001428;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: 100lvh;
+}
+
+[data-auth-shell] {
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: 100lvh;
 }
 
 .font-article,

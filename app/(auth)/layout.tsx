@@ -7,7 +7,10 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex min-h-dvh min-h-screen flex-1 flex-col bg-[linear-gradient(160deg,#001428_0%,#0a2744_45%,#132f4a_100%)] text-white">
+    <div
+      data-auth-shell
+      className="relative flex min-h-dvh min-h-screen min-h-[100lvh] flex-1 flex-col bg-[#001428] bg-[linear-gradient(160deg,#001428_0%,#0a2744_45%,#132f4a_100%)] text-white"
+    >
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.12]"
         style={{
