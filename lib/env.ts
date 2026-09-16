@@ -20,6 +20,7 @@ export function normalizePublicUrl(
     .replace(/^['"]+|['"]+$/g, "");
   if (!text) return fallbackOrigin;
 
+  // Split on commas / whitespace / semicolons (CyberPanel alias dumps).
   const parts = text
     .split(/[\s,;]+/)
     .map((part) => part.trim().replace(/^['"]+|['"]+$/g, ""))
@@ -93,6 +94,8 @@ export function getResendApiKey(): string | null {
  * through this helper (or normalizePublicUrl) before `new URL(...)`.
  */
 export function getSiteUrl(): string {
+  // Scrub first so even raw process.env reads afterward see a single origin.
+  scrubSiteUrlEnv();
   for (const raw of [
     process.env.NEXT_PUBLIC_SITE_URL,
     process.env.SITE_URL,
@@ -115,7 +118,9 @@ export function normalizeForwardedHost(raw: unknown): string | null {
   if (!first) return null;
   try {
     if (first.includes("://")) {
-      return new URL(first).host;
+      const host = normalizePublicUrl(first, "");
+      if (!host) return null;
+      return new URL(host).host;
     }
     if (/[\s,;]/.test(first)) return null;
     return first.replace(/\/$/, "");
@@ -131,7 +136,8 @@ export function getSiteName(): string {
 /**
  * Rewrite process.env URL keys in-place so PM2/CyberPanel-dumped duplicates
  * (`https://fptn.com, https://fptn.com`) cannot reach Next internals or
- * third-party `new URL(process.env.*)`. Call from instrumentation on boot.
+ * third-party `new URL(process.env.*)`. Call from instrumentation on boot
+ * and at module load below.
  */
 export function scrubSiteUrlEnv(): { key: string; before: string; after: string }[] {
   const changed: { key: string; before: string; after: string }[] = [];
@@ -141,11 +147,19 @@ export function scrubSiteUrlEnv(): { key: string; before: string; after: string 
     "NEXT_PUBLIC_SUPABASE_URL",
   ] as const) {
     const before = process.env[key];
-    if (!before || !/[,;]/.test(before)) continue;
+    if (!before) continue;
+    // Normalize whenever the value is multi-origin OR not a clean single origin.
     const after = normalizePublicUrl(before, "");
     if (!after || after === before) continue;
     process.env[key] = after;
     changed.push({ key, before, after });
   }
   return changed;
+}
+
+// Scrub as soon as this module loads (PM2 / CyberPanel dumped env).
+try {
+  scrubSiteUrlEnv();
+} catch {
+  // Never block boot on scrub.
 }

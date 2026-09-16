@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import {
+  getSiteUrl,
   getSupabaseUrl,
   normalizeForwardedHost,
   normalizePublicUrl,
@@ -13,30 +14,51 @@ const STAFF_ROLES = new Set(["superadmin", "admin", "editor", "journalist"]);
  * OLS/proxy sometimes duplicates Origin / X-Forwarded-Host
  * (`https://fptn.com, https://fptn.com`). Next Server Actions call
  * `new URL(...)` on those headers and throw ERR_INVALID_URL before
- * the action body — which paints (auth)/error.tsx.
+ * the action body — which paints app/error.tsx.
+ *
+ * Always force a single clean Origin / Host when anything looks multi-valued
+ * or unparseable. Prefer Host-derived origin over a poisoned Origin header.
  */
 function sanitizedRequestHeaders(request: NextRequest): Headers {
-  // Also scrub PM2/CyberPanel-dumped env (middleware runs even if instrumentation lagged).
   scrubSiteUrlEnv();
 
   const headers = new Headers(request.headers);
 
-  const origin = headers.get("origin");
-  if (origin && /[,;]/.test(origin)) {
-    const cleaned = normalizePublicUrl(origin, "");
-    if (cleaned) headers.set("origin", cleaned);
+  const xfHostRaw = headers.get("x-forwarded-host");
+  const hostRaw = headers.get("host");
+  const xfHost = normalizeForwardedHost(xfHostRaw) || normalizeForwardedHost(hostRaw);
+  if (xfHost && xfHostRaw && xfHost !== xfHostRaw) {
+    headers.set("x-forwarded-host", xfHost);
   }
-
-  const xfHost = headers.get("x-forwarded-host");
-  if (xfHost && /[\s,;]/.test(xfHost)) {
-    const host = normalizeForwardedHost(xfHost);
-    if (host) headers.set("x-forwarded-host", host);
-  }
-
-  const host = headers.get("host");
-  if (host && /[\s,;]/.test(host)) {
-    const cleaned = normalizeForwardedHost(host);
+  if (hostRaw && /[\s,;]/.test(hostRaw)) {
+    const cleaned = normalizeForwardedHost(hostRaw);
     if (cleaned) headers.set("host", cleaned);
+  }
+
+  const originRaw = headers.get("origin");
+  const originLooksBad =
+    !originRaw ||
+    /[\s,;]/.test(originRaw) ||
+    !normalizePublicUrl(originRaw, "");
+
+  if (originLooksBad) {
+    const proto =
+      headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ||
+      (request.nextUrl.protocol === "https:" ? "https" : "http");
+    const host = xfHost || normalizeForwardedHost(headers.get("host"));
+    const rebuilt = host
+      ? normalizePublicUrl(`${proto}://${host}`, "")
+      : normalizePublicUrl(getSiteUrl(), "");
+    if (rebuilt) {
+      headers.set("origin", rebuilt);
+    } else if (originRaw) {
+      const cleaned = normalizePublicUrl(originRaw, "");
+      if (cleaned) headers.set("origin", cleaned);
+      else headers.delete("origin");
+    }
+  } else if (originRaw) {
+    const cleaned = normalizePublicUrl(originRaw, "");
+    if (cleaned && cleaned !== originRaw) headers.set("origin", cleaned);
   }
 
   return headers;
@@ -46,7 +68,15 @@ function sanitizedRequestHeaders(request: NextRequest): Headers {
  * Refresh the auth session and gate /admin behind staff roles.
  */
 export async function updateSession(request: NextRequest) {
-  const requestHeaders = sanitizedRequestHeaders(request);
+  let requestHeaders: Headers;
+  try {
+    requestHeaders = sanitizedRequestHeaders(request);
+  } catch (err) {
+    console.error("[middleware] header sanitize failed", err);
+    scrubSiteUrlEnv();
+    requestHeaders = new Headers(request.headers);
+  }
+
   let supabaseResponse = NextResponse.next({
     request: { headers: requestHeaders },
   });

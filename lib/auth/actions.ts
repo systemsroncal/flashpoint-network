@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { compileEmailPreviewHtml, replaceEmailShortcodes } from "@/lib/email/preview";
 import { sendEmail } from "@/lib/email";
 import { getSiteName, getSiteUrl, scrubSiteUrlEnv } from "@/lib/env";
+import { safeNext } from "@/lib/auth/safe-next";
 
 function rethrowRedirect(error: unknown) {
   if (
@@ -17,11 +18,6 @@ function rethrowRedirect(error: unknown) {
   ) {
     throw error;
   }
-}
-
-function safeNext(path: string | null | undefined) {
-  if (!path || !path.startsWith("/") || path.startsWith("//")) return "/";
-  return path;
 }
 
 const AUTH_UNAVAILABLE =
