@@ -6,6 +6,12 @@ import { getSiteUrl } from "@/lib/env";
 import { slugify } from "@/lib/slug";
 import type { PostStatus } from "@/lib/types/cms";
 import { resolvePublishedAt } from "@/lib/admin/published-at";
+import {
+  POST_EXISTING_SELECT,
+  buildCandidateFromFormValues,
+  diffPostPatch,
+  type PostExistingRow,
+} from "@/lib/admin/post-patch";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,7 +36,8 @@ function explicitBool(
 /**
  * Save current News form fields as a draft (or keep status) and return a
  * staff-only preview URL — WordPress-style "Preview Changes".
- * On update, preserves home-placement flags and published_at when omitted.
+ * On update of an existing post: patch only dirty fields (no published_at /
+ * placement rewrites unless the editor changed them).
  */
 export async function POST(request: Request) {
   const profile = await requireStaffProfile();
@@ -68,63 +75,53 @@ export async function POST(request: Request) {
   const publishedAtOriginal =
     String(body.published_at_original || "").trim() || null;
 
-  type Existing = {
-    is_featured: boolean;
-    is_premium: boolean;
-    is_video: boolean;
-    is_podcast: boolean;
-    is_popular: boolean;
-    published_at: string | null;
-    author_id: string | null;
-  };
-
-  let existing: Existing | null = null;
+  let existing: PostExistingRow | null = null;
   if (id) {
     const { data } = await supabase
       .from("posts")
-      .select(
-        "is_featured, is_premium, is_video, is_podcast, is_popular, published_at, author_id",
-      )
+      .select(POST_EXISTING_SELECT)
       .eq("id", id)
       .maybeSingle();
-    existing = (data as Existing | null) ?? null;
+    existing = (data as PostExistingRow | null) ?? null;
   }
 
-  const publishedAt = resolvePublishedAt({
+  const publishedAtInput = {
     submittedRaw: publishedAtRaw,
     displayInitial: publishedAtDisplay,
     originalIso: publishedAtOriginal ?? existing?.published_at ?? null,
+  };
+
+  const publishedAt = resolvePublishedAt({
+    ...publishedAtInput,
     existingIso: existing?.published_at ?? null,
     status,
   });
 
-  const payload = {
+  const candidate = buildCandidateFromFormValues({
     title,
     slug,
     excerpt: String(body.excerpt || ""),
     body: String(body.body || ""),
     status,
-    category_id: String(body.category_id || "") || null,
-    author_id: existing?.author_id ?? profile.id,
-    featured_image_url: featuredImageUrl,
-    video_url: String(body.video_url || "").trim() || null,
-    seo_title: String(body.seo_title || "").trim() || null,
-    seo_description: String(body.seo_description || "").trim() || null,
-    seo_keywords: String(body.seo_keywords || "").trim() || null,
-    og_title: String(body.og_title || "").trim() || null,
-    og_description: String(body.og_description || "").trim() || null,
-    og_image_url: featuredImageUrl,
-    is_featured: explicitBool(body, "is_featured", existing?.is_featured ?? false),
-    is_premium: explicitBool(body, "is_premium", existing?.is_premium ?? false),
-    is_video: explicitBool(body, "is_video", existing?.is_video ?? false),
-    is_podcast: explicitBool(body, "is_podcast", existing?.is_podcast ?? false),
-    is_popular: explicitBool(body, "is_popular", existing?.is_popular ?? false),
-    reading_time_minutes: Number(body.reading_time_minutes) || 5,
-    published_at: publishedAt,
-  };
+    categoryId: String(body.category_id || "") || null,
+    featuredImageUrl,
+    videoUrl: String(body.video_url || "").trim() || null,
+    seoTitle: String(body.seo_title || "").trim() || null,
+    seoDescription: String(body.seo_description || "").trim() || null,
+    seoKeywords: String(body.seo_keywords || "").trim() || null,
+    ogTitle: String(body.og_title || "").trim() || null,
+    ogDescription: String(body.og_description || "").trim() || null,
+    isFeatured: explicitBool(body, "is_featured", existing?.is_featured ?? false),
+    isPremium: explicitBool(body, "is_premium", existing?.is_premium ?? false),
+    isVideo: explicitBool(body, "is_video", existing?.is_video ?? false),
+    isPodcast: explicitBool(body, "is_podcast", existing?.is_podcast ?? false),
+    isPopular: explicitBool(body, "is_popular", existing?.is_popular ?? false),
+    readingTime: Number(body.reading_time_minutes) || 5,
+    publishedAt,
+  });
 
-  async function ensureUniqueSlug(candidate: string, excludeId?: string) {
-    let next = candidate;
+  async function ensureUniqueSlug(candidateSlug: string, excludeId?: string) {
+    let next = candidateSlug;
     for (let i = 0; i < 20; i++) {
       let q = supabase!
         .from("posts")
@@ -134,24 +131,38 @@ export async function POST(request: Request) {
       if (excludeId) q = q.neq("id", excludeId);
       const { data } = await q.maybeSingle();
       if (!data) return next;
-      next = `${candidate}-${i + 2}`;
+      next = `${candidateSlug}-${i + 2}`;
     }
-    return `${candidate}-${Date.now()}`;
+    return `${candidateSlug}-${Date.now()}`;
   }
 
   let postId = id;
+  let savedSlug = candidate.slug;
+  let savedStatus = candidate.status;
   try {
     if (id) {
-      slug = await ensureUniqueSlug(slug, id);
-      payload.slug = slug;
-      const { error } = await supabase.from("posts").update(payload).eq("id", id);
-      if (error) throw error;
+      if (!existing) {
+        return NextResponse.json({ error: "Post not found" }, { status: 404 });
+      }
+      const patch = diffPostPatch(candidate, existing, publishedAtInput);
+      if (patch.slug) {
+        patch.slug = await ensureUniqueSlug(patch.slug, id);
+      }
+      if (Object.keys(patch).length > 0) {
+        const { error } = await supabase.from("posts").update(patch).eq("id", id);
+        if (error) throw error;
+      }
+      savedSlug = patch.slug ?? existing.slug;
+      savedStatus = patch.status ?? existing.status;
     } else {
-      slug = await ensureUniqueSlug(slug);
-      payload.slug = slug;
+      savedSlug = await ensureUniqueSlug(candidate.slug);
       const { data, error } = await supabase
         .from("posts")
-        .insert(payload)
+        .insert({
+          ...candidate,
+          slug: savedSlug,
+          author_id: profile.id,
+        })
         .select("id")
         .single();
       if (error) throw error;
@@ -164,20 +175,20 @@ export async function POST(request: Request) {
 
   revalidatePath("/admin/posts");
   revalidatePath(`/admin/posts/${postId}`);
-  if (status === "published") {
-    revalidatePath(`/news/${slug}`);
+  if (savedStatus === "published") {
+    revalidatePath(`/news/${savedSlug}`);
     revalidatePath("/");
   }
 
   const origin = getSiteUrl().replace(/\/$/, "");
   const previewUrl = `${origin}/preview/news/${postId}`;
   const publicUrl =
-    status === "published" ? `${origin}/news/${slug}` : null;
+    savedStatus === "published" ? `${origin}/news/${savedSlug}` : null;
 
   return NextResponse.json({
     id: postId,
-    slug,
-    status,
+    slug: savedSlug,
+    status: savedStatus,
     previewUrl,
     publicUrl,
   });

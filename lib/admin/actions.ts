@@ -11,12 +11,14 @@ import {
   isProgramModulesOwnerEmail,
 } from "@/lib/features/program-modules";
 import { getProgramModules } from "@/lib/features/program-modules-server";
-import {
-  normalizeHtmlMediaForStorage,
-  normalizeStoredMediaUrl,
-} from "@/lib/media/public-url";
 import { isAdminPostSlugAvailable } from "@/lib/admin/queries";
 import { resolvePublishedAt } from "@/lib/admin/published-at";
+import {
+  POST_EXISTING_SELECT,
+  buildCandidateFromFormValues,
+  diffPostPatch,
+  type PostExistingRow,
+} from "@/lib/admin/post-patch";
 
 function boolFromForm(value: FormDataEntryValue | null): boolean {
   return value === "on" || value === "true" || value === "1";
@@ -36,17 +38,6 @@ function explicitBool(formData: FormData, key: string, fallback: boolean): boole
   if (v === "false" || v === "0") return false;
   return boolFromForm(formData.get(key));
 }
-
-type PlacementFields = {
-  is_featured: boolean;
-  is_premium: boolean;
-  is_video: boolean;
-  is_podcast: boolean;
-  is_popular: boolean;
-  published_at: string | null;
-  category_id: string | null;
-  author_id: string | null;
-};
 
 function requireAdmin() {
   const client = createAdminClient();
@@ -86,20 +77,11 @@ export async function upsertPostAction(formData: FormData) {
   let slug = String(formData.get("slug") || "").trim() || slugify(title);
   slug = slugify(slug) || "untitled";
 
-  const slugFree = await isAdminPostSlugAvailable(slug, id || null);
-  if (!slugFree) {
-    throw new Error(
-      "This slug is already used by another post. Choose a different permalink.",
-    );
-  }
-
   const status = (String(formData.get("status") || "draft") as PostStatus) || "draft";
   const categoryId = String(formData.get("category_id") || "") || null;
   const excerpt = String(formData.get("excerpt") || "");
-  const body = normalizeHtmlMediaForStorage(String(formData.get("body") || ""));
-  const featuredImageUrl = normalizeStoredMediaUrl(
-    String(formData.get("featured_image_url") || "") || null,
-  );
+  const bodyRaw = String(formData.get("body") || "");
+  const featuredImageRaw = String(formData.get("featured_image_url") || "") || null;
   const videoUrl = String(formData.get("video_url") || "") || null;
   const seoTitle = String(formData.get("seo_title") || "").trim() || null;
   const seoDescription =
@@ -119,28 +101,16 @@ export async function upsertPostAction(formData: FormData) {
   // Default author: seeded FPN desk editor (creates only)
   const defaultAuthorId = "f1000000-0000-4000-8000-000000000001";
 
-  let existing: PlacementFields | null = null;
+  let existing: PostExistingRow | null = null;
   if (id) {
     const { data, error } = await supabase
       .from("posts")
-      .select(
-        "is_featured, is_premium, is_video, is_podcast, is_popular, published_at, category_id, author_id",
-      )
+      .select(POST_EXISTING_SELECT)
       .eq("id", id)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    existing = (data as PlacementFields | null) ?? null;
+    existing = (data as PostExistingRow | null) ?? null;
   }
-
-  // Keep exact published_at when the editor did not change the datetime-local
-  // display (avoids TZ round-trip reshuffling home / lists).
-  const publishedAt = resolvePublishedAt({
-    submittedRaw: publishedAtRaw,
-    displayInitial: publishedAtDisplay,
-    originalIso: publishedAtOriginal ?? existing?.published_at ?? null,
-    existingIso: existing?.published_at ?? null,
-    status,
-  });
 
   // Placement flags: prefer explicit form values; if a field is missing from FormData
   // (e.g. unchecked MUI checkbox never serializes), keep the existing DB value on update.
@@ -166,68 +136,107 @@ export async function upsertPostAction(formData: FormData) {
     existing?.is_popular ?? false,
   );
 
-  const payload = {
+  const publishedAtInput = {
+    submittedRaw: publishedAtRaw,
+    displayInitial: publishedAtDisplay,
+    originalIso: publishedAtOriginal ?? existing?.published_at ?? null,
+  };
+
+  // Candidate published_at for create / first-publish; updates omit it unless dirty.
+  const publishedAt = resolvePublishedAt({
+    ...publishedAtInput,
+    existingIso: existing?.published_at ?? null,
+    status,
+  });
+
+  const candidate = buildCandidateFromFormValues({
     title,
     slug,
     excerpt,
-    body,
+    body: bodyRaw,
     status,
-    category_id: categoryId,
-    author_id: existing?.author_id ?? defaultAuthorId,
-    featured_image_url: featuredImageUrl,
-    video_url: videoUrl,
-    seo_title: seoTitle,
-    seo_description: seoDescription,
-    seo_keywords: seoKeywords,
-    og_title: ogTitle,
-    og_description: ogDescription,
-    // Meta / social image is always the featured image
-    og_image_url: featuredImageUrl,
-    is_featured: isFeatured,
-    is_premium: isPremium,
-    is_video: isVideo,
-    is_podcast: isPodcast,
-    is_popular: isPopular,
-    reading_time_minutes: Number.isFinite(readingTime) ? readingTime : 5,
-    published_at: publishedAt,
-  };
+    categoryId,
+    featuredImageUrl: featuredImageRaw,
+    videoUrl,
+    seoTitle,
+    seoDescription,
+    seoKeywords,
+    ogTitle,
+    ogDescription,
+    isFeatured,
+    isPremium,
+    isVideo,
+    isPodcast,
+    isPopular,
+    readingTime: Number.isFinite(readingTime) ? readingTime : 5,
+    publishedAt,
+  });
 
   if (id) {
-    const { error } = await supabase.from("posts").update(payload).eq("id", id);
-    if (error) {
-      if (error.code === "23505" || /duplicate key|unique/i.test(error.message)) {
+    if (!existing) throw new Error("Post not found");
+
+    const patch = diffPostPatch(candidate, existing, publishedAtInput);
+
+    // Slug uniqueness only when the permalink actually changes.
+    if (patch.slug) {
+      const slugFree = await isAdminPostSlugAvailable(patch.slug, id);
+      if (!slugFree) {
         throw new Error(
           "This slug is already used by another post. Choose a different permalink.",
         );
       }
-      throw new Error(error.message);
     }
-  } else {
-    const { data, error } = await supabase
-      .from("posts")
-      .insert(payload)
-      .select("id")
-      .single();
-    if (error) {
-      if (error.code === "23505" || /duplicate key|unique/i.test(error.message)) {
-        throw new Error(
-          "This slug is already used by another post. Choose a different permalink.",
-        );
+
+    // Existing posts: write only dirty fields. Empty patch → no UPDATE (avoids
+    // bumping updated_at / rewriting published_at / placement side-effects).
+    if (Object.keys(patch).length > 0) {
+      const { error } = await supabase.from("posts").update(patch).eq("id", id);
+      if (error) {
+        if (error.code === "23505" || /duplicate key|unique/i.test(error.message)) {
+          throw new Error(
+            "This slug is already used by another post. Choose a different permalink.",
+          );
+        }
+        throw new Error(error.message);
       }
-      throw new Error(error.message);
     }
+
+    const publicSlug = patch.slug ?? existing.slug;
     revalidatePath("/");
+    revalidatePath(`/news/${publicSlug}`);
     revalidatePath("/admin");
     revalidatePath("/admin/posts");
-    redirect(`/admin/posts/${data.id}`);
+    revalidatePath(`/admin/posts/${id}`);
+    redirect(`/admin/posts/${id}`);
   }
 
+  const slugFree = await isAdminPostSlugAvailable(candidate.slug, null);
+  if (!slugFree) {
+    throw new Error(
+      "This slug is already used by another post. Choose a different permalink.",
+    );
+  }
+
+  const { data, error } = await supabase
+    .from("posts")
+    .insert({
+      ...candidate,
+      author_id: defaultAuthorId,
+    })
+    .select("id")
+    .single();
+  if (error) {
+    if (error.code === "23505" || /duplicate key|unique/i.test(error.message)) {
+      throw new Error(
+        "This slug is already used by another post. Choose a different permalink.",
+      );
+    }
+    throw new Error(error.message);
+  }
   revalidatePath("/");
-  revalidatePath(`/news/${slug}`);
   revalidatePath("/admin");
   revalidatePath("/admin/posts");
-  revalidatePath(`/admin/posts/${id}`);
-  redirect(`/admin/posts/${id}`);
+  redirect(`/admin/posts/${data.id}`);
 }
 
 export async function deletePostAction(formData: FormData) {

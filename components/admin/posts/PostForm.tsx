@@ -231,7 +231,7 @@ export default function PostForm({
       title={isEdit || postId ? "Edit news" : "New news"}
       subtitle={
         isEdit || postId
-          ? "Changes appear on the public site after you save or publish. Placement flags stay unless you change them."
+          ? "Only fields you change are saved. Publish date, placement flags, and category stay put unless you edit them."
           : "Create a story that can power home sections"
       }
       action={
