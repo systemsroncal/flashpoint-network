@@ -492,9 +492,11 @@ export default function PostForm({
                   ? slugValid
                     ? "Add a title to save."
                     : "Fix the permalink before saving."
-                  : status === "published"
-                    ? "Live on the public site after save."
-                    : "Ready to save as draft or publish."}
+                  : !postId || !slug.trim()
+                    ? "Save Draft once to unlock Preview (needs a saved permalink)."
+                    : status === "published"
+                      ? "Live on the public site after save."
+                      : "Ready to save as draft, preview, or publish."}
               </Typography>
               <Stack direction="row" spacing={1.25} flexWrap="wrap" useFlexGap>
                 <Button
@@ -513,6 +515,25 @@ export default function PostForm({
                   onClick={() => submitWithStatus("published")}
                 >
                   {saving && status === "published" ? "Publishing…" : "Publish"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  disabled={
+                    previewBusy ||
+                    saving ||
+                    !postId ||
+                    !slug.trim() ||
+                    !title.trim()
+                  }
+                  onClick={() => void onPreview()}
+                  title={
+                    !postId || !slug.trim()
+                      ? "Save the post first so it has a permalink to preview."
+                      : "Open draft/public preview in a new tab"
+                  }
+                >
+                  {previewBusy ? "Opening…" : "Preview"}
                 </Button>
               </Stack>
             </Stack>
