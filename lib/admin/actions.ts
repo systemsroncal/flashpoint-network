@@ -16,6 +16,31 @@ function boolFromForm(value: FormDataEntryValue | null): boolean {
   return value === "on" || value === "true" || value === "1";
 }
 
+/** True when the form sent an explicit true/false/on (hidden + checkbox pattern). */
+function hasExplicitBool(formData: FormData, key: string): boolean {
+  const raw = formData.get(key);
+  if (raw == null) return false;
+  const v = String(raw).toLowerCase();
+  return v === "true" || v === "false" || v === "on" || v === "1" || v === "0";
+}
+
+function explicitBool(formData: FormData, key: string, fallback: boolean): boolean {
+  if (!hasExplicitBool(formData, key)) return fallback;
+  const v = String(formData.get(key)).toLowerCase();
+  if (v === "false" || v === "0") return false;
+  return boolFromForm(formData.get(key));
+}
+
+type PlacementFields = {
+  is_featured: boolean;
+  is_premium: boolean;
+  is_video: boolean;
+  is_podcast: boolean;
+  published_at: string | null;
+  category_id: string | null;
+  author_id: string | null;
+};
+
 function requireAdmin() {
   const client = createAdminClient();
   if (!client) throw new Error("Supabase admin client is not configured");
@@ -69,14 +94,56 @@ export async function upsertPostAction(formData: FormData) {
     String(formData.get("og_description") || "").trim() || null;
   const readingTime = Number(formData.get("reading_time_minutes") || 5);
   const publishedAtRaw = String(formData.get("published_at") || "");
-  const publishedAt = publishedAtRaw
-    ? new Date(publishedAtRaw).toISOString()
-    : status === "published"
-      ? new Date().toISOString()
-      : null;
 
-  // Default author: seeded FPN desk editor
-  const authorId = "f1000000-0000-4000-8000-000000000001";
+  // Default author: seeded FPN desk editor (creates only)
+  const defaultAuthorId = "f1000000-0000-4000-8000-000000000001";
+
+  let existing: PlacementFields | null = null;
+  if (id) {
+    const { data, error } = await supabase
+      .from("posts")
+      .select(
+        "is_featured, is_premium, is_video, is_podcast, published_at, category_id, author_id",
+      )
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    existing = (data as PlacementFields | null) ?? null;
+  }
+
+  // Preserve published_at on edit when the datetime field is empty (do not bump to "now").
+  let publishedAt: string | null;
+  if (publishedAtRaw) {
+    const parsed = new Date(publishedAtRaw);
+    publishedAt = Number.isNaN(parsed.getTime())
+      ? (existing?.published_at ?? null)
+      : parsed.toISOString();
+  } else if (existing?.published_at) {
+    publishedAt = existing.published_at;
+  } else if (status === "published") {
+    publishedAt = new Date().toISOString();
+  } else {
+    publishedAt = null;
+  }
+
+  // Placement flags: prefer explicit form values; if a field is missing from FormData
+  // (e.g. unchecked MUI checkbox never serializes), keep the existing DB value on update.
+  const isFeatured = explicitBool(
+    formData,
+    "is_featured",
+    existing?.is_featured ?? false,
+  );
+  const isPremium = explicitBool(
+    formData,
+    "is_premium",
+    existing?.is_premium ?? false,
+  );
+  const isVideo = explicitBool(formData, "is_video", existing?.is_video ?? false);
+  const isPodcast = explicitBool(
+    formData,
+    "is_podcast",
+    existing?.is_podcast ?? false,
+  );
 
   const payload = {
     title,
@@ -85,7 +152,7 @@ export async function upsertPostAction(formData: FormData) {
     body,
     status,
     category_id: categoryId,
-    author_id: authorId,
+    author_id: existing?.author_id ?? defaultAuthorId,
     featured_image_url: featuredImageUrl,
     video_url: videoUrl,
     seo_title: seoTitle,
@@ -95,10 +162,10 @@ export async function upsertPostAction(formData: FormData) {
     og_description: ogDescription,
     // Meta / social image is always the featured image
     og_image_url: featuredImageUrl,
-    is_featured: boolFromForm(formData.get("is_featured")),
-    is_premium: boolFromForm(formData.get("is_premium")),
-    is_video: boolFromForm(formData.get("is_video")),
-    is_podcast: boolFromForm(formData.get("is_podcast")),
+    is_featured: isFeatured,
+    is_premium: isPremium,
+    is_video: isVideo,
+    is_podcast: isPodcast,
     reading_time_minutes: Number.isFinite(readingTime) ? readingTime : 5,
     published_at: publishedAt,
   };

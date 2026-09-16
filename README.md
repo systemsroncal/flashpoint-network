@@ -78,3 +78,17 @@ npm run vendor:media          # Storage bucket → public/media (commit the file
 ```
 
 Classic/Ministry pages rewrite Storage URLs to `/media/...`. Schedule seeds dated entries for September 2026 and copies the PDF to `public/schedules/`.
+
+## Deploy / VPS (pm2)
+
+After every rebuild, **hard-refresh** open admin tabs (Ctrl/Cmd+Shift+R). Stale clients call old Server Action IDs and fail with `Failed to find Server Action "…"`. The News editor shows a reload toast when that happens.
+
+```bash
+cd /path/to/flashpoint-network
+git fetch origin && git checkout main && git pull
+npm ci
+npm run build
+pm2 restart fptn && pm2 flush
+```
+
+`MaxListenersExceededWarning` on Gzip after restarts is usually from leftover Node streams; `pm2 flush` + a clean restart clears it. It is unrelated to News placements.

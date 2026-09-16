@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { slugify } from "@/lib/slug";
+import { normalizePublicUrl } from "@/lib/env";
 
 type Props = {
   siteUrl: string;
@@ -39,13 +40,10 @@ export default function TitlePermalinkField({
     if (!editing) setDraftSlug(slug);
   }, [slug, editing]);
 
-  const origin = useMemo(() => {
-    try {
-      return new URL(siteUrl).origin.replace(/\/$/, "");
-    } catch {
-      return siteUrl.replace(/\/$/, "") || "http://127.0.0.1:43125";
-    }
-  }, [siteUrl]);
+  const origin = useMemo(
+    () => normalizePublicUrl(siteUrl, "http://127.0.0.1:43125"),
+    [siteUrl],
+  );
 
   const base = `${origin}/news/`;
   const displaySlug = slug || "slug";
