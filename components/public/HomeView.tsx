@@ -11,12 +11,25 @@ import {
   formatTickerTime,
   formatViews,
 } from "@/lib/format";
+import { youtubeThumbnailUrl } from "@/lib/media/youtube";
+
+function SeeMore({ href, label = "Ver más" }: { href: string; label?: string }) {
+  return (
+    <Link
+      href={href}
+      className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)] hover:underline"
+    >
+      {label}
+    </Link>
+  );
+}
 
 export default function HomeView({ data }: { data: HomePayload }) {
   const mainVideo = data.mustWatch[0];
   const sideVideos = data.mustWatch.slice(1, 5);
   const mainExclusive = data.exclusives[0];
   const exclusiveRows = data.exclusives.slice(1, 5);
+  const politicsWorld = [...data.politics, ...data.world];
 
   return (
     <div className="bg-white text-black">
@@ -24,7 +37,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
 
       {!data.featured &&
       !data.liveEvent &&
-      data.grid.length === 0 &&
+      politicsWorld.length === 0 &&
       data.latest.length === 0 ? (
         <div className="mx-auto max-w-[1440px] px-4 py-16 text-center md:px-8 lg:px-10">
           <h1 className="font-article text-3xl font-black tracking-tight md:text-4xl">
@@ -148,30 +161,51 @@ export default function HomeView({ data }: { data: HomePayload }) {
       ) : null}
 
       <div className="mx-auto max-w-[1440px] space-y-12 px-4 py-10 md:px-8 lg:px-10 lg:py-12">
-        {/* Top stories: featured + secondary + podcasts/latest */}
-        <section className="grid gap-8 lg:grid-cols-[1.35fr_1fr_0.95fr] lg:gap-7">
-          <div>
-            {data.featured ? (
-              <PostCard post={data.featured} variant="hero" />
+        {/* Figma Frame 23: left (hero+2 + Politics/World) | right (Podcasts + Latest) */}
+        <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(280px,370px)] lg:gap-10 lg:items-start">
+          <div className="min-w-0 space-y-10">
+            {/* Hero + 2 side stories (newest) */}
+            <div className="grid gap-7 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)] lg:gap-7">
+              <div>
+                {data.featured ? (
+                  <PostCard post={data.featured} variant="hero" />
+                ) : null}
+              </div>
+              <div className="flex flex-col border-t border-[#ccc] lg:border-t-0 lg:border-l lg:border-[#ccc] lg:pl-7">
+                {data.secondary.map((post) => (
+                  <PostCard key={post.id} post={post} variant="stack" />
+                ))}
+              </div>
+            </div>
+
+            {/* Politics (4) + World (4) — under hero, left column, Figma card grid */}
+            {politicsWorld.length > 0 ? (
+              <div className="space-y-5">
+                <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#ccc] pb-2">
+                  <h2 className="font-article text-[1.35rem] font-black tracking-tight md:text-[1.55rem]">
+                    Politics &amp; World
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <SeeMore href="/category/politics" label="Ver más · Politics" />
+                    <SeeMore href="/category/world" label="Ver más · World" />
+                  </div>
+                </div>
+                <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
+                  {politicsWorld.map((post) => (
+                    <PostCard key={post.id} post={post} />
+                  ))}
+                </div>
+              </div>
             ) : null}
           </div>
-          <div className="flex flex-col">
-            {data.secondary.map((post) => (
-              <PostCard key={post.id} post={post} variant="stack" />
-            ))}
-          </div>
-          <aside className="space-y-6">
+
+          <aside className="min-w-0 space-y-8 lg:sticky lg:top-24">
             <div>
               <div className="mb-2 flex items-end justify-between gap-3">
                 <h2 className="font-article text-[1.65rem] font-black leading-none tracking-tight">
                   Podcasts
                 </h2>
-                <Link
-                  href="/?type=podcast"
-                  className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)] hover:underline"
-                >
-                  See all
-                </Link>
+                <SeeMore href="/feed/podcasts" label="See all" />
               </div>
               <div className="border-t border-[#ccc]">
                 {data.podcasts.map((post) => (
@@ -180,9 +214,12 @@ export default function HomeView({ data }: { data: HomePayload }) {
               </div>
             </div>
             <div>
-              <h2 className="mb-2 font-article text-[1.65rem] font-black leading-none tracking-tight">
-                Latest News
-              </h2>
+              <div className="mb-2 flex items-end justify-between gap-3">
+                <h2 className="font-article text-[1.65rem] font-black leading-none tracking-tight">
+                  Latest News
+                </h2>
+                <SeeMore href="/feed/latest" />
+              </div>
               <div className="border-t border-[#ccc]">
                 {data.latest.map((post) => (
                   <PostCard key={post.id} post={post} variant="latest" />
@@ -191,14 +228,6 @@ export default function HomeView({ data }: { data: HomePayload }) {
             </div>
           </aside>
         </section>
-
-        {data.grid.length > 0 ? (
-          <section className="grid gap-x-6 gap-y-8 sm:grid-cols-2 md:grid-cols-3">
-            {data.grid.slice(0, 6).map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </section>
-        ) : null}
 
         {/* Subscribe banner */}
         <section className="flex flex-col items-center justify-between gap-5 overflow-hidden rounded-[12px] bg-black px-6 py-7 text-white md:flex-row md:px-10">
@@ -220,58 +249,68 @@ export default function HomeView({ data }: { data: HomePayload }) {
 
         {/* Must-watch */}
         <section>
-          <h2 className="mb-6 font-article text-[1.85rem] font-black tracking-tight md:text-[2.1rem]">
-            Must-Watch Videos
-          </h2>
+          <div className="mb-6 flex items-end justify-between gap-3">
+            <h2 className="font-article text-[1.85rem] font-black tracking-tight md:text-[2.1rem]">
+              Must-Watch Videos
+            </h2>
+            <SeeMore href="/feed/videos" />
+          </div>
           <div className="grid gap-6 md:grid-cols-[1.35fr_1fr]">
             {mainVideo ? <PostCard post={mainVideo} variant="video" /> : null}
             <div className="flex flex-col divide-y divide-[#ccc]/80 border-t border-[#ccc]/80">
-              {sideVideos.map((post) => (
-                <article key={post.id} className="flex gap-4 py-4">
-                  <Link
-                    href={`/news/${post.slug}`}
-                    className="relative h-[88px] w-[140px] shrink-0 overflow-hidden rounded-[10px] bg-neutral-200"
-                  >
-                    {post.featured_image_url ? (
-                      <Image
-                        src={post.featured_image_url}
-                        alt=""
-                        fill
-                        className="object-cover"
-                        sizes="140px"
-                      />
-                    ) : null}
-                    <span className="absolute bottom-2 left-2">
-                      <Image
-                        src="/brand/play-btn.svg"
-                        alt=""
-                        width={28}
-                        height={28}
-                      />
-                    </span>
-                  </Link>
-                  <div className="min-w-0">
+              {sideVideos.map((post) => {
+                const thumb =
+                  youtubeThumbnailUrl(post.video_url) || post.featured_image_url;
+                return (
+                  <article key={post.id} className="flex gap-4 py-4">
                     <Link
                       href={`/news/${post.slug}`}
-                      className="font-article text-[16px] font-black leading-snug tracking-tight text-black hover:text-[var(--fpn-rojo)]"
+                      className="relative aspect-video w-[140px] shrink-0 overflow-hidden rounded-[10px] bg-neutral-200"
                     >
-                      {post.title}
+                      {thumb ? (
+                        <Image
+                          src={thumb}
+                          alt=""
+                          fill
+                          className="object-cover"
+                          sizes="140px"
+                        />
+                      ) : null}
+                      <span className="absolute bottom-2 left-2">
+                        <Image
+                          src="/brand/play-btn.svg"
+                          alt=""
+                          width={28}
+                          height={28}
+                        />
+                      </span>
                     </Link>
-                    <p className="mt-2 text-[13px] text-[var(--fpn-rojo)]">
-                      {formatDate(post.published_at)}
-                    </p>
-                  </div>
-                </article>
-              ))}
+                    <div className="min-w-0">
+                      <Link
+                        href={`/news/${post.slug}`}
+                        className="font-article text-[16px] font-black leading-snug tracking-tight text-black hover:text-[var(--fpn-rojo)]"
+                      >
+                        {post.title}
+                      </Link>
+                      <p className="mt-2 text-[13px] text-[var(--fpn-rojo)]">
+                        {formatDate(post.published_at)}
+                      </p>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
 
         {/* Elections */}
         <section>
-          <h2 className="mb-6 font-article text-[1.85rem] font-black tracking-tight md:text-[2.1rem]">
-            Elections
-          </h2>
+          <div className="mb-6 flex items-end justify-between gap-3">
+            <h2 className="font-article text-[1.85rem] font-black tracking-tight md:text-[2.1rem]">
+              Elections
+            </h2>
+            <SeeMore href="/category/elections" />
+          </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {data.elections.map((post) => (
               <PostCard key={post.id} post={{ ...post, is_video: true }} />
@@ -303,17 +342,20 @@ export default function HomeView({ data }: { data: HomePayload }) {
       {/* Exclusive Content */}
       <section className="bg-[#F5F5F5]">
         <div className="mx-auto max-w-[1440px] px-4 py-12 md:px-8 lg:px-10 lg:py-14">
-          <div className="mb-8 flex items-center gap-4">
-            <Image
-              src="/brand/exclusive-star.svg"
-              alt=""
-              width={48}
-              height={48}
-              className="h-10 w-10 md:h-12 md:w-12"
-            />
-            <h2 className="font-article text-[1.85rem] font-black tracking-tight md:text-[2.4rem]">
-              Exclusive Content
-            </h2>
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Image
+                src="/brand/exclusive-star.svg"
+                alt=""
+                width={48}
+                height={48}
+                className="h-10 w-10 md:h-12 md:w-12"
+              />
+              <h2 className="font-article text-[1.85rem] font-black tracking-tight md:text-[2.4rem]">
+                Exclusive Content
+              </h2>
+            </div>
+            <SeeMore href="/feed/premium" />
           </div>
 
           {mainExclusive ? (
@@ -463,9 +505,12 @@ export default function HomeView({ data }: { data: HomePayload }) {
             </div>
 
             <aside>
-              <h2 className="mb-4 font-article text-[1.85rem] font-black tracking-tight">
-                Popular
-              </h2>
+              <div className="mb-4 flex items-end justify-between gap-3">
+                <h2 className="font-article text-[1.85rem] font-black tracking-tight">
+                  Popular
+                </h2>
+                <SeeMore href="/feed/popular" />
+              </div>
               <ol className="divide-y divide-[#ccc] border-t border-[#ccc]">
                 {data.popular.map((post, index) => (
                   <li key={post.id} className="py-4">

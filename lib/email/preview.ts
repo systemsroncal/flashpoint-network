@@ -32,10 +32,10 @@ function sampleShortcodes(): Record<string, string> {
 }
 
 export function replaceEmailShortcodes(
-  input: string,
+  input: string | null | undefined,
   samples: Record<string, string> = sampleShortcodes(),
 ) {
-  return input.replace(/\{([A-Z0-9_]+)\}/g, (match, key: string) => {
+  return String(input ?? "").replace(/\{([A-Z0-9_]+)\}/g, (match, key: string) => {
     return samples[key] ?? match;
   });
 }

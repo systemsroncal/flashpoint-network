@@ -237,10 +237,10 @@ export default function CategoryView({
                   Podcasts
                 </h2>
                 <Link
-                  href="/?type=podcast"
+                  href="/feed/podcasts"
                   className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
                 >
-                  See all
+                  Ver más
                 </Link>
               </div>
               <div className="border-t border-[#ccc]">
@@ -251,9 +251,17 @@ export default function CategoryView({
             </div>
 
             <div>
-              <h2 className="mb-2 font-article text-[1.65rem] font-black tracking-tight">
-                Latest News
-              </h2>
+              <div className="mb-2 flex items-end justify-between gap-3">
+                <h2 className="font-article text-[1.65rem] font-black tracking-tight">
+                  Latest News
+                </h2>
+                <Link
+                  href="/feed/latest"
+                  className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
+                >
+                  Ver más
+                </Link>
+              </div>
               <div className="border-t border-[#ccc]">
                 {latest.map((post) => (
                   <PostCard key={post.id} post={post} variant="latest" />
@@ -280,9 +288,17 @@ export default function CategoryView({
             </div>
 
             <div>
-              <h2 className="mb-3 font-article text-[1.65rem] font-black tracking-tight">
-                Popular
-              </h2>
+              <div className="mb-3 flex items-end justify-between gap-3">
+                <h2 className="font-article text-[1.65rem] font-black tracking-tight">
+                  Popular
+                </h2>
+                <Link
+                  href="/feed/popular"
+                  className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
+                >
+                  Ver más
+                </Link>
+              </div>
               <ol className="divide-y divide-[#ccc] border-t border-[#ccc]">
                 {popular.map((post, index) => (
                   <li key={post.id} className="py-4">

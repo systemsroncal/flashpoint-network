@@ -73,7 +73,7 @@ const Menuitems: MenuItemConfig[] = [
   },
   {
     id: "nav-ministry-programs",
-    title: "Ministry Programs",
+    title: "Network Programs",
     icon: IconCross,
     href: "/admin/ministry-programs",
   },

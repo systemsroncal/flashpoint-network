@@ -245,3 +245,13 @@ article h3 {
     animation: none;
   }
 }
+
+/* Admin sidebar — full FPN wordmark */
+.admin-sidebar img[src*="fpn-logo-wordmark"],
+aside img[src*="fpn-logo-wordmark"] {
+  width: min(100%, 168px) !important;
+  max-width: 168px !important;
+  height: auto !important;
+  object-fit: contain;
+}
+
