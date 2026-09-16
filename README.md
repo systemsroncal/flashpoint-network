@@ -1,13 +1,13 @@
 # Flash Point Network (FP Network)
 
-Digital newspaper: public SEO portal + Modernize admin CMS on Next.js + Supabase.
+Digital newspaper: public SEO portal + Flash Point Network admin CMS on Next.js + Supabase.
 
 ## Stack
 
 - Next.js App Router (TypeScript) + Tailwind
 - Supabase (Auth, Postgres, Storage, RLS)
 - Sharp, Tiptap, Resend/Nodemailer, Plyr
-- Admin UI adapted from [Modernize Nextjs Free](https://github.com/adminmart/Modernize-Nextjs-Free)
+- Admin UI (MUI) branded with Flash Point Network orange (`--fpn-rojo` / `#FF490D`)
 
 ## Getting started
 
@@ -36,7 +36,7 @@ Dev server: **http://127.0.0.1:43125**
 | `/login` `/register` `/forgot-password` | Auth flows |
 | `/admin` | Staff CMS (RBAC: superadmin/admin/editor/journalist) |
 | `/admin/classic-programs` | Classic Programs CRUD + grid sort |
-| `/admin/ministry-programs` | Ministry Programs CRUD + grid sort |
+| `/admin/ministry-programs` | Network Programs CRUD + grid sort |
 | `/admin/schedule-programs` | Schedule entries + display mode + PDF |
 | `/ads.txt` | Dynamic ads.txt from Settings |
 | `/api/health` | Health check |

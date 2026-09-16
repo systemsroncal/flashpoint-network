@@ -14,7 +14,7 @@ export default async function AdminMinistryProgramsPage() {
   ]);
   return (
     <PageContainer
-      title="Ministry Programs"
+      title="Network Programs"
       description="Gospel broadcasts — grid order and listings"
     >
       <MinistryProgramsTable programs={programs} sortMode={sortMode} />
