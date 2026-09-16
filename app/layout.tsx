@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono, Noto_Serif, Roboto } from "next/font/google";
 import PerformanceMeasureGuard from "@/components/dev/PerformanceMeasureGuard";
+import { getSiteUrl } from "@/lib/env";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,6 +34,7 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: {
     default: "Flash Point Network",
     template: "%s · Flash Point Network",

@@ -2,6 +2,47 @@
  * Env helpers with safe fallbacks so the app boots without real secrets.
  */
 
+const FALLBACK_SITE_URL = "http://127.0.0.1:43125";
+
+/**
+ * Production sometimes has duplicated env: `https://fptn.com, https://fptn.com`.
+ * Never pass that raw string to `new URL()`.
+ */
+export function normalizePublicUrl(
+  raw: unknown,
+  fallback: string = FALLBACK_SITE_URL,
+): string {
+  const fallbackOrigin = originOrFallback(fallback, FALLBACK_SITE_URL);
+  const text = String(raw ?? "")
+    .trim()
+    .replace(/^['"]+|['"]+$/g, "");
+  if (!text) return fallbackOrigin;
+
+  const parts = text
+    .split(/[\s,;]+/)
+    .map((part) => part.trim().replace(/^['"]+|['"]+$/g, ""))
+    .filter(Boolean);
+
+  for (const part of parts) {
+    const origin = originOrFallback(part, "");
+    if (origin) return origin;
+  }
+
+  return fallbackOrigin;
+}
+
+function originOrFallback(candidate: string, fallback: string): string {
+  try {
+    const parsed = new URL(candidate);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return fallback;
+    }
+    return parsed.origin.replace(/\/$/, "");
+  } catch {
+    return fallback;
+  }
+}
+
 export function getSupabaseUrl(): string {
   return process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
 }
@@ -36,7 +77,7 @@ export function getResendApiKey(): string | null {
 }
 
 export function getSiteUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL || "http://127.0.0.1:43125";
+  return normalizePublicUrl(process.env.NEXT_PUBLIC_SITE_URL, FALLBACK_SITE_URL);
 }
 
 export function getSiteName(): string {
