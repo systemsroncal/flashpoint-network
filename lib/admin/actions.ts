@@ -5,6 +5,11 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/slug";
 import type { PostStatus } from "@/lib/types/cms";
+import { getCurrentProfile, getSessionUser } from "@/lib/auth/session";
+import {
+  PROGRAM_MODULES_SETTING,
+  isProgramModulesOwnerEmail,
+} from "@/lib/features/program-modules";
 import { getProgramModules } from "@/lib/features/program-modules-server";
 
 function boolFromForm(value: FormDataEntryValue | null): boolean {
@@ -15,6 +20,19 @@ function requireAdmin() {
   const client = createAdminClient();
   if (!client) throw new Error("Supabase admin client is not configured");
   return client;
+}
+
+async function requireProgramModulesOwner() {
+  const [user, profile] = await Promise.all([
+    getSessionUser(),
+    getCurrentProfile(),
+  ]);
+  if (
+    !isProgramModulesOwnerEmail(user?.email) &&
+    !isProgramModulesOwnerEmail(profile?.email)
+  ) {
+    throw new Error("Forbidden");
+  }
 }
 
 async function assertClassicProgramsEnabled() {
@@ -288,6 +306,9 @@ export async function upsertSiteSettingAction(formData: FormData) {
   const key = String(formData.get("key") || "").trim();
   const valueRaw = String(formData.get("value") || "").trim();
   if (!key) throw new Error("Key is required");
+  if (key === PROGRAM_MODULES_SETTING) {
+    await requireProgramModulesOwner();
+  }
   let value: unknown = valueRaw;
   try {
     value = JSON.parse(valueRaw);
@@ -383,6 +404,7 @@ export async function saveMaintenanceSettingsAction(formData: FormData) {
 }
 
 export async function saveProgramModulesAction(formData: FormData) {
+  await requireProgramModulesOwner();
   const supabase = requireAdmin();
   const classic =
     formData.get("classic") === "on" || formData.get("classic") === "true";

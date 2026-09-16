@@ -39,9 +39,11 @@ function asObject(value: unknown): Record<string, unknown> {
 export default function SettingsManager({
   settings,
   aiProviders,
+  canManageProgramModules = false,
 }: {
   settings: Setting[];
   aiProviders: AiProviderStatus[];
+  canManageProgramModules?: boolean;
 }) {
   const byKey = useMemo(() => {
     const map = new Map<string, Setting>();
@@ -112,6 +114,7 @@ export default function SettingsManager({
         </Box>
       </DashboardCard>
 
+      {canManageProgramModules ? (
       <DashboardCard
         title="Program modules"
         subtitle="Temporarily hide Classic and Schedule from the public site and admin. Ministry is unchanged. No role bypass while a module is off."
@@ -150,6 +153,7 @@ export default function SettingsManager({
           </Stack>
         </Box>
       </DashboardCard>
+      ) : null}
 
       <DashboardCard
         title="Paywall limits"
