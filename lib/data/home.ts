@@ -7,7 +7,7 @@ const POST_SELECT = `
   featured_image_url, video_url, seo_title, seo_description, seo_keywords,
   og_title, og_description, og_image_url,
   is_featured, is_premium, is_video, is_podcast, is_popular,
-  show_featured_image,
+  show_featured_image, home_first_slot,
   reading_time_minutes, view_count, published_at,
   category:categories ( id, name, slug, description, sort_order ),
   author:profiles ( id, email, full_name, first_name, last_name, role, avatar_url )
@@ -89,6 +89,7 @@ export async function getHomePayload(): Promise<HomePayload> {
     eventsRes,
     tickerEventsRes,
     latestPoolRes,
+    firstSectionRes,
     podcastsRes,
     mustWatchRes,
     electionsRes,
@@ -114,7 +115,7 @@ export async function getHomePayload(): Promise<HomePayload> {
       .order("is_live", { ascending: false })
       .order("starts_at", { ascending: true })
       .limit(30),
-    // Truly latest news pool (~8 for hero + sides + strip)
+    // Truly latest news pool (~12 so we can fill empty First Section slots + Latest rail)
     supabase
       .from("posts")
       .select(POST_SELECT)
@@ -122,7 +123,14 @@ export async function getHomePayload(): Promise<HomePayload> {
       .eq("is_podcast", false)
       .eq("is_video", false)
       .order("published_at", { ascending: false })
-      .limit(8),
+      .limit(12),
+    // Explicit First Section pins (1 large + 2 stacked)
+    supabase
+      .from("posts")
+      .select(POST_SELECT)
+      .eq("status", "published")
+      .in("home_first_slot", [1, 2, 3])
+      .order("home_first_slot", { ascending: true }),
     supabase
       .from("posts")
       .select(POST_SELECT)
@@ -179,25 +187,55 @@ export async function getHomePayload(): Promise<HomePayload> {
   ]);
 
   const latestPool = asPosts(latestPoolRes.data);
-  // Hero + 2 sides + Latest rail share one chronological pool (~8). Keep Politics/World
-  // distinct so the left-column band is not a duplicate of the top Latest block.
-  const usedInLatest = new Set(latestPool.map((p) => p.id));
+  const pinned = asPosts(firstSectionRes.data);
+  const bySlot = new Map<number, (typeof pinned)[number]>();
+  for (const p of pinned) {
+    const slot = p.home_first_slot;
+    if (slot === 1 || slot === 2 || slot === 3) bySlot.set(slot, p);
+  }
+
+  // First Section: slot 1 = large left, 2–3 = stacked. Empty slots fall back to Latest chronology.
+  const usedIds = new Set<string>();
+  const takeChrono = () => {
+    const next = latestPool.find((p) => !usedIds.has(p.id));
+    if (next) usedIds.add(next.id);
+    return next ?? null;
+  };
+
+  const featured =
+    (bySlot.get(1) ? (usedIds.add(bySlot.get(1)!.id), bySlot.get(1)!) : null) ??
+    takeChrono();
+  const secondary: typeof pinned = [];
+  for (const slot of [2, 3] as const) {
+    const pinnedPost = bySlot.get(slot);
+    if (pinnedPost) {
+      usedIds.add(pinnedPost.id);
+      secondary.push(pinnedPost);
+    } else {
+      const fill = takeChrono();
+      if (fill) secondary.push(fill);
+    }
+  }
+
+  // Latest rail + Politics/World exclude First Section pins/fills.
+  const usedInTop = usedIds;
   const politics = asPosts(politicsRes.data)
-    .filter((p) => !usedInLatest.has(p.id))
+    .filter((p) => !usedInTop.has(p.id))
     .slice(0, 4);
   const world = asPosts(worldRes.data)
-    .filter((p) => !usedInLatest.has(p.id))
+    .filter((p) => !usedInTop.has(p.id))
     .slice(0, 4);
+  const latestRail = latestPool.filter((p) => !usedInTop.has(p.id)).slice(0, 4);
 
   return {
     categories: (categoriesRes.data as Category[]) ?? [],
     liveEvent: ((eventsRes.data as EventItem[]) ?? [])[0] ?? null,
     tickerEvents: (tickerEventsRes.data as EventItem[]) ?? [],
-    featured: latestPool[0] ?? null,
-    secondary: latestPool.slice(1, 3),
+    featured,
+    secondary,
     podcasts: asPosts(podcastsRes.data),
     grid: [...politics, ...world],
-    latest: latestPool.slice(3, 7), // 4 text items under Podcasts (hero+2+4 ≈ 7–8)
+    latest: latestRail,
     politics,
     world,
     mustWatch: asPosts(mustWatchRes.data),

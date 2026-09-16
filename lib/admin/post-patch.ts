@@ -27,6 +27,7 @@ export type PostWritable = {
   is_podcast: boolean;
   is_popular: boolean;
   show_featured_image: boolean;
+  home_first_slot: 1 | 2 | 3 | null;
   reading_time_minutes: number;
   published_at: string | null;
 };
@@ -36,7 +37,7 @@ export type PostExistingRow = PostWritable & {
 };
 
 export const POST_EXISTING_SELECT =
-  "title, slug, excerpt, body, status, category_id, author_id, featured_image_url, video_url, seo_title, seo_description, seo_keywords, og_title, og_description, og_image_url, is_featured, is_premium, is_video, is_podcast, is_popular, show_featured_image, reading_time_minutes, published_at";
+  "title, slug, excerpt, body, status, category_id, author_id, featured_image_url, video_url, seo_title, seo_description, seo_keywords, og_title, og_description, og_image_url, is_featured, is_premium, is_video, is_podcast, is_popular, show_featured_image, home_first_slot, reading_time_minutes, published_at";
 
 export type PublishedAtInput = {
   submittedRaw: string;
@@ -161,6 +162,11 @@ export function diffPostPatch(
   ) {
     patch.show_featured_image = candidate.show_featured_image;
   }
+  const existingSlot = existing.home_first_slot ?? null;
+  const nextSlot = candidate.home_first_slot ?? null;
+  if (existingSlot !== nextSlot) {
+    patch.home_first_slot = nextSlot;
+  }
   if (candidate.reading_time_minutes !== existing.reading_time_minutes) {
     patch.reading_time_minutes = candidate.reading_time_minutes;
   }
@@ -208,6 +214,7 @@ export function buildCandidateFromFormValues(input: {
   isPodcast: boolean;
   isPopular: boolean;
   showFeaturedImage: boolean;
+  homeFirstSlot: 1 | 2 | 3 | null;
   readingTime: number;
   publishedAt: string | null;
 }): PostWritable {
@@ -233,6 +240,7 @@ export function buildCandidateFromFormValues(input: {
     is_podcast: input.isPodcast,
     is_popular: input.isPopular,
     show_featured_image: input.showFeaturedImage,
+    home_first_slot: input.homeFirstSlot,
     reading_time_minutes: input.readingTime,
     published_at: input.publishedAt,
   };

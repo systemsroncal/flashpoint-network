@@ -39,6 +39,35 @@ function explicitBool(formData: FormData, key: string, fallback: boolean): boole
   return boolFromForm(formData.get(key));
 }
 
+function parseHomeFirstSlot(
+  raw: FormDataEntryValue | null,
+  fallback: 1 | 2 | 3 | null,
+): 1 | 2 | 3 | null {
+  if (raw == null) return fallback;
+  const text = String(raw).trim();
+  // Explicit empty / none from the select
+  if (text === "" || text === "0" || text.toLowerCase() === "none") return null;
+  const n = Number(text);
+  if (n === 1 || n === 2 || n === 3) return n;
+  return fallback;
+}
+
+/** Clear any other post occupying this First Section slot. */
+async function claimHomeFirstSlot(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  slot: 1 | 2 | 3,
+  keepPostId?: string,
+) {
+  let q = supabase
+    .from("posts")
+    .update({ home_first_slot: null })
+    .eq("home_first_slot", slot);
+  if (keepPostId) q = q.neq("id", keepPostId);
+  const { error } = await q;
+  if (error) throw new Error(error.message);
+}
+
 function parseTagIds(formData: FormData): string[] | null {
   // Only sync when the Tags UI was rendered (sentinel).
   if (String(formData.get("tags_present") || "") !== "1") return null;
@@ -171,6 +200,11 @@ export async function upsertPostAction(formData: FormData) {
     "show_featured_image",
     existing?.show_featured_image ?? true,
   );
+  const homeFirstSlot = parseHomeFirstSlot(
+    formData.get("home_first_slot"),
+    // When the field is missing on update, keep existing; on create default none.
+    existing ? (existing.home_first_slot ?? null) : null,
+  );
 
   const publishedAtInput = {
     submittedRaw: publishedAtRaw,
@@ -205,6 +239,7 @@ export async function upsertPostAction(formData: FormData) {
     isPodcast,
     isPopular,
     showFeaturedImage,
+    homeFirstSlot,
     readingTime: Number.isFinite(readingTime) ? readingTime : 5,
     publishedAt,
   });
@@ -222,6 +257,11 @@ export async function upsertPostAction(formData: FormData) {
           "This slug is already used by another post. Choose a different permalink.",
         );
       }
+    }
+
+    // Claim slot before write so the unique index stays happy.
+    if (patch.home_first_slot === 1 || patch.home_first_slot === 2 || patch.home_first_slot === 3) {
+      await claimHomeFirstSlot(supabase, patch.home_first_slot, id);
     }
 
     // Existing posts: write only dirty fields. Empty patch → no UPDATE (avoids
@@ -254,6 +294,10 @@ export async function upsertPostAction(formData: FormData) {
     throw new Error(
       "This slug is already used by another post. Choose a different permalink.",
     );
+  }
+
+  if (candidate.home_first_slot === 1 || candidate.home_first_slot === 2 || candidate.home_first_slot === 3) {
+    await claimHomeFirstSlot(supabase, candidate.home_first_slot);
   }
 
   const { data, error } = await supabase

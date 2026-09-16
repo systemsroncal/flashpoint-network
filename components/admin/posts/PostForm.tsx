@@ -108,6 +108,10 @@ export default function PostForm({
   const [isVideo, setIsVideo] = useState(Boolean(post?.is_video));
   const [isPodcast, setIsPodcast] = useState(Boolean(post?.is_podcast));
   const [isPopular, setIsPopular] = useState(Boolean(post?.is_popular));
+  const [homeFirstSlot, setHomeFirstSlot] = useState<"" | "1" | "2" | "3">(() => {
+    const slot = post?.home_first_slot;
+    return slot === 1 || slot === 2 || slot === 3 ? String(slot) as "1" | "2" | "3" : "";
+  });
   const [showFeaturedImage, setShowFeaturedImage] = useState(() => {
     if (typeof post?.show_featured_image === "boolean") {
       return post.show_featured_image;
@@ -198,6 +202,7 @@ export default function PostForm({
       is_podcast: isPodcast,
       is_popular: isPopular,
       show_featured_image: showFeaturedImage,
+      home_first_slot: homeFirstSlot === "" ? null : Number(homeFirstSlot),
       seo_title: seo.seo_title,
       seo_description: seo.seo_description,
       seo_keywords: seo.seo_keywords,
@@ -321,6 +326,7 @@ export default function PostForm({
             name="show_featured_image"
             value={showFeaturedImage ? "true" : "false"}
           />
+          <input type="hidden" name="home_first_slot" value={homeFirstSlot} />
 
           <Stack spacing={2.5}>
             <TitlePermalinkField
@@ -554,6 +560,22 @@ export default function PostForm({
                 These flags control which home sections show this story. Saving never clears them
                 unless you toggle them here.
               </Typography>
+              <TextField
+                select
+                fullWidth
+                label="First Section feature"
+                value={homeFirstSlot}
+                onChange={(e) =>
+                  setHomeFirstSlot(e.target.value as "" | "1" | "2" | "3")
+                }
+                helperText="Home top block: 1 = large left, 2 and 3 = stacked right. Only one post per slot — assigning here clears the previous occupant. Empty slots fall back to Latest chronology."
+                sx={{ mb: 1.5 }}
+              >
+                <MenuItem value="">None</MenuItem>
+                <MenuItem value="1">Slot 1 — large left</MenuItem>
+                <MenuItem value="2">Slot 2 — stacked top</MenuItem>
+                <MenuItem value="3">Slot 3 — stacked bottom</MenuItem>
+              </TextField>
               <Stack direction="row" spacing={1} flexWrap="wrap">
                 <FormControlLabel
                   control={

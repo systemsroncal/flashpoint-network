@@ -33,6 +33,33 @@ function explicitBool(
   return boolFrom(v);
 }
 
+function parseHomeFirstSlot(
+  raw: unknown,
+  fallback: 1 | 2 | 3 | null,
+): 1 | 2 | 3 | null {
+  if (raw === undefined || raw === null) return fallback;
+  const text = String(raw).trim();
+  if (text === "" || text === "0" || text.toLowerCase() === "none") return null;
+  const n = Number(text);
+  if (n === 1 || n === 2 || n === 3) return n;
+  return fallback;
+}
+
+async function claimHomeFirstSlot(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  slot: 1 | 2 | 3,
+  keepPostId?: string,
+) {
+  let q = supabase
+    .from("posts")
+    .update({ home_first_slot: null })
+    .eq("home_first_slot", slot);
+  if (keepPostId) q = q.neq("id", keepPostId);
+  const { error } = await q;
+  if (error) throw new Error(error.message);
+}
+
 /**
  * Save current News form fields as a draft (or keep status) and return a
  * staff-only preview URL — WordPress-style "Preview Changes".
@@ -121,6 +148,10 @@ export async function POST(request: Request) {
       "show_featured_image",
       existing?.show_featured_image ?? true,
     ),
+    homeFirstSlot: parseHomeFirstSlot(
+      body.home_first_slot,
+      existing ? (existing.home_first_slot ?? null) : null,
+    ),
     readingTime: Number(body.reading_time_minutes) || 5,
     publishedAt,
   });
@@ -153,6 +184,9 @@ export async function POST(request: Request) {
       if (patch.slug) {
         patch.slug = await ensureUniqueSlug(patch.slug, id);
       }
+      if (patch.home_first_slot === 1 || patch.home_first_slot === 2 || patch.home_first_slot === 3) {
+        await claimHomeFirstSlot(supabase, patch.home_first_slot, id);
+      }
       if (Object.keys(patch).length > 0) {
         const { error } = await supabase.from("posts").update(patch).eq("id", id);
         if (error) throw error;
@@ -161,6 +195,13 @@ export async function POST(request: Request) {
       savedStatus = patch.status ?? existing.status;
     } else {
       savedSlug = await ensureUniqueSlug(candidate.slug);
+      if (
+        candidate.home_first_slot === 1 ||
+        candidate.home_first_slot === 2 ||
+        candidate.home_first_slot === 3
+      ) {
+        await claimHomeFirstSlot(supabase, candidate.home_first_slot);
+      }
       const { data, error } = await supabase
         .from("posts")
         .insert({

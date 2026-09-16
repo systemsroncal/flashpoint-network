@@ -130,6 +130,11 @@ export type Post = {
   is_popular?: boolean;
   /** When false, hero hides the image and may place the player there (video/podcast). */
   show_featured_image?: boolean;
+  /**
+   * Home first section pin: 1 = large left, 2–3 = stacked right.
+   * Null = not pinned (chronological Latest fill).
+   */
+  home_first_slot?: 1 | 2 | 3 | null;
   reading_time_minutes: number;
   view_count: number;
   published_at: string | null;
