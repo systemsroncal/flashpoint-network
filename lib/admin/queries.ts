@@ -207,6 +207,16 @@ export async function getAdminTags(): Promise<Tag[]> {
   return (data as Tag[]) ?? [];
 }
 
+export async function getAdminPostTagIds(postId: string): Promise<string[]> {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("post_tags")
+    .select("tag_id")
+    .eq("post_id", postId);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => row.tag_id as string);
+}
+
 export async function getAdminEvents(): Promise<EventItem[]> {
   const supabase = requireAdmin();
   const { data, error } = await supabase

@@ -6,6 +6,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
+import Underline from "@tiptap/extension-underline";
 import {
   Box,
   Button,
@@ -58,6 +59,7 @@ export default function RichTextEditor({
       StarterKit.configure({
         heading: { levels: [2, 3] },
       }),
+      Underline,
       Link.configure({
         openOnClick: false,
         autolink: true,
@@ -207,6 +209,14 @@ export default function RichTextEditor({
               sx={{ textDecoration: "line-through" }}
             >
               S
+            </Button>
+            <Button
+              type="button"
+              onClick={() => editor?.chain().focus().toggleUnderline().run()}
+              disabled={!editor}
+              sx={{ textDecoration: "underline" }}
+            >
+              U
             </Button>
           </ButtonGroup>
           <Divider orientation="vertical" flexItem />

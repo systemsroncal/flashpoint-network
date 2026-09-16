@@ -39,6 +39,37 @@ function explicitBool(formData: FormData, key: string, fallback: boolean): boole
   return boolFromForm(formData.get(key));
 }
 
+function parseTagIds(formData: FormData): string[] | null {
+  // Only sync when the Tags UI was rendered (sentinel).
+  if (String(formData.get("tags_present") || "") !== "1") return null;
+  const ids = formData
+    .getAll("tag_ids")
+    .map((v) => String(v || "").trim())
+    .filter(Boolean);
+  return Array.from(new Set(ids));
+}
+
+async function syncPostTags(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  postId: string,
+  formData: FormData,
+) {
+  const tagIds = parseTagIds(formData);
+  if (tagIds == null) return;
+
+  const { error: delErr } = await supabase
+    .from("post_tags")
+    .delete()
+    .eq("post_id", postId);
+  if (delErr) throw new Error(delErr.message);
+
+  if (tagIds.length === 0) return;
+  const rows = tagIds.map((tag_id) => ({ post_id: postId, tag_id }));
+  const { error: insErr } = await supabase.from("post_tags").insert(rows);
+  if (insErr) throw new Error(insErr.message);
+}
+
 function requireAdmin() {
   const client = createAdminClient();
   if (!client) throw new Error("Supabase admin client is not configured");
@@ -207,6 +238,8 @@ export async function upsertPostAction(formData: FormData) {
       }
     }
 
+    await syncPostTags(supabase, id, formData);
+
     const publicSlug = patch.slug ?? existing.slug;
     revalidatePath("/");
     revalidatePath(`/news/${publicSlug}`);
@@ -239,6 +272,7 @@ export async function upsertPostAction(formData: FormData) {
     }
     throw new Error(error.message);
   }
+  await syncPostTags(supabase, data.id, formData);
   revalidatePath("/");
   revalidatePath("/admin");
   revalidatePath("/admin/posts");

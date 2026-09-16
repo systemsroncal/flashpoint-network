@@ -24,14 +24,23 @@ type ModelOption = {
   webGrounded?: boolean;
 };
 
+export type AiGenerateResult = {
+  title?: string;
+  excerpt?: string;
+  bodyHtml: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  categoryId?: string | null;
+  tagIds?: string[];
+};
+
 type Props = {
   titleBlank: boolean;
   excerptBlank: boolean;
-  onGenerated: (result: {
-    title?: string;
-    excerpt?: string;
-    bodyHtml: string;
-  }) => void;
+  onGenerated: (result: AiGenerateResult) => void;
 };
 
 export default function AiWritingAssistant({
@@ -60,9 +69,7 @@ export default function AiWritingAssistant({
       setModels(list);
       const firstEnabled = list.find((m) => m.enabled);
       setModelId((prev) => {
-        // Keep prior selection only if it is still an enabled model
         if (prev && list.some((m) => m.id === prev && m.enabled)) return prev;
-        // Default to first configured/enabled model — never a disabled one
         return firstEnabled?.id || "";
       });
     } catch (err) {
@@ -111,6 +118,13 @@ export default function AiWritingAssistant({
         title?: string | null;
         excerpt?: string | null;
         bodyHtml?: string;
+        seoTitle?: string | null;
+        seoDescription?: string | null;
+        seoKeywords?: string | null;
+        ogTitle?: string | null;
+        ogDescription?: string | null;
+        categoryId?: string | null;
+        tagIds?: string[];
         mock?: boolean;
         usedModelId?: string | null;
       };
@@ -121,17 +135,26 @@ export default function AiWritingAssistant({
         title: data.title || undefined,
         excerpt: data.excerpt || undefined,
         bodyHtml: data.bodyHtml,
+        seoTitle: data.seoTitle || undefined,
+        seoDescription: data.seoDescription || undefined,
+        seoKeywords: data.seoKeywords || undefined,
+        ogTitle: data.ogTitle || undefined,
+        ogDescription: data.ogDescription || undefined,
+        categoryId: data.categoryId || null,
+        tagIds: data.tagIds || [],
       });
       if (data.mock) {
         setOkMsg(
-          "Mock draft inserted (no live API key). Set AI_NVIDIA_API_KEY=nvapi-… on the VPS, then pm2 restart fptn --update-env.",
+          "Mock draft + SEO/taxonomy inserted (no live API key). Set AI_NVIDIA_API_KEY=nvapi-… on the VPS, then pm2 restart fptn --update-env.",
         );
       } else if (data.usedModelId && data.usedModelId !== modelId) {
         setOkMsg(
-          `Draft inserted using fallback model ${data.usedModelId} (selected model was not entitled for this NVIDIA key).`,
+          `Draft + SEO fields inserted using fallback model ${data.usedModelId}.`,
         );
       } else {
-        setOkMsg("Draft inserted into the body editor.");
+        setOkMsg(
+          "Draft inserted with SEO meta, category, tags, and formatted HTML.",
+        );
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Generation failed");
@@ -154,8 +177,9 @@ export default function AiWritingAssistant({
         AI writing assistant
       </Typography>
       <Typography variant="body2" color="text.secondary" mb={2}>
-        Generate a TipTap-ready news draft. Body is always replaced. Title and
-        excerpt fill only when those fields are currently empty.
+        Generates TipTap HTML (headings, bold, italic, underline, links), fills
+        SEO meta title/description/keywords + OG when empty, and assigns the best
+        matching category and tags from your CMS lists.
       </Typography>
 
       {loadError ? (

@@ -28,7 +28,7 @@ import {
   isVideoOrPodcastPost,
 } from "@/lib/posts/media-layout";
 import { slugify } from "@/lib/slug";
-import type { Category, Post, PostStatus } from "@/lib/types/cms";
+import type { Category, Post, PostStatus, Tag } from "@/lib/types/cms";
 
 const STATUSES: PostStatus[] = [
   "draft",
@@ -61,6 +61,9 @@ function isStaleServerActionError(err: unknown): boolean {
 type Props = {
   post?: Post | null;
   categories: Category[];
+  tags?: Tag[];
+  /** Tag ids already linked to this post (edit). */
+  initialTagIds?: string[];
   siteName: string;
   siteUrl: string;
 };
@@ -68,6 +71,8 @@ type Props = {
 export default function PostForm({
   post,
   categories,
+  tags = [],
+  initialTagIds = [],
   siteName,
   siteUrl,
 }: Props) {
@@ -97,6 +102,7 @@ export default function PostForm({
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [status, setStatus] = useState<PostStatus>(post?.status ?? "draft");
   const [categoryId, setCategoryId] = useState(post?.category_id ?? "");
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(initialTagIds);
   const [isFeatured, setIsFeatured] = useState(Boolean(post?.is_featured));
   const [isPremium, setIsPremium] = useState(Boolean(post?.is_premium));
   const [isVideo, setIsVideo] = useState(Boolean(post?.is_video));
@@ -370,6 +376,36 @@ export default function PostForm({
                 if (result.excerpt && !excerpt.trim()) setExcerpt(result.excerpt);
                 setForceHtml(result.bodyHtml);
                 setForceToken((n) => n + 1);
+
+                setSeo((prev) => ({
+                  seo_title: prev.seo_title.trim()
+                    ? prev.seo_title
+                    : result.seoTitle || prev.seo_title,
+                  seo_description: prev.seo_description.trim()
+                    ? prev.seo_description
+                    : result.seoDescription || prev.seo_description,
+                  seo_keywords: prev.seo_keywords.trim()
+                    ? prev.seo_keywords
+                    : result.seoKeywords || prev.seo_keywords,
+                  og_title: prev.og_title.trim()
+                    ? prev.og_title
+                    : result.ogTitle || prev.og_title,
+                  og_description: prev.og_description.trim()
+                    ? prev.og_description
+                    : result.ogDescription || prev.og_description,
+                }));
+
+                if (!categoryId && result.categoryId) {
+                  setCategoryId(result.categoryId);
+                }
+                if (result.tagIds && result.tagIds.length > 0) {
+                  setSelectedTagIds((prev) => {
+                    if (prev.length > 0) {
+                      return Array.from(new Set([...prev, ...result.tagIds!]));
+                    }
+                    return result.tagIds!;
+                  });
+                }
               }}
             />
 
@@ -420,6 +456,44 @@ export default function PostForm({
                 defaultValue={post?.reading_time_minutes ?? 5}
               />
             </Stack>
+            {tags.length > 0 ? (
+              <Box>
+                <input type="hidden" name="tags_present" value="1" />
+                <Typography variant="subtitle2" gutterBottom>
+                  Tags
+                </Typography>
+                <Typography variant="caption" color="text.secondary" display="block" mb={1}>
+                  AI may select matching tags. You can adjust before saving.
+                </Typography>
+                {selectedTagIds.map((id) => (
+                  <input key={id} type="hidden" name="tag_ids" value={id} />
+                ))}
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  {tags.map((tag) => {
+                    const checked = selectedTagIds.includes(tag.id);
+                    return (
+                      <FormControlLabel
+                        key={tag.id}
+                        control={
+                          <Checkbox
+                            size="small"
+                            checked={checked}
+                            onChange={(e) => {
+                              setSelectedTagIds((prev) =>
+                                e.target.checked
+                                  ? [...prev, tag.id]
+                                  : prev.filter((x) => x !== tag.id),
+                              );
+                            }}
+                          />
+                        }
+                        label={tag.name}
+                      />
+                    );
+                  })}
+                </Stack>
+              </Box>
+            ) : null}
             <ImageUploadField
               name="featured_image_url"
               label="Featured image"
