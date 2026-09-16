@@ -42,7 +42,11 @@ export default function LoginForm({ next, initialError, registered }: Props) {
         action="/api/auth/login"
         method="post"
         className="mt-6 space-y-4"
-        onSubmit={() => setPending(true)}
+        onSubmit={() => {
+          // Keep email/password enabled — `disabled` inputs are dropped from
+          // the POST body and Supabase returns "missing email or phone".
+          setPending(true);
+        }}
       >
         <input type="hidden" name="next" value={next} />
         <label className="block space-y-1.5">
@@ -54,8 +58,7 @@ export default function LoginForm({ next, initialError, registered }: Props) {
             type="email"
             required
             autoComplete="email"
-            disabled={pending}
-            className="w-full rounded-lg border border-black/15 bg-white px-3 py-2.5 text-sm outline-none ring-[var(--fpn-rojo)] focus:ring-2 disabled:opacity-60"
+            className="w-full rounded-lg border border-black/15 bg-white px-3 py-2.5 text-sm outline-none ring-[var(--fpn-rojo)] focus:ring-2"
           />
         </label>
         <label className="block space-y-1.5">
@@ -67,8 +70,7 @@ export default function LoginForm({ next, initialError, registered }: Props) {
             type="password"
             required
             autoComplete="current-password"
-            disabled={pending}
-            className="w-full rounded-lg border border-black/15 bg-white px-3 py-2.5 text-sm outline-none ring-[var(--fpn-rojo)] focus:ring-2 disabled:opacity-60"
+            className="w-full rounded-lg border border-black/15 bg-white px-3 py-2.5 text-sm outline-none ring-[var(--fpn-rojo)] focus:ring-2"
           />
         </label>
         <div className="flex justify-end">

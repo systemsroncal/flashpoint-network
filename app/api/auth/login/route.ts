@@ -21,9 +21,15 @@ export async function POST(request: NextRequest) {
     return redirectLogin("Could not read sign-in form.");
   }
 
-  const email = String(form.get("email") || "").trim();
+  const email = String(
+    form.get("email") || form.get("username") || form.get("user") || "",
+  ).trim();
   const password = String(form.get("password") || "");
   const next = safeNext(String(form.get("next") || "/"));
+
+  if (!email || !password) {
+    return redirectLogin("Enter your email and password to sign in.", next);
+  }
 
   try {
     void getSiteUrl();
@@ -40,7 +46,11 @@ export async function POST(request: NextRequest) {
       password,
     });
     if (error) {
-      return redirectLogin(error.message, next);
+      // Supabase often returns "missing email or phone" when the body was empty.
+      const msg = /missing email or phone/i.test(error.message)
+        ? "Enter your email and password to sign in."
+        : error.message;
+      return redirectLogin(msg, next);
     }
 
     const admin = createAdminClient();
