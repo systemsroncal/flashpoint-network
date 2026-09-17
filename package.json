@@ -8,6 +8,7 @@
     "start": "next start --hostname 127.0.0.1 --port 43125",
     "lint": "eslint",
     "db:apply": "node scripts/apply-supabase.mjs",
+    "db:sync-ministry-figma": "node scripts/sync-ministry-figma-seed.mjs",
     "users:ensure-staff": "node scripts/ensure-staff-users.mjs",
     "seed:classic-programs": "node scripts/scrape-classic-programs.mjs",
     "seed:ministry-programs": "node scripts/scrape-ministry-programs.mjs",

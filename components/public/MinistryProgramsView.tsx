@@ -2,42 +2,36 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useState, type ReactNode } from "react";
+import LiveTvIcon from "@/components/public/LiveTvIcon";
 import type { MinistryProgram } from "@/lib/types/cms";
 
-function scheduleDays(program: MinistryProgram): string {
-  const note = program.schedule_note || "";
-  if (/monday through friday/i.test(note)) return "Monday through Friday";
-  if (/monday/i.test(note) && /friday/i.test(note)) return "Monday through Friday";
-  if (/^mondays\b/i.test(note)) return "Mondays";
-  if (/^sundays\b/i.test(note)) return "Sundays";
-  if (/^thursdays\b/i.test(note)) return "Thursdays";
-  if (/^wednesdays\b/i.test(note)) return "Wednesdays";
-  if (/^starting at/i.test(note)) return "Sundays";
-  return note.replace(/\s+at\s+.+$/i, "").trim() || note;
+/** Last row divider: programs at or above this sort_order sit below the rule (Figma). */
+const BOTTOM_ROW_SORT_FROM = 190;
+const PAGE_MAX = "mx-auto max-w-[1728px] px-4 md:px-8 xl:px-[96px]";
+
+function formatScheduleLine(line: string): string {
+  return line
+    .replace(/\s*[-–]\s*/g, " · ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
-function scheduleTime(program: MinistryProgram): string {
-  const source = `${program.schedule_line || ""} ${program.schedule_note || ""}`;
-  const parts = source.match(/([0-9]{1,2}:[0-9]{2})\s*([AP]M)(?:\s*ET)?/gi);
-  if (parts && parts.length > 1) {
-    return parts.map((part) => part.replace(/\s+/g, " ").trim()).join(" · ");
+function scheduleLines(program: MinistryProgram): string[] {
+  const detail = program.schedule_detail?.trim();
+  if (detail) {
+    return detail
+      .split(/\r?\n/)
+      .map((line) => formatScheduleLine(line))
+      .filter(Boolean);
   }
-  const m = source.match(/([0-9]{1,2}:[0-9]{2})\s*([AP]M)/i);
-  if (!m) return program.schedule_line || program.schedule_note || "";
-  return `${m[1]} ${m[2].toUpperCase()} ET`;
-}
-
-function cardSchedule(program: MinistryProgram): string {
   if (program.schedule_line) {
-    return program.schedule_line
-      .replace(/([0-9])([AP]M)/i, "$1 $2")
-      .replace(/\s+/g, " ")
-      .trim();
+    return [formatScheduleLine(program.schedule_line)];
   }
-  const time = scheduleTime(program);
-  if (time) return time;
-  return "";
+  if (program.schedule_note) {
+    return [formatScheduleLine(program.schedule_note)];
+  }
+  return [];
 }
 
 function modalBlurb(program: MinistryProgram): string {
@@ -50,27 +44,6 @@ function modalBlurb(program: MinistryProgram): string {
     return `${program.title} airs ${program.schedule_note.replace(/\.$/, "")} on FlashPoint Television Network.`;
   }
   return `${program.title} on FlashPoint Television Network.`;
-}
-
-function InfoIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden
-      className={className}
-      width="18"
-      height="18"
-    >
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
-      <path
-        d="M12 10.5v5.5M12 8.2v.2"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
 }
 
 function CloseIcon({ className }: { className?: string }) {
@@ -100,9 +73,71 @@ function ExternalArrow({ className }: { className?: string }) {
   );
 }
 
+function ProgramCard({
+  program,
+  index,
+  onInfo,
+}: {
+  program: MinistryProgram;
+  index: number;
+  onInfo: () => void;
+}) {
+  const lines = scheduleLines(program);
+  return (
+    <li
+      className="min-w-0 animate-[fpnFadeUp_0.55s_ease-out_both]"
+      style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
+    >
+      <button type="button" onClick={onInfo} className="group w-full cursor-pointer text-left">
+        <div className="relative aspect-square w-full overflow-hidden rounded-[6px] bg-[#19191c]">
+          {program.featured_image_url ? (
+            <Image
+              src={program.featured_image_url}
+              alt=""
+              fill
+              className="object-cover transition duration-500 group-hover:scale-[1.02]"
+              sizes="(max-width:640px) 100vw, (max-width:1280px) 33vw, 18vw"
+            />
+          ) : (
+            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold uppercase tracking-wide text-white/20">
+              FPTN
+            </span>
+          )}
+          <span
+            className="absolute bottom-3 right-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/60 bg-[rgba(16,16,17,0.79)] font-serif text-lg italic leading-none text-[#faf9f6]"
+            aria-hidden
+          >
+            i
+          </span>
+        </div>
+        <h2 className="mt-3.5 font-sans text-[17px] font-bold leading-snug text-[#faf9f6]">
+          {program.title}
+        </h2>
+        {program.host_name ? (
+          <p className="mt-1.5 text-[15px] text-[#ccc3b8]">{program.host_name}</p>
+        ) : null}
+        {lines.length > 0 ? (
+          <ul className="mt-1.5 space-y-0.5">
+            {lines.map((line) => (
+              <li key={line} className="text-[12px] leading-[1.35] text-[#a8a5a3] md:text-[13px]">
+                {line}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </button>
+    </li>
+  );
+}
+
+function HeroMetaLink({ children }: { children: ReactNode }) {
+  return (
+    <span className="text-[13px] text-[#a8a5a3]">{children}</span>
+  );
+}
+
 export default function MinistryProgramsView({
   programs,
-  siteName = "Flash Point Network",
 }: {
   programs: MinistryProgram[];
   siteName?: string;
@@ -110,6 +145,15 @@ export default function MinistryProgramsView({
   const [activeId, setActiveId] = useState<string | null>(null);
   const titleId = useId();
   const active = programs.find((p) => p.id === activeId) ?? null;
+
+  const gridPrograms = useMemo(
+    () => [...programs].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)),
+    [programs],
+  );
+  const bottomRowStartIndex = useMemo(
+    () => gridPrograms.findIndex((p) => (p.sort_order ?? 0) >= BOTTOM_ROW_SORT_FROM),
+    [gridPrograms],
+  );
 
   const close = useCallback(() => setActiveId(null), []);
 
@@ -127,39 +171,81 @@ export default function MinistryProgramsView({
     };
   }, [active, close]);
 
+  const activeLines = active ? scheduleLines(active) : [];
+
   return (
-    <div className="min-h-full bg-[#0B0B0B] text-white">
-      {/* Figma: navy hero band + gospel dek */}
-      <div className="relative overflow-hidden border-b border-white/10 bg-[var(--fpn-navy)] text-white">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-40"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 60% at 15% 15%, rgba(225,6,0,0.32), transparent 55%), radial-gradient(ellipse 50% 40% at 90% 85%, rgba(255,255,255,0.08), transparent 50%)",
-          }}
+    <div className="min-h-full bg-[#101011] text-white">
+      <section className="relative min-h-[420px] overflow-hidden md:min-h-[520px] lg:min-h-[580px]">
+        <Image
+          src="/brand/network-programs/hero-collage.png"
+          alt=""
+          fill
+          className="object-cover object-[center_20%]"
+          priority
+          sizes="100vw"
         />
-        <div className="relative mx-auto flex max-w-[1440px] flex-col gap-4 px-4 py-10 md:flex-row md:items-end md:justify-between md:gap-8 md:px-8 lg:px-10 lg:py-14">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--fpn-rojo)]">
-              {siteName}
-            </p>
-            <h1 className="mt-2 font-article text-3xl font-black tracking-tight md:text-5xl">
-              Network Programs
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(90deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.5) 100%), linear-gradient(0deg, #101011 0%, rgba(16,16,17,0) 35%), linear-gradient(90deg, rgba(8,8,9,0.79) 0%, rgba(8,8,9,0.35) 45%, rgba(8,8,9,0) 72%)",
+          }}
+          aria-hidden
+        />
+        <div className={`relative flex min-h-[420px] flex-col justify-end pb-10 pt-16 md:min-h-[520px] md:pb-14 lg:min-h-[580px] ${PAGE_MAX}`}>
+          <div className="flex max-w-[853px] flex-col">
+            <div className="flex items-center gap-3 pt-3">
+              <span className="h-[3px] w-6 shrink-0 bg-[#e52b36]" aria-hidden />
+              <p className="text-[13px] font-bold uppercase tracking-[0.22em] text-[#e0dbd7]">
+                Faith at the center
+              </p>
+            </div>
+            <h1 className="mt-7 font-sans text-4xl font-black leading-[1.05] tracking-[-0.04em] text-[#faf9f6] md:text-6xl lg:text-[85px] lg:leading-[1.05]">
+              Rooted in the Word.
+              <br />
+              <span className="text-[#e8e0d5]">Alive in faith.</span>
             </h1>
-            <p className="mt-3 max-w-2xl text-sm text-white/75 md:text-base">
-              Programs centered around the gospel of Jesus Christ.
+            <p className="mt-7 max-w-xl text-base leading-relaxed text-[#c9c6c4] md:text-[19px] md:leading-8">
+              Messages that point you to Jesus.
+              <br className="hidden sm:block" />
+              <span className="sm:whitespace-pre"> Discover teaching, worship and revival on FPTN.</span>
+            </p>
+            <div className="mt-8">
+              <Link href="/live" className="fpn-live-cta fpn-live-cta--hero fpn-live-cta--ministry inline-flex">
+                <LiveTvIcon />
+                We are live
+              </Link>
+            </div>
+            <p className="mt-7 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px]">
+              <HeroMetaLink>Biblical teaching</HeroMetaLink>
+              <span className="text-[#6d6763]" aria-hidden>•</span>
+              <HeroMetaLink>Worship</HeroMetaLink>
+              <span className="text-[#6d6763]" aria-hidden>•</span>
+              <HeroMetaLink>Revival</HeroMetaLink>
             </p>
           </div>
-          <p className="shrink-0 text-sm text-white/50 md:max-w-[220px] md:pb-1 md:text-right">
-            Gospel-centered teaching and ministry on FPTN, across the week.
-          </p>
         </div>
-      </div>
+      </section>
 
-      <section className="mx-auto max-w-[1440px] px-4 py-10 md:px-8 lg:px-10 lg:py-14">
+      <section className={`${PAGE_MAX} pb-14 pt-12 md:pt-16`}>
+        <h2 className="font-sans text-[2.75rem] font-bold leading-tight tracking-[-0.03em] text-[#faf9f6] md:text-[45px]">
+          FPTN Shows
+        </h2>
+
+        <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#aaa4a2]">
+              Grounded in scripture. Centered on Jesus.
+            </p>
+            <p className="mt-3 text-[31px] font-bold leading-tight tracking-[-0.03em] text-[#faf9f6]">
+              Every Sunday
+            </p>
+          </div>
+        </div>
+
         {programs.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-white/15 px-6 py-16 text-center">
-            <h2 className="text-2xl font-bold tracking-tight">No network programs listed</h2>
+          <div className="mt-12 rounded-2xl border border-dashed border-white/15 px-6 py-16 text-center">
+            <h3 className="text-2xl font-bold tracking-tight">No network programs listed</h3>
             <p className="mx-auto mt-2 max-w-md text-sm text-white/50">
               Check back soon for teaching and worship broadcasts.
             </p>
@@ -171,63 +257,86 @@ export default function MinistryProgramsView({
             </Link>
           </div>
         ) : (
-          <ul className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {programs.map((program, index) => {
-              const schedule = cardSchedule(program);
-              return (
-                <li
+          <ul
+            className="mt-10 grid grid-cols-1 gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+          >
+            {gridPrograms.flatMap((program, index) => {
+              const divider =
+                bottomRowStartIndex >= 0 && index === bottomRowStartIndex
+                  ? [
+                      <li
+                        key="fptn-shows-bottom-divider"
+                        className="col-span-full mt-2 border-t border-white/10 pt-10"
+                        aria-hidden
+                      />,
+                    ]
+                  : [];
+              return [
+                ...divider,
+                <ProgramCard
                   key={program.id}
-                  className="animate-[fpnFadeUp_0.55s_ease-out_both]"
-                  style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
-                >
-                  <button
-                    type="button"
-                    onClick={() => setActiveId(program.id)}
-                    className="group w-full cursor-pointer text-left"
-                  >
-                    <div className="relative aspect-square overflow-hidden rounded-md bg-[#161616]">
-                      {program.featured_image_url ? (
-                        <Image
-                          src={program.featured_image_url}
-                          alt=""
-                          fill
-                          className="object-cover transition duration-500 group-hover:scale-[1.03]"
-                          sizes="(max-width:640px) 100vw, (max-width:1280px) 33vw, 25vw"
-                        />
-                      ) : (
-                        <span className="absolute inset-0 flex items-center justify-center text-xs font-bold uppercase tracking-wide text-white/30">
-                          Ministry
-                        </span>
-                      )}
-                      {program.genre ? (
-                        <span className="absolute left-2.5 top-2.5 rounded-[3px] bg-black/65 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white backdrop-blur-[2px]">
-                          {program.genre}
-                        </span>
-                      ) : null}
-                      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-black/80 via-black/35 to-transparent px-2.5 pb-2.5 pt-10">
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/70">
-                          FPTN Ministry
-                        </span>
-                        <span
-                          className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/55 text-white/90 transition group-hover:border-white group-hover:bg-white/10"
-                          aria-hidden
-                        >
-                          <InfoIcon />
-                        </span>
-                      </div>
-                    </div>
-                    <h2 className="mt-3 font-sans text-[1.05rem] font-bold leading-snug tracking-tight text-white">
-                      {program.title}
-                    </h2>
-                    {schedule ? (
-                      <p className="mt-1 text-sm text-white/45">{schedule}</p>
-                    ) : null}
-                  </button>
-                </li>
-              );
+                  program={program}
+                  index={index}
+                  onInfo={() => setActiveId(program.id)}
+                />,
+              ];
             })}
           </ul>
         )}
+      </section>
+
+      <section className={`${PAGE_MAX} pb-10`}>
+        <div className="relative flex min-h-[99px] flex-col items-start justify-center gap-4 overflow-hidden rounded-[15px] bg-[#1b1b1b] py-4 pl-[120px] pr-4 md:flex-row md:items-center md:justify-between md:pl-[150px] md:pr-8">
+          <div className="pointer-events-none absolute bottom-0 left-3 top-0 w-[120px] md:left-6 md:w-[158px]">
+            <Image
+              src="/brand/network-programs/advertise-camera.png"
+              alt=""
+              fill
+              className="object-contain object-left"
+              sizes="158px"
+            />
+          </div>
+          <p className="text-base font-medium tracking-wide text-white md:text-[23px] md:tracking-[0.05em]">
+            Reach our growing audience of 5 million Americans.
+          </p>
+          <Link
+            href="/subscribe"
+            className="shrink-0 rounded-full bg-white px-9 py-3 text-center text-[17px] font-bold text-[#101011] transition hover:bg-white/90"
+          >
+            Learn more
+          </Link>
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden border-t border-white/5">
+        <div className="absolute inset-0 bg-[#0d0d0d]" aria-hidden />
+        <Image
+          src="/brand/network-programs/family-camera.png"
+          alt=""
+          fill
+          className="object-cover object-center opacity-35"
+          sizes="100vw"
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-[#0d0d0d] via-[#0d0d0d]/90 to-transparent"
+          aria-hidden
+        />
+        <div className={`relative py-16 md:py-20 ${PAGE_MAX}`}>
+          <p className="font-sans text-4xl font-bold uppercase tracking-[0.12em] text-white md:text-[58px] md:leading-none">
+            Family programs
+          </p>
+          <p className="mt-5 max-w-2xl text-base font-medium tracking-wide text-white md:text-[23px] md:leading-normal md:tracking-[0.05em]">
+            The laughs you remember. The characters you love.
+            <br />
+            Rediscover the golden age of television, only on FPTN.
+          </p>
+          <Link
+            href="/classic-programs"
+            className="mt-8 inline-flex rounded-[15px] border-2 border-[#ffcb2c] bg-[#0d0d0d] px-8 py-4 text-lg font-bold tracking-wide text-white transition hover:bg-[#151515]"
+          >
+            Watch Family Programs
+          </Link>
+        </div>
       </section>
 
       {active ? (
@@ -244,7 +353,7 @@ export default function MinistryProgramsView({
             onClick={close}
           />
           <div className="relative z-10 flex max-h-[min(92vh,860px)] w-full max-w-[440px] flex-col overflow-hidden rounded-2xl bg-[#121212] shadow-[0_24px_80px_rgba(0,0,0,0.55)] animate-[fpnFadeUp_0.35s_ease-out]">
-            <div className="relative aspect-[4/3] shrink-0 bg-[#1a1a1a]">
+            <div className="relative aspect-square shrink-0 bg-[#1a1a1a]">
               {active.featured_image_url ? (
                 <Image
                   src={active.featured_image_url}
@@ -266,7 +375,7 @@ export default function MinistryProgramsView({
             </div>
             <div className="overflow-y-auto px-5 py-5 sm:px-6 sm:py-6">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
-                FPTN Ministry Programs
+                FPTN Shows
               </p>
               <h2
                 id={titleId}
@@ -274,21 +383,17 @@ export default function MinistryProgramsView({
               >
                 {active.title}
               </h2>
-              <p className="mt-2 text-sm text-white/50">
-                {active.genres_label ||
-                  (active.genre
-                    ? `${active.genre} · Gospel teaching`
-                    : "Gospel teaching · Ministry broadcast")}
-              </p>
-              <p className="mt-4 text-sm leading-relaxed text-white/55">
-                {modalBlurb(active)}
-              </p>
-              <div className="mt-5">
-                <p className="text-sm text-white/50">{scheduleDays(active)}</p>
-                <p className="mt-1 font-sans text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                  {scheduleTime(active)}
-                </p>
-              </div>
+              {active.host_name ? (
+                <p className="mt-2 text-sm text-[#ccc3b8]">{active.host_name}</p>
+              ) : null}
+              <p className="mt-4 text-sm leading-relaxed text-white/55">{modalBlurb(active)}</p>
+              {activeLines.length > 0 ? (
+                <ul className="mt-5 space-y-1 border-t border-white/10 pt-5">
+                  {activeLines.map((line) => (
+                    <li key={line} className="text-sm text-[#d2cfd0]">{line}</li>
+                  ))}
+                </ul>
+              ) : null}
               <Link
                 href="/schedule-programs"
                 className="mt-7 inline-flex items-center gap-2 rounded-md bg-[var(--fpn-rojo)] px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110"

@@ -97,8 +97,26 @@ export default function MinistryProgramForm({
             label="Schedule line (card)"
             fullWidth
             placeholder="Mon–Fri · 2:30 PM ET"
-            helperText="Compact line under the title on the public grid"
+            helperText="Fallback compact line when schedule detail is empty"
             defaultValue={program?.schedule_line ?? ""}
+          />
+          <TextField
+            name="host_name"
+            label="Host name"
+            fullWidth
+            placeholder="Jeff Seker"
+            helperText="Shown under the title on the FPTN Shows grid"
+            defaultValue={program?.host_name ?? ""}
+          />
+          <TextField
+            name="schedule_detail"
+            label="Schedule detail (grid)"
+            fullWidth
+            multiline
+            minRows={3}
+            placeholder={'Monday – 9:00 AM ET\nTuesday – 12:00 PM ET'}
+            helperText="One air time per line on the public grid"
+            defaultValue={program?.schedule_detail ?? ""}
           />
           <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
             <TextField

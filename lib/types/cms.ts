@@ -52,6 +52,10 @@ export type MinistryProgramStatus = ClassicProgramStatus;
 export type MinistryProgramsSortMode = ClassicProgramsSortMode;
 export type MinistryProgram = ClassicProgram & {
   status: MinistryProgramStatus;
+  /** Host / speaker line under the title (FPTN Shows cards). */
+  host_name?: string | null;
+  /** Multi-line air times for the public grid (newline-separated). */
+  schedule_detail?: string | null;
 };
 
 export type ScheduleDisplayMode = "dynamic" | "pdf" | "both";

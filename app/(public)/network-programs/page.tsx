@@ -6,9 +6,9 @@ import { getSiteIdentity } from "@/lib/site-identity/settings";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Network Programs",
+  title: "FPTN Shows",
   description:
-    "Gospel-centered teaching and ministry broadcasts on FlashPoint Television Network.",
+    "Rooted in the Word. Gospel-centered teaching, worship and revival on FlashPoint Television Network.",
 };
 
 export default async function MinistryProgramsPage() {

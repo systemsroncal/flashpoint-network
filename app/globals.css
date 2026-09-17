@@ -387,6 +387,15 @@ article h3 {
   letter-spacing: 0.06em;
 }
 
+.fpn-live-cta--ministry {
+  color: #ff5000;
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 11px 18px;
+}
+
 @media (max-width: 767px) {
   .fpn-live-cta--hero {
     gap: 6px;

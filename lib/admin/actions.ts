@@ -847,6 +847,8 @@ export async function upsertMinistryProgramAction(formData: FormData) {
     genre: String(formData.get("genre") || "").trim() || null,
     genres_label: String(formData.get("genres_label") || "").trim() || null,
     schedule_line: String(formData.get("schedule_line") || "").trim() || null,
+    host_name: String(formData.get("host_name") || "").trim() || null,
+    schedule_detail: String(formData.get("schedule_detail") || "").trim() || null,
     sort_order: Number.isFinite(sortOrder) ? sortOrder : 0,
     status,
     source_url: null,
