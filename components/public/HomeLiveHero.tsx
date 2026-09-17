@@ -1,15 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import BrightcoveLivePlayer from "@/components/public/BrightcoveLivePlayer";
 import LiveTvIcon from "@/components/public/LiveTvIcon";
 
-function WatchLiveLabel() {
+function WatchLiveLabel({ compact }: { compact?: boolean }) {
   return (
     <>
       Watch Live
-      <svg width="21" height="20" viewBox="0 0 21 20" fill="none" aria-hidden>
+      <svg
+        width={compact ? 18 : 21}
+        height={compact ? 17 : 20}
+        viewBox="0 0 21 20"
+        fill="none"
+        aria-hidden
+      >
         <path
           d="M16.6467 10.3465L7.81454 16.2347C7.62307 16.3623 7.36437 16.3106 7.23672 16.1191C7.1911 16.0507 7.16675 15.9703 7.16675 15.888V4.11174C7.16675 3.88162 7.3533 3.69507 7.58341 3.69507C7.66567 3.69507 7.7461 3.71942 7.81454 3.76505L16.6467 9.65317C16.8382 9.78084 16.8899 10.0395 16.7622 10.231C16.7317 10.2768 16.6925 10.316 16.6467 10.3465Z"
           fill="#0A0A0A"
@@ -19,9 +25,80 @@ function WatchLiveLabel() {
   );
 }
 
+function LiveMobileSheet({
+  open,
+  onClose,
+  headline,
+  titleId,
+}: {
+  open: boolean;
+  onClose: () => void;
+  headline: string;
+  titleId: string;
+}) {
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="fpn-live-sheet md:hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+    >
+      <div className="fpn-live-sheet-header">
+        <div className="fpn-live-cta fpn-live-cta--sheet">
+          <LiveTvIcon />
+          Live
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="fpn-live-sheet-close"
+          aria-label="Close live video"
+        >
+          ×
+        </button>
+      </div>
+      <div className="fpn-live-sheet-body">
+        <BrightcoveLivePlayer
+          title={headline}
+          autoplay
+          className="w-full overflow-hidden rounded-[12px]"
+        />
+        <p id={titleId} className="mt-4 font-article text-xl font-bold leading-tight">
+          {headline}
+        </p>
+        <p className="mt-1 text-sm text-white/70">Now: FlashPoint Live</p>
+        <Link
+          href="/live"
+          className="mt-5 inline-flex text-sm font-semibold text-[var(--fpn-rojo)] underline"
+        >
+          Open full live page
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export default function HomeLiveHero({ headlineDate }: { headlineDate: string }) {
   const heroRef = useRef<HTMLElement>(null);
+  const titleId = useId();
   const [dockVisible, setDockVisible] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
     const hero = heroRef.current;
@@ -29,31 +106,37 @@ export default function HomeLiveHero({ headlineDate }: { headlineDate: string })
 
     const media = window.matchMedia("(max-width: 767px)");
     const syncDock = (heroInView: boolean) => {
-      setDockVisible(media.matches && !heroInView);
+      setDockVisible(media.matches && !heroInView && !sheetOpen);
     };
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         syncDock(entry.isIntersecting);
       },
-      { threshold: 0.18 },
+      { threshold: 0.12, rootMargin: "-48px 0px 0px 0px" },
     );
 
     observer.observe(hero);
     const onMedia = () => {
       const rect = hero.getBoundingClientRect();
-      const inView = rect.bottom > 80 && rect.top < window.innerHeight;
+      const inView = rect.bottom > 72 && rect.top < window.innerHeight * 0.85;
       syncDock(inView);
     };
     media.addEventListener("change", onMedia);
+    onMedia();
 
     return () => {
       observer.disconnect();
       media.removeEventListener("change", onMedia);
     };
-  }, []);
+  }, [sheetOpen]);
 
   const headline = `FlashPoint Live | ${headlineDate}`;
+
+  const openSheet = () => {
+    setSheetOpen(true);
+    setDockVisible(false);
+  };
 
   return (
     <>
@@ -76,10 +159,18 @@ export default function HomeLiveHero({ headlineDate }: { headlineDate: string })
           </div>
 
           <div className="w-full md:flex-1 md:max-w-[602px]">
-            <Link href="/live" className="fpn-live-cta fpn-live-cta--hero">
+            <Link href="/live" className="fpn-live-cta fpn-live-cta--hero hidden md:inline-flex">
               <LiveTvIcon />
               <WatchLiveLabel />
             </Link>
+            <button
+              type="button"
+              onClick={openSheet}
+              className="fpn-live-cta fpn-live-cta--hero md:hidden"
+            >
+              <LiveTvIcon />
+              <WatchLiveLabel />
+            </button>
             <p className="mt-5 text-[22px] font-extrabold italic leading-tight tracking-tight text-white md:text-[29px]">
               Now: FlashPoint Live
             </p>
@@ -91,15 +182,34 @@ export default function HomeLiveHero({ headlineDate }: { headlineDate: string })
       </section>
 
       {dockVisible ? (
-        <Link href="/live" className="fpn-live-dock md:hidden">
+        <button
+          type="button"
+          className="fpn-live-dock fpn-live-dock--enter md:hidden"
+          onClick={openSheet}
+          aria-label="Watch FlashPoint Live"
+        >
           <span className="fpn-live-dock-screen" aria-hidden>
-            <LiveTvIcon />
+            <span className="fpn-live-dock-screen-inner" />
+            <span className="fpn-live-dock-badge">LIVE</span>
+            <span className="fpn-live-dock-screen-icon">
+              <LiveTvIcon />
+            </span>
           </span>
-          <span className="fpn-live-cta fpn-live-cta--dock">
-            <WatchLiveLabel />
+          <span className="fpn-live-dock-copy">
+            <span className="fpn-live-dock-title">FlashPoint Live</span>
+            <span className="fpn-live-cta fpn-live-cta--dock">
+              <WatchLiveLabel compact />
+            </span>
           </span>
-        </Link>
+        </button>
       ) : null}
+
+      <LiveMobileSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        headline={headline}
+        titleId={titleId}
+      />
     </>
   );
 }

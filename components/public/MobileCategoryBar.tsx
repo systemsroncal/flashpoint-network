@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 export type MobileCategoryItem = {
   id: string;
@@ -15,7 +16,6 @@ type Props = {
 
 function isActive(pathname: string, href: string): boolean {
   if (href === "/") {
-    // Latest = home sections landing (not a compact list feed).
     return pathname === "/";
   }
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -23,13 +23,41 @@ function isActive(pathname: string, href: string): boolean {
 
 export default function MobileCategoryBar({ items }: Props) {
   const pathname = usePathname() || "/";
+  const listRef = useRef<HTMLUListElement>(null);
+  const [spread, setSpread] = useState(false);
+
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+
+    const sync = () => {
+      setSpread(el.scrollWidth <= el.clientWidth + 2);
+    };
+
+    sync();
+    const observer = new ResizeObserver(sync);
+    observer.observe(el);
+    window.addEventListener("resize", sync);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", sync);
+    };
+  }, [items]);
 
   return (
     <nav
       aria-label="Sections"
       className="w-full max-w-none border-b border-[#E5E5E5] bg-white"
     >
-      <ul className="flex w-full gap-5 overflow-x-auto px-4 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <ul
+        ref={listRef}
+        className={`flex w-full max-w-none flex-nowrap overflow-x-auto overscroll-x-contain px-3 scrollbar-none sm:px-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+          spread
+            ? "justify-between gap-2"
+            : "justify-start gap-5 after:block after:h-px after:w-3 after:shrink-0 after:content-['']"
+        }`}
+      >
         {items.map((item) => {
           const active = isActive(pathname, item.href);
           return (
