@@ -245,12 +245,6 @@ export default function HomeView({
               </div>
             </div>
 
-            <BannerWidget
-              widget={banners.home_above_latest}
-              aspectClassName="aspect-[370/283]"
-              alt="Special offer — Flashpoint of Revival"
-            />
-
             <div>
               <div className="mb-4 flex items-end justify-between gap-3">
                 <h2 className="font-article text-[2rem] font-black leading-none tracking-tight md:text-[45.5px]">
@@ -591,66 +585,77 @@ export default function HomeView({
               ))}
             </div>
 
-            <aside className="min-w-0">
-              <div className="mb-4 flex items-end justify-between gap-3">
-                <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[45.5px]">
-                  Popular
-                </h2>
-                <SeeMore href="/feed/popular" />
+            <aside className="min-w-0 lg:sticky lg:top-6">
+              <div className="space-y-8">
+                {/* Revival promo — CMS slot home_above_latest (above Popular) */}
+                <BannerWidget
+                  widget={banners.home_above_latest}
+                  aspectClassName="aspect-[370/283]"
+                  alt="Special offer — Flashpoint of Revival"
+                />
+
+                <div>
+                  <div className="mb-4 flex items-end justify-between gap-3">
+                    <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[45.5px]">
+                      Popular
+                    </h2>
+                    <SeeMore href="/feed/popular" />
+                  </div>
+                  <ol className="divide-y divide-[#ccc] border-t border-[#ccc]">
+                    {data.popular.slice(0, 5).map((post, index) => (
+                      <li key={post.id} className="py-4">
+                        <div className="mb-2 flex flex-wrap items-center gap-2">
+                          <p className="text-[24px] font-medium leading-none text-[var(--fpn-rojo)]">
+                            {index + 1}
+                          </p>
+                          {post.is_premium ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-[4px] bg-[var(--fpn-rojo)] px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-white">
+                              <Image
+                                src="/brand/exclusive-star.svg"
+                                alt=""
+                                width={16}
+                                height={16}
+                                className="h-4 w-4"
+                              />
+                              Exclusive
+                            </span>
+                          ) : null}
+                          {post.is_featured ? (
+                            <span className="inline-flex items-center gap-1 rounded-[4px] border border-[var(--fpn-rojo)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--fpn-rojo)]">
+                              <Image
+                                src="/brand/fpn-logo-mark.svg"
+                                alt=""
+                                width={12}
+                                height={12}
+                                className="h-3 w-3"
+                              />
+                              Featured
+                            </span>
+                          ) : null}
+                          {!post.is_premium && !post.is_featured ? (
+                            <span className="inline-flex items-center gap-1 rounded-[4px] bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                              <Image
+                                src="/brand/exclusive-star.svg"
+                                alt=""
+                                width={14}
+                                height={14}
+                                className="h-3.5 w-3.5 invert"
+                              />
+                              Popular
+                            </span>
+                          ) : null}
+                        </div>
+                        <Link
+                          href={`/news/${post.slug}`}
+                          className="mt-1 block font-article text-[clamp(19px,1.6vw,1.5rem)] font-black leading-[1.3] tracking-[-0.03em] text-black hover:text-[var(--fpn-rojo)]"
+                        >
+                          {post.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
               </div>
-              <ol className="divide-y divide-[#ccc] border-t border-[#ccc]">
-                {data.popular.slice(0, 5).map((post, index) => (
-                  <li key={post.id} className="py-4">
-                    <div className="mb-2 flex flex-wrap items-center gap-2">
-                      <p className="text-[24px] font-medium leading-none text-[var(--fpn-rojo)]">
-                        {index + 1}
-                      </p>
-                      {post.is_premium ? (
-                        <span className="inline-flex items-center gap-1.5 rounded-[4px] bg-[var(--fpn-rojo)] px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-white">
-                          <Image
-                            src="/brand/exclusive-star.svg"
-                            alt=""
-                            width={16}
-                            height={16}
-                            className="h-4 w-4"
-                          />
-                          Exclusive
-                        </span>
-                      ) : null}
-                      {post.is_featured ? (
-                        <span className="inline-flex items-center gap-1 rounded-[4px] border border-[var(--fpn-rojo)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--fpn-rojo)]">
-                          <Image
-                            src="/brand/fpn-logo-mark.svg"
-                            alt=""
-                            width={12}
-                            height={12}
-                            className="h-3 w-3"
-                          />
-                          Featured
-                        </span>
-                      ) : null}
-                      {!post.is_premium && !post.is_featured ? (
-                        <span className="inline-flex items-center gap-1 rounded-[4px] bg-black px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-                          <Image
-                            src="/brand/exclusive-star.svg"
-                            alt=""
-                            width={14}
-                            height={14}
-                            className="h-3.5 w-3.5 invert"
-                          />
-                          Popular
-                        </span>
-                      ) : null}
-                    </div>
-                    <Link
-                      href={`/news/${post.slug}`}
-                      className="mt-1 block font-article text-[clamp(19px,1.6vw,1.5rem)] font-black leading-[1.3] tracking-[-0.03em] text-black hover:text-[var(--fpn-rojo)]"
-                    >
-                      {post.title}
-                    </Link>
-                  </li>
-                ))}
-              </ol>
             </aside>
           </div>
         </div>

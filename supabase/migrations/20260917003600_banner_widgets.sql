@@ -58,7 +58,7 @@ insert into public.banner_widgets (
   ),
   (
     'home_above_latest',
-    'Home — above Latest News (Revival)',
+    'Home — above Popular (Revival)',
     '/brand/ads/flashpoint-revival-promo.webp',
     '/brand/ads/flashpoint-revival-promo.webp',
     'https://www.amazon.com/Flashpoint-Revival-Awakening-Transformation-Nation/dp/1680318357',
