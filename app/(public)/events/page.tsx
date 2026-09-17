@@ -4,6 +4,7 @@ import Image from "next/image";
 import { getPublicEvents } from "@/lib/data/home";
 import { formatDate } from "@/lib/format";
 import { getSiteName } from "@/lib/env";
+import { getSiteTimezone } from "@/lib/timezone/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,10 @@ export const metadata: Metadata = {
 };
 
 export default async function EventsIndexPage() {
-  const events = await getPublicEvents();
+  const [events, timeZone] = await Promise.all([
+    getPublicEvents(),
+    getSiteTimezone(),
+  ]);
   const siteName = getSiteName();
 
   return (
@@ -80,7 +84,7 @@ export default async function EventsIndexPage() {
                   <div className="flex flex-1 flex-col p-4">
                     <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-black/45">
                       {event.format}
-                      {event.starts_at ? ` · ${formatDate(event.starts_at)}` : ""}
+                      {event.starts_at ? ` · ${formatDate(event.starts_at, timeZone)}` : ""}
                     </p>
                     <h2 className="mt-2 font-article text-xl font-black leading-snug tracking-tight group-hover:text-[var(--fpn-rojo)]">
                       {event.title}

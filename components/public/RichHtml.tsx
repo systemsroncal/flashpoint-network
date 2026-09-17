@@ -1,3 +1,8 @@
+import {
+  absoluteMediaUrl,
+  rewriteHtmlMediaUrls,
+} from "@/lib/media/public-url";
+
 type Props = {
   html: string;
   className?: string;
@@ -40,10 +45,12 @@ function escapeText(text: string) {
 
 /** Renders admin-authored HTML for public article/event bodies. */
 export default function RichHtml({ html, className }: Props) {
-  const safe = normalizeHtml(html)
-    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
-    .replace(/on\w+=["'][^"']*["']/gi, "")
-    .replace(/javascript:/gi, "");
+  const safe = rewriteHtmlMediaUrls(
+    normalizeHtml(html)
+      .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
+      .replace(/on\w+=["'][^"']*["']/gi, "")
+      .replace(/javascript:/gi, ""),
+  );
 
   if (!safe) return null;
 
@@ -54,3 +61,6 @@ export default function RichHtml({ html, className }: Props) {
     />
   );
 }
+
+/** Helper for callers that need a single absolute media URL. */
+export { absoluteMediaUrl };

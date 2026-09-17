@@ -4,6 +4,8 @@ import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
 import type { Category, Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
+import { resolveMediaUrl } from "@/lib/media/public-url";
+import { getSiteTimezone } from "@/lib/timezone/settings";
 
 type Props = {
   category: Category;
@@ -13,14 +15,16 @@ type Props = {
   popular: Post[];
 };
 
-export default function CategoryView({
+export default async function CategoryView({
   category,
   posts,
   podcasts,
   latest,
   popular,
 }: Props) {
+  const timeZone = await getSiteTimezone();
   const featured = posts[0] ?? null;
+  const featuredSrc = resolveMediaUrl(featured?.featured_image_url);
   const grid = posts.slice(1, 4);
   const list = posts.slice(4);
   const label = category.name.toUpperCase();
@@ -63,9 +67,9 @@ export default function CategoryView({
                   href={`/news/${featured.slug}`}
                   className="relative mb-5 block aspect-[16/9] overflow-hidden rounded-[24px] bg-neutral-200 lg:aspect-[1192/668]"
                 >
-                  {featured.featured_image_url ? (
+                  {featuredSrc ? (
                     <Image
-                      src={featured.featured_image_url}
+                      src={featuredSrc!}
                       alt=""
                       fill
                       priority
@@ -113,7 +117,7 @@ export default function CategoryView({
                   </p>
                 ) : null}
                 <p className="mt-3 text-[14px] text-[var(--fpn-rojo)]">
-                  {formatDate(featured.published_at)}
+                  {formatDate(featured.published_at, timeZone)}
                 </p>
               </article>
             ) : (
@@ -125,7 +129,7 @@ export default function CategoryView({
             {grid.length > 0 ? (
               <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {grid.map((post) => (
-                  <PostCard key={post.id} post={post} />
+                  <PostCard key={post.id} post={post}  timeZone={timeZone} />
                 ))}
               </section>
             ) : null}
@@ -193,7 +197,7 @@ export default function CategoryView({
                           </span>
                         </span>
                         <span className="text-[var(--fpn-rojo)]">
-                          {formatDate(post.published_at)}
+                          {formatDate(post.published_at, timeZone)}
                         </span>
                       </div>
                     </div>
@@ -201,9 +205,9 @@ export default function CategoryView({
                       href={`/news/${post.slug}`}
                       className="relative aspect-[16/10] overflow-hidden rounded-[12px] bg-neutral-200"
                     >
-                      {post.featured_image_url ? (
+                      {resolveMediaUrl(post.featured_image_url) ? (
                         <Image
-                          src={post.featured_image_url}
+                          src={resolveMediaUrl(post.featured_image_url) || ""}
                           alt=""
                           fill
                           className="object-cover"
@@ -237,52 +241,50 @@ export default function CategoryView({
                   Podcasts
                 </h2>
                 <Link
-                  href="/?type=podcast"
+                  href="/feed/podcasts"
                   className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
                 >
-                  See all
+                  See more
                 </Link>
               </div>
               <div className="border-t border-[#ccc]">
                 {podcasts.map((post) => (
-                  <PostCard key={post.id} post={post} variant="podcast" />
+                  <PostCard key={post.id} post={post} variant="podcast"  timeZone={timeZone} />
                 ))}
               </div>
             </div>
 
             <div>
-              <h2 className="mb-2 font-article text-[1.65rem] font-black tracking-tight">
-                Latest News
-              </h2>
+              <div className="mb-2 flex items-end justify-between gap-3">
+                <h2 className="font-article text-[1.65rem] font-black tracking-tight">
+                  Latest News
+                </h2>
+                <Link
+                  href="/feed/latest"
+                  className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
+                >
+                  See more
+                </Link>
+              </div>
               <div className="border-t border-[#ccc]">
                 {latest.map((post) => (
-                  <PostCard key={post.id} post={post} variant="latest" />
+                  <PostCard key={post.id} post={post} variant="latest"  timeZone={timeZone} />
                 ))}
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-[12px] bg-[#111] p-4 text-white">
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--fpn-rojo)]">
-                Special offer
-              </p>
-              <p className="mt-3 font-article text-xl font-black leading-snug">
-                Flashpoint of Revival
-              </p>
-              <p className="mt-2 text-sm text-white/65">
-                Pair today&apos;s {category.name} coverage with FPN essentials.
-              </p>
-              <Link
-                href="/register"
-                className="mt-4 inline-flex rounded-md bg-white px-4 py-2 text-sm font-bold text-black"
-              >
-                View offer
-              </Link>
-            </div>
-
             <div>
-              <h2 className="mb-3 font-article text-[1.65rem] font-black tracking-tight">
-                Popular
-              </h2>
+              <div className="mb-3 flex items-end justify-between gap-3">
+                <h2 className="font-article text-[1.65rem] font-black tracking-tight">
+                  Popular
+                </h2>
+                <Link
+                  href="/feed/popular"
+                  className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
+                >
+                  See more
+                </Link>
+              </div>
               <ol className="divide-y divide-[#ccc] border-t border-[#ccc]">
                 {popular.map((post, index) => (
                   <li key={post.id} className="py-4">
