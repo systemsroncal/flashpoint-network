@@ -114,8 +114,8 @@ const SidebarItems = ({
         themeColor="#1B2A64"
         themeSecondaryColor="#FF490D"
       >
-        <Logo img="/images/logos/dark-logo.svg" component={Link} href="/admin">
-          FP Network
+        <Logo img="/brand/fpn-logo-wordmark.png" component={Link} href="/admin">
+          <span className="sr-only">Flash Point Network</span>
         </Logo>
         {renderMenuItems(items, pathname)}
         <Box px={2} mt={3}>

@@ -13,9 +13,23 @@ function boolFrom(value: unknown): boolean {
   return value === true || value === "on" || value === "true" || value === "1";
 }
 
+function explicitBool(
+  body: Record<string, unknown>,
+  key: string,
+  fallback: boolean,
+): boolean {
+  if (!(key in body) || body[key] === undefined || body[key] === null || body[key] === "") {
+    return fallback;
+  }
+  const v = body[key];
+  if (v === false || v === "false" || v === "0") return false;
+  return boolFrom(v);
+}
+
 /**
  * Save current News form fields as a draft (or keep status) and return a
  * staff-only preview URL — WordPress-style "Preview Changes".
+ * On update, preserves home-placement flags and published_at when omitted.
  */
 export async function POST(request: Request) {
   const profile = await requireStaffProfile();
@@ -49,11 +63,42 @@ export async function POST(request: Request) {
 
   const featuredImageUrl = String(body.featured_image_url || "").trim() || null;
   const publishedAtRaw = String(body.published_at || "");
-  const publishedAt = publishedAtRaw
-    ? new Date(publishedAtRaw).toISOString()
-    : status === "published"
-      ? new Date().toISOString()
-      : null;
+
+  type Existing = {
+    is_featured: boolean;
+    is_premium: boolean;
+    is_video: boolean;
+    is_podcast: boolean;
+    is_popular: boolean;
+    published_at: string | null;
+    author_id: string | null;
+  };
+
+  let existing: Existing | null = null;
+  if (id) {
+    const { data } = await supabase
+      .from("posts")
+      .select(
+        "is_featured, is_premium, is_video, is_podcast, is_popular, published_at, author_id",
+      )
+      .eq("id", id)
+      .maybeSingle();
+    existing = (data as Existing | null) ?? null;
+  }
+
+  let publishedAt: string | null;
+  if (publishedAtRaw) {
+    const parsed = new Date(publishedAtRaw);
+    publishedAt = Number.isNaN(parsed.getTime())
+      ? (existing?.published_at ?? null)
+      : parsed.toISOString();
+  } else if (existing?.published_at) {
+    publishedAt = existing.published_at;
+  } else if (status === "published") {
+    publishedAt = new Date().toISOString();
+  } else {
+    publishedAt = null;
+  }
 
   const payload = {
     title,
@@ -62,7 +107,7 @@ export async function POST(request: Request) {
     body: String(body.body || ""),
     status,
     category_id: String(body.category_id || "") || null,
-    author_id: profile.id,
+    author_id: existing?.author_id ?? profile.id,
     featured_image_url: featuredImageUrl,
     video_url: String(body.video_url || "").trim() || null,
     seo_title: String(body.seo_title || "").trim() || null,
@@ -71,15 +116,15 @@ export async function POST(request: Request) {
     og_title: String(body.og_title || "").trim() || null,
     og_description: String(body.og_description || "").trim() || null,
     og_image_url: featuredImageUrl,
-    is_featured: boolFrom(body.is_featured),
-    is_premium: boolFrom(body.is_premium),
-    is_video: boolFrom(body.is_video),
-    is_podcast: boolFrom(body.is_podcast),
+    is_featured: explicitBool(body, "is_featured", existing?.is_featured ?? false),
+    is_premium: explicitBool(body, "is_premium", existing?.is_premium ?? false),
+    is_video: explicitBool(body, "is_video", existing?.is_video ?? false),
+    is_podcast: explicitBool(body, "is_podcast", existing?.is_podcast ?? false),
+    is_popular: explicitBool(body, "is_popular", existing?.is_popular ?? false),
     reading_time_minutes: Number(body.reading_time_minutes) || 5,
     published_at: publishedAt,
   };
 
-  // Ensure unique slug on create/update collision
   async function ensureUniqueSlug(candidate: string, excludeId?: string) {
     let next = candidate;
     for (let i = 0; i < 20; i++) {

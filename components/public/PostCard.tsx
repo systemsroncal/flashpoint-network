@@ -3,6 +3,8 @@ import Link from "next/link";
 import VideoPlayer from "@/components/public/VideoPlayer";
 import type { Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
+import { youtubeThumbnailUrl } from "@/lib/media/youtube";
+import { resolveMediaUrl } from "@/lib/media/public-url";
 
 type Props = {
   post: Post;
@@ -42,6 +44,9 @@ function MetaRow({
 export default function PostCard({ post, variant = "grid" }: Props) {
   const href = `/news/${post.slug}`;
   const category = (post.category?.name ?? "News").toUpperCase();
+  const featured = resolveMediaUrl(post.featured_image_url);
+  const podcastThumb =
+    youtubeThumbnailUrl(post.video_url) || featured;
 
   if (variant === "list" || variant === "latest") {
     return (
@@ -61,28 +66,31 @@ export default function PostCard({ post, variant = "grid" }: Props) {
 
   if (variant === "podcast") {
     return (
-      <article className="flex gap-3 border-b border-[#ccc]/80 py-3 last:border-b-0">
+      <article className="flex gap-3.5 border-b border-[#ccc] py-3.5 last:border-b-0">
         <Link
           href={href}
-          className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-md bg-neutral-200"
+          className="relative aspect-video w-[128px] shrink-0 overflow-hidden rounded-[8px] bg-neutral-200 sm:w-[148px]"
         >
-          {post.featured_image_url ? (
+          {podcastThumb ? (
             <Image
-              src={post.featured_image_url}
+              src={podcastThumb}
               alt=""
               fill
               className="object-cover"
-              sizes="72px"
+              sizes="148px"
             />
           ) : null}
+          <span className="absolute bottom-1.5 left-1.5">
+            <Image src="/brand/play-btn.svg" alt="" width={22} height={22} />
+          </span>
         </Link>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1 self-center">
           <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
             {category}
           </p>
           <Link
             href={href}
-            className="mt-0.5 block font-article text-[15px] font-black leading-snug text-black hover:text-[var(--fpn-rojo)]"
+            className="mt-0.5 line-clamp-3 block font-article text-[15px] font-black leading-snug tracking-tight text-black hover:text-[var(--fpn-rojo)]"
           >
             {post.title}
           </Link>
@@ -96,11 +104,11 @@ export default function PostCard({ post, variant = "grid" }: Props) {
       <article className="border-b border-[#ccc]/80 py-4 last:border-b-0">
         <Link
           href={href}
-          className="relative mb-3 block aspect-[16/10] overflow-hidden rounded-[12px] bg-neutral-200"
+          className="relative mb-3 block aspect-video overflow-hidden rounded-[10px] bg-neutral-200"
         >
-          {post.featured_image_url ? (
+          {featured ? (
             <Image
-              src={post.featured_image_url}
+              src={featured}
               alt=""
               fill
               className="object-cover"
@@ -142,15 +150,17 @@ export default function PostCard({ post, variant = "grid" }: Props) {
             <VideoPlayer
               url={post.video_url}
               title={post.title}
-              poster={post.featured_image_url}
+              poster={
+                youtubeThumbnailUrl(post.video_url) || featured
+              }
               className="aspect-video w-full md:min-h-[360px]"
             />
           ) : (
             <Link href={href} className="block">
               <div className="relative aspect-[4/5] md:aspect-[16/11] md:min-h-[360px]">
-                {post.featured_image_url ? (
+                {featured ? (
                   <Image
-                    src={post.featured_image_url}
+                    src={featured}
                     alt=""
                     fill
                     className="object-cover opacity-95 transition group-hover:opacity-100"
@@ -184,11 +194,11 @@ export default function PostCard({ post, variant = "grid" }: Props) {
       <article>
         <Link
           href={href}
-          className="relative mb-4 block aspect-[16/10] overflow-hidden rounded-[15px] bg-neutral-200"
+          className="relative mb-4 block aspect-video overflow-hidden rounded-[24px] bg-neutral-200"
         >
-          {post.featured_image_url ? (
+          {featured ? (
             <Image
-              src={post.featured_image_url}
+              src={featured}
               alt=""
               fill
               priority
@@ -233,9 +243,9 @@ export default function PostCard({ post, variant = "grid" }: Props) {
         href={href}
         className="relative mb-3 aspect-[16/10] overflow-hidden rounded-[12px] bg-neutral-200"
       >
-        {post.featured_image_url ? (
+        {featured ? (
           <Image
-            src={post.featured_image_url}
+            src={featured}
             alt=""
             fill
             className="object-cover transition duration-300 group-hover:scale-[1.02]"

@@ -37,6 +37,10 @@ yarn-error.log*
 # keep brand assets and vendored Storage copies under public/
 # (do not ignore /public or /public/media)
 
+# runtime admin uploads live on the VPS disk — do not commit binaries
+/public/uploads/**
+!/public/uploads/.gitkeep
+
 # vercel
 .vercel
 

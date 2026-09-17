@@ -151,6 +151,7 @@ create table if not exists public.posts (
   is_premium boolean not null default false,
   is_video boolean not null default false,
   is_podcast boolean not null default false,
+  is_popular boolean not null default false,
   reading_time_minutes integer not null default 5,
   view_count integer not null default 0,
   published_at timestamptz,
@@ -173,6 +174,8 @@ create index if not exists posts_is_video_idx on public.posts (is_video)
   where is_video = true;
 create index if not exists posts_is_podcast_idx on public.posts (is_podcast)
   where is_podcast = true;
+create index if not exists posts_is_popular_idx on public.posts (is_popular)
+  where is_popular = true;
 
 drop trigger if exists posts_set_updated_at on public.posts;
 create trigger posts_set_updated_at

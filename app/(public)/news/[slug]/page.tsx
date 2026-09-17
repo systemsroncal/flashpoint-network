@@ -5,6 +5,7 @@ import { recordPostView } from "@/lib/analytics/record-view";
 import { getCurrentProfile, isStaffRole } from "@/lib/auth/session";
 import { getArticleSidebar, getPostBySlug } from "@/lib/data/home";
 import { getSiteName, getSiteUrl } from "@/lib/env";
+import { absoluteMediaUrl } from "@/lib/media/public-url";
 import { getPaywallSettings } from "@/lib/paywall/settings";
 
 export const dynamic = "force-dynamic";
@@ -28,8 +29,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ogTitle = post.og_title?.trim() || title;
   const ogDescription =
     post.og_description?.trim() || description || undefined;
-  // Social / meta image is always the featured image
-  const ogImage = post.featured_image_url?.trim() || undefined;
+  // Social / meta image is always the featured image (absolute for crawlers)
+  const ogImage =
+    absoluteMediaUrl(post.featured_image_url)?.trim() || undefined;
   const url = `${getSiteUrl().replace(/\/$/, "")}/news/${post.slug}`;
 
   return {
@@ -84,7 +86,9 @@ export default async function NewsArticlePage({ params }: Props) {
     "@type": "NewsArticle",
     headline: post.seo_title?.trim() || post.title,
     description: post.seo_description?.trim() || post.excerpt || undefined,
-    image: post.featured_image_url ? [post.featured_image_url] : undefined,
+    image: absoluteMediaUrl(post.featured_image_url)
+      ? [absoluteMediaUrl(post.featured_image_url) as string]
+      : undefined,
     datePublished: post.published_at || undefined,
     author: {
       "@type": "Person",

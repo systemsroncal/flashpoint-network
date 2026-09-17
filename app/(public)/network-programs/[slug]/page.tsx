@@ -38,10 +38,10 @@ export default async function MinistryProgramPage({ params }: Props) {
       <div className="border-b border-black/10 bg-[var(--fpn-navy)] text-white">
         <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8 lg:px-10">
           <Link
-            href="/ministry-programs"
+            href="/network-programs"
             className="text-xs font-bold uppercase tracking-[0.14em] text-white/55 transition hover:text-white"
           >
-            ← Ministry Programs
+            ← Network Programs
           </Link>
           <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-[var(--fpn-rojo)]">
             {siteName}
@@ -70,7 +70,7 @@ export default async function MinistryProgramPage({ params }: Props) {
             />
           ) : (
             <span className="absolute inset-0 flex items-center justify-center text-sm font-bold uppercase tracking-wide text-white/40">
-              Ministry
+              Network
             </span>
           )}
         </div>
@@ -84,10 +84,10 @@ export default async function MinistryProgramPage({ params }: Props) {
           ) : null}
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              href="/ministry-programs"
+              href="/network-programs"
               className="inline-flex rounded-md bg-[var(--fpn-rojo)] px-5 py-2.5 text-sm font-bold text-white hover:brightness-110"
             >
-              All ministry programs
+              All network programs
             </Link>
           </div>
         </div>

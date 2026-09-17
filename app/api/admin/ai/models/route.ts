@@ -1,12 +1,21 @@
 import { NextResponse } from "next/server";
 import { AI_MODELS } from "@/lib/ai/catalog";
 import { getAiProviderKeys, getAiProviderStatus } from "@/lib/ai/keys";
+import { requireStaffProfile } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** Public-to-admin catalog: configured flags only — never returns API keys. */
 export async function GET() {
+  const profile = await requireStaffProfile();
+  if (!profile) {
+    return NextResponse.json(
+      { error: "Unauthorized — staff login required." },
+      { status: 401 },
+    );
+  }
+
   try {
     const [status, keys] = await Promise.all([
       getAiProviderStatus(),
@@ -25,7 +34,7 @@ export async function GET() {
       enabled: configured.has(m.provider),
       disabledReason: configured.has(m.provider)
         ? null
-        : "Configure API key in Settings",
+        : "Configure API key in Settings (or AI_NVIDIA_API_KEY / NVIDIA_API_KEY env)",
     }));
     return NextResponse.json({
       providers: status,

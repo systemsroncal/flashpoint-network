@@ -1,5 +1,5 @@
 import PageContainer from "@/components/admin/shared/PageContainer";
-import MinistryProgramsTable from "@/components/admin/ministry-programs/MinistryProgramsTable";
+import MinistryProgramsTable from "@/components/admin/network-programs/MinistryProgramsTable";
 import {
   getAdminMinistryPrograms,
   getMinistryProgramsSortMode,
@@ -14,7 +14,7 @@ export default async function AdminMinistryProgramsPage() {
   ]);
   return (
     <PageContainer
-      title="Ministry Programs"
+      title="Network Programs"
       description="Gospel broadcasts — grid order and listings"
     >
       <MinistryProgramsTable programs={programs} sortMode={sortMode} />
