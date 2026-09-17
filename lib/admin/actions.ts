@@ -8,8 +8,10 @@ import type { PostStatus, UserRole } from "@/lib/types/cms";
 import {
   getCurrentProfile,
   getSessionUser,
+  isAdminRole,
   requireStaffProfile,
 } from "@/lib/auth/session";
+import { CUSTOM_HTML_SETTING } from "@/lib/custom-html/constants";
 import {
   PROGRAM_MODULES_SETTING,
   isProgramModulesOwnerEmail,
@@ -638,6 +640,35 @@ export async function saveTimezoneSettingsAction(formData: FormData) {
   revalidatePath("/admin/settings");
   revalidatePath("/admin/posts");
   revalidatePath("/admin/events");
+}
+
+/**
+ * Persist trusted third-party HTML (head / body / footer).
+ * Admin and superadmin only — these snippets execute on every public page.
+ */
+export async function saveCustomHtmlSettingsAction(formData: FormData) {
+  const profile = await getCurrentProfile();
+  if (!profile || !isAdminRole(profile.role)) {
+    throw new Error("Only admins can edit custom HTML scripts");
+  }
+  const supabase = requireAdmin();
+  const head = String(formData.get("head") || "");
+  const body = String(formData.get("body") || "");
+  const footer = String(formData.get("footer") || "");
+
+  const { error } = await supabase.from("site_settings").upsert({
+    key: CUSTOM_HTML_SETTING,
+    value: { head, body, footer },
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/news");
+  revalidatePath("/events");
+  revalidatePath("/category");
+  revalidatePath("/classic-programs");
+  revalidatePath("/network-programs");
+  revalidatePath("/schedule-programs");
+  revalidatePath("/admin/settings");
 }
 
 export async function saveProgramModulesAction(formData: FormData) {
