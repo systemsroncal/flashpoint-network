@@ -134,7 +134,7 @@ export default async function HomeView({
             {/* Sidebar ad above Podcasts — CMS slot home_above_podcasts */}
             <BannerWidget
               widget={banners.home_above_podcasts}
-              aspectClassName="aspect-[371/389]"
+              aspectClassName="md:aspect-[371/389]"
               alt="Optimal Family Care advertisement"
             />
 
@@ -482,7 +482,7 @@ export default async function HomeView({
                 {/* Revival promo — CMS slot home_above_latest (above Popular) */}
                 <BannerWidget
                   widget={banners.home_above_latest}
-                  aspectClassName="aspect-[370/283]"
+                  aspectClassName="md:aspect-[370/283]"
                   alt="Special offer — Flashpoint of Revival"
                 />
 

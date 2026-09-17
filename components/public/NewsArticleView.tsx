@@ -261,12 +261,12 @@ export default async function NewsArticleView({
           <div className="flex flex-col gap-3">
             <BannerWidget
               widget={banners.article_above_latest_patriot}
-              aspectClassName="aspect-[370/340]"
+              aspectClassName="md:aspect-[370/340]"
               alt="Are You a Patriot? Join FP Army Chapters"
             />
             <BannerWidget
               widget={banners.article_above_latest_ofc}
-              aspectClassName="aspect-[371/389]"
+              aspectClassName="md:aspect-[371/389]"
               alt="Optimal Family Care advertisement"
             />
           </div>
