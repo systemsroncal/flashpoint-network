@@ -1,12 +1,27 @@
 import Link from "next/link";
 import { signUpAction } from "@/lib/auth/actions";
 
+export const dynamic = "force-dynamic";
+
 type Props = {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; email?: string }>;
 };
+
+function prefillEmail(raw: string | undefined): string {
+  if (!raw) return "";
+  try {
+    const decoded = decodeURIComponent(raw).trim();
+    // Basic sanity — keep invalid values out of the input.
+    if (!decoded.includes("@") || decoded.length > 254) return "";
+    return decoded;
+  } catch {
+    return "";
+  }
+}
 
 export default async function RegisterPage({ searchParams }: Props) {
   const params = await searchParams;
+  const emailPrefill = prefillEmail(params.email);
 
   return (
     <div className="rounded-2xl border border-white/15 bg-white/95 p-6 text-[#111] shadow-2xl backdrop-blur sm:p-8">
@@ -57,6 +72,7 @@ export default async function RegisterPage({ searchParams }: Props) {
             type="email"
             required
             autoComplete="email"
+            defaultValue={emailPrefill}
             className="w-full rounded-lg border border-black/15 bg-white px-3 py-2.5 text-sm outline-none ring-[var(--fpn-rojo)] focus:ring-2"
           />
         </label>

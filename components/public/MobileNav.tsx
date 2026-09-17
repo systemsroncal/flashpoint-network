@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import HeaderSearch from "@/components/public/HeaderSearch";
 
 type NavItem = {
   id: string;
@@ -13,12 +14,20 @@ export default function MobileNav({
   items,
   showClassic = false,
   showSchedule = false,
+  isLoggedIn = false,
+  isStaff = false,
+  tone = "light",
 }: {
   items: NavItem[];
   showClassic?: boolean;
   showSchedule?: boolean;
+  isLoggedIn?: boolean;
+  isStaff?: boolean;
+  /** `light` = white bars (navy header); `dark` = black bars (WaPo mobile). */
+  tone?: "light" | "dark";
 }) {
   const [open, setOpen] = useState(false);
+  const barClass = tone === "dark" ? "bg-black" : "bg-white";
 
   useEffect(() => {
     if (!open) return;
@@ -41,18 +50,22 @@ export default function MobileNav({
         aria-label={open ? "Close menu" : "Open menu"}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/40 text-white"
+        className={`inline-flex h-9 w-9 items-center justify-center ${
+          tone === "dark"
+            ? "text-black"
+            : "rounded-md border border-white/40 text-white"
+        }`}
       >
         <span className="sr-only">Menu</span>
         <span className="flex flex-col gap-1.5" aria-hidden>
           <span
-            className={`block h-0.5 w-4 bg-white transition ${open ? "translate-y-[7px] rotate-45" : ""}`}
+            className={`block h-0.5 w-4 transition ${barClass} ${open ? "translate-y-[7px] rotate-45" : ""}`}
           />
           <span
-            className={`block h-0.5 w-4 bg-white transition ${open ? "opacity-0" : ""}`}
+            className={`block h-0.5 w-4 transition ${barClass} ${open ? "opacity-0" : ""}`}
           />
           <span
-            className={`block h-0.5 w-4 bg-white transition ${open ? "-translate-y-[7px] -rotate-45" : ""}`}
+            className={`block h-0.5 w-4 transition ${barClass} ${open ? "-translate-y-[7px] -rotate-45" : ""}`}
           />
         </span>
       </button>
@@ -73,6 +86,12 @@ export default function MobileNav({
             </button>
           </div>
           <nav className="mx-auto max-h-[calc(100vh-5rem)] max-w-[1440px] overflow-y-auto px-4 pb-10 md:px-8">
+            <div className="mb-6 flex items-center justify-between gap-3 rounded-md border border-white/20 px-3 py-2">
+              <p className="text-xs font-bold uppercase tracking-wide text-white/60">
+                Search
+              </p>
+              <HeaderSearch />
+            </div>
             <ul className="divide-y divide-white/15 border-t border-white/15">
               {items.map((item) => (
                 <li key={item.id}>
@@ -87,21 +106,16 @@ export default function MobileNav({
                 </li>
               ))}
             </ul>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/register"
-                onClick={() => setOpen(false)}
-                className="inline-flex h-11 items-center justify-center rounded-md bg-white text-sm font-bold text-black"
-              >
-                Subscribe
-              </Link>
-              <Link
-                href="/login"
-                onClick={() => setOpen(false)}
-                className="inline-flex h-11 items-center justify-center rounded-md border border-white text-sm font-black"
-              >
-                Login
-              </Link>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              {isLoggedIn && isStaff ? (
+                <Link
+                  href="/admin"
+                  onClick={() => setOpen(false)}
+                  className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--fpn-rojo)] text-sm font-black text-white"
+                >
+                  Admin
+                </Link>
+              ) : null}
               {showSchedule ? (
                 <Link
                   href="/schedule-programs"
@@ -120,20 +134,6 @@ export default function MobileNav({
                   Classics
                 </Link>
               ) : null}
-              <Link
-                href="/ministry-programs"
-                onClick={() => setOpen(false)}
-                className="inline-flex h-11 items-center justify-center rounded-md border border-white/40 text-sm font-semibold"
-              >
-                Ministry
-              </Link>
-              <Link
-                href="/events"
-                onClick={() => setOpen(false)}
-                className="inline-flex h-11 items-center justify-center rounded-md border border-white/40 text-sm font-semibold"
-              >
-                Events
-              </Link>
             </div>
           </nav>
         </div>

@@ -1,7 +1,16 @@
 import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono, Noto_Serif, Roboto } from "next/font/google";
 import PerformanceMeasureGuard from "@/components/dev/PerformanceMeasureGuard";
+import { getSiteUrl } from "@/lib/env";
 import "./globals.css";
+
+function safeMetadataBase(): URL {
+  try {
+    return new URL(getSiteUrl());
+  } catch {
+    return new URL("http://127.0.0.1:43125");
+  }
+}
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +42,7 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
+  metadataBase: safeMetadataBase(),
   title: {
     default: "Flash Point Network",
     template: "%s · Flash Point Network",
@@ -51,7 +61,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${notoSerif.variable} ${roboto.variable} min-h-dvh h-full antialiased`}
     >
-      <body className="flex min-h-dvh min-h-full flex-col bg-white text-[#111111]">
+      <body className="flex min-h-dvh min-h-full w-full max-w-none flex-col bg-white text-[#111111]">
         {process.env.NODE_ENV !== "production" ? (
           <script
             dangerouslySetInnerHTML={{

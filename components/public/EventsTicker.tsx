@@ -4,19 +4,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatTickerDate, formatTickerTime } from "@/lib/format";
 import type { EventItem } from "@/lib/types/cms";
+import { useTimezone } from "@/components/timezone/TimezoneProvider";
 
-function itemLabel(event: EventItem) {
+function itemLabel(event: EventItem, timeZone: string) {
   const when = event.is_live
     ? "LIVE"
     : event.starts_at
-      ? formatTickerTime(new Date(event.starts_at))
-      : formatTickerTime(new Date());
+      ? formatTickerTime(event.starts_at, timeZone)
+      : formatTickerTime(new Date(), timeZone);
   const host = event.host_name?.trim();
   const headline = host ? `${host}: ${event.title}` : event.title;
   return { when, headline };
 }
 
 export default function EventsTicker({ events }: { events: EventItem[] }) {
+  const timeZone = useTimezone();
   const now = new Date();
   const items = events.length > 0 ? events : null;
   const half =
@@ -40,7 +42,7 @@ export default function EventsTicker({ events }: { events: EventItem[] }) {
                 style={{ animationDuration: `${durationSec}s` }}
               >
                 {loop.map((event, i) => {
-                  const { when, headline } = itemLabel(event);
+                  const { when, headline } = itemLabel(event, timeZone);
                   return (
                     <Link
                       key={`${event.id}-${i}`}
@@ -65,7 +67,7 @@ export default function EventsTicker({ events }: { events: EventItem[] }) {
             </div>
           ) : (
             <p className="truncate text-sm font-bold sm:text-base md:text-[18px]">
-              Today {formatTickerTime(now)}{" "}
+              Today {formatTickerTime(now, timeZone)}{" "}
               <span className="font-bold opacity-90">|</span> FlashPoint events
               coming up
             </p>
@@ -75,7 +77,7 @@ export default function EventsTicker({ events }: { events: EventItem[] }) {
           dateTime={now.toISOString().slice(0, 10)}
           className="hidden shrink-0 text-[15px] font-medium tabular-nums sm:inline"
         >
-          {formatTickerDate(now)}
+          {formatTickerDate(now, timeZone)}
         </time>
       </div>
     </div>

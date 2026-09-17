@@ -7,6 +7,7 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
+  MenuItem,
   Stack,
   TextField,
   Typography,
@@ -15,13 +16,22 @@ import DashboardCard from "@/components/admin/shared/DashboardCard";
 import { saveAiProviderKeysAction } from "@/lib/admin/ai-actions";
 import {
   saveAdSenseSettingsAction,
+  saveCustomHtmlSettingsAction,
   saveMaintenanceSettingsAction,
   savePaywallSettingsAction,
   saveProgramModulesAction,
+  saveTimezoneSettingsAction,
   upsertSiteSettingAction,
 } from "@/lib/admin/actions";
 import type { AiProviderStatus } from "@/lib/ai/catalog";
 import { AI_KEYS_SETTING } from "@/lib/ai/catalog";
+import { CUSTOM_HTML_SETTING } from "@/lib/custom-html/constants";
+import {
+  DEFAULT_SITE_TIMEZONE,
+  normalizeSiteTimezone,
+  SITE_TIMEZONE_OPTIONS,
+  SITE_TIMEZONE_SETTING,
+} from "@/lib/timezone/constants";
 
 type Setting = {
   key: string;
@@ -40,10 +50,13 @@ export default function SettingsManager({
   settings,
   aiProviders,
   canManageProgramModules = false,
+  canEditCustomHtml = false,
 }: {
   settings: Setting[];
   aiProviders: AiProviderStatus[];
   canManageProgramModules?: boolean;
+  /** Admin / superadmin only — third-party HTML executes on public pages */
+  canEditCustomHtml?: boolean;
 }) {
   const byKey = useMemo(() => {
     const map = new Map<string, Setting>();
@@ -55,6 +68,8 @@ export default function SettingsManager({
   const adsense = asObject(byKey.get("adsense")?.value);
   const maintenance = asObject(byKey.get("maintenance")?.value);
   const programModules = asObject(byKey.get("program_modules")?.value);
+  const timezone = normalizeSiteTimezone(byKey.get(SITE_TIMEZONE_SETTING)?.value);
+  const customHtml = asObject(byKey.get(CUSTOM_HTML_SETTING)?.value);
   const adsTxtValue = byKey.get("ads_txt")?.value;
   const adsTxt =
     typeof adsTxtValue === "string"
@@ -69,12 +84,41 @@ export default function SettingsManager({
     "ads_txt",
     "maintenance",
     "program_modules",
+    SITE_TIMEZONE_SETTING,
+    CUSTOM_HTML_SETTING,
     AI_KEYS_SETTING,
   ]);
   const visibleSettings = settings.filter((s) => !hiddenKeys.has(s.key));
 
   return (
     <Stack spacing={3}>
+      <DashboardCard
+        title="System timezone"
+        subtitle="Used for dates on the public site and in admin (publish times, tickers, datetime fields). Stored as UTC in the database."
+      >
+        <Box component="form" action={saveTimezoneSettingsAction}>
+          <Stack spacing={2}>
+            <TextField
+              select
+              name="timezone"
+              label="Timezone"
+              fullWidth
+              defaultValue={timezone || DEFAULT_SITE_TIMEZONE}
+              helperText="Default: Chicago (Central Time). Wall times in forms are interpreted in this zone."
+            >
+              {SITE_TIMEZONE_OPTIONS.map((opt) => (
+                <MenuItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </MenuItem>
+              ))}
+            </TextField>
+            <Button type="submit" variant="contained" sx={{ alignSelf: "flex-start" }}>
+              Save timezone
+            </Button>
+          </Stack>
+        </Box>
+      </DashboardCard>
+
       <DashboardCard
         title="Maintenance mode"
         subtitle="When enabled, everyone sees Coming Soon on the public site except logged-in admin/superadmin (amber banner). Editors and other roles do not bypass. Auth and /admin stay reachable."
@@ -117,7 +161,7 @@ export default function SettingsManager({
       {canManageProgramModules ? (
       <DashboardCard
         title="Program modules"
-        subtitle="Temporarily hide Classic and Schedule from the public site and admin. Ministry is unchanged. No role bypass while a module is off."
+        subtitle="Temporarily hide Classic and Schedule from the public site and admin. Network Programs is unchanged. No role bypass while a module is off."
       >
         <Box component="form" action={saveProgramModulesAction}>
           <Stack spacing={2}>
@@ -255,6 +299,67 @@ export default function SettingsManager({
         </Box>
       </DashboardCard>
 
+      {canEditCustomHtml ? (
+        <DashboardCard
+          title="Custom HTML & scripts"
+          subtitle="Trusted admin-only snippets for Google Analytics, Meta Pixel, Tag Manager, and similar tags. Paste full HTML (including script tags). These run on every public page — never paste untrusted code."
+        >
+          <Box component="form" action={saveCustomHtmlSettingsAction}>
+            <Stack spacing={2}>
+              <Alert severity="warning">
+                Only admins can edit these fields. Contents are injected into the
+                public layout and scripts execute in the visitor&apos;s browser.
+              </Alert>
+              <TextField
+                name="head"
+                label="Head"
+                fullWidth
+                multiline
+                minRows={5}
+                spellCheck={false}
+                inputProps={{ style: { fontFamily: "ui-monospace, monospace", fontSize: 13 } }}
+                defaultValue={
+                  typeof customHtml.head === "string" ? customHtml.head : ""
+                }
+                helperText="Injected into the document head on public pages (meta tags, analytics loaders)."
+                placeholder={'<!-- Example -->\n<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXX"></script>'}
+              />
+              <TextField
+                name="body"
+                label="Body"
+                fullWidth
+                multiline
+                minRows={4}
+                spellCheck={false}
+                inputProps={{ style: { fontFamily: "ui-monospace, monospace", fontSize: 13 } }}
+                defaultValue={
+                  typeof customHtml.body === "string" ? customHtml.body : ""
+                }
+                helperText="Injected at the start of the body (right after body opens)."
+                placeholder={"<!-- noscript or early body tags -->"}
+              />
+              <TextField
+                name="footer"
+                label="Footer"
+                fullWidth
+                multiline
+                minRows={4}
+                spellCheck={false}
+                inputProps={{ style: { fontFamily: "ui-monospace, monospace", fontSize: 13 } }}
+                defaultValue={
+                  typeof customHtml.footer === "string" ? customHtml.footer : ""
+                }
+                helperText="Injected before the body closes, in the site footer area."
+                placeholder={"<!-- late-loading tags -->"}
+              />
+              <Button type="submit" variant="contained" sx={{ alignSelf: "flex-start" }}>
+                Save custom HTML
+              </Button>
+            </Stack>
+          </Box>
+        </DashboardCard>
+      ) : null}
+
       <DashboardCard
         title="AI provider API keys"
         subtitle="Used by the News AI writing assistant. Keys stay on the server — never sent to the public site."
@@ -263,10 +368,13 @@ export default function SettingsManager({
           <Stack spacing={2}>
             <Alert severity="info">
               Leave a field blank to keep the current key. Check “Clear” to remove
-              a saved key. Optional env overrides:{" "}
+              a saved key. Env overrides (any alias works for NVIDIA):{" "}
+              <code>AI_NVIDIA_API_KEY</code>, <code>NVIDIA_API_KEY</code>,{" "}
+              <code>NGC_API_KEY</code>. Also{" "}
               <code>AI_GOOGLE_API_KEY</code>, <code>AI_OPENAI_API_KEY</code>,{" "}
               <code>AI_XAI_API_KEY</code>, <code>AI_ANTHROPIC_API_KEY</code>,{" "}
-              <code>AI_NVIDIA_API_KEY</code>, <code>AI_PERPLEXITY_API_KEY</code>.
+              <code>AI_PERPLEXITY_API_KEY</code>. After editing env on the VPS,
+              run <code>pm2 restart fptn --update-env</code>.
             </Alert>
             {aiProviders.map((p) => (
               <Box

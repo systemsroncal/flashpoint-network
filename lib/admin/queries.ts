@@ -19,7 +19,8 @@ const POST_SELECT = `
   id, title, slug, excerpt, body, status, category_id, author_id,
   featured_image_url, video_url, seo_title, seo_description, seo_keywords,
   og_title, og_description, og_image_url,
-  is_featured, is_premium, is_video, is_podcast,
+  is_featured, is_premium, is_video, is_podcast, is_popular,
+  show_featured_image, home_first_slot,
   reading_time_minutes, view_count, published_at, created_at, updated_at,
   category:categories ( id, name, slug, description, sort_order ),
   author:profiles ( id, email, full_name, first_name, last_name, role, avatar_url )
@@ -76,13 +77,103 @@ export async function getAdminStats() {
 }
 
 export async function getAdminPosts(): Promise<Post[]> {
+  const result = await getAdminPostsPage({});
+  return result.posts;
+}
+
+export type AdminPostsQuery = {
+  q?: string;
+  categoryId?: string;
+  tagId?: string;
+  page?: number;
+  pageSize?: number;
+};
+
+export type AdminPostsPageResult = {
+  posts: Post[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};
+
+const DEFAULT_PAGE_SIZE = 20;
+
+export async function getAdminPostsPage(
+  query: AdminPostsQuery = {},
+): Promise<AdminPostsPageResult> {
   const supabase = requireAdmin();
-  const { data, error } = await supabase
+  const pageSize = Math.min(Math.max(query.pageSize ?? DEFAULT_PAGE_SIZE, 5), 100);
+  const page = Math.max(query.page ?? 1, 1);
+  const q = (query.q ?? "").trim();
+  const categoryId = (query.categoryId ?? "").trim();
+  const tagId = (query.tagId ?? "").trim();
+
+  let postIdFilter: string[] | null = null;
+  if (tagId) {
+    const { data: links, error: tagErr } = await supabase
+      .from("post_tags")
+      .select("post_id")
+      .eq("tag_id", tagId);
+    if (tagErr) throw new Error(tagErr.message);
+    postIdFilter = (links ?? []).map((row) => row.post_id as string);
+    if (postIdFilter.length === 0) {
+      return { posts: [], total: 0, page, pageSize, totalPages: 0 };
+    }
+  }
+
+  // Sort by publish time (same as home). Do not use updated_at — edits would
+  // reshuffle the News list even when published_at is unchanged.
+  let builder = supabase
     .from("posts")
-    .select(POST_SELECT)
-    .order("updated_at", { ascending: false });
+    .select(POST_SELECT, { count: "exact" })
+    .order("published_at", { ascending: false, nullsFirst: false });
+
+  if (categoryId) {
+    builder = builder.eq("category_id", categoryId);
+  }
+  if (postIdFilter) {
+    builder = builder.in("id", postIdFilter);
+  }
+  if (q) {
+    const safe = q.replace(/[%_",]/g, "").slice(0, 120).trim();
+    if (safe) {
+      const pattern = `%${safe}%`;
+      // Quoted values so spaces don't break PostgREST `or`
+      builder = builder.or(
+        `title.ilike."${pattern}",slug.ilike."${pattern}",excerpt.ilike."${pattern}",body.ilike."${pattern}"`,
+      );
+    }
+  }
+
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  const { data, error, count } = await builder.range(from, to);
   if (error) throw new Error(error.message);
-  return ((data as unknown[]) ?? []).map(normalizePost);
+
+  const total = count ?? 0;
+  return {
+    posts: ((data as unknown[]) ?? []).map(normalizePost),
+    total,
+    page,
+    pageSize,
+    totalPages: total === 0 ? 0 : Math.ceil(total / pageSize),
+  };
+}
+
+/** True when slug is free (or belongs to excludeId). */
+export async function isAdminPostSlugAvailable(
+  slug: string,
+  excludeId?: string | null,
+): Promise<boolean> {
+  const normalized = slug.trim();
+  if (!normalized) return false;
+  const supabase = requireAdmin();
+  let q = supabase.from("posts").select("id").eq("slug", normalized).limit(1);
+  if (excludeId) q = q.neq("id", excludeId);
+  const { data, error } = await q.maybeSingle();
+  if (error && error.code !== "PGRST116") throw new Error(error.message);
+  return !data;
 }
 
 export async function getAdminPost(id: string): Promise<Post | null> {
@@ -116,6 +207,16 @@ export async function getAdminTags(): Promise<Tag[]> {
   return (data as Tag[]) ?? [];
 }
 
+export async function getAdminPostTagIds(postId: string): Promise<string[]> {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("post_tags")
+    .select("tag_id")
+    .eq("post_id", postId);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => row.tag_id as string);
+}
+
 export async function getAdminEvents(): Promise<EventItem[]> {
   const supabase = requireAdmin();
   const { data, error } = await supabase
@@ -145,6 +246,18 @@ export async function getAdminProfiles(): Promise<Profile[]> {
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return (data as Profile[]) ?? [];
+}
+
+export async function getAdminBannerWidgets() {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("banner_widgets")
+    .select(
+      "id, slot, label, desktop_image_url, mobile_image_url, href, open_in_new_tab, enabled, sort_order, created_at, updated_at",
+    )
+    .order("sort_order", { ascending: true });
+  if (error) throw new Error(error.message);
+  return data ?? [];
 }
 
 export async function getAdminEmailTemplates() {
