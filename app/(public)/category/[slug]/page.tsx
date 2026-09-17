@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import CategoryView from "@/components/public/CategoryView";
+import { getBannerWidgetsBySlots } from "@/lib/data/banners";
 import {
   getArticleSidebar,
   getCategoryBySlug,
@@ -28,9 +29,14 @@ export default async function CategoryPage({ params }: Props) {
   const category = await getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const [posts, sidebar] = await Promise.all([
+  const [posts, sidebar, banners] = await Promise.all([
     getPostsByCategorySlug(slug, 24),
     getArticleSidebar(),
+    getBannerWidgetsBySlots([
+      "article_above_latest_patriot",
+      "article_above_latest_ofc",
+      "category_above_popular",
+    ]),
   ]);
 
   return (
@@ -40,6 +46,7 @@ export default async function CategoryPage({ params }: Props) {
       podcasts={sidebar.podcasts}
       latest={sidebar.latest}
       popular={sidebar.popular.slice(0, 5)}
+      banners={banners}
     />
   );
 }

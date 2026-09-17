@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import BannerWidget from "@/components/public/BannerWidget";
 import MobileFeedList from "@/components/public/MobileFeedList";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
+import type { BannerSlot, BannerWidget as BannerWidgetRow } from "@/lib/banners/slots";
 import type { Category, Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 import { cardFeaturedImageUrl } from "@/lib/posts/media-layout";
@@ -15,6 +17,7 @@ type Props = {
   podcasts: Post[];
   latest: Post[];
   popular: Post[];
+  banners?: Partial<Record<BannerSlot, BannerWidgetRow>>;
 };
 
 export default async function CategoryView({
@@ -23,6 +26,7 @@ export default async function CategoryView({
   podcasts,
   latest,
   popular,
+  banners = {},
 }: Props) {
   const [timeZone, identity] = await Promise.all([
     getSiteTimezone(),
@@ -42,7 +46,7 @@ export default async function CategoryView({
   return (
     <div className="w-full max-w-none bg-white text-black">
       {/* Mobile: WaPo compact list only when arriving via category bar / category URL */}
-      <div className="w-full max-w-none xl:hidden">
+      <div className="w-full max-w-none lg:hidden">
         <MobileFeedList
           posts={posts}
           timeZone={timeZone}
@@ -50,10 +54,30 @@ export default async function CategoryView({
           emptyTitle={`No stories in ${mobileTitle} yet`}
           emptyBody="Editors haven&apos;t published coverage in this section yet."
         />
+        <div className="mx-auto max-w-[1440px] space-y-4 px-4 pb-10 pt-6">
+          <BannerWidget
+            widget={banners.article_above_latest_patriot}
+            aspectClassName="md:aspect-[370/340]"
+            alt="Are You a Patriot? Join FP Army Chapters"
+          />
+          <BannerWidget
+            widget={banners.article_above_latest_ofc}
+            aspectClassName="md:aspect-[371/389]"
+            alt="Optimal Family Care advertisement"
+          />
+          <BannerWidget
+            widget={banners.category_above_popular}
+            aspectClassName="md:aspect-[370/283]"
+            alt={
+              banners.category_above_popular?.label ||
+              "Category sidebar advertisement"
+            }
+          />
+        </div>
       </div>
 
-      {/* Desktop / xl+ category layout */}
-      <div className="mx-auto hidden max-w-[1440px] px-4 py-10 md:px-8 lg:px-10 lg:py-12 xl:block">
+      {/* Desktop / lg+ category layout (sidebar + main column) */}
+      <div className="mx-auto hidden max-w-[1440px] px-4 py-10 md:px-8 lg:block lg:px-10 lg:py-12">
         <h1 className="font-article text-[2.4rem] font-black tracking-tight md:text-[3rem]">
           {category.name}
         </h1>
@@ -246,37 +270,19 @@ export default async function CategoryView({
             ) : null}
           </div>
 
-          {/* Sidebar */}
+          {/* Sidebar — banner slots match /admin/banners (article top pair + category above Popular) */}
           <aside className="space-y-9">
-            <div className="relative aspect-[370/220] overflow-hidden rounded-[12px] bg-[#0B1220]">
-              <div className="absolute inset-0 bg-gradient-to-tr from-[#1b2a64] via-[#111] to-[var(--fpn-rojo)] opacity-80" />
-              <div className="absolute inset-0 flex flex-col justify-end p-4 text-white">
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/70">
-                  On air
-                </p>
-                <p className="mt-1 font-article text-xl font-black leading-snug">
-                  FlashPoint Live
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <div className="mb-2 flex items-end justify-between gap-3">
-                <h2 className="font-article text-[1.65rem] font-black leading-[0.95] tracking-tight">
-                  Beyond the Broadcast
-                </h2>
-                <Link
-                  href="/feed/podcasts"
-                  className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
-                >
-                  See more
-                </Link>
-              </div>
-              <div className="border-t border-[#ccc]">
-                {podcasts.map((post) => (
-                  <PostCard key={post.id} post={post} variant="podcast"  timeZone={timeZone} />
-                ))}
-              </div>
+            <div className="flex flex-col gap-3">
+              <BannerWidget
+                widget={banners.article_above_latest_patriot}
+                aspectClassName="md:aspect-[370/340]"
+                alt="Are You a Patriot? Join FP Army Chapters"
+              />
+              <BannerWidget
+                widget={banners.article_above_latest_ofc}
+                aspectClassName="md:aspect-[371/389]"
+                alt="Optimal Family Care advertisement"
+              />
             </div>
 
             <div>
@@ -297,6 +303,34 @@ export default async function CategoryView({
                 ))}
               </div>
             </div>
+
+            <div>
+              <div className="mb-2 flex items-end justify-between gap-3">
+                <h2 className="font-article text-[1.65rem] font-black leading-[0.95] tracking-tight md:text-[2rem]">
+                  Broadcast
+                </h2>
+                <Link
+                  href="/feed/podcasts"
+                  className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
+                >
+                  See more
+                </Link>
+              </div>
+              <div className="border-t border-[#ccc]">
+                {podcasts.map((post) => (
+                  <PostCard key={post.id} post={post} variant="podcast"  timeZone={timeZone} />
+                ))}
+              </div>
+            </div>
+
+            <BannerWidget
+              widget={banners.category_above_popular}
+              aspectClassName="md:aspect-[370/283]"
+              alt={
+                banners.category_above_popular?.label ||
+                "Category sidebar advertisement"
+              }
+            />
 
             <div>
               <div className="mb-3 flex items-end justify-between gap-3">
