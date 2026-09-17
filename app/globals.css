@@ -398,33 +398,20 @@ button.fpn-live-cta {
   padding: 8px 14px;
 }
 
-.fpn-live-dock {
+.fpn-live-pip-wrap {
   position: fixed;
   z-index: 60;
-  right: 10px;
-  bottom: max(10px, env(safe-area-inset-bottom));
-  left: 10px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 10px 8px 8px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(11, 18, 32, 0.96);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
-  color: #fff;
-  text-align: left;
-  backdrop-filter: blur(8px);
+  right: 12px;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  animation: fpn-live-pip-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.fpn-live-dock--enter {
-  animation: fpn-live-dock-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@keyframes fpn-live-dock-in {
+@keyframes fpn-live-pip-in {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -432,52 +419,65 @@ button.fpn-live-cta {
   }
 }
 
-.fpn-live-dock-copy {
-  display: flex;
-  min-width: 0;
-  flex: 1;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-}
-
-.fpn-live-dock-title {
-  font-size: 13px;
+.fpn-live-pip-close {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  z-index: 3;
+  display: inline-flex;
+  height: 26px;
+  width: 26px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: #0b1220;
+  font-size: 16px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1;
   color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
-.fpn-live-dock-screen {
+.fpn-live-pip-card {
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px 8px 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(11, 18, 32, 0.96);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  color: #fff;
+  text-align: left;
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+
+.fpn-live-pip-video {
   position: relative;
-  width: 108px;
+  width: 112px;
   aspect-ratio: 16 / 9;
   flex-shrink: 0;
   overflow: hidden;
   border-radius: 8px;
   border: 2px solid rgba(255, 73, 13, 0.55);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
-}
-
-.fpn-live-dock-screen-inner {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(145deg, #0f172a 0%, #1b2a64 45%, #111827 100%);
-}
-
-.fpn-live-dock-screen-inner::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    transparent 60%,
-    rgba(0, 0, 0, 0.35)
-  );
+  background: #000;
   pointer-events: none;
 }
 
-.fpn-live-dock-badge {
+.fpn-live-pip-player {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  border-radius: 6px;
+}
+
+.fpn-live-pip-badge {
   position: absolute;
   top: 4px;
   left: 4px;
@@ -489,59 +489,35 @@ button.fpn-live-cta {
   font-weight: 800;
   letter-spacing: 0.06em;
   line-height: 1.4;
+  color: #fff;
 }
 
-.fpn-live-dock-screen-icon {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.fpn-live-dock-screen-icon .fpn-live-tv {
-  width: 2.25rem;
-}
-
-.fpn-live-sheet {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
+.fpn-live-pip-copy {
   display: flex;
   flex-direction: column;
-  background: #070b14;
-  color: #fff;
+  align-items: flex-start;
+  gap: 6px;
+  padding-right: 4px;
 }
 
-.fpn-live-sheet-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.fpn-live-sheet-close {
-  display: inline-flex;
-  height: 2.5rem;
-  width: 2.5rem;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.1);
-  font-size: 1.25rem;
+.fpn-live-pip-title {
+  font-size: 13px;
   font-weight: 700;
-  line-height: 1;
-  color: #fff;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
-.fpn-live-sheet-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px 16px max(20px, env(safe-area-inset-bottom));
+.fpn-live-pip-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.fpn-live-pip-action .fpn-live-tv {
+  width: 2rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -549,7 +525,7 @@ button.fpn-live-cta {
     animation: none;
     opacity: 0.7;
   }
-  .fpn-live-dock--enter {
+  .fpn-live-pip-wrap {
     animation: none;
   }
 }
