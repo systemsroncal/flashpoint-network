@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -9,10 +9,14 @@ import {
   FormControlLabel,
   MenuItem,
   Stack,
+  Tab,
+  Tabs,
   TextField,
   Typography,
 } from "@mui/material";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
+import SiteIdentityPanel from "@/components/admin/settings/SiteIdentityPanel";
+import type { SiteIdentity } from "@/lib/site-identity/constants";
 import { saveAiProviderKeysAction } from "@/lib/admin/ai-actions";
 import {
   saveAdSenseSettingsAction,
@@ -32,6 +36,7 @@ import {
   SITE_TIMEZONE_OPTIONS,
   SITE_TIMEZONE_SETTING,
 } from "@/lib/timezone/constants";
+import { SITE_IDENTITY_SETTING } from "@/lib/site-identity/constants";
 
 type Setting = {
   key: string;
@@ -49,15 +54,18 @@ function asObject(value: unknown): Record<string, unknown> {
 export default function SettingsManager({
   settings,
   aiProviders,
+  identity,
   canManageProgramModules = false,
   canEditCustomHtml = false,
 }: {
   settings: Setting[];
   aiProviders: AiProviderStatus[];
+  identity: SiteIdentity;
   canManageProgramModules?: boolean;
   /** Admin / superadmin only — third-party HTML executes on public pages */
   canEditCustomHtml?: boolean;
 }) {
+  const [tab, setTab] = useState("identity");
   const byKey = useMemo(() => {
     const map = new Map<string, Setting>();
     for (const s of settings) map.set(s.key, s);
@@ -87,11 +95,37 @@ export default function SettingsManager({
     SITE_TIMEZONE_SETTING,
     CUSTOM_HTML_SETTING,
     AI_KEYS_SETTING,
+    SITE_IDENTITY_SETTING,
   ]);
   const visibleSettings = settings.filter((s) => !hiddenKeys.has(s.key));
 
   return (
     <Stack spacing={3}>
+      <Tabs
+        value={tab}
+        onChange={(_, value: string) => setTab(value)}
+        variant="scrollable"
+        scrollButtons="auto"
+        sx={{ borderBottom: 1, borderColor: "divider" }}
+      >
+        <Tab label="Site identity" value="identity" />
+        <Tab label="General" value="general" />
+        <Tab label="Monetization" value="monetization" />
+        <Tab label="Integrations" value="integrations" />
+        <Tab label="Advanced" value="advanced" />
+      </Tabs>
+
+      {tab === "identity" ? (
+        <DashboardCard
+          title="Site identity"
+          subtitle="Logo, favicon, site name, and default featured image for the public site."
+        >
+          <SiteIdentityPanel identity={identity} />
+        </DashboardCard>
+      ) : null}
+
+      {tab === "general" ? (
+        <>
       <DashboardCard
         title="System timezone"
         subtitle="Used for dates on the public site and in admin (publish times, tickers, datetime fields). Stored as UTC in the database."
@@ -198,7 +232,11 @@ export default function SettingsManager({
         </Box>
       </DashboardCard>
       ) : null}
+        </>
+      ) : null}
 
+      {tab === "monetization" ? (
+        <>
       <DashboardCard
         title="Paywall limits"
         subtitle="Soft meter for anonymous readers. Staff and signed-in subscribers bypass."
@@ -298,7 +336,11 @@ export default function SettingsManager({
           </Stack>
         </Box>
       </DashboardCard>
+        </>
+      ) : null}
 
+      {tab === "integrations" ? (
+        <>
       {canEditCustomHtml ? (
         <DashboardCard
           title="Custom HTML & scripts"
@@ -358,8 +400,17 @@ export default function SettingsManager({
             </Stack>
           </Box>
         </DashboardCard>
+      ) : (
+        <Alert severity="info">
+          Only admins can edit Custom HTML. Ask an admin if you need analytics or
+          pixel snippets added.
+        </Alert>
+      )}
+        </>
       ) : null}
 
+      {tab === "advanced" ? (
+        <>
       <DashboardCard
         title="AI provider API keys"
         subtitle="Used by the News AI writing assistant. Keys stay on the server — never sent to the public site."
@@ -471,6 +522,8 @@ export default function SettingsManager({
           </Box>
         </DashboardCard>
       ))}
+        </>
+      ) : null}
     </Stack>
   );
 }

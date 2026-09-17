@@ -5,10 +5,12 @@ import { recordPostView } from "@/lib/analytics/record-view";
 import { getCurrentProfile, isStaffRole } from "@/lib/auth/session";
 import { getBannerWidgetsBySlots } from "@/lib/data/banners";
 import { getArticleSidebar, getPostBySlug } from "@/lib/data/home";
-import { getSiteName, getSiteUrl } from "@/lib/env";
+import { getSiteUrl } from "@/lib/env";
 import { absoluteMediaUrl } from "@/lib/media/public-url";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
 import { getPaywallSettings } from "@/lib/paywall/settings";
+import { DEFAULT_FOOTER_MARK_URL } from "@/lib/site-identity/constants";
+import { getSiteIdentity } from "@/lib/site-identity/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +20,10 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
+  const [post, identity] = await Promise.all([
+    getPostBySlug(slug),
+    getSiteIdentity(),
+  ]);
   if (!post) return { title: "Not found" };
 
   const title = post.seo_title?.trim() || post.title;
@@ -36,6 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     absoluteMediaUrl(post.og_image_url)?.trim() ||
     absoluteMediaUrl(post.featured_image_url)?.trim() ||
     youtubeThumbnailUrl(post.video_url) ||
+    absoluteMediaUrl(identity.defaultFeaturedImageUrl) ||
     undefined;
   const url = `${getSiteUrl().replace(/\/$/, "")}/news/${post.slug}`;
 
@@ -46,7 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: { canonical: url },
     openGraph: {
       type: "article",
-      siteName: getSiteName(),
+      siteName: identity.siteName,
       title: ogTitle,
       description: ogDescription,
       url,
@@ -66,7 +72,7 @@ export default async function NewsArticlePage({ params }: Props) {
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  const [sidebar, paywall, profile, banners] = await Promise.all([
+  const [sidebar, paywall, profile, banners, identity] = await Promise.all([
     getArticleSidebar(post.id),
     getPaywallSettings(),
     getCurrentProfile(),
@@ -74,6 +80,7 @@ export default async function NewsArticlePage({ params }: Props) {
       "article_above_latest_patriot",
       "article_above_latest_ofc",
     ]),
+    getSiteIdentity(),
     recordPostView(post.id),
   ]);
 
@@ -89,7 +96,10 @@ export default async function NewsArticlePage({ params }: Props) {
   const authorName =
     post.author?.full_name ||
     [post.author?.first_name, post.author?.last_name].filter(Boolean).join(" ") ||
-    getSiteName();
+    identity.siteName;
+  const publisherLogo =
+    absoluteMediaUrl(identity.headerLogoUrl) ||
+    `${siteUrl}${DEFAULT_FOOTER_MARK_URL}`;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -99,7 +109,8 @@ export default async function NewsArticlePage({ params }: Props) {
       const img =
         absoluteMediaUrl(post.og_image_url) ||
         absoluteMediaUrl(post.featured_image_url) ||
-        youtubeThumbnailUrl(post.video_url);
+        youtubeThumbnailUrl(post.video_url) ||
+        absoluteMediaUrl(identity.defaultFeaturedImageUrl);
       return img ? [img] : undefined;
     })(),
     datePublished: post.published_at || undefined,
@@ -109,10 +120,10 @@ export default async function NewsArticlePage({ params }: Props) {
     },
     publisher: {
       "@type": "Organization",
-      name: getSiteName(),
+      name: identity.siteName,
       logo: {
         "@type": "ImageObject",
-        url: `${siteUrl}/brand/fpn-logo-mark.svg`,
+        url: publisherLogo,
       },
     },
     mainEntityOfPage: {

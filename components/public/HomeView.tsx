@@ -16,6 +16,7 @@ import {
   formatViews,
 } from "@/lib/format";
 import { cardFeaturedImageUrl } from "@/lib/posts/media-layout";
+import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
 function SeeMore({ href, label = "See more" }: { href: string; label?: string }) {
@@ -36,12 +37,16 @@ export default async function HomeView({
   data: HomePayload;
   banners?: Partial<Record<BannerSlot, BannerWidgetRow>>;
 }) {
-  const timeZone = await getSiteTimezone();
+  const [timeZone, identity] = await Promise.all([
+    getSiteTimezone(),
+    getSiteIdentity(),
+  ]);
+  const defaultFeatured = identity.defaultFeaturedImageUrl;
   const mainVideo = data.mustWatch[0];
   const sideVideos = data.mustWatch.slice(1, 5);
   const mainExclusive = data.exclusives[0];
   const mainExclusiveThumb = mainExclusive
-    ? cardFeaturedImageUrl(mainExclusive)
+    ? cardFeaturedImageUrl(mainExclusive, defaultFeatured)
     : null;
   const exclusiveRows = data.exclusives.slice(1, 5);
   // Second band under First Section: exactly 3 Politics + 3 World (from data.grid).
@@ -124,8 +129,8 @@ export default async function HomeView({
 
             <div>
               <div className="mb-4 flex items-end justify-between gap-3">
-                <h2 className="font-article text-[2rem] font-black leading-none tracking-tight md:text-[45.5px]">
-                  Podcasts
+                <h2 className="font-article text-[1.65rem] font-black leading-[0.95] tracking-tight md:text-[2.15rem]">
+                  Beyond the Broadcast
                 </h2>
                 <SeeMore href="/feed/podcasts" label="SEE ALL" />
               </div>
@@ -204,7 +209,7 @@ export default async function HomeView({
             {mainVideo ? <PostCard post={mainVideo} variant="video"  timeZone={timeZone} /> : null}
             <div className="flex flex-col divide-y divide-[#ccc] border-t border-[#ccc]">
               {sideVideos.map((post) => {
-                const thumb = cardFeaturedImageUrl(post);
+                const thumb = cardFeaturedImageUrl(post, defaultFeatured);
                 return (
                   <article key={post.id} className="flex gap-4 py-5">
                     <Link
@@ -385,7 +390,7 @@ export default async function HomeView({
           <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(280px,370px)] lg:gap-12">
             <div className="divide-y divide-[#ccc] border-t border-[#ccc]">
               {exclusiveRows.map((post) => {
-                const thumb = cardFeaturedImageUrl(post);
+                const thumb = cardFeaturedImageUrl(post, defaultFeatured);
                 return (
                 <article
                   key={post.id}

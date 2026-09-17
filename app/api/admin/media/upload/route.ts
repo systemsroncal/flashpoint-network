@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { requireStaffProfile } from "@/lib/auth/session";
 import { saveUploadedImage } from "@/lib/admin/upload-core";
+import { invalidateUploadLibraryIndex } from "@/lib/media/library";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -43,6 +44,7 @@ export async function POST(request: Request) {
     if (!result.ok) {
       return NextResponse.json(result, { status: 400 });
     }
+    invalidateUploadLibraryIndex();
     revalidatePath("/admin/media");
     return NextResponse.json(result);
   } catch (err) {

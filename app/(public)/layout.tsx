@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import AdSenseScript from "@/components/public/AdSenseScript";
 import MaintenanceWithProgramException from "@/components/public/MaintenanceWithProgramException";
 import SiteFooter from "@/components/public/SiteFooter";
@@ -6,12 +7,23 @@ import TrustedHtmlInject from "@/components/public/TrustedHtmlInject";
 import { TimezoneProvider } from "@/components/timezone/TimezoneProvider";
 import { getCurrentProfile, isAdminRole, isStaffRole } from "@/lib/auth/session";
 import { getCustomHtmlSettings } from "@/lib/custom-html/settings";
-import { getSiteName } from "@/lib/env";
+import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { getProgramModules } from "@/lib/features/program-modules-server";
 import { getMaintenanceSettings } from "@/lib/maintenance/settings";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const identity = await getSiteIdentity();
+  return {
+    title: {
+      default: identity.siteName,
+      template: `%s · ${identity.siteName}`,
+    },
+    icons: identity.faviconUrl ? { icon: identity.faviconUrl } : undefined,
+  };
+}
 
 export default async function PublicLayout({
   children,
@@ -52,7 +64,6 @@ export default async function PublicLayout({
     );
   }
 
-  const siteName = getSiteName();
   return (
     <TimezoneProvider timeZone={timeZone}>
       {htmlInjects}
@@ -70,7 +81,7 @@ export default async function PublicLayout({
           isStaff={Boolean(profile && isStaffRole(profile.role))}
         />
         <main className="w-full max-w-none flex-1">{children}</main>
-        <SiteFooter siteName={siteName} modules={modules} />
+        <SiteFooter modules={modules} />
       </div>
       {htmlFooter}
     </TimezoneProvider>

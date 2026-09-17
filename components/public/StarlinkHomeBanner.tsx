@@ -1,4 +1,10 @@
+import { Poppins } from "next/font/google";
 import VideoPlayer from "@/components/public/VideoPlayer";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "900"],
+});
 
 const STARLINK_URL = "https://starlink.com/residential";
 const STARLINK_VIDEO = "https://www.youtube.com/watch?v=-8vy3Azdv2I";
@@ -13,11 +19,11 @@ export default function StarlinkHomeBanner() {
       aria-label="Advertising by Starlink"
     >
       <div className="mx-auto flex max-w-[1654px] flex-col items-stretch gap-8 px-4 py-10 md:flex-row md:items-center md:gap-10 md:px-8 md:py-12 lg:gap-14 lg:px-10 lg:py-14">
-        <div className="flex min-w-0 flex-1 flex-col justify-center">
+        <div className={`${poppins.className} flex min-w-0 flex-1 flex-col justify-center`}>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80 md:text-[12px]">
             Advertising by Starlink.
           </p>
-          <h2 className="mt-3 font-article text-[1.75rem] font-black uppercase leading-[1.08] tracking-tight md:mt-4 md:text-[2.35rem] lg:text-[2.75rem]">
+          <h2 className="mt-3 text-[1.75rem] font-black uppercase leading-[1.08] tracking-tight md:mt-4 md:text-[2.35rem] lg:text-[2.75rem]">
             High-speed internet.
             <br />
             Nearly anywhere.

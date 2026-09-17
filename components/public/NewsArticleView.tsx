@@ -13,6 +13,7 @@ import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media/public-url";
 import { shouldShowFeaturedImageInArticleHero } from "@/lib/posts/media-layout";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
+import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
 type Props = {
@@ -38,10 +39,15 @@ export default async function NewsArticleView({
   paywallBypass,
   banners = {},
 }: Props) {
-  const timeZone = await getSiteTimezone();
+  const [timeZone, identity] = await Promise.all([
+    getSiteTimezone(),
+    getSiteIdentity(),
+  ]);
   const category = (post.category?.name ?? "News").toUpperCase();
   const href = `/news/${post.slug}`;
-  const featured = resolveMediaUrl(post.featured_image_url);
+  const featured =
+    resolveMediaUrl(post.featured_image_url) ||
+    identity.defaultFeaturedImageUrl;
   // Switch is article-hero only — cards/home/SEO always keep featured_image_url.
   const showFeatured = shouldShowFeaturedImageInArticleHero(post);
   const playerInHero = Boolean(post.video_url) && !showFeatured;
@@ -286,8 +292,8 @@ export default async function NewsArticleView({
 
           <div>
             <div className="mb-2 flex items-end justify-between gap-3">
-              <h2 className="font-article text-[1.75rem] font-black tracking-tight md:text-[2rem]">
-                Podcasts
+              <h2 className="font-article text-[1.65rem] font-black leading-[0.95] tracking-tight md:text-[2rem]">
+                Beyond the Broadcast
               </h2>
               <Link
                 href="/feed/podcasts"

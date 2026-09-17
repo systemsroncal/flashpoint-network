@@ -15,6 +15,7 @@ type Props = {
   label?: string;
   defaultValue?: string | null;
   onUrlChange?: (url: string) => void;
+  accept?: string;
 };
 
 type UploadResponse =
@@ -26,6 +27,7 @@ export default function ImageUploadField({
   label = "Featured image",
   defaultValue = "",
   onUrlChange,
+  accept = "image/jpeg,image/png,image/webp,image/gif,image/avif",
 }: Props) {
   const [url, setUrl] = useState(defaultValue ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -89,7 +91,7 @@ export default function ImageUploadField({
             ref={inputRef}
             hidden
             type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+            accept={accept}
             onChange={(e) => void onFile(e.target.files?.[0] ?? null)}
           />
         </Button>

@@ -18,6 +18,53 @@ const POLITICS_ID = "b1000000-0000-4000-8000-000000000002";
 const WORLD_ID = "b1000000-0000-4000-8000-000000000003";
 const ELECTIONS_ID = "b1000000-0000-4000-8000-00000000000a";
 
+/** Home / feed rail “Beyond the Broadcast”. Accepts old slug while the tag is renamed. */
+export const BROADCAST_TAG_SLUGS = ["broadcast", "podcast"] as const;
+
+type DbClient = NonNullable<Awaited<ReturnType<typeof db>>>;
+
+async function getPostIdsByTagSlugs(
+  supabase: DbClient,
+  slugs: readonly string[],
+): Promise<string[]> {
+  const { data: tags } = await supabase
+    .from("tags")
+    .select("id")
+    .in("slug", [...slugs]);
+  const tagIds = (tags ?? []).map((row) => row.id as string);
+  if (tagIds.length === 0) return [];
+  const { data: links } = await supabase
+    .from("post_tags")
+    .select("post_id")
+    .in("tag_id", tagIds);
+  return [...new Set((links ?? []).map((row) => row.post_id as string))];
+}
+
+async function getBroadcastPosts(
+  supabase: DbClient,
+  limit: number,
+): Promise<Post[]> {
+  const taggedIds = await getPostIdsByTagSlugs(supabase, BROADCAST_TAG_SLUGS);
+  if (taggedIds.length > 0) {
+    const { data } = await supabase
+      .from("posts")
+      .select(POST_SELECT)
+      .eq("status", "published")
+      .in("id", taggedIds)
+      .order("published_at", { ascending: false })
+      .limit(limit);
+    return asPosts(data);
+  }
+  const { data } = await supabase
+    .from("posts")
+    .select(POST_SELECT)
+    .eq("status", "published")
+    .eq("is_podcast", true)
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  return asPosts(data);
+}
+
 async function db() {
   return (await createClient()) ?? createAdminClient();
 }
@@ -51,8 +98,8 @@ export async function getFeedPosts(
     .order("published_at", { ascending: false })
     .limit(limit);
 
-  if (kind === "podcasts") q = q.eq("is_podcast", true);
-  else if (kind === "videos") q = q.eq("is_video", true);
+  if (kind === "podcasts") return getBroadcastPosts(supabase, limit);
+  if (kind === "videos") q = q.eq("is_video", true);
   else if (kind === "premium") q = q.eq("is_premium", true);
   else if (kind === "popular") q = q.eq("is_popular", true);
   else {
@@ -92,7 +139,7 @@ export async function getHomePayload(): Promise<HomePayload> {
     tickerEventsRes,
     latestPoolRes,
     firstSectionRes,
-    podcastsRes,
+    podcasts,
     mustWatchRes,
     electionsRes,
     exclusivesRes,
@@ -133,13 +180,7 @@ export async function getHomePayload(): Promise<HomePayload> {
       .eq("status", "published")
       .in("home_first_slot", [1, 2, 3])
       .order("home_first_slot", { ascending: true }),
-    supabase
-      .from("posts")
-      .select(POST_SELECT)
-      .eq("status", "published")
-      .eq("is_podcast", true)
-      .order("published_at", { ascending: false })
-      .limit(4),
+    getBroadcastPosts(supabase, 4),
     supabase
       .from("posts")
       .select(POST_SELECT)
@@ -240,7 +281,7 @@ export async function getHomePayload(): Promise<HomePayload> {
     nextUpcomingEvent,
     featured,
     secondary,
-    podcasts: asPosts(podcastsRes.data),
+    podcasts,
     grid: [...politics, ...world],
     latest: latestRail,
     politics,
@@ -331,15 +372,9 @@ export async function getArticleSidebar(excludeId?: string): Promise<{
     .limit(5);
   if (excludeId) latestQ = latestQ.neq("id", excludeId);
 
-  const [latestRes, podcastsRes, popularRes, neighborsRes] = await Promise.all([
+  const [latestRes, podcasts, popularRes, neighborsRes] = await Promise.all([
     latestQ,
-    supabase
-      .from("posts")
-      .select(POST_SELECT)
-      .eq("status", "published")
-      .eq("is_podcast", true)
-      .order("published_at", { ascending: false })
-      .limit(4),
+    getBroadcastPosts(supabase, 4),
     supabase
       .from("posts")
       .select(POST_SELECT)
@@ -364,7 +399,7 @@ export async function getArticleSidebar(excludeId?: string): Promise<{
 
   return {
     latest: asPosts(latestRes.data).slice(0, 4),
-    podcasts: asPosts(podcastsRes.data),
+    podcasts,
     popular: asPosts(popularRes.data).filter((p) => p.id !== excludeId).slice(0, 5),
     previous,
     next,

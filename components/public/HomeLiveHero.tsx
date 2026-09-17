@@ -113,7 +113,7 @@ export default function HomeLiveHero({ headlineDate }: { headlineDate: string })
           >
             ×
           </button>
-          <Link href="/live" className="fpn-live-pip-card" aria-label="Open FlashPoint Live">
+          <Link href="/live" className="fpn-live-pip-card" aria-label="Open FlashPoint TV">
             <span className="fpn-live-pip-video">
               <span className="fpn-live-pip-badge">LIVE</span>
               <BrightcoveLivePlayer
@@ -123,7 +123,7 @@ export default function HomeLiveHero({ headlineDate }: { headlineDate: string })
               />
             </span>
             <span className="fpn-live-pip-copy">
-              <span className="fpn-live-pip-title">FlashPoint Live</span>
+              <span className="fpn-live-pip-title">FlashPoint TV</span>
               <span className="fpn-live-pip-action">
                 <LiveTvIcon />
                 <span>Watch Live</span>

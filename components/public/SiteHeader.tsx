@@ -1,12 +1,13 @@
-import Image from "next/image";
 import Link from "next/link";
 import HeaderSearch from "@/components/public/HeaderSearch";
 import MobileCategoryBar, {
   type MobileCategoryItem,
 } from "@/components/public/MobileCategoryBar";
 import MobileNav from "@/components/public/MobileNav";
+import BrandImage from "@/components/public/BrandImage";
 import { getNavCategories } from "@/lib/data/home";
-import { getSiteName } from "@/lib/env";
+import { getSiteIdentity } from "@/lib/site-identity/settings";
+import { DEFAULT_FOOTER_MARK_URL } from "@/lib/site-identity/constants";
 import type { ProgramModules } from "@/lib/features/program-modules";
 import { DEFAULT_PROGRAM_MODULES } from "@/lib/features/program-modules";
 
@@ -37,8 +38,12 @@ export default async function SiteHeader({
   isLoggedIn?: boolean;
   isStaff?: boolean;
 }) {
-  const siteName = getSiteName();
-  const categories = await getNavCategories();
+  const [identity, categories] = await Promise.all([
+    getSiteIdentity(),
+    getNavCategories(),
+  ]);
+  const siteName = identity.siteName;
+  const headerLogo = identity.headerLogoUrl;
   const fromDb = categories.filter((c) => c.slug !== "video");
   const navAll =
     fromDb.length > 0
@@ -122,12 +127,12 @@ export default async function SiteHeader({
             <Link href="/" className="relative z-10 shrink-0" aria-label={siteName}>
               <span className="flex w-[130px] flex-col overflow-hidden rounded-[3px] border-2 border-white bg-black">
                 <span className="relative flex h-[68px] items-center justify-center bg-black px-2">
-                  <Image
-                    src="/brand/fpn-logo-mark.svg"
+                  <BrandImage
+                    src={headerLogo || DEFAULT_FOOTER_MARK_URL}
                     alt={siteName}
                     width={110}
                     height={52}
-                    className="h-[52px] w-auto"
+                    className="h-[52px] w-auto max-w-[110px] object-contain"
                     priority
                   />
                 </span>
@@ -193,12 +198,12 @@ export default async function SiteHeader({
             className="justify-self-center"
             aria-label={siteName}
           >
-            <Image
-              src="/brand/fpn-logo-wordmark.png"
+            <BrandImage
+              src={headerLogo}
               alt={siteName}
               width={160}
               height={34}
-              className="h-8 w-auto sm:h-9"
+              className="h-8 w-auto max-w-[180px] object-contain sm:h-9"
               priority
             />
           </Link>

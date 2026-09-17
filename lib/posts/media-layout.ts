@@ -67,11 +67,15 @@ export const shouldShowFeaturedImage = shouldShowFeaturedImageInArticleHero;
  * video/podcast post has no stored featured image, fall back to the
  * YouTube thumbnail so grids never show an empty grey box.
  */
-export function cardFeaturedImageUrl(post: CardImagePost): string | null {
+export function cardFeaturedImageUrl(
+  post: CardImagePost,
+  defaultFeaturedImageUrl?: string | null,
+): string | null {
   return (
     resolveMediaUrl(post.featured_image_url) ||
     resolveMediaUrl(post.og_image_url) ||
     youtubeThumbnailUrl(post.video_url) ||
+    resolveMediaUrl(defaultFeaturedImageUrl) ||
     null
   );
 }

@@ -1,7 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import BrandImage from "@/components/public/BrandImage";
 import type { ProgramModules } from "@/lib/features/program-modules";
 import { DEFAULT_PROGRAM_MODULES } from "@/lib/features/program-modules";
+import { DEFAULT_FOOTER_MARK_URL } from "@/lib/site-identity/constants";
+import { getSiteIdentity } from "@/lib/site-identity/settings";
 
 const COLUMNS = [
   {
@@ -42,15 +45,17 @@ const COLUMNS = [
   },
 ];
 
-export default function SiteFooter({
-  siteName = "Flash Point Network",
+export default async function SiteFooter({
   tagline = "Get The Full Story. As It Is.",
   modules = DEFAULT_PROGRAM_MODULES,
 }: {
-  siteName?: string;
   tagline?: string;
   modules?: ProgramModules;
 }) {
+  const identity = await getSiteIdentity();
+  const siteName = identity.siteName;
+  const footerLogo = identity.footerLogoUrl;
+
   return (
     <footer className="mt-auto bg-[#111111] text-white">
       <div className="mx-auto max-w-[1440px] px-4 py-10 md:px-8 lg:px-10">
@@ -68,24 +73,36 @@ export default function SiteFooter({
 
         <div className="grid gap-10 md:grid-cols-[1.1fr_2fr]">
           <div>
-            <Link
-              href="/"
-              className="inline-flex w-[120px] flex-col overflow-hidden rounded-[3px] border-2 border-white bg-black"
-              aria-label={siteName}
-            >
-              <span className="flex h-[60px] items-center justify-center bg-black px-2">
-                <Image
-                  src="/brand/fpn-logo-mark.svg"
+            {footerLogo ? (
+              <Link href="/" className="inline-block" aria-label={siteName}>
+                <BrandImage
+                  src={footerLogo}
                   alt={siteName}
-                  width={100}
-                  height={48}
-                  className="h-10 w-auto"
+                  width={160}
+                  height={72}
+                  className="h-14 w-auto max-w-[160px] object-contain object-left"
                 />
-              </span>
-              <span className="bg-[var(--fpn-rojo)] py-1 text-center text-[10px] font-bold uppercase tracking-[0.35em]">
-                Network
-              </span>
-            </Link>
+              </Link>
+            ) : (
+              <Link
+                href="/"
+                className="inline-flex w-[120px] flex-col overflow-hidden rounded-[3px] border-2 border-white bg-black"
+                aria-label={siteName}
+              >
+                <span className="flex h-[60px] items-center justify-center bg-black px-2">
+                  <Image
+                    src={DEFAULT_FOOTER_MARK_URL}
+                    alt={siteName}
+                    width={100}
+                    height={48}
+                    className="h-10 w-auto"
+                  />
+                </span>
+                <span className="bg-[var(--fpn-rojo)] py-1 text-center text-[10px] font-bold uppercase tracking-[0.35em]">
+                  Network
+                </span>
+              </Link>
+            )}
             <p className="mt-5 max-w-xs text-sm leading-6 text-white/60">
               Independent reporting for a sharper public square.
             </p>

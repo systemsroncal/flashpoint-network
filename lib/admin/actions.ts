@@ -33,6 +33,9 @@ import {
 import { datetimeLocalToIso } from "@/lib/timezone/datetime";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 import { normalizeExternalUrl } from "@/lib/events/upcoming";
+import { normalizeStoredMediaUrl } from "@/lib/media/public-url";
+import { getSiteName } from "@/lib/env";
+import { SITE_IDENTITY_SETTING } from "@/lib/site-identity/constants";
 
 function boolFromForm(value: FormDataEntryValue | null): boolean {
   return value === "on" || value === "true" || value === "1";
@@ -596,6 +599,47 @@ export async function saveAdSenseSettingsAction(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/admin/settings");
   revalidatePath("/ads.txt");
+}
+
+export async function saveSiteIdentitySettingsAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const siteName =
+    String(formData.get("site_name") || "").trim() || getSiteName();
+  const headerLogoUrl =
+    normalizeStoredMediaUrl(String(formData.get("header_logo_url") || "").trim()) ??
+    null;
+  const footerLogoUrl = normalizeStoredMediaUrl(
+    String(formData.get("footer_logo_url") || "").trim(),
+  );
+  const authLogoUrl = normalizeStoredMediaUrl(
+    String(formData.get("auth_logo_url") || "").trim(),
+  );
+  const faviconUrl = normalizeStoredMediaUrl(
+    String(formData.get("favicon_url") || "").trim(),
+  );
+  const defaultFeaturedImageUrl = normalizeStoredMediaUrl(
+    String(formData.get("default_featured_image_url") || "").trim(),
+  );
+
+  const { error } = await supabase.from("site_settings").upsert({
+    key: SITE_IDENTITY_SETTING,
+    value: {
+      site_name: siteName,
+      header_logo_url: headerLogoUrl,
+      footer_logo_url: footerLogoUrl,
+      auth_logo_url: authLogoUrl,
+      favicon_url: faviconUrl,
+      default_featured_image_url: defaultFeaturedImageUrl,
+    },
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+  revalidatePath("/news");
+  revalidatePath("/login");
+  revalidatePath("/register");
+  revalidatePath("/forgot-password");
+  revalidatePath("/update-password");
 }
 
 export async function saveMaintenanceSettingsAction(formData: FormData) {

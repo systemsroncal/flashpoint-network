@@ -6,6 +6,7 @@ import PostCard from "@/components/public/PostCard";
 import type { Category, Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 import { cardFeaturedImageUrl } from "@/lib/posts/media-layout";
+import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
 type Props = {
@@ -23,9 +24,15 @@ export default async function CategoryView({
   latest,
   popular,
 }: Props) {
-  const timeZone = await getSiteTimezone();
+  const [timeZone, identity] = await Promise.all([
+    getSiteTimezone(),
+    getSiteIdentity(),
+  ]);
+  const defaultFeatured = identity.defaultFeaturedImageUrl;
   const featured = posts[0] ?? null;
-  const featuredSrc = featured ? cardFeaturedImageUrl(featured) : null;
+  const featuredSrc = featured
+    ? cardFeaturedImageUrl(featured, defaultFeatured)
+    : null;
   const grid = posts.slice(1, 4);
   const list = posts.slice(4);
   const label = category.name.toUpperCase();
@@ -39,6 +46,7 @@ export default async function CategoryView({
         <MobileFeedList
           posts={posts}
           timeZone={timeZone}
+          defaultFeaturedImageUrl={defaultFeatured}
           emptyTitle={`No stories in ${mobileTitle} yet`}
           emptyBody="Editors haven&apos;t published coverage in this section yet."
         />
@@ -168,7 +176,7 @@ export default async function CategoryView({
             {list.length > 0 ? (
               <section className="divide-y divide-[#ccc] border-t border-[#ccc]">
                 {list.map((post) => {
-                  const thumb = cardFeaturedImageUrl(post);
+                  const thumb = cardFeaturedImageUrl(post, defaultFeatured);
                   return (
                   <article
                     key={post.id}
@@ -254,8 +262,8 @@ export default async function CategoryView({
 
             <div>
               <div className="mb-2 flex items-end justify-between gap-3">
-                <h2 className="font-article text-[1.65rem] font-black tracking-tight">
-                  Podcasts
+                <h2 className="font-article text-[1.65rem] font-black leading-[0.95] tracking-tight">
+                  Beyond the Broadcast
                 </h2>
                 <Link
                   href="/feed/podcasts"

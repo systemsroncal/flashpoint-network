@@ -11,15 +11,17 @@ import {
   PROGRAM_MODULES_SETTING,
   isProgramModulesOwnerEmail,
 } from "@/lib/features/program-modules";
+import { getSiteIdentity } from "@/lib/site-identity/settings";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminSettingsPage() {
-  const [settings, aiProviders, user, profile] = await Promise.all([
+  const [settings, aiProviders, user, profile, identity] = await Promise.all([
     getAdminSettings(),
     getAiProviderStatus(),
     getSessionUser(),
     getCurrentProfile(),
+    getSiteIdentity(),
   ]);
   const canManageProgramModules =
     isProgramModulesOwnerEmail(user?.email) ||
@@ -37,6 +39,7 @@ export default async function AdminSettingsPage() {
       <SettingsManager
         settings={settingsForClient}
         aiProviders={aiProviders}
+        identity={identity}
         canManageProgramModules={canManageProgramModules}
         canEditCustomHtml={canEditCustomHtml}
       />

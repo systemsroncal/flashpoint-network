@@ -4,6 +4,7 @@ import MobileFeedList from "@/components/public/MobileFeedList";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
 import { getFeedPosts, type FeedKind } from "@/lib/data/home";
+import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
 export const dynamic = "force-dynamic";
@@ -18,8 +19,8 @@ const FEEDS: Record<
     mobileTitle: "Latest",
   },
   podcasts: {
-    title: "Podcasts",
-    description: "All podcast episodes, newest first.",
+    title: "Beyond the Broadcast",
+    description: "Broadcast episodes, newest first.",
   },
   videos: {
     title: "Must-Watch Videos",
@@ -56,9 +57,10 @@ export default async function FeedPage({ params }: Props) {
   // "Latest" in the mobile bar lands on home sections — never a compact list.
   if (kind === "latest") redirect("/");
 
-  const [posts, timeZone] = await Promise.all([
+  const [posts, timeZone, identity] = await Promise.all([
     getFeedPosts(kind, 48),
     getSiteTimezone(),
+    getSiteIdentity(),
   ]);
   const meta = FEEDS[kind];
 
@@ -68,6 +70,7 @@ export default async function FeedPage({ params }: Props) {
         <MobileFeedList
           posts={posts}
           timeZone={timeZone}
+          defaultFeaturedImageUrl={identity.defaultFeaturedImageUrl}
           emptyTitle={`No stories in ${meta.mobileTitle ?? meta.title} yet`}
           emptyBody="Nothing is published in this feed right now."
         />

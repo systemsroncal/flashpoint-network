@@ -7,6 +7,7 @@ import { cardFeaturedImageUrl } from "@/lib/posts/media-layout";
 type Props = {
   posts: Post[];
   timeZone: string;
+  defaultFeaturedImageUrl?: string | null;
   emptyTitle?: string;
   emptyBody?: string;
 };
@@ -14,6 +15,7 @@ type Props = {
 export default function MobileFeedList({
   posts,
   timeZone,
+  defaultFeaturedImageUrl = null,
   emptyTitle = "No stories yet",
   emptyBody = "Check back soon for new coverage.",
 }: Props) {
@@ -37,7 +39,7 @@ export default function MobileFeedList({
   return (
     <ul className="w-full max-w-none divide-y divide-[#E5E5E5] border-b border-[#E5E5E5]">
       {posts.map((post) => {
-        const thumb = cardFeaturedImageUrl(post);
+        const thumb = cardFeaturedImageUrl(post, defaultFeaturedImageUrl);
         return (
           <li key={post.id} className="w-full">
             <Link
