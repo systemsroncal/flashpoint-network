@@ -5,6 +5,7 @@ import LatestNewsBar from "@/components/public/LatestNewsBar";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PatriotHomeBanner from "@/components/public/PatriotHomeBanner";
 import PostCard from "@/components/public/PostCard";
+import StarlinkHomeBanner from "@/components/public/StarlinkHomeBanner";
 import VideoPlayer from "@/components/public/VideoPlayer";
 import type { BannerSlot, BannerWidget as BannerWidgetRow } from "@/lib/banners/slots";
 import type { HomePayload } from "@/lib/types/cms";
@@ -400,27 +401,10 @@ export default async function HomeView({
             ))}
           </div>
         </section>
-
-        {/* Sponsored gradient */}
-        <section className="overflow-hidden rounded-[12px] bg-gradient-to-r from-[#3B1D8F] via-[#2F2AA8] to-[#1A3A9C] text-white">
-          <div className="flex flex-col items-start justify-between gap-4 px-6 py-9 md:flex-row md:items-center md:px-10">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">
-                Sponsored
-              </p>
-              <h2 className="mt-2 font-article text-[1.75rem] font-black md:text-[2rem]">
-                Cut your mobile bill in half
-              </h2>
-              <p className="mt-1 text-sm text-white/75">
-                Limited-time offer for FPN readers.
-              </p>
-            </div>
-            <span className="inline-flex rounded-md bg-white px-5 py-2.5 text-sm font-bold text-[#1A3A9C]">
-              Learn more
-            </span>
-          </div>
-        </section>
       </div>
+
+      {/* Starlink ad — Figma 27:10588, full-bleed */}
+      <StarlinkHomeBanner />
 
       {/* Exclusive Content + Popular — Figma 34:12523 */}
       <section className="bg-[#F5F5F5]">
