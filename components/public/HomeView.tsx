@@ -380,18 +380,42 @@ export default function HomeView({ data }: { data: HomePayload }) {
 
         {/* FP Army / Are You a Patriot — Figma Group 29802 (1282px, inset ~319 on 1920) */}
         <section className="mx-auto w-full max-w-[1282px] overflow-hidden rounded-[22px] bg-[#2c372a] text-white">
-          <div className="grid md:grid-cols-2">
-            <div className="relative min-h-[220px] md:min-h-[291px]">
+          {/* Mobile: vertical composite (links to FP Army register) */}
+          <a
+            href="https://app.fparmychapters.com/register"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block md:hidden"
+          >
+            <picture>
+              <source
+                srcSet="/brand/banners/fpn-patriot-banner-mobile.webp"
+                type="image/webp"
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element -- picture/webp fallback pair */}
+              <img
+                src="/brand/banners/fpn-patriot-banner-mobile.png"
+                alt="Are You a Patriot? Join FP Army Chapters"
+                className="h-auto w-full"
+                width={404}
+                height={500}
+              />
+            </picture>
+          </a>
+
+          {/* Desktop: photo + copy + CTA */}
+          <div className="hidden md:grid md:grid-cols-2">
+            <div className="relative min-h-[291px]">
               <Image
                 src="/brand/banners/fpn-patriot-people.webp"
                 alt="FP Army community"
                 fill
                 className="object-cover object-left"
-                sizes="(max-width:768px) 100vw, 641px"
+                sizes="641px"
               />
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent to-[#2c372a] md:via-[#2c372a]/40" />
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#2c372a]/40 to-[#2c372a]" />
             </div>
-            <div className="flex flex-col justify-center gap-4 px-6 py-7 md:px-8 md:py-8">
+            <div className="flex flex-col justify-center gap-4 px-8 py-8">
               <div className="flex items-center gap-3.5">
                 <span className="inline-flex size-[50px] items-center justify-center rounded-[12px] border border-[#4e4d4d] bg-[#363636]">
                   <Image
@@ -410,22 +434,24 @@ export default function HomeView({ data }: { data: HomePayload }) {
                   </p>
                 </div>
               </div>
-              <h2 className="text-[1.85rem] font-black uppercase leading-none tracking-[0.04em] md:text-[2.4rem]">
+              <h2 className="text-[2.4rem] font-black uppercase leading-none tracking-[0.04em]">
                 Are You a <span className="text-[#ffcb2c]">Patriot?</span>
               </h2>
-              <p className="max-w-md text-[15px] leading-relaxed tracking-wide text-white/90 md:text-[17px]">
+              <p className="max-w-md text-[17px] leading-relaxed tracking-wide text-white/90">
                 Connect locally. Stand for faith, freedom, and truth. Be part of
                 something bigger.
               </p>
-              <Link
-                href="/register"
+              <a
+                href="https://app.fparmychapters.com/register"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex w-fit items-center gap-2 rounded-[12px] border border-[#ffcb2c] bg-[#0d0d0d] px-5 py-3 text-[15px] font-bold tracking-wide text-white hover:bg-black"
               >
                 Join a Chapter
                 <span aria-hidden className="text-[#ffcb2c]">
                   ›
                 </span>
-              </Link>
+              </a>
             </div>
           </div>
         </section>
