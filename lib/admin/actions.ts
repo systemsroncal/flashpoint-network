@@ -5,16 +5,51 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/slug";
 import type { PostStatus } from "@/lib/types/cms";
-import { getCurrentProfile, getSessionUser } from "@/lib/auth/session";
+import {
+  getCurrentProfile,
+  getSessionUser,
+  isAdminRole,
+} from "@/lib/auth/session";
+import { CUSTOM_HTML_SETTING } from "@/lib/custom-html/constants";
 import {
   PROGRAM_MODULES_SETTING,
   isProgramModulesOwnerEmail,
 } from "@/lib/features/program-modules";
 import { getProgramModules } from "@/lib/features/program-modules-server";
+import {
+  normalizeHtmlMediaForStorage,
+  normalizeStoredMediaUrl,
+} from "@/lib/media/public-url";
 
 function boolFromForm(value: FormDataEntryValue | null): boolean {
   return value === "on" || value === "true" || value === "1";
 }
+
+/** True when the form sent an explicit true/false/on (hidden + checkbox pattern). */
+function hasExplicitBool(formData: FormData, key: string): boolean {
+  const raw = formData.get(key);
+  if (raw == null) return false;
+  const v = String(raw).toLowerCase();
+  return v === "true" || v === "false" || v === "on" || v === "1" || v === "0";
+}
+
+function explicitBool(formData: FormData, key: string, fallback: boolean): boolean {
+  if (!hasExplicitBool(formData, key)) return fallback;
+  const v = String(formData.get(key)).toLowerCase();
+  if (v === "false" || v === "0") return false;
+  return boolFromForm(formData.get(key));
+}
+
+type PlacementFields = {
+  is_featured: boolean;
+  is_premium: boolean;
+  is_video: boolean;
+  is_podcast: boolean;
+  is_popular: boolean;
+  published_at: string | null;
+  category_id: string | null;
+  author_id: string | null;
+};
 
 function requireAdmin() {
   const client = createAdminClient();
@@ -57,8 +92,10 @@ export async function upsertPostAction(formData: FormData) {
   const status = (String(formData.get("status") || "draft") as PostStatus) || "draft";
   const categoryId = String(formData.get("category_id") || "") || null;
   const excerpt = String(formData.get("excerpt") || "");
-  const body = String(formData.get("body") || "");
-  const featuredImageUrl = String(formData.get("featured_image_url") || "") || null;
+  const body = normalizeHtmlMediaForStorage(String(formData.get("body") || ""));
+  const featuredImageUrl = normalizeStoredMediaUrl(
+    String(formData.get("featured_image_url") || "") || null,
+  );
   const videoUrl = String(formData.get("video_url") || "") || null;
   const seoTitle = String(formData.get("seo_title") || "").trim() || null;
   const seoDescription =
@@ -69,14 +106,61 @@ export async function upsertPostAction(formData: FormData) {
     String(formData.get("og_description") || "").trim() || null;
   const readingTime = Number(formData.get("reading_time_minutes") || 5);
   const publishedAtRaw = String(formData.get("published_at") || "");
-  const publishedAt = publishedAtRaw
-    ? new Date(publishedAtRaw).toISOString()
-    : status === "published"
-      ? new Date().toISOString()
-      : null;
 
-  // Default author: seeded FPN desk editor
-  const authorId = "f1000000-0000-4000-8000-000000000001";
+  // Default author: seeded FPN desk editor (creates only)
+  const defaultAuthorId = "f1000000-0000-4000-8000-000000000001";
+
+  let existing: PlacementFields | null = null;
+  if (id) {
+    const { data, error } = await supabase
+      .from("posts")
+      .select(
+        "is_featured, is_premium, is_video, is_podcast, is_popular, published_at, category_id, author_id",
+      )
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    existing = (data as PlacementFields | null) ?? null;
+  }
+
+  // Preserve published_at on edit when the datetime field is empty (do not bump to "now").
+  let publishedAt: string | null;
+  if (publishedAtRaw) {
+    const parsed = new Date(publishedAtRaw);
+    publishedAt = Number.isNaN(parsed.getTime())
+      ? (existing?.published_at ?? null)
+      : parsed.toISOString();
+  } else if (existing?.published_at) {
+    publishedAt = existing.published_at;
+  } else if (status === "published") {
+    publishedAt = new Date().toISOString();
+  } else {
+    publishedAt = null;
+  }
+
+  // Placement flags: prefer explicit form values; if a field is missing from FormData
+  // (e.g. unchecked MUI checkbox never serializes), keep the existing DB value on update.
+  const isFeatured = explicitBool(
+    formData,
+    "is_featured",
+    existing?.is_featured ?? false,
+  );
+  const isPremium = explicitBool(
+    formData,
+    "is_premium",
+    existing?.is_premium ?? false,
+  );
+  const isVideo = explicitBool(formData, "is_video", existing?.is_video ?? false);
+  const isPodcast = explicitBool(
+    formData,
+    "is_podcast",
+    existing?.is_podcast ?? false,
+  );
+  const isPopular = explicitBool(
+    formData,
+    "is_popular",
+    existing?.is_popular ?? false,
+  );
 
   const payload = {
     title,
@@ -85,7 +169,7 @@ export async function upsertPostAction(formData: FormData) {
     body,
     status,
     category_id: categoryId,
-    author_id: authorId,
+    author_id: existing?.author_id ?? defaultAuthorId,
     featured_image_url: featuredImageUrl,
     video_url: videoUrl,
     seo_title: seoTitle,
@@ -95,10 +179,11 @@ export async function upsertPostAction(formData: FormData) {
     og_description: ogDescription,
     // Meta / social image is always the featured image
     og_image_url: featuredImageUrl,
-    is_featured: boolFromForm(formData.get("is_featured")),
-    is_premium: boolFromForm(formData.get("is_premium")),
-    is_video: boolFromForm(formData.get("is_video")),
-    is_podcast: boolFromForm(formData.get("is_podcast")),
+    is_featured: isFeatured,
+    is_premium: isPremium,
+    is_video: isVideo,
+    is_podcast: isPodcast,
+    is_popular: isPopular,
     reading_time_minutes: Number.isFinite(readingTime) ? readingTime : 5,
     published_at: publishedAt,
   };
@@ -398,7 +483,36 @@ export async function saveMaintenanceSettingsAction(formData: FormData) {
   revalidatePath("/events");
   revalidatePath("/category");
   revalidatePath("/classic-programs");
-  revalidatePath("/ministry-programs");
+  revalidatePath("/network-programs");
+  revalidatePath("/schedule-programs");
+  revalidatePath("/admin/settings");
+}
+
+/**
+ * Persist trusted third-party HTML (head / body / footer).
+ * Admin and superadmin only — these snippets execute on every public page.
+ */
+export async function saveCustomHtmlSettingsAction(formData: FormData) {
+  const profile = await getCurrentProfile();
+  if (!profile || !isAdminRole(profile.role)) {
+    throw new Error("Only admins can edit custom HTML scripts");
+  }
+  const supabase = requireAdmin();
+  const head = String(formData.get("head") || "");
+  const body = String(formData.get("body") || "");
+  const footer = String(formData.get("footer") || "");
+
+  const { error } = await supabase.from("site_settings").upsert({
+    key: CUSTOM_HTML_SETTING,
+    value: { head, body, footer },
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/news");
+  revalidatePath("/events");
+  revalidatePath("/category");
+  revalidatePath("/classic-programs");
+  revalidatePath("/network-programs");
   revalidatePath("/schedule-programs");
   revalidatePath("/admin/settings");
 }
@@ -418,7 +532,7 @@ export async function saveProgramModulesAction(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/");
   revalidatePath("/classic-programs");
-  revalidatePath("/ministry-programs");
+  revalidatePath("/network-programs");
   revalidatePath("/schedule-programs");
   revalidatePath("/admin");
   revalidatePath("/admin/classic-programs");
@@ -545,16 +659,16 @@ export async function upsertMinistryProgramAction(formData: FormData) {
       .select("id")
       .single();
     if (error) throw new Error(error.message);
-    revalidatePath("/ministry-programs");
-    revalidatePath("/admin/ministry-programs");
-    redirect(`/admin/ministry-programs/${data.id}`);
+    revalidatePath("/network-programs");
+    revalidatePath("/admin/network-programs");
+    redirect(`/admin/network-programs/${data.id}`);
   }
 
-  revalidatePath("/ministry-programs");
-  revalidatePath(`/ministry-programs/${slug}`);
-  revalidatePath("/admin/ministry-programs");
-  revalidatePath(`/admin/ministry-programs/${id}`);
-  redirect(`/admin/ministry-programs/${id}`);
+  revalidatePath("/network-programs");
+  revalidatePath(`/network-programs/${slug}`);
+  revalidatePath("/admin/network-programs");
+  revalidatePath(`/admin/network-programs/${id}`);
+  redirect(`/admin/network-programs/${id}`);
 }
 
 export async function deleteMinistryProgramAction(formData: FormData) {
@@ -563,9 +677,9 @@ export async function deleteMinistryProgramAction(formData: FormData) {
   if (!id) throw new Error("Missing id");
   const { error } = await supabase.from("ministry_programs").delete().eq("id", id);
   if (error) throw new Error(error.message);
-  revalidatePath("/ministry-programs");
-  revalidatePath("/admin/ministry-programs");
-  redirect("/admin/ministry-programs");
+  revalidatePath("/network-programs");
+  revalidatePath("/admin/network-programs");
+  redirect("/admin/network-programs");
 }
 
 export async function saveMinistryProgramsSortAction(formData: FormData) {
@@ -578,8 +692,8 @@ export async function saveMinistryProgramsSortAction(formData: FormData) {
     value,
   });
   if (error) throw new Error(error.message);
-  revalidatePath("/ministry-programs");
-  revalidatePath("/admin/ministry-programs");
+  revalidatePath("/network-programs");
+  revalidatePath("/admin/network-programs");
 }
 
 export async function upsertScheduleEntryAction(formData: FormData) {

@@ -8,6 +8,7 @@ import VideoPlayer from "@/components/public/VideoPlayer";
 import type { Post } from "@/lib/types/cms";
 import type { PaywallSettings } from "@/lib/paywall/settings";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
+import { resolveMediaUrl } from "@/lib/media/public-url";
 
 type Props = {
   post: Post;
@@ -32,6 +33,7 @@ export default function NewsArticleView({
 }: Props) {
   const category = (post.category?.name ?? "News").toUpperCase();
   const href = `/news/${post.slug}`;
+  const featured = resolveMediaUrl(post.featured_image_url);
   const caption =
     post.excerpt ||
     "Photo courtesy of Flash Point Network coverage.";
@@ -54,10 +56,10 @@ export default function NewsArticleView({
       <div className="mx-auto max-w-[1440px] px-4 md:px-8 lg:px-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-center lg:gap-8">
           <div className="w-full max-w-[1100px] flex-1">
-            {post.featured_image_url ? (
+            {featured ? (
               <div className="relative aspect-[16/9] overflow-hidden rounded-[13px] bg-neutral-200 lg:aspect-[1245/697]">
                 <Image
-                  src={post.featured_image_url}
+                  src={featured}
                   alt=""
                   fill
                   priority
@@ -123,7 +125,7 @@ export default function NewsArticleView({
               <VideoPlayer
                 url={post.video_url}
                 title={post.title}
-                poster={post.featured_image_url}
+                poster={featured}
               />
             </div>
           ) : null}
@@ -250,9 +252,17 @@ export default function NewsArticleView({
           </div>
 
           <div>
-            <h2 className="font-article text-[1.75rem] font-black tracking-tight md:text-[2rem]">
-              Latest News
-            </h2>
+            <div className="mb-2 flex items-end justify-between gap-3">
+              <h2 className="font-article text-[1.75rem] font-black tracking-tight md:text-[2rem]">
+                Latest News
+              </h2>
+              <Link
+                href="/feed/latest"
+                className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
+              >
+                See more
+              </Link>
+            </div>
             <div className="mt-2 border-t border-[#ccc]">
               {latest.map((item) => (
                 <PostCard key={item.id} post={item} variant="latest" />
@@ -266,10 +276,10 @@ export default function NewsArticleView({
                 Podcasts
               </h2>
               <Link
-                href="/?type=podcast"
+                href="/feed/podcasts"
                 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
               >
-                See all
+                See more
               </Link>
             </div>
             <div className="border-t border-[#ccc]">
@@ -285,9 +295,17 @@ export default function NewsArticleView({
       {popular.length > 0 ? (
         <section className="border-t border-[#ccc] bg-white">
           <div className="mx-auto max-w-[1440px] px-4 py-12 md:px-8 lg:px-10">
-            <h2 className="mb-6 font-article text-[1.85rem] font-black tracking-tight md:text-[2.2rem]">
-              Popular
-            </h2>
+            <div className="mb-6 flex items-end justify-between gap-3">
+              <h2 className="font-article text-[1.85rem] font-black tracking-tight md:text-[2.2rem]">
+                Popular
+              </h2>
+              <Link
+                href="/feed/popular"
+                className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
+              >
+                See more
+              </Link>
+            </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {popular.map((item) => (
                 <PostCard key={item.id} post={item} />

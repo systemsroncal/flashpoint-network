@@ -11,6 +11,29 @@ import {
 
 export type { AiProviderStatus };
 
+/** Env aliases accepted per provider (first non-empty wins after DB). */
+const ENV_ALIASES: Record<AiProviderId, string[]> = {
+  google: ["AI_GOOGLE_API_KEY", "GOOGLE_API_KEY", "GEMINI_API_KEY"],
+  openai: ["AI_OPENAI_API_KEY", "OPENAI_API_KEY"],
+  xai: ["AI_XAI_API_KEY", "XAI_API_KEY"],
+  anthropic: ["AI_ANTHROPIC_API_KEY", "ANTHROPIC_API_KEY"],
+  nvidia: [
+    "AI_NVIDIA_API_KEY",
+    "NVIDIA_API_KEY",
+    "NGC_API_KEY",
+    "INTEGRATION_NVIDIA_API_KEY",
+  ],
+  perplexity: ["AI_PERPLEXITY_API_KEY", "PERPLEXITY_API_KEY"],
+};
+
+function envKeyFor(provider: AiProviderId): string {
+  for (const name of ENV_ALIASES[provider]) {
+    const v = process.env[name]?.trim();
+    if (v) return v;
+  }
+  return "";
+}
+
 function requireAdmin() {
   const client = createAdminClient();
   if (!client) throw new Error("Supabase admin client is not configured");
@@ -19,13 +42,19 @@ function requireAdmin() {
 
 function normalizeKeys(raw: unknown): AiProviderKeys {
   const out: AiProviderKeys = {};
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return out;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    // Still allow env-only configuration
+    for (const p of AI_PROVIDERS) {
+      const envFallback = envKeyFor(p.id);
+      if (envFallback) out[p.id] = envFallback;
+    }
+    return out;
+  }
   const obj = raw as Record<string, unknown>;
   for (const p of AI_PROVIDERS) {
-    const envFallback = process.env[`AI_${p.id.toUpperCase()}_API_KEY`]?.trim();
     const fromDb =
       typeof obj[p.id] === "string" ? String(obj[p.id]).trim() : "";
-    const value = fromDb || envFallback || "";
+    const value = fromDb || envKeyFor(p.id) || "";
     if (value) out[p.id] = value;
   }
   return out;
@@ -33,14 +62,23 @@ function normalizeKeys(raw: unknown): AiProviderKeys {
 
 /** Server-only: full keys from site_settings (+ optional env overrides). */
 export async function getAiProviderKeys(): Promise<AiProviderKeys> {
-  const supabase = requireAdmin();
-  const { data, error } = await supabase
-    .from("site_settings")
-    .select("value")
-    .eq("key", AI_KEYS_SETTING)
-    .maybeSingle();
-  if (error) throw new Error(error.message);
-  return normalizeKeys(data?.value ?? {});
+  try {
+    const supabase = requireAdmin();
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", AI_KEYS_SETTING)
+      .maybeSingle();
+    if (error) {
+      // Fall through to env-only so misconfigured DB does not hard-block env keys
+      console.error("[ai/keys] site_settings read failed:", error.message);
+      return normalizeKeys({});
+    }
+    return normalizeKeys(data?.value ?? {});
+  } catch (err) {
+    console.error("[ai/keys] getAiProviderKeys failed:", err);
+    return normalizeKeys({});
+  }
 }
 
 /** Safe for admin UI — never returns full secrets. */
@@ -67,8 +105,6 @@ export async function upsertAiProviderKeys(
   updates: Partial<Record<AiProviderId, string | null>>,
 ): Promise<void> {
   const supabase = requireAdmin();
-  const current = await getAiProviderKeys();
-  // Strip env-only keys from persistence base — reload from DB only
   const { data } = await supabase
     .from("site_settings")
     .select("value")
@@ -98,7 +134,4 @@ export async function upsertAiProviderKeys(
     value: next,
   });
   if (error) throw new Error(error.message);
-
-  // touch current for unused warning silence
-  void current;
 }

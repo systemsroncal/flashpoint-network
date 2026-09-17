@@ -8,9 +8,9 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Ministry Programs",
+  title: "Network Programs",
   description:
-    "Gospel-centered ministry broadcasts on FlashPoint Television Network.",
+    "Gospel-centered network broadcasts on FlashPoint Television Network.",
 };
 
 export default async function MinistryProgramsPage() {

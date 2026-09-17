@@ -72,10 +72,10 @@ const Menuitems: MenuItemConfig[] = [
     module: "classic",
   },
   {
-    id: "nav-ministry-programs",
-    title: "Ministry Programs",
+    id: "nav-network-programs",
+    title: "Network Programs",
     icon: IconCross,
-    href: "/admin/ministry-programs",
+    href: "/admin/network-programs",
   },
   {
     id: "nav-schedule-programs",

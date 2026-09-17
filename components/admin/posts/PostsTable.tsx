@@ -71,6 +71,7 @@ export default function PostsTable({ posts }: { posts: Post[] }) {
                     {post.is_premium ? <Chip size="small" label="Premium" color="warning" /> : null}
                     {post.is_video ? <Chip size="small" label="Video" color="info" /> : null}
                     {post.is_podcast ? <Chip size="small" label="Podcast" /> : null}
+                    {post.is_popular ? <Chip size="small" label="Popular" color="secondary" /> : null}
                   </Stack>
                 </TableCell>
                 <TableCell>{post.view_count}</TableCell>

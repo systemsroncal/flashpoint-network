@@ -29,13 +29,13 @@ export default function MinistryProgramForm({
 
   return (
     <DashboardCard
-      title={isEdit ? "Edit program" : "New ministry program"}
-      subtitle="Shown on the public Ministry Programs grid when published"
+      title={isEdit ? "Edit program" : "New network program"}
+      subtitle="Shown on the public Network Programs grid when published"
       action={
         isEdit && program?.slug ? (
           <Button
             component={Link}
-            href={`/ministry-programs/${program.slug}`}
+            href={`/network-programs/${program.slug}`}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -58,7 +58,7 @@ export default function MinistryProgramForm({
             name="slug"
             label="Slug"
             fullWidth
-            helperText="Used in /ministry-programs/[slug]"
+            helperText="Used in /network-programs/[slug]"
             defaultValue={program?.slug ?? ""}
           />
           <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
@@ -123,7 +123,7 @@ export default function MinistryProgramForm({
             <Button type="submit" variant="contained">
               {isEdit ? "Save changes" : "Create program"}
             </Button>
-            <Button component={Link} href="/admin/ministry-programs" variant="outlined">
+            <Button component={Link} href="/admin/network-programs" variant="outlined">
               Cancel
             </Button>
           </Stack>
