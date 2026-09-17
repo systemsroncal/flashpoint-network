@@ -101,7 +101,7 @@ export default async function SiteHeader({
     isStaff ? (
       <Link
         href="/admin"
-        className="text-[14px] font-bold text-black hover:opacity-70"
+        className="text-[14px] font-bold text-white hover:opacity-80"
       >
         Admin
       </Link>
@@ -111,7 +111,7 @@ export default async function SiteHeader({
   ) : (
     <Link
       href="/login"
-      className="text-[14px] font-bold text-black hover:opacity-70"
+      className="text-[14px] font-bold text-white hover:opacity-80"
     >
       Sign in
     </Link>
@@ -125,21 +125,14 @@ export default async function SiteHeader({
         <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-3 md:gap-4 md:px-8 lg:px-10">
           <div className="flex items-center gap-3">
             <Link href="/" className="relative z-10 shrink-0" aria-label={siteName}>
-              <span className="flex w-[130px] flex-col overflow-hidden rounded-[3px] border-2 border-white bg-black">
-                <span className="relative flex h-[68px] items-center justify-center bg-black px-2">
-                  <BrandImage
-                    src={headerLogo || DEFAULT_FOOTER_MARK_URL}
-                    alt={siteName}
-                    width={110}
-                    height={52}
-                    className="h-[52px] w-auto max-w-[110px] object-contain"
-                    priority
-                  />
-                </span>
-                <span className="bg-[var(--fpn-rojo)] py-1 text-center text-[11px] font-bold uppercase tracking-[0.35em] text-white">
-                  Network
-                </span>
-              </span>
+              <BrandImage
+                src={headerLogo || DEFAULT_FOOTER_MARK_URL}
+                alt={siteName}
+                width={200}
+                height={52}
+                className="h-[52px] w-auto max-w-[200px] object-contain"
+                priority
+              />
             </Link>
           </div>
 
@@ -178,9 +171,10 @@ export default async function SiteHeader({
         </div>
       </div>
 
-      {/* —— Mobile / tablet : WaPo-style white header (edge-to-edge) —— */}
-      <div className="w-full max-w-none bg-white text-black xl:hidden">
-        <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2 border-b border-[#E5E5E5] px-2 py-2.5 sm:px-3">
+      {/* —— Mobile / tablet : same navy as desktop so the logo reads —— */}
+      <div className="relative w-full max-w-none bg-[var(--fpn-navy)] text-white xl:hidden">
+        <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--fpn-rojo)]" />
+        <div className="relative grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2 px-2 pb-2.5 pt-3.5 sm:px-3">
           <div className="flex items-center justify-start gap-0.5">
             <MobileNav
               items={navAll}
@@ -188,9 +182,9 @@ export default async function SiteHeader({
               showSchedule={modules.schedule}
               isLoggedIn={isLoggedIn}
               isStaff={isStaff}
-              tone="dark"
+              tone="light"
             />
-            <HeaderSearch tone="dark" />
+            <HeaderSearch tone="light" />
           </div>
 
           <Link
@@ -199,7 +193,7 @@ export default async function SiteHeader({
             aria-label={siteName}
           >
             <BrandImage
-              src={headerLogo}
+              src={headerLogo || DEFAULT_FOOTER_MARK_URL}
               alt={siteName}
               width={160}
               height={34}

@@ -11,7 +11,6 @@ import type { BannerSlot, BannerWidget as BannerWidgetRow } from "@/lib/banners/
 import type { HomePayload } from "@/lib/types/cms";
 import {
   formatDate,
-  formatLiveHeadlineDate,
   formatReadTime,
   formatViews,
 } from "@/lib/format";
@@ -88,7 +87,7 @@ export default async function HomeView({
         </div>
       ) : null}
 
-      <HomeLiveHero headlineDate={formatLiveHeadlineDate(new Date(), timeZone)} />
+      <HomeLiveHero />
 
       <div className="mx-auto max-w-[1654px] space-y-12 px-4 py-10 md:px-8 lg:px-10 lg:py-12">
         {/* Figma 34:12522 — left ~1236 (hero+2 + 3-col Politics/World) | right 370 (Podcasts + Latest) */}
