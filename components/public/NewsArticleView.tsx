@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import OptimalFamilyCarePromo from "@/components/public/OptimalFamilyCarePromo";
+import PatriotSidebarPromo from "@/components/public/PatriotSidebarPromo";
 import PostCard from "@/components/public/PostCard";
 import PaywallGate from "@/components/public/PaywallGate";
 import RichHtml from "@/components/public/RichHtml";
@@ -276,6 +278,11 @@ export default function NewsArticleView({
             >
               View offer
             </Link>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <PatriotSidebarPromo />
+            <OptimalFamilyCarePromo />
           </div>
 
           <div>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import FlashpointRevivalPromo from "@/components/public/FlashpointRevivalPromo";
 import LatestNewsBar from "@/components/public/LatestNewsBar";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
+import OptimalFamilyCarePromo from "@/components/public/OptimalFamilyCarePromo";
 import PostCard from "@/components/public/PostCard";
 import VideoPlayer from "@/components/public/VideoPlayer";
 import type { HomePayload } from "@/lib/types/cms";
@@ -215,29 +216,8 @@ export default function HomeView({ data }: { data: HomePayload }) {
           </div>
 
           <aside className="min-w-0 space-y-8">
-            {/* Sidebar ad above Podcasts — Optimal Family Care (swap href in note if needed) */}
-            <a
-              href="https://optimalfc.com/"
-              target="_blank"
-              rel="noopener noreferrer sponsored"
-              className="relative block aspect-[371/389] w-full overflow-hidden rounded-[10px] bg-neutral-100"
-              aria-label="Optimal Family Care advertisement — open optimalfc.com"
-            >
-              <picture className="absolute inset-0 block h-full w-full">
-                <source
-                  srcSet="/brand/ads/optimal-family-care-banner.webp"
-                  type="image/webp"
-                />
-                {/* eslint-disable-next-line @next/next/no-img-element -- picture/webp fallback pair */}
-                <img
-                  src="/brand/ads/optimal-family-care-banner.png"
-                  alt="Optimal Family Care — book an appointment"
-                  className="h-full w-full object-cover"
-                  width={371}
-                  height={389}
-                />
-              </picture>
-            </a>
+            {/* Sidebar ad above Podcasts — Optimal Family Care */}
+            <OptimalFamilyCarePromo />
 
             <div>
               <div className="mb-4 flex items-end justify-between gap-3">
