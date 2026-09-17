@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import NewsArticleView from "@/components/public/NewsArticleView";
 import { requireStaffProfile } from "@/lib/auth/session";
 import { getAdminPost } from "@/lib/admin/queries";
+import { getBannerWidgetsBySlots } from "@/lib/data/banners";
 import { getArticleSidebar } from "@/lib/data/home";
 import { getPaywallSettings } from "@/lib/paywall/settings";
 import { getSiteName } from "@/lib/env";
@@ -34,9 +35,13 @@ export default async function NewsPreviewPage({ params }: Props) {
   const post = await getAdminPost(id);
   if (!post) notFound();
 
-  const [sidebar, paywall] = await Promise.all([
+  const [sidebar, paywall, banners] = await Promise.all([
     getArticleSidebar(post.id),
     getPaywallSettings(),
+    getBannerWidgetsBySlots([
+      "article_above_latest_patriot",
+      "article_above_latest_ofc",
+    ]),
   ]);
 
   return (
@@ -57,6 +62,7 @@ export default async function NewsPreviewPage({ params }: Props) {
         next={sidebar.next}
         paywall={paywall}
         paywallBypass
+        banners={banners}
       />
     </div>
   );

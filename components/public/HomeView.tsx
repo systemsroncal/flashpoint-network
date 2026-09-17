@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import FlashpointRevivalPromo from "@/components/public/FlashpointRevivalPromo";
+import BannerWidget from "@/components/public/BannerWidget";
 import LatestNewsBar from "@/components/public/LatestNewsBar";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
-import OptimalFamilyCarePromo from "@/components/public/OptimalFamilyCarePromo";
+import PatriotHomeBanner from "@/components/public/PatriotHomeBanner";
 import PostCard from "@/components/public/PostCard";
 import VideoPlayer from "@/components/public/VideoPlayer";
+import type { BannerSlot, BannerWidget as BannerWidgetRow } from "@/lib/banners/slots";
 import type { HomePayload } from "@/lib/types/cms";
 import {
   formatDate,
@@ -26,7 +27,13 @@ function SeeMore({ href, label = "See more" }: { href: string; label?: string })
   );
 }
 
-export default function HomeView({ data }: { data: HomePayload }) {
+export default function HomeView({
+  data,
+  banners = {},
+}: {
+  data: HomePayload;
+  banners?: Partial<Record<BannerSlot, BannerWidgetRow>>;
+}) {
   const mainVideo = data.mustWatch[0];
   const sideVideos = data.mustWatch.slice(1, 5);
   const mainExclusive = data.exclusives[0];
@@ -216,8 +223,12 @@ export default function HomeView({ data }: { data: HomePayload }) {
           </div>
 
           <aside className="min-w-0 space-y-8">
-            {/* Sidebar ad above Podcasts — Optimal Family Care */}
-            <OptimalFamilyCarePromo />
+            {/* Sidebar ad above Podcasts — CMS slot home_above_podcasts */}
+            <BannerWidget
+              widget={banners.home_above_podcasts}
+              aspectClassName="aspect-[371/389]"
+              alt="Optimal Family Care advertisement"
+            />
 
             <div>
               <div className="mb-4 flex items-end justify-between gap-3">
@@ -233,7 +244,11 @@ export default function HomeView({ data }: { data: HomePayload }) {
               </div>
             </div>
 
-            <FlashpointRevivalPromo />
+            <BannerWidget
+              widget={banners.home_above_latest}
+              aspectClassName="aspect-[370/283]"
+              alt="Special offer — Flashpoint of Revival"
+            />
 
             <div>
               <div className="mb-4 flex items-end justify-between gap-3">
@@ -372,83 +387,7 @@ export default function HomeView({ data }: { data: HomePayload }) {
           </div>
         </section>
 
-        {/* FP Army / Are You a Patriot — Figma Group 29802 (1282px, inset ~319 on 1920) */}
-        <section className="mx-auto w-full max-w-[1282px] overflow-hidden rounded-[22px] bg-[#2c372a] text-white">
-          {/* Mobile: vertical composite (links to FP Army register) */}
-          <a
-            href="https://app.fparmychapters.com/register"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block md:hidden"
-          >
-            <picture>
-              <source
-                srcSet="/brand/banners/fpn-patriot-banner-mobile.webp"
-                type="image/webp"
-              />
-              {/* eslint-disable-next-line @next/next/no-img-element -- picture/webp fallback pair */}
-              <img
-                src="/brand/banners/fpn-patriot-banner-mobile.png"
-                alt="Are You a Patriot? Join FP Army Chapters"
-                className="h-auto w-full"
-                width={404}
-                height={500}
-              />
-            </picture>
-          </a>
-
-          {/* Desktop: photo + copy + CTA */}
-          <div className="hidden md:grid md:grid-cols-2">
-            <div className="relative min-h-[291px]">
-              <Image
-                src="/brand/banners/fpn-patriot-people.webp"
-                alt="FP Army community"
-                fill
-                className="object-cover object-left"
-                sizes="641px"
-              />
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-[#2c372a]/40 to-[#2c372a]" />
-            </div>
-            <div className="flex flex-col justify-center gap-4 px-8 py-8">
-              <div className="flex items-center gap-3.5">
-                <span className="inline-flex size-[50px] items-center justify-center rounded-[12px] border border-[#4e4d4d] bg-[#363636]">
-                  <Image
-                    src="/brand/banners/fpn-army-mark.svg"
-                    alt=""
-                    width={36}
-                    height={34}
-                  />
-                </span>
-                <div>
-                  <p className="text-[1.7rem] font-black leading-none tracking-tight">
-                    FP ARMY
-                  </p>
-                  <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.35em] text-[#989898]">
-                    Chapters
-                  </p>
-                </div>
-              </div>
-              <h2 className="text-[2.4rem] font-black uppercase leading-none tracking-[0.04em]">
-                Are You a <span className="text-[#ffcb2c]">Patriot?</span>
-              </h2>
-              <p className="max-w-md text-[17px] leading-relaxed tracking-wide text-white/90">
-                Connect locally. Stand for faith, freedom, and truth. Be part of
-                something bigger.
-              </p>
-              <a
-                href="https://app.fparmychapters.com/register"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex w-fit items-center gap-2 rounded-[12px] border border-[#ffcb2c] bg-[#0d0d0d] px-5 py-3 text-[15px] font-bold tracking-wide text-white hover:bg-black"
-              >
-                Join a Chapter
-                <span aria-hidden className="text-[#ffcb2c]">
-                  ›
-                </span>
-              </a>
-            </div>
-          </div>
-        </section>
+        <PatriotHomeBanner widget={banners.home_patriot_banner} />
 
         {/* Elections — Figma 4×2 */}
         <section>

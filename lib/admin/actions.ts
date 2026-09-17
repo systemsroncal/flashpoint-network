@@ -977,3 +977,58 @@ export async function createAdminUserAction(formData: FormData) {
   revalidatePath("/admin/users");
   usersRedirect({ created: "1", email });
 }
+
+function bannersRedirect(params: Record<string, string>): never {
+  const qs = new URLSearchParams(params);
+  redirect(`/admin/banners?${qs.toString()}`);
+}
+
+/**
+ * Staff: update a banner widget slot. Requires at least one image (desktop or mobile).
+ */
+export async function upsertBannerWidgetAction(formData: FormData) {
+  const staff = await requireStaffProfile();
+  if (!staff) {
+    bannersRedirect({ error: "Unauthorized — staff login required." });
+  }
+
+  const id = String(formData.get("id") || "").trim();
+  if (!id) bannersRedirect({ error: "Missing banner id." });
+
+  const label = String(formData.get("label") || "").trim();
+  const href = String(formData.get("href") || "").trim();
+  const desktop = String(formData.get("desktop_image_url") || "").trim();
+  const mobile = String(formData.get("mobile_image_url") || "").trim();
+  const openInNewTab = String(formData.get("open_in_new_tab") || "") !== "false";
+  const enabled = String(formData.get("enabled") || "") !== "false";
+
+  if (!desktop && !mobile) {
+    bannersRedirect({
+      error:
+        "Save blocked: add a Desktop banner image and/or a Responsive (mobile) banner image.",
+    });
+  }
+
+  const supabase = requireAdmin();
+  const { error } = await supabase
+    .from("banner_widgets")
+    .update({
+      label: label || "Banner",
+      href,
+      desktop_image_url: desktop || null,
+      mobile_image_url: mobile || null,
+      open_in_new_tab: openInNewTab,
+      enabled,
+    })
+    .eq("id", id);
+
+  if (error) {
+    bannersRedirect({ error: error.message });
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin/banners");
+  revalidatePath("/news");
+  revalidatePath("/category");
+  bannersRedirect({ saved: "1" });
+}

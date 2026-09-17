@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import FlashpointRevivalPromo from "@/components/public/FlashpointRevivalPromo";
+import BannerWidget from "@/components/public/BannerWidget";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
+import type { BannerSlot, BannerWidget as BannerWidgetRow } from "@/lib/banners/slots";
 import type { Category, Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media/public-url";
@@ -13,6 +14,7 @@ type Props = {
   podcasts: Post[];
   latest: Post[];
   popular: Post[];
+  banners?: Partial<Record<BannerSlot, BannerWidgetRow>>;
 };
 
 export default function CategoryView({
@@ -21,6 +23,7 @@ export default function CategoryView({
   podcasts,
   latest,
   popular,
+  banners = {},
 }: Props) {
   const featured = posts[0] ?? null;
   const featuredSrc = resolveMediaUrl(featured?.featured_image_url);
@@ -272,7 +275,11 @@ export default function CategoryView({
               </div>
             </div>
 
-            <FlashpointRevivalPromo />
+            <BannerWidget
+              widget={banners.category_above_popular}
+              aspectClassName="aspect-[370/283]"
+              alt="Special offer — Flashpoint of Revival"
+            />
 
             <div>
               <div className="mb-3 flex items-end justify-between gap-3">

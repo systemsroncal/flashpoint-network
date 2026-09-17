@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import NewsArticleView from "@/components/public/NewsArticleView";
 import { recordPostView } from "@/lib/analytics/record-view";
 import { getCurrentProfile, isStaffRole } from "@/lib/auth/session";
+import { getBannerWidgetsBySlots } from "@/lib/data/banners";
 import { getArticleSidebar, getPostBySlug } from "@/lib/data/home";
 import { getSiteName, getSiteUrl } from "@/lib/env";
 import { absoluteMediaUrl } from "@/lib/media/public-url";
@@ -63,10 +64,14 @@ export default async function NewsArticlePage({ params }: Props) {
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  const [sidebar, paywall, profile] = await Promise.all([
+  const [sidebar, paywall, profile, banners] = await Promise.all([
     getArticleSidebar(post.id),
     getPaywallSettings(),
     getCurrentProfile(),
+    getBannerWidgetsBySlots([
+      "article_above_latest_patriot",
+      "article_above_latest_ofc",
+    ]),
     recordPostView(post.id),
   ]);
 
@@ -130,6 +135,7 @@ export default async function NewsArticlePage({ params }: Props) {
         next={sidebar.next}
         paywall={paywall}
         paywallBypass={paywallBypass}
+        banners={banners}
       />
     </>
   );

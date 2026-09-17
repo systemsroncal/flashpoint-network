@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import OptimalFamilyCarePromo from "@/components/public/OptimalFamilyCarePromo";
-import PatriotSidebarPromo from "@/components/public/PatriotSidebarPromo";
+import BannerWidget from "@/components/public/BannerWidget";
 import PostCard from "@/components/public/PostCard";
 import PaywallGate from "@/components/public/PaywallGate";
 import RichHtml from "@/components/public/RichHtml";
 import ShareBar from "@/components/public/ShareBar";
 import VideoPlayer from "@/components/public/VideoPlayer";
+import type { BannerSlot, BannerWidget as BannerWidgetRow } from "@/lib/banners/slots";
 import type { Post } from "@/lib/types/cms";
 import type { PaywallSettings } from "@/lib/paywall/settings";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
@@ -26,6 +26,7 @@ type Props = {
   next: Post | null;
   paywall: PaywallSettings;
   paywallBypass: boolean;
+  banners?: Partial<Record<BannerSlot, BannerWidgetRow>>;
 };
 
 export default function NewsArticleView({
@@ -37,6 +38,7 @@ export default function NewsArticleView({
   next,
   paywall,
   paywallBypass,
+  banners = {},
 }: Props) {
   const category = (post.category?.name ?? "News").toUpperCase();
   const href = `/news/${post.slug}`;
@@ -281,8 +283,16 @@ export default function NewsArticleView({
           </div>
 
           <div className="flex flex-col gap-3">
-            <PatriotSidebarPromo />
-            <OptimalFamilyCarePromo />
+            <BannerWidget
+              widget={banners.article_above_latest_patriot}
+              aspectClassName="aspect-[370/340]"
+              alt="Are You a Patriot? Join FP Army Chapters"
+            />
+            <BannerWidget
+              widget={banners.article_above_latest_ofc}
+              aspectClassName="aspect-[371/389]"
+              alt="Optimal Family Care advertisement"
+            />
           </div>
 
           <div>

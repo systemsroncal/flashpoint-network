@@ -9,6 +9,7 @@ import {
   IconMail,
   IconNews,
   IconPhoto,
+  IconAd2,
   IconSettings,
   IconTags,
   IconUsers,
@@ -101,6 +102,12 @@ const Menuitems: MenuItemConfig[] = [
     title: "Media",
     icon: IconPhoto,
     href: "/admin/media",
+  },
+  {
+    id: "nav-banners",
+    title: "Banners",
+    icon: IconAd2,
+    href: "/admin/banners",
   },
   {
     navlabel: true,

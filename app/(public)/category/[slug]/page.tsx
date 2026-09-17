@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import CategoryView from "@/components/public/CategoryView";
+import { getBannerWidgetsBySlots } from "@/lib/data/banners";
 import {
   getArticleSidebar,
   getCategoryBySlug,
@@ -18,7 +19,8 @@ export async function generateMetadata({ params }: Props) {
   if (!category) return { title: "Category not found" };
   return {
     title: category.name,
-    description: category.description ?? `${category.name} coverage from Flash Point Network`,
+    description:
+      category.description ?? `${category.name} coverage from Flash Point Network`,
   };
 }
 
@@ -27,9 +29,10 @@ export default async function CategoryPage({ params }: Props) {
   const category = await getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const [posts, sidebar] = await Promise.all([
+  const [posts, sidebar, banners] = await Promise.all([
     getPostsByCategorySlug(slug, 24),
     getArticleSidebar(),
+    getBannerWidgetsBySlots(["category_above_popular"]),
   ]);
 
   return (
@@ -39,6 +42,7 @@ export default async function CategoryPage({ params }: Props) {
       podcasts={sidebar.podcasts}
       latest={sidebar.latest}
       popular={sidebar.popular.slice(0, 5)}
+      banners={banners}
     />
   );
 }

@@ -248,6 +248,18 @@ export async function getAdminProfiles(): Promise<Profile[]> {
   return (data as Profile[]) ?? [];
 }
 
+export async function getAdminBannerWidgets() {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("banner_widgets")
+    .select(
+      "id, slot, label, desktop_image_url, mobile_image_url, href, open_in_new_tab, enabled, sort_order, created_at, updated_at",
+    )
+    .order("sort_order", { ascending: true });
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
 export async function getAdminEmailTemplates() {
   const supabase = requireAdmin();
   const { data, error } = await supabase
