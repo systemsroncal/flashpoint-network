@@ -1,9 +1,9 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { CUSTOM_HTML_SETTING } from "@/lib/custom-html/constants";
 
-/** site_settings key for third-party HTML / script injection */
-export const CUSTOM_HTML_SETTING = "custom_html";
+export { CUSTOM_HTML_SETTING };
 
 export type CustomHtmlSettings = {
   /** Injected into document head on public pages */

@@ -10,7 +10,7 @@ import {
   getSessionUser,
   isAdminRole,
 } from "@/lib/auth/session";
-import { CUSTOM_HTML_SETTING } from "@/lib/custom-html/settings";
+import { CUSTOM_HTML_SETTING } from "@/lib/custom-html/constants";
 import {
   PROGRAM_MODULES_SETTING,
   isProgramModulesOwnerEmail,

@@ -23,7 +23,7 @@ import {
 } from "@/lib/admin/actions";
 import type { AiProviderStatus } from "@/lib/ai/catalog";
 import { AI_KEYS_SETTING } from "@/lib/ai/catalog";
-import { CUSTOM_HTML_SETTING } from "@/lib/custom-html/settings";
+import { CUSTOM_HTML_SETTING } from "@/lib/custom-html/constants";
 
 type Setting = {
   key: string;
