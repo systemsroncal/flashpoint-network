@@ -88,14 +88,19 @@ export async function signInAction(formData: FormData) {
 }
 
 export async function signUpAction(formData: FormData) {
+  const email = String(formData.get("email") || "").trim();
+  const failRegister = (message: string): never => {
+    const qs = new URLSearchParams({ error: message });
+    if (email) qs.set("email", email);
+    redirect(`/register?${qs.toString()}`);
+  };
   try {
     scrubSiteUrlEnv();
-    const email = String(formData.get("email") || "").trim();
     const password = String(formData.get("password") || "");
     const firstName = String(formData.get("first_name") || "").trim();
     const lastName = String(formData.get("last_name") || "").trim();
     const supabase = await createClient();
-    if (!supabase) fail("/register", AUTH_UNAVAILABLE);
+    if (!supabase) failRegister(AUTH_UNAVAILABLE);
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -110,7 +115,7 @@ export async function signUpAction(formData: FormData) {
       },
     });
     if (error) {
-      fail("/register", error.message);
+      failRegister(error.message);
     }
     if (data.user?.email) {
       await sendTemplateEmail("welcome", data.user.email, {
@@ -123,7 +128,7 @@ export async function signUpAction(formData: FormData) {
   } catch (error) {
     rethrowRedirect(error);
     console.error("[auth] signUpAction", error);
-    fail("/register", friendlyAuthMessage(error, AUTH_UNAVAILABLE));
+    failRegister(friendlyAuthMessage(error, AUTH_UNAVAILABLE));
   }
 }
 

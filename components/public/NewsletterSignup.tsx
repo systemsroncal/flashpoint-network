@@ -1,24 +1,26 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function NewsletterSignup({
   className = "",
 }: {
   className?: string;
 }) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "ok" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "error">("idle");
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !email.includes("@")) {
+    const trimmed = email.trim();
+    if (!trimmed || !trimmed.includes("@")) {
       setStatus("error");
       return;
     }
-    // MVP: no ESP wired — confirm intent locally
-    setStatus("ok");
-    setEmail("");
+    // Account creation happens on /register — no separate newsletter ESP.
+    router.push(`/register?email=${encodeURIComponent(trimmed)}`);
   };
 
   return (
@@ -46,11 +48,6 @@ export default function NewsletterSignup({
           Sign up
         </button>
       </form>
-      {status === "ok" ? (
-        <p className="mt-3 text-sm font-medium text-emerald-700" role="status">
-          Thanks — you&apos;re on the list. We&apos;ll be in touch.
-        </p>
-      ) : null}
       {status === "error" ? (
         <p className="mt-3 text-sm font-medium text-red-700" role="alert">
           Enter a valid email address.
