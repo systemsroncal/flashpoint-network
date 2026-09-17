@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono, Noto_Serif, Roboto } from "next/font/google";
 import PerformanceMeasureGuard from "@/components/dev/PerformanceMeasureGuard";
 import { getSiteUrl } from "@/lib/env";
+import { buildSiteFaviconMetadata } from "@/lib/site-identity/favicon-metadata";
+import { getSiteIdentity } from "@/lib/site-identity/settings";
 import "./globals.css";
 
 function safeMetadataBase(): URL {
@@ -41,15 +43,21 @@ const roboto = Roboto({
   weight: ["400", "500", "700", "900"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: safeMetadataBase(),
-  title: {
-    default: "Flash Point Network",
-    template: "%s · Flash Point Network",
-  },
-  description:
-    "Flash Point Network — digital newspaper. Get The Full Story. As It Is.",
-};
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const identity = await getSiteIdentity();
+  return {
+    metadataBase: safeMetadataBase(),
+    title: {
+      default: identity.siteName,
+      template: `%s · ${identity.siteName}`,
+    },
+    description:
+      "Flash Point Network — digital newspaper. Get The Full Story. As It Is.",
+    icons: buildSiteFaviconMetadata(identity),
+  };
+}
 
 export default function RootLayout({
   children,

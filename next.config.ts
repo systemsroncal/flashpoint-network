@@ -39,6 +39,10 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
+        source: "/favicon.ico",
+        destination: "/icon",
+      },
+      {
         source: "/uploads/:path*",
         destination: "/api/media/:path*",
       },

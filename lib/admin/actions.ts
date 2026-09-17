@@ -634,12 +634,17 @@ export async function saveSiteIdentitySettingsAction(formData: FormData) {
   });
   if (error) throw new Error(error.message);
   revalidatePath("/");
+  revalidatePath("/admin");
   revalidatePath("/admin/settings");
   revalidatePath("/news");
   revalidatePath("/login");
   revalidatePath("/register");
   revalidatePath("/forgot-password");
   revalidatePath("/update-password");
+  revalidatePath("/favicon.ico");
+  revalidatePath("/icon");
+  revalidatePath("/apple-icon");
+  revalidatePath("/api/site/favicon");
 }
 
 export async function saveMaintenanceSettingsAction(formData: FormData) {
@@ -839,6 +844,9 @@ export async function upsertMinistryProgramAction(formData: FormData) {
       String(formData.get("featured_image_url") || "").trim() || null,
     external_url: null,
     schedule_note: String(formData.get("schedule_note") || "").trim() || null,
+    genre: String(formData.get("genre") || "").trim() || null,
+    genres_label: String(formData.get("genres_label") || "").trim() || null,
+    schedule_line: String(formData.get("schedule_line") || "").trim() || null,
     sort_order: Number.isFinite(sortOrder) ? sortOrder : 0,
     status,
     source_url: null,

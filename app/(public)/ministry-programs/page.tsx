@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import MinistryProgramsView from "@/components/public/MinistryProgramsView";
-import {
-  getPublicMinistryProgramsSortMode,
-  getPublishedMinistryPrograms,
-} from "@/lib/data/ministry-programs";
+import { getPublishedMinistryPrograms } from "@/lib/data/ministry-programs";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +11,6 @@ export const metadata: Metadata = {
 };
 
 export default async function MinistryProgramsPage() {
-  const [programs, sortMode] = await Promise.all([
-    getPublishedMinistryPrograms(),
-    getPublicMinistryProgramsSortMode(),
-  ]);
-
-  return <MinistryProgramsView programs={programs} sortMode={sortMode} />;
+  const programs = await getPublishedMinistryPrograms();
+  return <MinistryProgramsView programs={programs} />;
 }
