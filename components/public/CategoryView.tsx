@@ -4,7 +4,7 @@ import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
 import type { Category, Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
-import { resolveMediaUrl } from "@/lib/media/public-url";
+import { cardFeaturedImageUrl } from "@/lib/posts/media-layout";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
 type Props = {
@@ -24,7 +24,7 @@ export default async function CategoryView({
 }: Props) {
   const timeZone = await getSiteTimezone();
   const featured = posts[0] ?? null;
-  const featuredSrc = resolveMediaUrl(featured?.featured_image_url);
+  const featuredSrc = featured ? cardFeaturedImageUrl(featured) : null;
   const grid = posts.slice(1, 4);
   const list = posts.slice(4);
   const label = category.name.toUpperCase();
@@ -153,7 +153,9 @@ export default async function CategoryView({
 
             {list.length > 0 ? (
               <section className="divide-y divide-[#ccc] border-t border-[#ccc]">
-                {list.map((post) => (
+                {list.map((post) => {
+                  const thumb = cardFeaturedImageUrl(post);
+                  return (
                   <article
                     key={post.id}
                     className="grid gap-5 py-6 md:grid-cols-[1fr_0.85fr] md:items-center"
@@ -205,9 +207,9 @@ export default async function CategoryView({
                       href={`/news/${post.slug}`}
                       className="relative aspect-[16/10] overflow-hidden rounded-[12px] bg-neutral-200"
                     >
-                      {resolveMediaUrl(post.featured_image_url) ? (
+                      {thumb ? (
                         <Image
-                          src={resolveMediaUrl(post.featured_image_url) || ""}
+                          src={thumb}
                           alt=""
                           fill
                           className="object-cover"
@@ -216,7 +218,8 @@ export default async function CategoryView({
                       ) : null}
                     </Link>
                   </article>
-                ))}
+                  );
+                })}
               </section>
             ) : null}
           </div>
