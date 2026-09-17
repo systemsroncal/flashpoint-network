@@ -5,6 +5,7 @@ import RichHtml from "@/components/public/RichHtml";
 import VideoPlayer from "@/components/public/VideoPlayer";
 import { getEventBySlug } from "@/lib/data/home";
 import { formatDate } from "@/lib/format";
+import { getSiteTimezone } from "@/lib/timezone/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,10 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function EventPage({ params }: Props) {
   const { slug } = await params;
-  const event = await getEventBySlug(slug);
+  const [event, timeZone] = await Promise.all([
+    getEventBySlug(slug),
+    getSiteTimezone(),
+  ]);
   if (!event) notFound();
 
   return (
@@ -75,8 +79,8 @@ export default async function EventPage({ params }: Props) {
               Host: {event.host_name || "FlashPoint Live"}
             </p>
             <p className="mt-2 text-xs text-white/50">
-              {formatDate(event.starts_at)}
-              {event.ends_at ? ` – ${formatDate(event.ends_at)}` : ""}
+              {formatDate(event.starts_at, timeZone)}
+              {event.ends_at ? ` – ${formatDate(event.ends_at, timeZone)}` : ""}
             </p>
           </div>
         </div>

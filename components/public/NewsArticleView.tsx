@@ -16,6 +16,7 @@ import {
   shouldShowFeaturedImageInArticleHero,
 } from "@/lib/posts/media-layout";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
+import { getSiteTimezone } from "@/lib/timezone/settings";
 
 type Props = {
   post: Post;
@@ -29,7 +30,7 @@ type Props = {
   banners?: Partial<Record<BannerSlot, BannerWidgetRow>>;
 };
 
-export default function NewsArticleView({
+export default async function NewsArticleView({
   post,
   latest,
   podcasts,
@@ -40,6 +41,7 @@ export default function NewsArticleView({
   paywallBypass,
   banners = {},
 }: Props) {
+  const timeZone = await getSiteTimezone();
   const category = (post.category?.name ?? "News").toUpperCase();
   const href = `/news/${post.slug}`;
   const featured = resolveMediaUrl(post.featured_image_url);
@@ -103,7 +105,7 @@ export default function NewsArticleView({
                 {category}
               </p>
               <p className="text-[15px] font-semibold text-[var(--fpn-rojo)] lg:text-[17px]">
-                {formatDate(post.published_at)}
+                {formatDate(post.published_at, timeZone)}
               </p>
               <div className="flex flex-col gap-2 text-[15px] text-black lg:text-[17px]">
                 <span className="inline-flex items-center gap-2">
@@ -309,7 +311,7 @@ export default function NewsArticleView({
             </div>
             <div className="mt-2 border-t border-[#ccc]">
               {latest.map((item) => (
-                <PostCard key={item.id} post={item} variant="latest" />
+                <PostCard key={item.id} post={item} variant="latest"  timeZone={timeZone} />
               ))}
             </div>
           </div>
@@ -328,7 +330,7 @@ export default function NewsArticleView({
             </div>
             <div className="border-t border-[#ccc]">
               {podcasts.map((item) => (
-                <PostCard key={item.id} post={item} variant="podcast" />
+                <PostCard key={item.id} post={item} variant="podcast"  timeZone={timeZone} />
               ))}
             </div>
           </div>
@@ -352,7 +354,7 @@ export default function NewsArticleView({
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {popular.map((item) => (
-                <PostCard key={item.id} post={item} />
+                <PostCard key={item.id} post={item}  timeZone={timeZone} />
               ))}
             </div>
           </div>

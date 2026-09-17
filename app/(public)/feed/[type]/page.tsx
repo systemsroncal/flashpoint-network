@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
 import { getFeedPosts, type FeedKind } from "@/lib/data/home";
+import { getSiteTimezone } from "@/lib/timezone/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +49,10 @@ export default async function FeedPage({ params }: Props) {
   const kind = type as FeedKind;
   if (!FEEDS[kind]) notFound();
 
-  const posts = await getFeedPosts(kind, 48);
+  const [posts, timeZone] = await Promise.all([
+    getFeedPosts(kind, 48),
+    getSiteTimezone(),
+  ]);
   const meta = FEEDS[kind];
 
   return (
@@ -93,7 +97,7 @@ export default async function FeedPage({ params }: Props) {
                     ? { ...post, is_video: true }
                     : post
                 }
-              />
+               timeZone={timeZone} />
             ))}
           </section>
         )}

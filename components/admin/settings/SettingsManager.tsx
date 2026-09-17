@@ -7,6 +7,7 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
+  MenuItem,
   Stack,
   TextField,
   Typography,
@@ -18,10 +19,17 @@ import {
   saveMaintenanceSettingsAction,
   savePaywallSettingsAction,
   saveProgramModulesAction,
+  saveTimezoneSettingsAction,
   upsertSiteSettingAction,
 } from "@/lib/admin/actions";
 import type { AiProviderStatus } from "@/lib/ai/catalog";
 import { AI_KEYS_SETTING } from "@/lib/ai/catalog";
+import {
+  DEFAULT_SITE_TIMEZONE,
+  normalizeSiteTimezone,
+  SITE_TIMEZONE_OPTIONS,
+  SITE_TIMEZONE_SETTING,
+} from "@/lib/timezone/constants";
 
 type Setting = {
   key: string;
@@ -55,6 +63,7 @@ export default function SettingsManager({
   const adsense = asObject(byKey.get("adsense")?.value);
   const maintenance = asObject(byKey.get("maintenance")?.value);
   const programModules = asObject(byKey.get("program_modules")?.value);
+  const timezone = normalizeSiteTimezone(byKey.get(SITE_TIMEZONE_SETTING)?.value);
   const adsTxtValue = byKey.get("ads_txt")?.value;
   const adsTxt =
     typeof adsTxtValue === "string"
@@ -69,12 +78,40 @@ export default function SettingsManager({
     "ads_txt",
     "maintenance",
     "program_modules",
+    SITE_TIMEZONE_SETTING,
     AI_KEYS_SETTING,
   ]);
   const visibleSettings = settings.filter((s) => !hiddenKeys.has(s.key));
 
   return (
     <Stack spacing={3}>
+      <DashboardCard
+        title="System timezone"
+        subtitle="Used for dates on the public site and in admin (publish times, tickers, datetime fields). Stored as UTC in the database."
+      >
+        <Box component="form" action={saveTimezoneSettingsAction}>
+          <Stack spacing={2}>
+            <TextField
+              select
+              name="timezone"
+              label="Timezone"
+              fullWidth
+              defaultValue={timezone || DEFAULT_SITE_TIMEZONE}
+              helperText="Default: Chicago (Central Time). Wall times in forms are interpreted in this zone."
+            >
+              {SITE_TIMEZONE_OPTIONS.map((opt) => (
+                <MenuItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </MenuItem>
+              ))}
+            </TextField>
+            <Button type="submit" variant="contained" sx={{ alignSelf: "flex-start" }}>
+              Save timezone
+            </Button>
+          </Stack>
+        </Box>
+      </DashboardCard>
+
       <DashboardCard
         title="Maintenance mode"
         subtitle="When enabled, everyone sees Coming Soon on the public site except logged-in admin/superadmin (amber banner). Editors and other roles do not bypass. Auth and /admin stay reachable."

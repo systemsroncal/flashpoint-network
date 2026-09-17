@@ -23,6 +23,13 @@ import {
   diffPostPatch,
   type PostExistingRow,
 } from "@/lib/admin/post-patch";
+import {
+  DEFAULT_SITE_TIMEZONE,
+  isValidIanaTimezone,
+  SITE_TIMEZONE_SETTING,
+} from "@/lib/timezone/constants";
+import { datetimeLocalToIso } from "@/lib/timezone/datetime";
+import { getSiteTimezone } from "@/lib/timezone/settings";
 
 function boolFromForm(value: FormDataEntryValue | null): boolean {
   return value === "on" || value === "true" || value === "1";
@@ -210,6 +217,7 @@ export async function upsertPostAction(formData: FormData) {
     existing ? (existing.home_first_slot ?? null) : null,
   );
 
+  const timeZone = await getSiteTimezone();
   const publishedAtInput = {
     submittedRaw: publishedAtRaw,
     displayInitial: publishedAtDisplay,
@@ -221,6 +229,7 @@ export async function upsertPostAction(formData: FormData) {
     ...publishedAtInput,
     existingIso: existing?.published_at ?? null,
     status,
+    timeZone,
   });
 
   const candidate = buildCandidateFromFormValues({
@@ -412,6 +421,7 @@ export async function upsertEventAction(formData: FormData) {
   const thumbnailUrl = String(formData.get("thumbnail_url") || "") || null;
   const startsAtRaw = String(formData.get("starts_at") || "");
   const endsAtRaw = String(formData.get("ends_at") || "");
+  const timeZone = await getSiteTimezone();
 
   const payload = {
     title,
@@ -422,8 +432,10 @@ export async function upsertEventAction(formData: FormData) {
     video_url: videoUrl,
     host_name: hostName,
     thumbnail_url: thumbnailUrl,
-    starts_at: startsAtRaw ? new Date(startsAtRaw).toISOString() : null,
-    ends_at: endsAtRaw ? new Date(endsAtRaw).toISOString() : null,
+    starts_at: startsAtRaw
+      ? datetimeLocalToIso(startsAtRaw, timeZone)
+      : null,
+    ends_at: endsAtRaw ? datetimeLocalToIso(endsAtRaw, timeZone) : null,
     is_live: boolFromForm(formData.get("is_live")),
     show_on_home: boolFromForm(formData.get("show_on_home")),
   };
@@ -601,6 +613,26 @@ export async function saveMaintenanceSettingsAction(formData: FormData) {
   revalidatePath("/network-programs");
   revalidatePath("/schedule-programs");
   revalidatePath("/admin/settings");
+}
+
+export async function saveTimezoneSettingsAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const raw = String(formData.get("timezone") || "").trim();
+  const timezone = isValidIanaTimezone(raw) ? raw : DEFAULT_SITE_TIMEZONE;
+
+  const { error } = await supabase.from("site_settings").upsert({
+    key: SITE_TIMEZONE_SETTING,
+    value: timezone,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/news");
+  revalidatePath("/events");
+  revalidatePath("/category");
+  revalidatePath("/admin");
+  revalidatePath("/admin/settings");
+  revalidatePath("/admin/posts");
+  revalidatePath("/admin/events");
 }
 
 export async function saveProgramModulesAction(formData: FormData) {

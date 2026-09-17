@@ -1,15 +1,22 @@
 import Link from "next/link";
 import { formatTickerDate, formatTickerTime } from "@/lib/format";
 import type { Post } from "@/lib/types/cms";
+import { DEFAULT_SITE_TIMEZONE } from "@/lib/timezone/constants";
 
 /**
  * Static orange home bar — latest published story only (no carousel).
  */
-export default function LatestNewsBar({ post }: { post: Post | null }) {
+export default function LatestNewsBar({
+  post,
+  timeZone = DEFAULT_SITE_TIMEZONE,
+}: {
+  post: Post | null;
+  timeZone?: string;
+}) {
   const now = new Date();
   const when = post?.published_at
-    ? formatTickerTime(new Date(post.published_at))
-    : formatTickerTime(now);
+    ? formatTickerTime(post.published_at, timeZone)
+    : formatTickerTime(now, timeZone);
   const category = (post?.category?.name ?? "FPN").trim();
   const headline = post?.title?.trim() || "FlashPoint coverage coming up";
 
@@ -36,7 +43,7 @@ export default function LatestNewsBar({ post }: { post: Post | null }) {
           dateTime={now.toISOString().slice(0, 10)}
           className="hidden shrink-0 text-[15px] font-medium tabular-nums sm:inline"
         >
-          {formatTickerDate(now)}
+          {formatTickerDate(now, timeZone)}
         </time>
       </div>
     </div>

@@ -29,6 +29,8 @@ import {
 } from "@/lib/posts/media-layout";
 import { slugify } from "@/lib/slug";
 import type { Category, Post, PostStatus, Tag } from "@/lib/types/cms";
+import { useTimezone } from "@/components/timezone/TimezoneProvider";
+import { isoToDatetimeLocal } from "@/lib/timezone/datetime";
 
 const STATUSES: PostStatus[] = [
   "draft",
@@ -38,14 +40,6 @@ const STATUSES: PostStatus[] = [
   "archived",
   "trash",
 ];
-
-function toLocalInput(value: string | null | undefined) {
-  if (!value) return "";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return "";
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
 
 function isNextRedirectError(err: unknown): boolean {
   if (!err || typeof err !== "object") return false;
@@ -76,6 +70,7 @@ export default function PostForm({
   siteName,
   siteUrl,
 }: Props) {
+  const timeZone = useTimezone();
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const isEdit = Boolean(post?.id);
@@ -135,8 +130,8 @@ export default function PostForm({
   // can keep published_at unchanged when the editor only edits title/body.
   const publishedAtOriginal = post?.published_at ?? "";
   const publishedAtDisplay = useMemo(
-    () => toLocalInput(post?.published_at),
-    [post?.published_at],
+    () => isoToDatetimeLocal(post?.published_at, timeZone),
+    [post?.published_at, timeZone],
   );
 
   const categoryName = useMemo(() => {
@@ -550,7 +545,7 @@ export default function PostForm({
               fullWidth
               InputLabelProps={{ shrink: true }}
               defaultValue={publishedAtDisplay}
-              helperText="Home and lists sort by this date. Leave unchanged (or blank) to keep the existing publish time — editing title/body alone will not reshuffle."
+              helperText="Interpreted in the site timezone (Settings → System timezone). Home and lists sort by this date. Leave unchanged (or blank) to keep the existing publish time — editing title/body alone will not reshuffle."
             />
             <Box>
               <Typography variant="subtitle2" gutterBottom>

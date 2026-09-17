@@ -15,6 +15,7 @@ import {
   formatViews,
 } from "@/lib/format";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
+import { getSiteTimezone } from "@/lib/timezone/settings";
 
 function SeeMore({ href, label = "See more" }: { href: string; label?: string }) {
   return (
@@ -27,13 +28,14 @@ function SeeMore({ href, label = "See more" }: { href: string; label?: string })
   );
 }
 
-export default function HomeView({
+export default async function HomeView({
   data,
   banners = {},
 }: {
   data: HomePayload;
   banners?: Partial<Record<BannerSlot, BannerWidgetRow>>;
 }) {
+  const timeZone = await getSiteTimezone();
   const mainVideo = data.mustWatch[0];
   const sideVideos = data.mustWatch.slice(1, 5);
   const mainExclusive = data.exclusives[0];
@@ -47,7 +49,7 @@ export default function HomeView({
 
   return (
     <div className="bg-white text-black">
-      <LatestNewsBar post={data.featured} />
+      <LatestNewsBar post={data.featured} timeZone={timeZone} />
 
       {!data.featured &&
       !data.liveEvent &&
@@ -171,10 +173,10 @@ export default function HomeView({
                 </span>
                 <span className="text-[15px] font-medium text-white md:text-[17px]">
                   {data.liveEvent.starts_at
-                    ? formatTickerTime(new Date(data.liveEvent.starts_at))
+                    ? formatTickerTime(data.liveEvent.starts_at, timeZone)
                     : "8:00 PM"}
                   {data.liveEvent.ends_at
-                    ? ` - ${formatTickerTime(new Date(data.liveEvent.ends_at))}`
+                    ? ` - ${formatTickerTime(data.liveEvent.ends_at, timeZone)}`
                     : ""}
                 </span>
               </div>
@@ -202,13 +204,13 @@ export default function HomeView({
             <div className="grid gap-0 lg:grid-cols-[minmax(0,2.08fr)_1px_minmax(0,1fr)]">
               <div className="min-w-0 lg:pr-7">
                 {data.featured ? (
-                  <PostCard post={data.featured} variant="hero" />
+                  <PostCard post={data.featured} variant="hero"  timeZone={timeZone} />
                 ) : null}
               </div>
               <div className="hidden bg-[#ccc] lg:block" aria-hidden />
               <div className="mt-8 flex flex-col border-t border-[#ccc] lg:mt-0 lg:border-t-0 lg:pl-7">
                 {data.secondary.map((post) => (
-                  <PostCard key={post.id} post={post} variant="stack" />
+                  <PostCard key={post.id} post={post} variant="stack"  timeZone={timeZone} />
                 ))}
               </div>
             </div>
@@ -217,7 +219,7 @@ export default function HomeView({
             {politicsWorld.length > 0 ? (
               <div className="grid gap-x-[21px] gap-y-2 sm:grid-cols-2 xl:grid-cols-3">
                 {politicsWorld.map((post) => (
-                  <PostCard key={post.id} post={post} />
+                  <PostCard key={post.id} post={post}  timeZone={timeZone} />
                 ))}
               </div>
             ) : null}
@@ -240,7 +242,7 @@ export default function HomeView({
               </div>
               <div className="border-t border-[#ccc]">
                 {data.podcasts.map((post) => (
-                  <PostCard key={post.id} post={post} variant="podcast" />
+                  <PostCard key={post.id} post={post} variant="podcast"  timeZone={timeZone} />
                 ))}
               </div>
             </div>
@@ -254,7 +256,7 @@ export default function HomeView({
               </div>
               <div className="border-t border-[#ccc]">
                 {data.latest.map((post) => (
-                  <PostCard key={post.id} post={post} variant="latest" />
+                  <PostCard key={post.id} post={post} variant="latest"  timeZone={timeZone} />
                 ))}
               </div>
             </div>
@@ -310,7 +312,7 @@ export default function HomeView({
             <SeeMore href="/feed/videos" />
           </div>
           <div className="grid items-start gap-8 md:grid-cols-[minmax(0,1.85fr)_minmax(280px,1fr)]">
-            {mainVideo ? <PostCard post={mainVideo} variant="video" /> : null}
+            {mainVideo ? <PostCard post={mainVideo} variant="video"  timeZone={timeZone} /> : null}
             <div className="flex flex-col divide-y divide-[#ccc] border-t border-[#ccc]">
               {sideVideos.map((post) => {
                 const thumb =
@@ -371,7 +373,7 @@ export default function HomeView({
                           </span>
                         </span>
                         <span className="text-[var(--fpn-rojo)]">
-                          {formatDate(post.published_at)}
+                          {formatDate(post.published_at, timeZone)}
                         </span>
                       </div>
                     </div>
@@ -394,7 +396,7 @@ export default function HomeView({
           </div>
           <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
             {data.elections.map((post) => (
-              <PostCard key={post.id} post={{ ...post, is_video: true }} />
+              <PostCard key={post.id} post={{ ...post, is_video: true }}  timeZone={timeZone} />
             ))}
           </div>
         </section>
@@ -503,7 +505,7 @@ export default function HomeView({
                   </p>
                 ) : null}
                 <p className="mt-4 text-[14px] text-[var(--fpn-rojo)]">
-                  {formatDate(mainExclusive.published_at)}
+                  {formatDate(mainExclusive.published_at, timeZone)}
                 </p>
               </div>
             </div>
@@ -555,7 +557,7 @@ export default function HomeView({
                         </span>
                       </span>
                       <span className="text-[var(--fpn-rojo)]">
-                        {formatDate(post.published_at)}
+                        {formatDate(post.published_at, timeZone)}
                       </span>
                     </div>
                   </div>

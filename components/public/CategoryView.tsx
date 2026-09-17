@@ -5,6 +5,7 @@ import PostCard from "@/components/public/PostCard";
 import type { Category, Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media/public-url";
+import { getSiteTimezone } from "@/lib/timezone/settings";
 
 type Props = {
   category: Category;
@@ -14,13 +15,14 @@ type Props = {
   popular: Post[];
 };
 
-export default function CategoryView({
+export default async function CategoryView({
   category,
   posts,
   podcasts,
   latest,
   popular,
 }: Props) {
+  const timeZone = await getSiteTimezone();
   const featured = posts[0] ?? null;
   const featuredSrc = resolveMediaUrl(featured?.featured_image_url);
   const grid = posts.slice(1, 4);
@@ -115,7 +117,7 @@ export default function CategoryView({
                   </p>
                 ) : null}
                 <p className="mt-3 text-[14px] text-[var(--fpn-rojo)]">
-                  {formatDate(featured.published_at)}
+                  {formatDate(featured.published_at, timeZone)}
                 </p>
               </article>
             ) : (
@@ -127,7 +129,7 @@ export default function CategoryView({
             {grid.length > 0 ? (
               <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {grid.map((post) => (
-                  <PostCard key={post.id} post={post} />
+                  <PostCard key={post.id} post={post}  timeZone={timeZone} />
                 ))}
               </section>
             ) : null}
@@ -195,7 +197,7 @@ export default function CategoryView({
                           </span>
                         </span>
                         <span className="text-[var(--fpn-rojo)]">
-                          {formatDate(post.published_at)}
+                          {formatDate(post.published_at, timeZone)}
                         </span>
                       </div>
                     </div>
@@ -247,7 +249,7 @@ export default function CategoryView({
               </div>
               <div className="border-t border-[#ccc]">
                 {podcasts.map((post) => (
-                  <PostCard key={post.id} post={post} variant="podcast" />
+                  <PostCard key={post.id} post={post} variant="podcast"  timeZone={timeZone} />
                 ))}
               </div>
             </div>
@@ -266,7 +268,7 @@ export default function CategoryView({
               </div>
               <div className="border-t border-[#ccc]">
                 {latest.map((post) => (
-                  <PostCard key={post.id} post={post} variant="latest" />
+                  <PostCard key={post.id} post={post} variant="latest"  timeZone={timeZone} />
                 ))}
               </div>
             </div>

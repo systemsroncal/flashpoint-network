@@ -5,6 +5,7 @@ import type { Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
 import { resolveMediaUrl } from "@/lib/media/public-url";
+import { DEFAULT_SITE_TIMEZONE } from "@/lib/timezone/constants";
 
 /** Small home grids / lists (Politics/World, Elections, stack, podcasts, latest). */
 const TITLE_SMALL =
@@ -17,14 +18,17 @@ const TITLE_FEATURED =
 type Props = {
   post: Post;
   variant?: "hero" | "stack" | "grid" | "list" | "video" | "latest" | "podcast";
+  timeZone?: string;
 };
 
 function MetaRow({
   post,
   dateRight = false,
+  timeZone = DEFAULT_SITE_TIMEZONE,
 }: {
   post: Post;
   dateRight?: boolean;
+  timeZone?: string;
 }) {
   return (
     <div
@@ -43,13 +47,13 @@ function MetaRow({
         </span>
       </span>
       <span className="font-normal text-[var(--fpn-rojo)]">
-        {formatDate(post.published_at)}
+        {formatDate(post.published_at, timeZone)}
       </span>
     </div>
   );
 }
 
-export default function PostCard({ post, variant = "grid" }: Props) {
+export default function PostCard({ post, variant = "grid", timeZone = DEFAULT_SITE_TIMEZONE }: Props) {
   const href = `/news/${post.slug}`;
   const category = (post.category?.name ?? "News").toUpperCase();
   // Always use featured_image_url here — show_featured_image is article-hero only.
@@ -68,7 +72,7 @@ export default function PostCard({ post, variant = "grid" }: Props) {
             {post.title}
           </h3>
         </Link>
-        <MetaRow post={post} dateRight />
+        <MetaRow post={post} dateRight timeZone={timeZone} />
       </article>
     );
   }
@@ -145,7 +149,7 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           {post.title}
         </Link>
         <p className="mt-2 text-[13px] text-[var(--fpn-rojo)] md:text-[18.7px]">
-          {formatDate(post.published_at)}
+          {formatDate(post.published_at, timeZone)}
         </p>
       </article>
     );
@@ -193,7 +197,7 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           <h3 className={`mt-1 ${TITLE_SMALL} text-black group-hover:text-[var(--fpn-rojo)] md:text-[33.73px] md:leading-[44px]`}>
             {post.title}
           </h3>
-          <MetaRow post={post} dateRight />
+          <MetaRow post={post} dateRight timeZone={timeZone} />
         </Link>
       </article>
     );
@@ -236,7 +240,7 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           </Link>
         </h2>
         <p className="mt-3 text-[14px] text-[var(--fpn-rojo)] md:text-[21.2px]">
-          {formatDate(post.published_at)}
+          {formatDate(post.published_at, timeZone)}
         </p>
       </article>
     );
@@ -272,7 +276,7 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           {post.title}
         </Link>
       </h3>
-      <MetaRow post={post} dateRight />
+      <MetaRow post={post} dateRight timeZone={timeZone} />
     </article>
   );
 }

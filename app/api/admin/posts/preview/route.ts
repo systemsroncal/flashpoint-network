@@ -12,6 +12,7 @@ import {
   diffPostPatch,
   type PostExistingRow,
 } from "@/lib/admin/post-patch";
+import { getSiteTimezone } from "@/lib/timezone/settings";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -112,6 +113,7 @@ export async function POST(request: Request) {
     existing = (data as PostExistingRow | null) ?? null;
   }
 
+  const timeZone = await getSiteTimezone();
   const publishedAtInput = {
     submittedRaw: publishedAtRaw,
     displayInitial: publishedAtDisplay,
@@ -122,6 +124,7 @@ export async function POST(request: Request) {
     ...publishedAtInput,
     existingIso: existing?.published_at ?? null,
     status,
+    timeZone,
   });
 
   const candidate = buildCandidateFromFormValues({

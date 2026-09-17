@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PostCard from "@/components/public/PostCard";
 import { searchPosts } from "@/lib/data/home";
+import { getSiteTimezone } from "@/lib/timezone/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,10 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 export default async function SearchPage({ searchParams }: Props) {
   const sp = await searchParams;
   const q = (sp.q || "").trim();
-  const posts = q ? await searchPosts(q, 40) : [];
+  const [posts, timeZone] = await Promise.all([
+    q ? searchPosts(q, 40) : Promise.resolve([]),
+    getSiteTimezone(),
+  ]);
 
   return (
     <div className="bg-white text-black">
@@ -80,7 +84,7 @@ export default async function SearchPage({ searchParams }: Props) {
             <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {posts.map((post) => (
                 <li key={post.id}>
-                  <PostCard post={post} />
+                  <PostCard post={post} timeZone={timeZone} />
                 </li>
               ))}
             </ul>

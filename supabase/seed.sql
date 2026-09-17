@@ -15,7 +15,8 @@ insert into public.site_settings (key, value) values
   ('paywall', '{"enabled":true,"free_article_limit":3,"modal_title":"Don''t stop here","modal_body":"Create your FPN All Access account for free to keep reading and join the conversation."}'::jsonb),
   ('adsense', '{"enabled":false,"client_id":""}'::jsonb),
   ('ads_txt', '"google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0"'::jsonb),
-  ('maintenance', '{"enabled":false,"message":""}'::jsonb)
+  ('maintenance', '{"enabled":false,"message":""}'::jsonb),
+  ('timezone', '"America/Chicago"'::jsonb)
 on conflict (key) do update set value = excluded.value, updated_at = timezone('utc', now());
 
 -- ---------------------------------------------------------------------------
