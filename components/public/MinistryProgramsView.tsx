@@ -285,7 +285,7 @@ export default function MinistryProgramsView({
         )}
       </section>
 
-      <section className={`${PAGE_MAX} pb-10`}>
+      <section className={`${PAGE_MAX} hidden pb-10`}>
         <div className="relative flex min-h-[99px] flex-col items-start justify-center gap-4 overflow-hidden rounded-[15px] bg-[#1b1b1b] py-4 pl-[120px] pr-4 md:flex-row md:items-center md:justify-between md:pl-[150px] md:pr-8">
           <div className="pointer-events-none absolute bottom-0 left-3 top-0 w-[120px] md:left-6 md:w-[158px]">
             <Image
@@ -308,7 +308,7 @@ export default function MinistryProgramsView({
         </div>
       </section>
 
-      <section className="relative overflow-hidden border-t border-white/5">
+      <section className="relative hidden overflow-hidden border-t border-white/5">
         <div className="absolute inset-0 bg-[#0d0d0d]" aria-hidden />
         <Image
           src="/brand/network-programs/family-camera.png"
