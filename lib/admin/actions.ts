@@ -5,7 +5,12 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/slug";
 import type { PostStatus } from "@/lib/types/cms";
-import { getCurrentProfile, getSessionUser } from "@/lib/auth/session";
+import {
+  getCurrentProfile,
+  getSessionUser,
+  isAdminRole,
+} from "@/lib/auth/session";
+import { CUSTOM_HTML_SETTING } from "@/lib/custom-html/settings";
 import {
   PROGRAM_MODULES_SETTING,
   isProgramModulesOwnerEmail,
@@ -471,6 +476,35 @@ export async function saveMaintenanceSettingsAction(formData: FormData) {
       enabled,
       message,
     },
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/news");
+  revalidatePath("/events");
+  revalidatePath("/category");
+  revalidatePath("/classic-programs");
+  revalidatePath("/network-programs");
+  revalidatePath("/schedule-programs");
+  revalidatePath("/admin/settings");
+}
+
+/**
+ * Persist trusted third-party HTML (head / body / footer).
+ * Admin and superadmin only — these snippets execute on every public page.
+ */
+export async function saveCustomHtmlSettingsAction(formData: FormData) {
+  const profile = await getCurrentProfile();
+  if (!profile || !isAdminRole(profile.role)) {
+    throw new Error("Only admins can edit custom HTML scripts");
+  }
+  const supabase = requireAdmin();
+  const head = String(formData.get("head") || "");
+  const body = String(formData.get("body") || "");
+  const footer = String(formData.get("footer") || "");
+
+  const { error } = await supabase.from("site_settings").upsert({
+    key: CUSTOM_HTML_SETTING,
+    value: { head, body, footer },
   });
   if (error) throw new Error(error.message);
   revalidatePath("/");
