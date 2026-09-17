@@ -118,13 +118,13 @@ export default async function SiteHeader({
             <>
               <Link
                 href="/register"
-                className="hidden h-[38px] w-[105px] items-center justify-center rounded-md bg-white text-[14px] font-bold text-black sm:inline-flex"
+                className="hidden h-[38px] w-[105px] items-center justify-center rounded-md bg-white text-[14px] font-bold text-black md:inline-flex"
               >
                 Subscribe
               </Link>
               <Link
                 href="/login"
-                className="inline-flex h-[38px] min-w-[72px] items-center justify-center rounded-md bg-[var(--fpn-rojo)] px-3 text-[14px] font-black text-white hover:brightness-110 sm:w-[105px]"
+                className="hidden h-[38px] min-w-[72px] items-center justify-center rounded-md bg-[var(--fpn-rojo)] px-3 text-[14px] font-black text-white hover:brightness-110 md:inline-flex md:w-[105px]"
               >
                 Login
               </Link>

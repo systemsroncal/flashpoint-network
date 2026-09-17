@@ -99,34 +99,15 @@ export default function MobileNav({
               ))}
             </ul>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              {isLoggedIn ? (
-                isStaff ? (
-                  <Link
-                    href="/admin"
-                    onClick={() => setOpen(false)}
-                    className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--fpn-rojo)] text-sm font-black text-white"
-                  >
-                    Admin
-                  </Link>
-                ) : null
-              ) : (
-                <>
-                  <Link
-                    href="/register"
-                    onClick={() => setOpen(false)}
-                    className="inline-flex h-11 items-center justify-center rounded-md bg-white text-sm font-bold text-black"
-                  >
-                    Subscribe
-                  </Link>
-                  <Link
-                    href="/login"
-                    onClick={() => setOpen(false)}
-                    className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--fpn-rojo)] text-sm font-black text-white"
-                  >
-                    Login
-                  </Link>
-                </>
-              )}
+              {isLoggedIn && isStaff ? (
+                <Link
+                  href="/admin"
+                  onClick={() => setOpen(false)}
+                  className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--fpn-rojo)] text-sm font-black text-white"
+                >
+                  Admin
+                </Link>
+              ) : null}
               {showSchedule ? (
                 <Link
                   href="/schedule-programs"
