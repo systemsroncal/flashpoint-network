@@ -38,11 +38,12 @@ export default function HomeView({
   const sideVideos = data.mustWatch.slice(1, 5);
   const mainExclusive = data.exclusives[0];
   const exclusiveRows = data.exclusives.slice(1, 5);
-  // Second band under hero: max 6 cards (2×3). Prefer Politics then World.
-  const politicsWorld = [
-    ...data.politics.slice(0, 3),
-    ...data.world.slice(0, 3),
-  ].slice(0, 6);
+  // Second band under First Section: exactly 3 Politics + 3 World (from data.grid).
+  // No See more headers; excludes First Section pins/fills in getHomePayload.
+  const politicsWorld =
+    data.grid.length > 0
+      ? data.grid.slice(0, 6)
+      : [...data.politics.slice(0, 3), ...data.world.slice(0, 3)];
 
   return (
     <div className="bg-white text-black">

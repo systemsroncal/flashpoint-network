@@ -218,13 +218,14 @@ export async function getHomePayload(): Promise<HomePayload> {
   }
 
   // Latest rail + Politics/World exclude First Section pins/fills.
+  // Second band under hero: exactly 3 Politics + 3 World by category (not Latest mix).
   const usedInTop = usedIds;
   const politics = asPosts(politicsRes.data)
     .filter((p) => !usedInTop.has(p.id))
-    .slice(0, 4);
+    .slice(0, 3);
   const world = asPosts(worldRes.data)
     .filter((p) => !usedInTop.has(p.id))
-    .slice(0, 4);
+    .slice(0, 3);
   const latestRail = latestPool.filter((p) => !usedInTop.has(p.id)).slice(0, 4);
 
   return {
