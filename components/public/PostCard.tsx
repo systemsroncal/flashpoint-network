@@ -235,11 +235,6 @@ export default function PostCard({ post, variant = "grid" }: Props) {
             {post.title}
           </Link>
         </h2>
-        {post.excerpt ? (
-          <p className="mt-3 text-[15px] leading-7 text-[var(--fpn-ink)]/85 md:text-[25px] md:leading-[39px]">
-            {post.excerpt}
-          </p>
-        ) : null}
         <p className="mt-3 text-[14px] text-[var(--fpn-rojo)] md:text-[21.2px]">
           {formatDate(post.published_at)}
         </p>
