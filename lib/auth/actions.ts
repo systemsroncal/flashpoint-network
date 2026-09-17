@@ -89,11 +89,11 @@ export async function signInAction(formData: FormData) {
 
 export async function signUpAction(formData: FormData) {
   const email = String(formData.get("email") || "").trim();
-  const failRegister = (message: string): never => {
+  function failRegister(message: string): never {
     const qs = new URLSearchParams({ error: message });
     if (email) qs.set("email", email);
     redirect(`/register?${qs.toString()}`);
-  };
+  }
   try {
     scrubSiteUrlEnv();
     const password = String(formData.get("password") || "");
