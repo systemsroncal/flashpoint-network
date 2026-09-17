@@ -38,7 +38,7 @@ export default function MinistryProgramsView({
             {siteName}
           </p>
           <h1 className="mt-2 font-article text-3xl font-black tracking-tight md:text-5xl">
-            Ministry Programs
+            Network Programs
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-white/70 md:text-base">
             Gospel-centered broadcasts and pastoral teaching from FlashPoint
@@ -54,7 +54,7 @@ export default function MinistryProgramsView({
         {programs.length === 0 ? (
           <div className="rounded-[12px] border border-dashed border-black/15 px-6 py-16 text-center">
             <h2 className="font-article text-2xl font-black tracking-tight">
-              No ministry programs listed
+              No network programs listed
             </h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-black/60">
               Check back soon for teaching and worship broadcasts.
@@ -75,7 +75,7 @@ export default function MinistryProgramsView({
                 style={{ animationDelay: `${Math.min(index, 10) * 45}ms` }}
               >
                 <Link
-                  href={`/ministry-programs/${program.slug}`}
+                  href={`/network-programs/${program.slug}`}
                   className="group flex h-full flex-col overflow-hidden rounded-[12px] border border-black/10 bg-white transition duration-300 hover:border-[var(--fpn-rojo)]/40 hover:shadow-[0_12px_32px_rgba(11,15,20,0.08)]"
                 >
                   <div className="relative aspect-square overflow-hidden bg-[#0B1220]">
@@ -89,7 +89,7 @@ export default function MinistryProgramsView({
                       />
                     ) : (
                       <span className="absolute inset-0 flex items-center justify-center text-sm font-bold uppercase tracking-wide text-white/40">
-                        Ministry
+                        Network
                       </span>
                     )}
                     <span className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/55 to-transparent opacity-80 transition group-hover:opacity-100" />

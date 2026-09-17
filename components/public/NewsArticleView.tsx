@@ -1,13 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
+import BannerWidget from "@/components/public/BannerWidget";
 import PostCard from "@/components/public/PostCard";
 import PaywallGate from "@/components/public/PaywallGate";
 import RichHtml from "@/components/public/RichHtml";
 import ShareBar from "@/components/public/ShareBar";
 import VideoPlayer from "@/components/public/VideoPlayer";
+import type { BannerSlot, BannerWidget as BannerWidgetRow } from "@/lib/banners/slots";
 import type { Post } from "@/lib/types/cms";
 import type { PaywallSettings } from "@/lib/paywall/settings";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
+import { resolveMediaUrl } from "@/lib/media/public-url";
+import { shouldShowFeaturedImageInArticleHero } from "@/lib/posts/media-layout";
+import { youtubeThumbnailUrl } from "@/lib/media/youtube";
+import { getSiteTimezone } from "@/lib/timezone/settings";
 
 type Props = {
   post: Post;
@@ -18,9 +24,10 @@ type Props = {
   next: Post | null;
   paywall: PaywallSettings;
   paywallBypass: boolean;
+  banners?: Partial<Record<BannerSlot, BannerWidgetRow>>;
 };
 
-export default function NewsArticleView({
+export default async function NewsArticleView({
   post,
   latest,
   podcasts,
@@ -29,12 +36,15 @@ export default function NewsArticleView({
   next,
   paywall,
   paywallBypass,
+  banners = {},
 }: Props) {
+  const timeZone = await getSiteTimezone();
   const category = (post.category?.name ?? "News").toUpperCase();
   const href = `/news/${post.slug}`;
-  const caption =
-    post.excerpt ||
-    "Photo courtesy of Flash Point Network coverage.";
+  const featured = resolveMediaUrl(post.featured_image_url);
+  // Switch is article-hero only — cards/home/SEO always keep featured_image_url.
+  const showFeatured = shouldShowFeaturedImageInArticleHero(post);
+  const playerInHero = Boolean(post.video_url) && !showFeatured;
 
   return (
     <article className="bg-white text-black">
@@ -54,10 +64,22 @@ export default function NewsArticleView({
       <div className="mx-auto max-w-[1440px] px-4 md:px-8 lg:px-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-center lg:gap-8">
           <div className="w-full max-w-[1100px] flex-1">
-            {post.featured_image_url ? (
+            {playerInHero && post.video_url ? (
+              <div className="overflow-hidden rounded-[13px] bg-black">
+                <VideoPlayer
+                  url={post.video_url}
+                  title={post.title}
+                  poster={
+                    featured ||
+                    youtubeThumbnailUrl(post.video_url) ||
+                    null
+                  }
+                />
+              </div>
+            ) : showFeatured && featured ? (
               <div className="relative aspect-[16/9] overflow-hidden rounded-[13px] bg-neutral-200 lg:aspect-[1245/697]">
                 <Image
-                  src={post.featured_image_url}
+                  src={featured}
                   alt=""
                   fill
                   priority
@@ -65,9 +87,9 @@ export default function NewsArticleView({
                   sizes="(max-width:1024px) 100vw, 1100px"
                 />
               </div>
-            ) : (
+            ) : showFeatured ? (
               <div className="aspect-[16/9] rounded-[13px] bg-neutral-200" />
-            )}
+            ) : null}
           </div>
 
           <aside className="flex w-full shrink-0 flex-row flex-wrap items-start justify-between gap-6 border-t border-[#ccc] pt-4 lg:w-[140px] lg:flex-col lg:border-t-0 lg:pt-0">
@@ -76,7 +98,7 @@ export default function NewsArticleView({
                 {category}
               </p>
               <p className="text-[15px] font-semibold text-[var(--fpn-rojo)] lg:text-[17px]">
-                {formatDate(post.published_at)}
+                {formatDate(post.published_at, timeZone)}
               </p>
               <div className="flex flex-col gap-2 text-[15px] text-black lg:text-[17px]">
                 <span className="inline-flex items-center gap-2">
@@ -114,16 +136,15 @@ export default function NewsArticleView({
       {/* Body + sidebar */}
       <div className="mx-auto mt-10 grid max-w-[1440px] gap-10 px-4 pb-6 md:px-8 lg:mt-12 lg:grid-cols-[minmax(0,1fr)_370px] lg:gap-12 lg:px-10">
         <div className="mx-auto w-full max-w-[906px] lg:mx-0">
-          <p className="mb-6 font-article text-[15px] leading-relaxed text-[#111] md:text-[16px]">
-            {caption}
-          </p>
-
-          {post.video_url ? (
+          {/* Player in body only when hero still shows the featured image */}
+          {post.video_url && showFeatured ? (
             <div className="mb-8">
               <VideoPlayer
                 url={post.video_url}
                 title={post.title}
-                poster={post.featured_image_url}
+                poster={
+                  featured || youtubeThumbnailUrl(post.video_url) || null
+                }
               />
             </div>
           ) : null}
@@ -229,33 +250,36 @@ export default function NewsArticleView({
           </div>
         </div>
 
-        {/* Right sidebar */}
+        {/* Right sidebar — no Revival/Special Offer promo on single posts */}
         <aside className="space-y-10">
-          <div className="overflow-hidden rounded-[12px] bg-[#111] p-4 text-white">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--fpn-rojo)]">
-              Special offer
-            </p>
-            <p className="mt-3 font-article text-xl font-black leading-snug">
-              Flashpoint of Revival
-            </p>
-            <p className="mt-2 text-sm text-white/65">
-              Pair coverage with the books shaping tonight&apos;s conversation.
-            </p>
-            <Link
-              href="/register"
-              className="mt-4 inline-flex rounded-md bg-white px-4 py-2 text-sm font-bold text-black"
-            >
-              View offer
-            </Link>
+          <div className="flex flex-col gap-3">
+            <BannerWidget
+              widget={banners.article_above_latest_patriot}
+              aspectClassName="aspect-[370/340]"
+              alt="Are You a Patriot? Join FP Army Chapters"
+            />
+            <BannerWidget
+              widget={banners.article_above_latest_ofc}
+              aspectClassName="aspect-[371/389]"
+              alt="Optimal Family Care advertisement"
+            />
           </div>
 
           <div>
-            <h2 className="font-article text-[1.75rem] font-black tracking-tight md:text-[2rem]">
-              Latest News
-            </h2>
+            <div className="mb-2 flex items-end justify-between gap-3">
+              <h2 className="font-article text-[1.75rem] font-black tracking-tight md:text-[2rem]">
+                Latest News
+              </h2>
+              <Link
+                href="/feed/latest"
+                className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
+              >
+                See more
+              </Link>
+            </div>
             <div className="mt-2 border-t border-[#ccc]">
               {latest.map((item) => (
-                <PostCard key={item.id} post={item} variant="latest" />
+                <PostCard key={item.id} post={item} variant="latest"  timeZone={timeZone} />
               ))}
             </div>
           </div>
@@ -266,15 +290,15 @@ export default function NewsArticleView({
                 Podcasts
               </h2>
               <Link
-                href="/?type=podcast"
+                href="/feed/podcasts"
                 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
               >
-                See all
+                See more
               </Link>
             </div>
             <div className="border-t border-[#ccc]">
               {podcasts.map((item) => (
-                <PostCard key={item.id} post={item} variant="podcast" />
+                <PostCard key={item.id} post={item} variant="podcast"  timeZone={timeZone} />
               ))}
             </div>
           </div>
@@ -285,12 +309,20 @@ export default function NewsArticleView({
       {popular.length > 0 ? (
         <section className="border-t border-[#ccc] bg-white">
           <div className="mx-auto max-w-[1440px] px-4 py-12 md:px-8 lg:px-10">
-            <h2 className="mb-6 font-article text-[1.85rem] font-black tracking-tight md:text-[2.2rem]">
-              Popular
-            </h2>
+            <div className="mb-6 flex items-end justify-between gap-3">
+              <h2 className="font-article text-[1.85rem] font-black tracking-tight md:text-[2.2rem]">
+                Popular
+              </h2>
+              <Link
+                href="/feed/popular"
+                className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--fpn-rojo)]"
+              >
+                See more
+              </Link>
+            </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {popular.map((item) => (
-                <PostCard key={item.id} post={item} />
+                <PostCard key={item.id} post={item}  timeZone={timeZone} />
               ))}
             </div>
           </div>

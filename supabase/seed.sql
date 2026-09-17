@@ -15,7 +15,8 @@ insert into public.site_settings (key, value) values
   ('paywall', '{"enabled":true,"free_article_limit":3,"modal_title":"Don''t stop here","modal_body":"Create your FPN All Access account for free to keep reading and join the conversation."}'::jsonb),
   ('adsense', '{"enabled":false,"client_id":""}'::jsonb),
   ('ads_txt', '"google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0"'::jsonb),
-  ('maintenance', '{"enabled":false,"message":""}'::jsonb)
+  ('maintenance', '{"enabled":false,"message":""}'::jsonb),
+  ('timezone', '"America/Chicago"'::jsonb)
 on conflict (key) do update set value = excluded.value, updated_at = timezone('utc', now());
 
 -- ---------------------------------------------------------------------------
@@ -103,8 +104,8 @@ insert into public.events (
     'https://www.youtube.com/watch?v=una0oMq_oco',
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
     'FlashPoint Live',
-    '2024-09-02 19:00:00+00',
-    '2024-09-02 19:30:00+00',
+    '2026-09-02 19:00:00+00',
+    '2026-09-02 19:30:00+00',
     true,
     true,
     'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?auto=format&fit=crop&w=1600&q=80'
@@ -118,8 +119,8 @@ insert into public.events (
     'https://www.youtube.com/watch?v=Wlwq68AnrdQ',
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam.',
     'FPN Elections Desk',
-    '2024-11-05 23:00:00+00',
-    '2024-11-06 06:00:00+00',
+    '2026-11-05 23:00:00+00',
+    '2026-11-06 06:00:00+00',
     false,
     true,
     'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=1600&q=80'
@@ -133,8 +134,8 @@ insert into public.events (
     'https://www.youtube.com/watch?v=MXPa62I9wiY',
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
     'FPN World Desk',
-    '2024-09-03 12:00:00+00',
-    '2024-09-03 12:25:00+00',
+    '2026-09-03 12:00:00+00',
+    '2026-09-03 12:25:00+00',
     false,
     true,
     'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=1600&q=80'
@@ -163,7 +164,7 @@ on conflict (slug) do update set
 -- Featured + hero story
 insert into public.posts (
   id, title, slug, excerpt, body, status, category_id, author_id,
-  featured_image_url, is_featured, is_premium, is_video, is_podcast,
+  featured_image_url, is_featured, is_premium, is_video, is_podcast, is_popular,
   reading_time_minutes, view_count, published_at
 ) values
 (
@@ -176,32 +177,32 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?auto=format&fit=crop&w=1600&q=80',
-  true, false, false, false, 8, 2300, '2024-09-02 14:00:00+00'
+  true, false, false, false, false, 8, 2300, '2026-09-15 00:00:00+00'
 ),
 -- Secondary stack (2)
 (
   'e1000000-0000-4000-8000-000000000002',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Transition briefers clash over who authorized the late-night memo',
   'army-secretary-secondary-brief',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero.</p>',
+  'Sources describe a scramble inside the E-ring after the resignation landed.',
+  '<p>Sources describe a scramble inside the E-ring after the resignation landed.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=800&q=80',
-  false, false, false, false, 8, 2300, '2024-09-02 13:30:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 00:55:21+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000003',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Pentagon aides circulate a 12-point continuity checklist',
   'army-secretary-tertiary-brief',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed cursus ante dapibus diam.</p>',
+  'The checklist covers press posture, allied calls, and overnight watches.',
+  '<p>The checklist covers press posture, allied calls, and overnight watches.</p>',
   'published',
-  'b1000000-0000-4000-8000-000000000002',
+  'b1000000-0000-4000-8000-000000000001',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=800&q=80',
-  false, false, false, false, 8, 2300, '2024-09-02 13:00:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 01:50:43+00'
 ),
 -- Podcasts (4)
 (
@@ -214,7 +215,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=600&q=80',
-  false, false, false, true, 8, 2300, '2024-09-02 12:00:00+00'
+  false, false, false, true, false, 8, 2300, '2026-09-15 02:46:05+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000011',
@@ -226,7 +227,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=600&q=80',
-  false, false, false, true, 8, 2100, '2024-09-02 11:00:00+00'
+  false, false, false, true, false, 8, 2100, '2026-09-15 03:41:27+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000012',
@@ -238,7 +239,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000001',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80',
-  false, false, false, true, 8, 1900, '2024-09-02 10:00:00+00'
+  false, false, false, true, false, 8, 1900, '2026-09-15 04:36:49+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000013',
@@ -250,80 +251,104 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1485579149621-3123dd979885?auto=format&fit=crop&w=600&q=80',
-  false, false, false, true, 8, 1800, '2024-09-02 09:00:00+00'
+  false, false, false, true, false, 8, 1800, '2026-09-15 05:32:11+00'
 ),
--- Secondary six-card grid
+-- Politics / World band (4 + 4) — distinct from Latest hero pool
 (
   'e1000000-0000-4000-8000-000000000020',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'House panel presses Pentagon on overnight chain-of-command gaps',
   'grid-story-01',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+  'Committee members demand a timeline for who held operational authority after the resignation.',
+  '<p>Committee members demand a timeline for who held operational authority after the resignation.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 8, 2300, '2024-09-02 08:50:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 06:27:33+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000021',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Governors weigh emergency staffing as transition clocks tick',
   'grid-story-02',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+  'Statehouses prepare contingency plans for federal liaison blackouts.',
+  '<p>Statehouses prepare contingency plans for federal liaison blackouts.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 8, 2300, '2024-09-02 08:40:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 07:22:55+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000022',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Allies seek clarity after Washington signals a hard reset abroad',
   'grid-story-03',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+  'Capitals from London to Tokyo scramble for readouts on the next 72 hours.',
+  '<p>Capitals from London to Tokyo scramble for readouts on the next 72 hours.</p>',
   'published',
-  'b1000000-0000-4000-8000-000000000002',
+  'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 8, 2300, '2024-09-02 08:30:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 08:18:17+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000023',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Border corridors tighten as regional partners reopen talks',
   'grid-story-04',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+  'Trade and migration desks coordinate overnight briefings across three time zones.',
+  '<p>Trade and migration desks coordinate overnight briefings across three time zones.</p>',
   'published',
-  'b1000000-0000-4000-8000-000000000002',
+  'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 8, 2300, '2024-09-02 08:20:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 09:13:39+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000024',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Energy markets jump on overseas reserve rumors',
   'grid-story-05',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+  'Traders watch Gulf and North Sea flows after an unconfirmed policy leak.',
+  '<p>Traders watch Gulf and North Sea flows after an unconfirmed policy leak.</p>',
   'published',
-  'b1000000-0000-4000-8000-000000000002',
+  'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 8, 2300, '2024-09-02 08:10:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 10:09:01+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000025',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Summit planners redraw the guest list after last-minute walkouts',
   'grid-story-06',
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-  '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+  'Diplomatic protocol teams rewrite seating charts before dawn.',
+  '<p>Diplomatic protocol teams rewrite seating charts before dawn.</p>',
+  'published',
+  'b1000000-0000-4000-8000-000000000003',
+  'f1000000-0000-4000-8000-000000000001'::uuid,
+  'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=900&q=80',
+  false, false, false, false, false, 8, 2300, '2026-09-15 11:04:23+00'
+),
+(
+  'e1000000-0000-4000-8000-000000000026',
+  'Senate whip count flips on emergency funding package',
+  'grid-story-07',
+  'Floor managers track late switches as the cloture window narrows.',
+  '<p>Floor managers track late switches as the cloture window narrows.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
-  'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 8, 2300, '2024-09-02 08:00:00+00'
+  'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=900&q=80',
+  false, false, false, false, false, 7, 2100, '2026-09-15 11:59:45+00'
+),
+(
+  'e1000000-0000-4000-8000-000000000027',
+  'Campaign finance desks flag a surge in same-day PAC filings',
+  'grid-story-08',
+  'Watchdogs say the filings cluster around swing districts overnight.',
+  '<p>Watchdogs say the filings cluster around swing districts overnight.</p>',
+  'published',
+  'b1000000-0000-4000-8000-000000000002',
+  'f1000000-0000-4000-8000-000000000001'::uuid,
+  'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=900&q=80',
+  false, false, false, false, false, 6, 1900, '2026-09-15 12:55:06+00'
 ),
 -- Latest news (4 text-forward)
 (
@@ -336,7 +361,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000001',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, 5, 1200, '2024-09-02 07:50:00+00'
+  false, false, false, false, false, 5, 1200, '2026-09-15 13:50:28+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000031',
@@ -348,7 +373,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, 5, 1100, '2024-09-02 07:40:00+00'
+  false, false, false, false, false, 5, 1100, '2026-09-15 14:45:50+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000032',
@@ -360,7 +385,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000005',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, 5, 1000, '2024-09-02 07:30:00+00'
+  false, false, false, false, false, 5, 1000, '2026-09-15 15:41:12+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000033',
@@ -372,7 +397,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000009',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, 5, 980, '2024-09-02 07:20:00+00'
+  false, false, false, false, false, 5, 980, '2026-09-15 16:36:34+00'
 ),
 -- Must-watch videos (1 large + 4 small)
 (
@@ -385,7 +410,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000b',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=1400&q=80',
-  true, false, true, false, 8, 4500, '2024-09-02 07:00:00+00'
+  true, false, true, false, false, 8, 4500, '2026-09-15 17:31:56+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000041',
@@ -397,7 +422,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000b',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1611162616475-46b635cb6868?auto=format&fit=crop&w=700&q=80',
-  false, false, true, false, 6, 2200, '2024-09-02 06:50:00+00'
+  false, false, true, false, false, 6, 2200, '2026-09-15 18:27:18+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000042',
@@ -409,7 +434,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000b',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1611162616475-46b635cb6868?auto=format&fit=crop&w=700&q=80',
-  false, false, true, false, 6, 2100, '2024-09-02 06:40:00+00'
+  false, false, true, false, false, 6, 2100, '2026-09-15 19:22:40+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000043',
@@ -421,7 +446,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000b',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=700&q=80',
-  false, false, true, false, 6, 2000, '2024-09-02 06:30:00+00'
+  false, false, true, false, false, 6, 2000, '2026-09-15 20:18:02+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000044',
@@ -433,7 +458,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000b',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=700&q=80',
-  false, false, true, false, 6, 1950, '2024-09-02 06:20:00+00'
+  false, false, true, false, false, 6, 1950, '2026-09-15 21:13:24+00'
 ),
 -- Elections block (8)
 (
@@ -446,7 +471,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 8, 2300, '2024-09-01 18:00:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 22:08:46+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000051',
@@ -458,7 +483,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 8, 2300, '2024-09-01 17:50:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 23:04:08+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000052',
@@ -470,7 +495,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 8, 2300, '2024-09-01 17:40:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-15 23:59:30+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000053',
@@ -482,7 +507,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 8, 2300, '2024-09-01 17:30:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-16 00:54:51+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000054',
@@ -494,7 +519,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 8, 2300, '2024-09-01 17:20:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-16 01:50:13+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000055',
@@ -506,7 +531,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 8, 2300, '2024-09-01 17:10:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-16 02:45:35+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000056',
@@ -518,7 +543,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 8, 2300, '2024-09-01 17:00:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-16 03:40:57+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000057',
@@ -530,7 +555,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1586339949916-3e9457bef6d3?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 8, 2300, '2024-09-01 16:50:00+00'
+  false, false, false, false, false, 8, 2300, '2026-09-16 04:36:19+00'
 ),
 -- Exclusive / premium (main + 4 grid + 4 list)
 (
@@ -543,7 +568,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=1400&q=80',
-  true, true, false, false, 10, 3200, '2024-09-01 16:00:00+00'
+  true, true, false, false, false, 10, 3200, '2026-09-16 05:31:41+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000061',
@@ -555,7 +580,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=700&q=80',
-  false, true, false, false, 8, 2800, '2024-09-01 15:50:00+00'
+  false, true, false, false, false, 8, 2800, '2026-09-16 06:27:03+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000062',
@@ -567,7 +592,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=700&q=80',
-  false, true, false, false, 8, 2700, '2024-09-01 15:40:00+00'
+  false, true, false, false, false, 8, 2700, '2026-09-16 07:22:25+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000063',
@@ -579,7 +604,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000009',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=700&q=80',
-  false, true, false, false, 8, 2600, '2024-09-01 15:30:00+00'
+  false, true, false, false, false, 8, 2600, '2026-09-16 08:17:47+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000064',
@@ -591,7 +616,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-00000000000a',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=700&q=80',
-  false, true, false, false, 8, 2500, '2024-09-01 15:20:00+00'
+  false, true, false, false, false, 8, 2500, '2026-09-16 09:13:09+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000065',
@@ -603,7 +628,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=400&q=80',
-  false, true, false, false, 7, 2400, '2024-09-01 15:10:00+00'
+  false, true, false, false, false, 7, 2400, '2026-09-16 10:08:31+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000066',
@@ -615,7 +640,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000004',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=400&q=80',
-  false, true, false, false, 7, 2350, '2024-09-01 15:00:00+00'
+  false, true, false, false, false, 7, 2350, '2026-09-16 11:03:53+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000067',
@@ -627,7 +652,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000005',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&q=80',
-  false, true, false, false, 7, 2300, '2024-09-01 14:50:00+00'
+  false, true, false, false, false, 7, 2300, '2026-09-16 11:59:15+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000068',
@@ -639,68 +664,68 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000008',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=400&q=80',
-  false, true, false, false, 7, 2250, '2024-09-01 14:40:00+00'
+  false, true, false, false, false, 7, 2250, '2026-09-16 12:54:36+00'
 ),
--- Popular sidebar (5) — high view_count
+-- Popular sidebar (5) — admin is_popular flag
 (
   'e1000000-0000-4000-8000-000000000070',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Why the overnight briefing changed the map overnight',
   'popular-01',
-  'Lorem ipsum dolor sit amet.',
-  '<p>Lorem ipsum dolor sit amet.</p>',
+  'Readers flooded the story after the first on-camera confirmation.',
+  '<p>Readers flooded the story after the first on-camera confirmation.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000002',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, 8, 9800, '2024-09-01 12:00:00+00'
+  false, false, false, false, true, 8, 9800, '2026-09-16 13:49:58+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000071',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Five charts that explain the succession scramble',
   'popular-02',
-  'Lorem ipsum dolor sit amet.',
-  '<p>Lorem ipsum dolor sit amet.</p>',
+  'Data desks mapped the handoff minute by minute.',
+  '<p>Data desks mapped the handoff minute by minute.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000001',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, 8, 8700, '2024-09-01 11:50:00+00'
+  false, false, false, false, true, 8, 8700, '2026-09-16 14:45:20+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000072',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'World desks react as partners demand a timeline',
   'popular-03',
-  'Lorem ipsum dolor sit amet.',
-  '<p>Lorem ipsum dolor sit amet.</p>',
+  'Capitals want names, not talking points, before markets open.',
+  '<p>Capitals want names, not talking points, before markets open.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, 8, 7600, '2024-09-01 11:40:00+00'
+  false, false, false, false, true, 8, 7600, '2026-09-16 15:40:42+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000073',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Tech briefers flood transition war rooms with AI drafts',
   'popular-04',
-  'Lorem ipsum dolor sit amet.',
-  '<p>Lorem ipsum dolor sit amet.</p>',
+  'Staffers say the first auto-summaries landed before sunrise.',
+  '<p>Staffers say the first auto-summaries landed before sunrise.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000009',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, 8, 6500, '2024-09-01 11:30:00+00'
+  false, false, false, false, true, 8, 6500, '2026-09-16 16:36:04+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000074',
-  'Outgoing Army secretary breaks silence after submitting resignation',
+  'Faith leaders call for calm as rumors outpace facts',
   'popular-05',
-  'Lorem ipsum dolor sit amet.',
-  '<p>Lorem ipsum dolor sit amet.</p>',
+  'Pastors and chaplains urge congregations to wait for verified updates.',
+  '<p>Pastors and chaplains urge congregations to wait for verified updates.</p>',
   'published',
   'b1000000-0000-4000-8000-000000000006',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&q=80',
-  false, false, false, false, 8, 5400, '2024-09-01 11:20:00+00'
+  false, false, false, false, true, 8, 5400, '2026-09-16 17:31:26+00'
 ),
 -- Extra variety for World / Opinion / Business / Science / Lifestyle / Health / Tech
 (
@@ -713,7 +738,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000003',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 6, 1400, '2024-09-01 10:00:00+00'
+  false, false, false, false, false, 6, 1400, '2026-09-16 18:26:48+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000081',
@@ -725,7 +750,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000004',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 7, 1600, '2024-09-01 09:50:00+00'
+  false, false, false, false, false, 7, 1600, '2026-09-16 19:22:10+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000082',
@@ -737,7 +762,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000005',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 6, 1500, '2024-09-01 09:40:00+00'
+  false, false, false, false, false, 6, 1500, '2026-09-16 20:17:32+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000083',
@@ -749,7 +774,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000006',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 6, 1300, '2024-09-01 09:30:00+00'
+  false, false, false, false, false, 6, 1300, '2026-09-16 21:12:54+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000084',
@@ -761,7 +786,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000007',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 5, 1100, '2024-09-01 09:20:00+00'
+  false, false, false, false, false, 5, 1100, '2026-09-16 22:08:16+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000085',
@@ -773,7 +798,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000008',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 5, 1050, '2024-09-01 09:10:00+00'
+  false, false, false, false, false, 5, 1050, '2026-09-16 23:03:38+00'
 ),
 (
   'e1000000-0000-4000-8000-000000000086',
@@ -785,7 +810,7 @@ insert into public.posts (
   'b1000000-0000-4000-8000-000000000009',
   'f1000000-0000-4000-8000-000000000001'::uuid,
   'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=900&q=80',
-  false, false, false, false, 6, 2100, '2024-09-01 09:00:00+00'
+  false, false, false, false, false, 6, 2100, '2026-09-16 23:59:00+00'
 )
 on conflict (slug) do update set
   title = excluded.title,
@@ -799,6 +824,7 @@ on conflict (slug) do update set
   is_premium = excluded.is_premium,
   is_video = excluded.is_video,
   is_podcast = excluded.is_podcast,
+  is_popular = excluded.is_popular,
   reading_time_minutes = excluded.reading_time_minutes,
   view_count = excluded.view_count,
   published_at = excluded.published_at,
@@ -871,6 +897,13 @@ update public.posts set video_url = 'https://www.youtube.com/watch?v=ro3XhGvcag4
   where is_video = true and coalesce(video_url, '') = '';
 update public.posts set video_url = 'https://www.youtube.com/watch?v=FN-Pec2eVy4'
   where is_podcast = true and coalesce(video_url, '') = '';
+
+-- Video / Podcast: hide featured image by default (player takes the hero slot)
+update public.posts
+set show_featured_image = false
+where is_video = true
+   or is_podcast = true
+   or category_id = 'b1000000-0000-4000-8000-00000000000b';
 
 -- Sample SEO for the flagship story
 update public.posts set

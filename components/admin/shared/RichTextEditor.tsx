@@ -6,6 +6,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
+import Underline from "@tiptap/extension-underline";
 import {
   Box,
   Button,
@@ -58,6 +59,7 @@ export default function RichTextEditor({
       StarterKit.configure({
         heading: { levels: [2, 3] },
       }),
+      Underline,
       Link.configure({
         openOnClick: false,
         autolink: true,
@@ -123,11 +125,36 @@ export default function RichTextEditor({
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   };
 
-  const addImage = () => {
+  const addImage = async () => {
     if (!editor) return;
-    const url = window.prompt("Image URL", "https://");
-    if (!url) return;
-    editor.chain().focus().setImage({ src: url }).run();
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/jpeg,image/png,image/webp,image/gif,image/avif";
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      const fd = new FormData();
+      fd.set("file", file);
+      try {
+        const res = await fetch("/api/admin/media/upload", {
+          method: "POST",
+          body: fd,
+          credentials: "same-origin",
+        });
+        const result = (await res.json()) as
+          | { ok: true; url: string; absoluteUrl?: string }
+          | { ok: false; error: string };
+        if (!result.ok) {
+          window.alert(result.error || "Upload failed");
+          return;
+        }
+        const src = result.absoluteUrl || result.url;
+        editor.chain().focus().setImage({ src }).run();
+      } catch (err) {
+        window.alert(err instanceof Error ? err.message : "Upload failed");
+      }
+    };
+    input.click();
   };
 
   return (
@@ -182,6 +209,14 @@ export default function RichTextEditor({
               sx={{ textDecoration: "line-through" }}
             >
               S
+            </Button>
+            <Button
+              type="button"
+              onClick={() => editor?.chain().focus().toggleUnderline().run()}
+              disabled={!editor}
+              sx={{ textDecoration: "underline" }}
+            >
+              U
             </Button>
           </ButtonGroup>
           <Divider orientation="vertical" flexItem />

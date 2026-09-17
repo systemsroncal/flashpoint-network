@@ -9,6 +9,7 @@ import {
   IconMail,
   IconNews,
   IconPhoto,
+  IconAd2,
   IconSettings,
   IconTags,
   IconUsers,
@@ -72,10 +73,10 @@ const Menuitems: MenuItemConfig[] = [
     module: "classic",
   },
   {
-    id: "nav-ministry-programs",
-    title: "Ministry Programs",
+    id: "nav-network-programs",
+    title: "Network Programs",
     icon: IconCross,
-    href: "/admin/ministry-programs",
+    href: "/admin/network-programs",
   },
   {
     id: "nav-schedule-programs",
@@ -101,6 +102,12 @@ const Menuitems: MenuItemConfig[] = [
     title: "Media",
     icon: IconPhoto,
     href: "/admin/media",
+  },
+  {
+    id: "nav-banners",
+    title: "Banners",
+    icon: IconAd2,
+    href: "/admin/banners",
   },
   {
     navlabel: true,
