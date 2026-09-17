@@ -11,10 +11,7 @@ import type { Post } from "@/lib/types/cms";
 import type { PaywallSettings } from "@/lib/paywall/settings";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media/public-url";
-import {
-  isVideoOrPodcastPost,
-  shouldShowFeaturedImageInArticleHero,
-} from "@/lib/posts/media-layout";
+import { shouldShowFeaturedImageInArticleHero } from "@/lib/posts/media-layout";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
@@ -45,13 +42,9 @@ export default async function NewsArticleView({
   const category = (post.category?.name ?? "News").toUpperCase();
   const href = `/news/${post.slug}`;
   const featured = resolveMediaUrl(post.featured_image_url);
-  const mediaPost = isVideoOrPodcastPost(post);
   // Switch is article-hero only — cards/home/SEO always keep featured_image_url.
   const showFeatured = shouldShowFeaturedImageInArticleHero(post);
   const playerInHero = Boolean(post.video_url) && !showFeatured;
-  const caption =
-    post.excerpt ||
-    "Photo courtesy of Flash Point Network coverage.";
 
   return (
     <article className="bg-white text-black">
@@ -143,13 +136,6 @@ export default async function NewsArticleView({
       {/* Body + sidebar */}
       <div className="mx-auto mt-10 grid max-w-[1440px] gap-10 px-4 pb-6 md:px-8 lg:mt-12 lg:grid-cols-[minmax(0,1fr)_370px] lg:gap-12 lg:px-10">
         <div className="mx-auto w-full max-w-[906px] lg:mx-0">
-          {/* Photo caption under hero — not used for Video/Podcast */}
-          {!mediaPost ? (
-            <p className="mb-6 font-article text-[15px] leading-relaxed text-[#111] md:text-[16px]">
-              {caption}
-            </p>
-          ) : null}
-
           {/* Player in body only when hero still shows the featured image */}
           {post.video_url && showFeatured ? (
             <div className="mb-8">
@@ -264,26 +250,8 @@ export default async function NewsArticleView({
           </div>
         </div>
 
-        {/* Right sidebar */}
+        {/* Right sidebar — no Revival/Special Offer promo on single posts */}
         <aside className="space-y-10">
-          <div className="overflow-hidden rounded-[12px] bg-[#111] p-4 text-white">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--fpn-rojo)]">
-              Special offer
-            </p>
-            <p className="mt-3 font-article text-xl font-black leading-snug">
-              Flashpoint of Revival
-            </p>
-            <p className="mt-2 text-sm text-white/65">
-              Pair coverage with the books shaping tonight&apos;s conversation.
-            </p>
-            <Link
-              href="/register"
-              className="mt-4 inline-flex rounded-md bg-white px-4 py-2 text-sm font-bold text-black"
-            >
-              View offer
-            </Link>
-          </div>
-
           <div className="flex flex-col gap-3">
             <BannerWidget
               widget={banners.article_above_latest_patriot}
