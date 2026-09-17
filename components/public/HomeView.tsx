@@ -93,6 +93,18 @@ export default async function HomeView({
         {/* Figma 34:12522 — left ~1236 (hero+2 + 3-col Politics/World) | right 370 (Podcasts + Latest) */}
         <section className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(280px,370px)] lg:gap-12">
           <div className="min-w-0 space-y-9">
+            {data.featured || data.secondary.length > 0 ? (
+              <header>
+                <h2 className="font-article text-[2rem] font-black leading-[1.05] tracking-tight md:text-[2.75rem] lg:text-[3.25rem]">
+                  Beyond the Broadcast
+                </h2>
+                <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-black/70 md:mt-4 md:text-[17px] md:leading-7">
+                  Stay informed with original reporting, analysis, opinion, and
+                  stories shaping faith, culture, America, and the world
+                </p>
+              </header>
+            ) : null}
+
             {/* Hero + 2 stacked sides (~775 + divider + ~373) */}
             <div className="grid gap-0 lg:grid-cols-[minmax(0,2.08fr)_1px_minmax(0,1fr)]">
               <div className="min-w-0 lg:pr-7">
