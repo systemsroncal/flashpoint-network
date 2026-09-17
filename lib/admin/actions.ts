@@ -30,6 +30,7 @@ import {
 } from "@/lib/timezone/constants";
 import { datetimeLocalToIso } from "@/lib/timezone/datetime";
 import { getSiteTimezone } from "@/lib/timezone/settings";
+import { normalizeExternalUrl } from "@/lib/events/upcoming";
 
 function boolFromForm(value: FormDataEntryValue | null): boolean {
   return value === "on" || value === "true" || value === "1";
@@ -419,6 +420,9 @@ export async function upsertEventAction(formData: FormData) {
   const videoUrl = String(formData.get("video_url") || "") || null;
   const hostName = String(formData.get("host_name") || "") || null;
   const thumbnailUrl = String(formData.get("thumbnail_url") || "") || null;
+  const externalUrl = normalizeExternalUrl(
+    String(formData.get("external_url") || ""),
+  );
   const startsAtRaw = String(formData.get("starts_at") || "");
   const endsAtRaw = String(formData.get("ends_at") || "");
   const timeZone = await getSiteTimezone();
@@ -432,6 +436,7 @@ export async function upsertEventAction(formData: FormData) {
     video_url: videoUrl,
     host_name: hostName,
     thumbnail_url: thumbnailUrl,
+    external_url: externalUrl,
     starts_at: startsAtRaw
       ? datetimeLocalToIso(startsAtRaw, timeZone)
       : null,

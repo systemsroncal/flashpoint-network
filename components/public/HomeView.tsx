@@ -49,7 +49,7 @@ export default async function HomeView({
 
   return (
     <div className="bg-white text-black">
-      <LatestNewsBar post={data.featured} timeZone={timeZone} />
+      <LatestNewsBar event={data.nextUpcomingEvent} timeZone={timeZone} />
 
       {!data.featured &&
       !data.liveEvent &&

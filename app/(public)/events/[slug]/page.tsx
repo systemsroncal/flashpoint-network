@@ -73,7 +73,18 @@ export default async function EventPage({ params }: Props) {
               <span className="text-white/70">{event.format}</span>
             </div>
             <h1 className="mt-3 font-article text-3xl font-bold leading-tight md:text-4xl">
-              {event.title}
+              {event.external_url ? (
+                <a
+                  href={event.external_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-inherit no-underline hover:no-underline"
+                >
+                  {event.title}
+                </a>
+              ) : (
+                event.title
+              )}
             </h1>
             <p className="mt-3 text-sm text-white/70">
               Host: {event.host_name || "FlashPoint Live"}

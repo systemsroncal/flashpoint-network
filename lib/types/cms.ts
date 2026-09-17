@@ -160,12 +160,16 @@ export type EventItem = {
   is_live: boolean;
   show_on_home: boolean;
   thumbnail_url: string | null;
+  /** Optional CTA URL for home orange bar / title click (new tab). */
+  external_url: string | null;
 };
 
 export type HomePayload = {
   categories: Category[];
   liveEvent: EventItem | null;
   tickerEvents: EventItem[];
+  /** Next closest upcoming (or live) event for the home orange bar. */
+  nextUpcomingEvent: EventItem | null;
   /** Newest published story — hero main image (Latest News). */
   featured: Post | null;
   /** Next two newest — side stories beside the hero. */

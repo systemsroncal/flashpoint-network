@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { pickNextUpcomingEvent } from "@/lib/events/upcoming";
 import type { Category, EventItem, HomePayload, Post } from "@/lib/types/cms";
 
 const POST_SELECT = `
@@ -68,6 +69,7 @@ export async function getHomePayload(): Promise<HomePayload> {
     categories: [],
     liveEvent: null,
     tickerEvents: [],
+    nextUpcomingEvent: null,
     featured: null,
     secondary: [],
     podcasts: [],
@@ -114,7 +116,7 @@ export async function getHomePayload(): Promise<HomePayload> {
       .select("*")
       .order("is_live", { ascending: false })
       .order("starts_at", { ascending: true })
-      .limit(30),
+      .limit(40),
     // Truly latest news pool (~12 so we can fill empty First Section slots + Latest rail)
     supabase
       .from("posts")
@@ -228,10 +230,14 @@ export async function getHomePayload(): Promise<HomePayload> {
     .slice(0, 3);
   const latestRail = latestPool.filter((p) => !usedInTop.has(p.id)).slice(0, 4);
 
+  const tickerEvents = (tickerEventsRes.data as EventItem[]) ?? [];
+  const nextUpcomingEvent = pickNextUpcomingEvent(tickerEvents, new Date());
+
   return {
     categories: (categoriesRes.data as Category[]) ?? [],
     liveEvent: ((eventsRes.data as EventItem[]) ?? [])[0] ?? null,
-    tickerEvents: (tickerEventsRes.data as EventItem[]) ?? [],
+    tickerEvents,
+    nextUpcomingEvent,
     featured,
     secondary,
     podcasts: asPosts(podcastsRes.data),

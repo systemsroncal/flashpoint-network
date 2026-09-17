@@ -63,6 +63,14 @@ export default function EventForm({ event }: { event?: EventItem | null }) {
           </Stack>
           <TextField name="video_url" label="Video URL" fullWidth defaultValue={event?.video_url ?? ""} />
           <TextField
+            name="external_url"
+            label="External URL (optional)"
+            fullWidth
+            placeholder="https://"
+            defaultValue={event?.external_url ?? ""}
+            helperText="If set, the home orange bar and event title open this link in a new tab. Leave blank to use the event page."
+          />
+          <TextField
             name="thumbnail_url"
             label="Thumbnail URL"
             fullWidth
