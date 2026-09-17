@@ -262,14 +262,22 @@ export default function HomeView({ data }: { data: HomePayload }) {
 
         {/* Subscribe banner — Figma Group 29790 (1435px, inset ~242 on 1920) */}
         <section className="mx-auto flex w-full max-w-[1435px] flex-col overflow-hidden rounded-[12px] bg-black text-white md:flex-row md:items-stretch">
-          <div className="relative mx-auto h-[160px] w-[160px] shrink-0 md:mx-0 md:h-auto md:w-[197px]">
-            <Image
-              src="/brand/banners/fpn-full-story-couple.webp"
-              alt="FlashPoint Network hosts"
-              fill
-              className="object-cover object-top"
-              sizes="197px"
-            />
+          {/* Couple photo — webp when supported; png fallback at same basename */}
+          <div className="relative mx-auto h-[160px] w-[160px] shrink-0 overflow-hidden md:mx-0 md:h-auto md:w-[197px]">
+            <picture className="absolute inset-0 block h-full w-full">
+              <source
+                srcSet="/brand/banners/fpn-full-story-couple.webp"
+                type="image/webp"
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element -- picture/webp fallback pair */}
+              <img
+                src="/brand/banners/fpn-full-story-couple.png"
+                alt="FlashPoint Network hosts"
+                className="h-full w-full object-cover object-top"
+                width={197}
+                height={164}
+              />
+            </picture>
           </div>
           <div className="flex flex-1 flex-col items-start justify-center gap-2 px-6 py-6 md:flex-row md:items-center md:justify-between md:gap-6 md:px-8 md:py-7">
             <div>
