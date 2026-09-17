@@ -174,7 +174,7 @@ export async function getHomePayload(): Promise<HomePayload> {
       .eq("is_podcast", false)
       .eq("is_video", false)
       .order("published_at", { ascending: false })
-      .limit(16),
+      .limit(8),
     supabase
       .from("posts")
       .select(POST_SELECT)
@@ -183,7 +183,7 @@ export async function getHomePayload(): Promise<HomePayload> {
       .eq("is_podcast", false)
       .eq("is_video", false)
       .order("published_at", { ascending: false })
-      .limit(16),
+      .limit(8),
   ]);
 
   const latestPool = asPosts(latestPoolRes.data);
