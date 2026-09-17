@@ -260,40 +260,43 @@ export default function HomeView({ data }: { data: HomePayload }) {
           </aside>
         </section>
 
-        {/* Subscribe banner — Figma Group 29790 (1435px, inset ~242 on 1920) */}
-        <section className="mx-auto flex w-full max-w-[1435px] flex-col overflow-hidden rounded-[12px] bg-black text-white md:flex-row md:items-stretch">
-          {/* Couple photo — webp when supported; png fallback at same basename */}
-          <div className="relative mx-auto h-[160px] w-[160px] shrink-0 overflow-hidden md:mx-0 md:h-auto md:w-[197px]">
-            <picture className="absolute inset-0 block h-full w-full">
-              <source
-                srcSet="/brand/banners/fpn-full-story-couple.webp"
-                type="image/webp"
-              />
-              {/* eslint-disable-next-line @next/next/no-img-element -- picture/webp fallback pair */}
-              <img
-                src="/brand/banners/fpn-full-story-couple.png"
-                alt="FlashPoint Network hosts"
-                className="h-full w-full object-cover object-top"
-                width={197}
-                height={164}
-              />
-            </picture>
-          </div>
-          <div className="flex flex-1 flex-col items-start justify-center gap-2 px-6 py-6 md:flex-row md:items-center md:justify-between md:gap-6 md:px-8 md:py-7">
-            <div>
-              <h2 className="font-article text-[1.75rem] font-black leading-tight tracking-tight md:text-[2.45rem]">
-                Get The Full Story. As It Is.
-              </h2>
-              <p className="mt-1.5 text-sm text-white/80 md:text-[1.05rem]">
-                Subscribe for complete FPN access
-              </p>
+        {/* Subscribe banner — Figma Group 29790 (desktop row). Mobile/tablet: same row, scaled. */}
+        <section className="mx-auto w-full max-w-[1435px] overflow-hidden rounded-[12px] bg-black text-white">
+          <div className="flex min-h-[118px] items-stretch sm:min-h-[128px] md:min-h-[130px]">
+            {/* Couple — left rail at all breakpoints (avoids stacked square crop on mobile) */}
+            <div className="relative w-[108px] shrink-0 sm:w-[148px] md:w-[197px]">
+              <picture className="absolute inset-0 block h-full w-full">
+                <source
+                  srcSet="/brand/banners/fpn-full-story-couple.webp"
+                  type="image/webp"
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element -- picture/webp fallback pair */}
+                <img
+                  src="/brand/banners/fpn-full-story-couple.png"
+                  alt="FlashPoint Network hosts"
+                  className="h-full w-full object-cover object-[center_18%] sm:object-top"
+                  width={197}
+                  height={164}
+                />
+              </picture>
             </div>
-            <Link
-              href="/register"
-              className="inline-flex shrink-0 rounded-md bg-[var(--fpn-rojo)] px-7 py-3 text-sm font-black text-white hover:brightness-110"
-            >
-              Subscribe
-            </Link>
+
+            <div className="flex min-w-0 flex-1 flex-col justify-center gap-2.5 px-3.5 py-3.5 sm:gap-3 sm:px-5 sm:py-4 md:flex-row md:items-center md:justify-between md:gap-6 md:px-8 md:py-6 lg:pl-7">
+              <div className="min-w-0">
+                <h2 className="font-article text-[clamp(1.05rem,3.8vw,1.45rem)] font-black leading-[1.18] tracking-tight text-pretty sm:text-[1.55rem] md:text-[2.15rem] lg:text-[2.45rem] lg:leading-[1.2]">
+                  Get The Full Story. As It Is.
+                </h2>
+                <p className="mt-1 max-w-[36ch] text-[12.5px] leading-snug text-white/80 sm:mt-1.5 sm:text-sm md:max-w-none md:text-[1.05rem] md:leading-normal">
+                  Subscribe for complete FPN access
+                </p>
+              </div>
+              <Link
+                href="/register"
+                className="inline-flex w-full shrink-0 items-center justify-center rounded-md bg-[var(--fpn-rojo)] px-5 py-2.5 text-[13px] font-black text-white hover:brightness-110 sm:w-auto sm:self-start sm:text-sm md:self-center md:px-7 md:py-3"
+              >
+                Subscribe
+              </Link>
+            </div>
           </div>
         </section>
 
