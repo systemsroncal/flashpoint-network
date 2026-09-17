@@ -265,11 +265,11 @@ export default async function HomeView({
         </section>
 
         {/* Subscribe banner — Figma Group 29790 (desktop row). Mobile/tablet: same row, scaled. */}
-        <section className="mx-auto w-full max-w-[1435px] overflow-hidden rounded-[12px] bg-black text-white">
+        <section className="mx-auto w-full max-w-[1160px] overflow-hidden rounded-[12px] bg-black text-white">
           <div className="flex min-h-[118px] items-stretch sm:min-h-[128px] md:min-h-[130px]">
-            {/* Couple — left rail at all breakpoints (avoids stacked square crop on mobile) */}
-            <div className="relative w-[108px] shrink-0 sm:w-[148px] md:w-[197px]">
-              <picture className="absolute inset-0 block h-full w-full">
+            {/* Couple — left rail; overflow clip keeps photo inside banner frame */}
+            <div className="relative w-[108px] shrink-0 overflow-hidden self-stretch sm:w-[148px] md:w-[197px]">
+              <picture className="absolute inset-0 block h-full w-full overflow-hidden">
                 <source
                   srcSet="/brand/banners/fpn-full-story-couple.webp"
                   type="image/webp"
@@ -278,7 +278,7 @@ export default async function HomeView({
                 <img
                   src="/brand/banners/fpn-full-story-couple.png"
                   alt="FlashPoint Network hosts"
-                  className="h-full w-full object-cover object-[center_18%] sm:object-top"
+                  className="absolute inset-0 h-full w-full max-h-full object-cover object-[center_18%] sm:object-[center_12%] md:object-[center_8%]"
                   width={197}
                   height={164}
                 />
