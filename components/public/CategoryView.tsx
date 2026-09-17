@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import FlashpointRevivalPromo from "@/components/public/FlashpointRevivalPromo";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
 import type { Category, Post } from "@/lib/types/cms";
@@ -271,23 +272,7 @@ export default function CategoryView({
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-[12px] bg-[#111] p-4 text-white">
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--fpn-rojo)]">
-                Special offer
-              </p>
-              <p className="mt-3 font-article text-xl font-black leading-snug">
-                Flashpoint of Revival
-              </p>
-              <p className="mt-2 text-sm text-white/65">
-                Pair today&apos;s {category.name} coverage with FPN essentials.
-              </p>
-              <Link
-                href="/register"
-                className="mt-4 inline-flex rounded-md bg-white px-4 py-2 text-sm font-bold text-black"
-              >
-                View offer
-              </Link>
-            </div>
+            <FlashpointRevivalPromo />
 
             <div>
               <div className="mb-3 flex items-end justify-between gap-3">

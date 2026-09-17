@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import FlashpointRevivalPromo from "@/components/public/FlashpointRevivalPromo";
 import LatestNewsBar from "@/components/public/LatestNewsBar";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
@@ -251,6 +252,9 @@ export default function HomeView({ data }: { data: HomePayload }) {
                 ))}
               </div>
             </div>
+
+            <FlashpointRevivalPromo />
+
             <div>
               <div className="mb-4 flex items-end justify-between gap-3">
                 <h2 className="font-article text-[2rem] font-black leading-none tracking-tight md:text-[45.5px]">
