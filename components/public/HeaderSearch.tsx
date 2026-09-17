@@ -6,9 +6,16 @@ import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 
 type Props = {
   initialQuery?: string;
+  /** `light` = white icon (navy header); `dark` = black icon (WaPo mobile). */
+  tone?: "light" | "dark";
+  className?: string;
 };
 
-export default function HeaderSearch({ initialQuery = "" }: Props) {
+export default function HeaderSearch({
+  initialQuery = "",
+  tone = "light",
+  className = "",
+}: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState(initialQuery);
@@ -44,9 +51,33 @@ export default function HeaderSearch({ initialQuery = "" }: Props) {
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-6 w-6 items-center justify-center hover:opacity-80"
+        className={`inline-flex h-9 w-9 items-center justify-center hover:opacity-80 ${className}`}
       >
-        <Image src="/brand/search.svg" alt="" width={23} height={23} />
+        {tone === "dark" ? (
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden
+          >
+            <circle
+              cx="11"
+              cy="11"
+              r="7"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
+            <path
+              d="M20 20l-3.5-3.5"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+        ) : (
+          <Image src="/brand/search.svg" alt="" width={23} height={23} />
+        )}
       </button>
 
       {open ? (

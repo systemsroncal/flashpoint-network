@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import MobileFeedList from "@/components/public/MobileFeedList";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
 import { getFeedPosts, type FeedKind } from "@/lib/data/home";
@@ -9,11 +10,12 @@ export const dynamic = "force-dynamic";
 
 const FEEDS: Record<
   FeedKind,
-  { title: string; description: string }
+  { title: string; description: string; mobileTitle?: string }
 > = {
   latest: {
     title: "Latest News",
     description: "The newest published stories from Flash Point Network.",
+    mobileTitle: "Latest",
   },
   podcasts: {
     title: "Podcasts",
@@ -26,10 +28,12 @@ const FEEDS: Record<
   premium: {
     title: "Exclusive Content",
     description: "Premium and exclusive FPN stories, newest first.",
+    mobileTitle: "Exclusive",
   },
   popular: {
     title: "Popular",
     description: "Editor-flagged popular stories, newest first.",
+    mobileTitle: "For You",
   },
 };
 
@@ -57,7 +61,16 @@ export default async function FeedPage({ params }: Props) {
 
   return (
     <div className="bg-white text-black">
-      <div className="mx-auto max-w-[1440px] px-4 py-10 md:px-8 lg:px-10 lg:py-12">
+      <div className="xl:hidden">
+        <MobileFeedList
+          posts={posts}
+          timeZone={timeZone}
+          emptyTitle={`No stories in ${meta.mobileTitle ?? meta.title} yet`}
+          emptyBody="Nothing is published in this feed right now."
+        />
+      </div>
+
+      <div className="mx-auto hidden max-w-[1440px] px-4 py-10 md:px-8 lg:px-10 lg:py-12 xl:block">
         <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--fpn-rojo)]">
           <Link href="/" className="hover:underline">
             Home
@@ -97,7 +110,8 @@ export default async function FeedPage({ params }: Props) {
                     ? { ...post, is_video: true }
                     : post
                 }
-               timeZone={timeZone} />
+                timeZone={timeZone}
+              />
             ))}
           </section>
         )}

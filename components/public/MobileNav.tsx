@@ -16,14 +16,18 @@ export default function MobileNav({
   showSchedule = false,
   isLoggedIn = false,
   isStaff = false,
+  tone = "light",
 }: {
   items: NavItem[];
   showClassic?: boolean;
   showSchedule?: boolean;
   isLoggedIn?: boolean;
   isStaff?: boolean;
+  /** `light` = white bars (navy header); `dark` = black bars (WaPo mobile). */
+  tone?: "light" | "dark";
 }) {
   const [open, setOpen] = useState(false);
+  const barClass = tone === "dark" ? "bg-black" : "bg-white";
 
   useEffect(() => {
     if (!open) return;
@@ -46,18 +50,22 @@ export default function MobileNav({
         aria-label={open ? "Close menu" : "Open menu"}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/40 text-white"
+        className={`inline-flex h-9 w-9 items-center justify-center ${
+          tone === "dark"
+            ? "text-black"
+            : "rounded-md border border-white/40 text-white"
+        }`}
       >
         <span className="sr-only">Menu</span>
         <span className="flex flex-col gap-1.5" aria-hidden>
           <span
-            className={`block h-0.5 w-4 bg-white transition ${open ? "translate-y-[7px] rotate-45" : ""}`}
+            className={`block h-0.5 w-4 transition ${barClass} ${open ? "translate-y-[7px] rotate-45" : ""}`}
           />
           <span
-            className={`block h-0.5 w-4 bg-white transition ${open ? "opacity-0" : ""}`}
+            className={`block h-0.5 w-4 transition ${barClass} ${open ? "opacity-0" : ""}`}
           />
           <span
-            className={`block h-0.5 w-4 bg-white transition ${open ? "-translate-y-[7px] -rotate-45" : ""}`}
+            className={`block h-0.5 w-4 transition ${barClass} ${open ? "-translate-y-[7px] -rotate-45" : ""}`}
           />
         </span>
       </button>

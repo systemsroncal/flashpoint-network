@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import MobileFeedList from "@/components/public/MobileFeedList";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
 import type { Category, Post } from "@/lib/types/cms";
@@ -28,10 +29,23 @@ export default async function CategoryView({
   const grid = posts.slice(1, 4);
   const list = posts.slice(4);
   const label = category.name.toUpperCase();
+  const mobileTitle =
+    category.slug === "elections" ? "Elections 2026" : category.name;
 
   return (
     <div className="bg-white text-black">
-      <div className="mx-auto max-w-[1440px] px-4 py-10 md:px-8 lg:px-10 lg:py-12">
+      {/* Mobile WaPo-style compact feed */}
+      <div className="xl:hidden">
+        <MobileFeedList
+          posts={posts}
+          timeZone={timeZone}
+          emptyTitle={`No stories in ${mobileTitle} yet`}
+          emptyBody="Editors haven&apos;t published coverage in this section yet."
+        />
+      </div>
+
+      {/* Desktop / xl+ category layout */}
+      <div className="mx-auto hidden max-w-[1440px] px-4 py-10 md:px-8 lg:px-10 lg:py-12 xl:block">
         <h1 className="font-article text-[2.4rem] font-black tracking-tight md:text-[3rem]">
           {category.name}
         </h1>

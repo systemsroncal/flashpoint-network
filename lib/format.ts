@@ -88,3 +88,28 @@ export function formatViews(count: number | null | undefined): string {
 export function formatReadTime(minutes: number | null | undefined): string {
   return `${minutes ?? 1} min read`;
 }
+
+/**
+ * Relative timestamp for mobile WaPo-style feeds ("21 minutes ago").
+ * Delta is wall-clock; falls back to a site-timezone absolute date when older than ~7 days.
+ */
+export function formatRelativeTime(
+  value: string | null | undefined,
+  timeZone: string = DEFAULT_SITE_TIMEZONE,
+  now: Date = new Date(),
+): string {
+  const date = asDate(value);
+  if (!date) return "";
+  const diffMs = date.getTime() - now.getTime();
+  const absSec = Math.round(Math.abs(diffMs) / 1000);
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "always" });
+
+  if (absSec < 60) return rtf.format(Math.round(diffMs / 1000), "second");
+  const absMin = Math.round(absSec / 60);
+  if (absMin < 60) return rtf.format(Math.round(diffMs / 60000), "minute");
+  const absHr = Math.round(absMin / 60);
+  if (absHr < 24) return rtf.format(Math.round(diffMs / 3600000), "hour");
+  const absDay = Math.round(absHr / 24);
+  if (absDay < 7) return rtf.format(Math.round(diffMs / 86400000), "day");
+  return formatDate(value, timeZone);
+}
