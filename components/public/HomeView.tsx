@@ -216,11 +216,11 @@ export default function HomeView({ data }: { data: HomePayload }) {
           <aside className="min-w-0 space-y-8">
             {/* Sidebar ad above Podcasts — Optimal Family Care (swap href in note if needed) */}
             <a
-              href="https://optimalfamilycare.com/"
+              href="https://optimalfc.com/"
               target="_blank"
               rel="noopener noreferrer sponsored"
               className="relative block aspect-[371/389] w-full overflow-hidden rounded-[10px] bg-neutral-100"
-              aria-label="Optimal Family Care advertisement — open optimalfamilycare.com"
+              aria-label="Optimal Family Care advertisement — open optimalfc.com"
             >
               <picture className="absolute inset-0 block h-full w-full">
                 <source
