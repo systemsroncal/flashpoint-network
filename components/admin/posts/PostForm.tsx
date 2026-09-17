@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
   Alert,
   Box,
@@ -11,6 +11,7 @@ import {
   FormControlLabel,
   MenuItem,
   Stack,
+  Switch,
   TextField,
   Typography,
 } from "@mui/material";
@@ -18,11 +19,18 @@ import DashboardCard from "@/components/admin/shared/DashboardCard";
 import ImageUploadField from "@/components/admin/shared/ImageUploadField";
 import RichTextEditor from "@/components/admin/shared/RichTextEditor";
 import AiWritingAssistant from "@/components/admin/posts/AiWritingAssistant";
+import NewsCardPreview from "@/components/admin/posts/NewsCardPreview";
 import SeoPanel, { type SeoValues } from "@/components/admin/posts/SeoPanel";
 import TitlePermalinkField from "@/components/admin/posts/TitlePermalinkField";
 import { deletePostAction, upsertPostAction } from "@/lib/admin/actions";
+import {
+  defaultShowFeaturedImage,
+  isVideoOrPodcastPost,
+} from "@/lib/posts/media-layout";
 import { slugify } from "@/lib/slug";
-import type { Category, Post, PostStatus } from "@/lib/types/cms";
+import type { Category, Post, PostStatus, Tag } from "@/lib/types/cms";
+import { useTimezone } from "@/components/timezone/TimezoneProvider";
+import { isoToDatetimeLocal } from "@/lib/timezone/datetime";
 
 const STATUSES: PostStatus[] = [
   "draft",
@@ -33,17 +41,23 @@ const STATUSES: PostStatus[] = [
   "trash",
 ];
 
-function toLocalInput(value: string | null | undefined) {
-  if (!value) return "";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return "";
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+function isNextRedirectError(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const digest = "digest" in err ? String((err as { digest?: unknown }).digest) : "";
+  return digest.startsWith("NEXT_REDIRECT");
+}
+
+function isStaleServerActionError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err ?? "");
+  return /Failed to find Server Action|older or newer deployment/i.test(msg);
 }
 
 type Props = {
   post?: Post | null;
   categories: Category[];
+  tags?: Tag[];
+  /** Tag ids already linked to this post (edit). */
+  initialTagIds?: string[];
   siteName: string;
   siteUrl: string;
 };
@@ -51,9 +65,12 @@ type Props = {
 export default function PostForm({
   post,
   categories,
+  tags = [],
+  initialTagIds = [],
   siteName,
   siteUrl,
 }: Props) {
+  const timeZone = useTimezone();
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const isEdit = Boolean(post?.id);
@@ -79,6 +96,76 @@ export default function PostForm({
   const [previewBusy, setPreviewBusy] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [status, setStatus] = useState<PostStatus>(post?.status ?? "draft");
+  const [categoryId, setCategoryId] = useState(post?.category_id ?? "");
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(initialTagIds);
+  const [isFeatured, setIsFeatured] = useState(Boolean(post?.is_featured));
+  const [isPremium, setIsPremium] = useState(Boolean(post?.is_premium));
+  const [isVideo, setIsVideo] = useState(Boolean(post?.is_video));
+  const [isPodcast, setIsPodcast] = useState(Boolean(post?.is_podcast));
+  const [isPopular, setIsPopular] = useState(Boolean(post?.is_popular));
+  const [homeFirstSlot, setHomeFirstSlot] = useState<"" | "1" | "2" | "3">(() => {
+    const slot = post?.home_first_slot;
+    return slot === 1 || slot === 2 || slot === 3 ? String(slot) as "1" | "2" | "3" : "";
+  });
+  const [showFeaturedImage, setShowFeaturedImage] = useState(() => {
+    if (typeof post?.show_featured_image === "boolean") {
+      return post.show_featured_image;
+    }
+    return defaultShowFeaturedImage({
+      is_video: post?.is_video,
+      is_podcast: post?.is_podcast,
+      category: post?.category,
+      category_id: post?.category_id,
+    });
+  });
+  const showFeaturedTouched = useRef(Boolean(post?.id));
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [staleDeploy, setStaleDeploy] = useState(false);
+  const [slugValid, setSlugValid] = useState(true);
+  const [saving, startSave] = useTransition();
+  const pendingStatusRef = useRef<PostStatus | null>(null);
+  const saveBlocked = !slugValid || !title.trim();
+
+  // Exact ISO from DB + the datetime-local string we showed — used so save/preview
+  // can keep published_at unchanged when the editor only edits title/body.
+  const publishedAtOriginal = post?.published_at ?? "";
+  const publishedAtDisplay = useMemo(
+    () => isoToDatetimeLocal(post?.published_at, timeZone),
+    [post?.published_at, timeZone],
+  );
+
+  const categoryName = useMemo(() => {
+    return categories.find((c) => c.id === categoryId)?.name ?? post?.category?.name ?? null;
+  }, [categories, categoryId, post?.category?.name]);
+
+  const selectedCategory = useMemo(
+    () => categories.find((c) => c.id === categoryId) ?? post?.category ?? null,
+    [categories, categoryId, post?.category],
+  );
+
+  const isMediaPost = useMemo(
+    () =>
+      isVideoOrPodcastPost({
+        is_video: isVideo,
+        is_podcast: isPodcast,
+        category: selectedCategory,
+        category_id: categoryId || null,
+      }),
+    [isVideo, isPodcast, selectedCategory, categoryId],
+  );
+
+  // New posts (or untouched switch): Video/Podcast default to hide featured image.
+  useEffect(() => {
+    if (showFeaturedTouched.current) return;
+    setShowFeaturedImage(
+      defaultShowFeaturedImage({
+        is_video: isVideo,
+        is_podcast: isPodcast,
+        category: selectedCategory,
+        category_id: categoryId || null,
+      }),
+    );
+  }, [isVideo, isPodcast, selectedCategory, categoryId]);
 
   const onPreview = async () => {
     setPreviewError(null);
@@ -97,15 +184,20 @@ export default function PostForm({
       excerpt,
       body: String(fd.get("body") || ""),
       status,
-      category_id: String(fd.get("category_id") || ""),
+      category_id: categoryId,
       featured_image_url: featuredImageUrl,
       video_url: String(fd.get("video_url") || ""),
       reading_time_minutes: Number(fd.get("reading_time_minutes") || 5),
       published_at: String(fd.get("published_at") || ""),
-      is_featured: fd.get("is_featured") === "on",
-      is_premium: fd.get("is_premium") === "on",
-      is_video: fd.get("is_video") === "on",
-      is_podcast: fd.get("is_podcast") === "on",
+      published_at_display: publishedAtDisplay,
+      published_at_original: publishedAtOriginal,
+      is_featured: isFeatured,
+      is_premium: isPremium,
+      is_video: isVideo,
+      is_podcast: isPodcast,
+      is_popular: isPopular,
+      show_featured_image: showFeaturedImage,
+      home_first_slot: homeFirstSlot === "" ? null : Number(homeFirstSlot),
       seo_title: seo.seo_title,
       seo_description: seo.seo_description,
       seo_keywords: seo.seo_keywords,
@@ -144,12 +236,55 @@ export default function PostForm({
     }
   };
 
+  const onSave = (formData: FormData) => {
+    if (!slugValid) {
+      setSaveError(
+        "This slug is already used by another post. Choose a different permalink.",
+      );
+      return;
+    }
+    if (pendingStatusRef.current) {
+      formData.set("status", pendingStatusRef.current);
+      pendingStatusRef.current = null;
+    }
+    setSaveError(null);
+    setStaleDeploy(false);
+    startSave(async () => {
+      try {
+        await upsertPostAction(formData);
+      } catch (err) {
+        if (isNextRedirectError(err)) throw err;
+        if (isStaleServerActionError(err)) {
+          setStaleDeploy(true);
+          setSaveError(
+            "This admin page is from an older deploy. Reload the page, then save again.",
+          );
+          return;
+        }
+        const msg = err instanceof Error ? err.message : "Save failed";
+        setSaveError(msg);
+        if (/slug is already used/i.test(msg)) {
+          setSlugValid(false);
+        }
+      }
+    });
+  };
+
+  const submitWithStatus = (nextStatus: PostStatus) => {
+    if (saveBlocked || saving) return;
+    const form = formRef.current;
+    if (!form) return;
+    pendingStatusRef.current = nextStatus;
+    setStatus(nextStatus);
+    form.requestSubmit();
+  };
+
   return (
     <DashboardCard
       title={isEdit || postId ? "Edit news" : "New news"}
       subtitle={
         isEdit || postId
-          ? "Changes appear on the public site after you save or publish"
+          ? "Only fields you change are saved. Publish date, placement flags, and category stay put unless you edit them."
           : "Create a story that can power home sections"
       }
       action={
@@ -165,169 +300,444 @@ export default function PostForm({
         ) : null
       }
     >
-      <Box component="form" ref={formRef} action={upsertPostAction}>
-        {postId ? <input type="hidden" name="id" value={postId} /> : null}
-        <Stack spacing={2.5}>
-          <TitlePermalinkField
-            siteUrl={siteUrl}
-            title={title}
-            slug={slug}
-            autoSlug={autoSlug}
-            onTitleChange={setTitle}
-            onSlugChange={setSlug}
-            onAutoSlugChange={setAutoSlug}
-            onPreview={() => void onPreview()}
-            previewBusy={previewBusy}
-            canViewPublic={status === "published" && Boolean(slug)}
-            publicHref={slug ? `/news/${slug}` : undefined}
+      <Box
+        sx={{
+          display: "grid",
+          gap: 3,
+          gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 1fr) 320px" },
+          alignItems: "start",
+        }}
+      >
+        <Box component="form" ref={formRef} action={onSave}>
+          {postId ? <input type="hidden" name="id" value={postId} /> : null}
+          {/* Always submit explicit true/false so unchecked boxes cannot wipe placements */}
+          <input type="hidden" name="is_featured" value={isFeatured ? "true" : "false"} />
+          <input type="hidden" name="is_premium" value={isPremium ? "true" : "false"} />
+          <input type="hidden" name="is_video" value={isVideo ? "true" : "false"} />
+          <input type="hidden" name="is_podcast" value={isPodcast ? "true" : "false"} />
+          <input type="hidden" name="is_popular" value={isPopular ? "true" : "false"} />
+          <input
+            type="hidden"
+            name="show_featured_image"
+            value={showFeaturedImage ? "true" : "false"}
           />
+          <input type="hidden" name="home_first_slot" value={homeFirstSlot} />
 
-          {previewError ? <Alert severity="error">{previewError}</Alert> : null}
+          <Stack spacing={2.5}>
+            <TitlePermalinkField
+              siteUrl={siteUrl}
+              title={title}
+              slug={slug}
+              autoSlug={autoSlug}
+              excludeId={postId || undefined}
+              onTitleChange={setTitle}
+              onSlugChange={setSlug}
+              onAutoSlugChange={setAutoSlug}
+              onSlugValidChange={setSlugValid}
+              onPreview={() => void onPreview()}
+              previewBusy={previewBusy}
+              canViewPublic={status === "published" && Boolean(slug)}
+              publicHref={slug ? `/news/${slug}` : undefined}
+            />
 
-          <TextField
-            name="excerpt"
-            label="Excerpt"
-            fullWidth
-            multiline
-            minRows={2}
-            value={excerpt}
-            onChange={(e) => setExcerpt(e.target.value)}
-          />
+            {previewError ? <Alert severity="error">{previewError}</Alert> : null}
+            {staleDeploy ? (
+              <Alert
+                severity="warning"
+                action={
+                  <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+                    Reload page
+                  </Button>
+                }
+              >
+                {saveError}
+              </Alert>
+            ) : saveError ? (
+              <Alert severity="error">{saveError}</Alert>
+            ) : null}
 
-          <AiWritingAssistant
-            titleBlank={!title.trim()}
-            excerptBlank={!excerpt.trim()}
-            onGenerated={(result) => {
-              if (result.title && !title.trim()) {
-                setTitle(result.title);
-                if (autoSlug) setSlug(slugify(result.title));
+            <TextField
+              name="excerpt"
+              label="Excerpt"
+              fullWidth
+              multiline
+              minRows={2}
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+            />
+
+            <AiWritingAssistant
+              titleBlank={!title.trim()}
+              excerptBlank={!excerpt.trim()}
+              onGenerated={(result) => {
+                if (result.title && !title.trim()) {
+                  setTitle(result.title);
+                  if (autoSlug) setSlug(slugify(result.title));
+                }
+                if (result.excerpt && !excerpt.trim()) setExcerpt(result.excerpt);
+                setForceHtml(result.bodyHtml);
+                setForceToken((n) => n + 1);
+
+                setSeo((prev) => ({
+                  seo_title: prev.seo_title.trim()
+                    ? prev.seo_title
+                    : result.seoTitle || prev.seo_title,
+                  seo_description: prev.seo_description.trim()
+                    ? prev.seo_description
+                    : result.seoDescription || prev.seo_description,
+                  seo_keywords: prev.seo_keywords.trim()
+                    ? prev.seo_keywords
+                    : result.seoKeywords || prev.seo_keywords,
+                  og_title: prev.og_title.trim()
+                    ? prev.og_title
+                    : result.ogTitle || prev.og_title,
+                  og_description: prev.og_description.trim()
+                    ? prev.og_description
+                    : result.ogDescription || prev.og_description,
+                }));
+
+                if (!categoryId && result.categoryId) {
+                  setCategoryId(result.categoryId);
+                }
+                if (result.tagIds && result.tagIds.length > 0) {
+                  setSelectedTagIds((prev) => {
+                    if (prev.length > 0) {
+                      return Array.from(new Set([...prev, ...result.tagIds!]));
+                    }
+                    return result.tagIds!;
+                  });
+                }
+              }}
+            />
+
+            <RichTextEditor
+              name="body"
+              label="Body"
+              placeholder="Write the article…"
+              minHeight={320}
+              initialHtml={post?.body ?? ""}
+              forceHtml={forceHtml}
+              forceToken={forceToken}
+            />
+            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+              <TextField
+                select
+                name="status"
+                label="Status"
+                fullWidth
+                value={status}
+                onChange={(e) => setStatus(e.target.value as PostStatus)}
+              >
+                {STATUSES.map((s) => (
+                  <MenuItem key={s} value={s}>
+                    {s}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                select
+                name="category_id"
+                label="Category"
+                fullWidth
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+              >
+                <MenuItem value="">— None —</MenuItem>
+                {categories.map((category) => (
+                  <MenuItem key={category.id} value={category.id}>
+                    {category.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                name="reading_time_minutes"
+                label="Reading time (min)"
+                type="number"
+                fullWidth
+                defaultValue={post?.reading_time_minutes ?? 5}
+              />
+            </Stack>
+            {tags.length > 0 ? (
+              <Box>
+                <input type="hidden" name="tags_present" value="1" />
+                <Typography variant="subtitle2" gutterBottom>
+                  Tags
+                </Typography>
+                <Typography variant="caption" color="text.secondary" display="block" mb={1}>
+                  AI may select matching tags. You can adjust before saving.
+                </Typography>
+                {selectedTagIds.map((id) => (
+                  <input key={id} type="hidden" name="tag_ids" value={id} />
+                ))}
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  {tags.map((tag) => {
+                    const checked = selectedTagIds.includes(tag.id);
+                    return (
+                      <FormControlLabel
+                        key={tag.id}
+                        control={
+                          <Checkbox
+                            size="small"
+                            checked={checked}
+                            onChange={(e) => {
+                              setSelectedTagIds((prev) =>
+                                e.target.checked
+                                  ? [...prev, tag.id]
+                                  : prev.filter((x) => x !== tag.id),
+                              );
+                            }}
+                          />
+                        }
+                        label={tag.name}
+                      />
+                    );
+                  })}
+                </Stack>
+              </Box>
+            ) : null}
+            <ImageUploadField
+              name="featured_image_url"
+              label="Featured image"
+              defaultValue={featuredImageUrl}
+              onUrlChange={setFeaturedImageUrl}
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={showFeaturedImage}
+                  onChange={(e) => {
+                    showFeaturedTouched.current = true;
+                    setShowFeaturedImage(e.target.checked);
+                  }}
+                  color="primary"
+                />
               }
-              if (result.excerpt && !excerpt.trim()) setExcerpt(result.excerpt);
-              setForceHtml(result.bodyHtml);
-              setForceToken((n) => n + 1);
+              label={
+                showFeaturedImage ? "Show featured image" : "Hide featured image"
+              }
+            />
+            <Typography variant="caption" color="text.secondary" display="block" mt={-1}>
+              {isMediaPost
+                ? "Affects only the single post page hero (default hide — player moves into that slot). Home cards, grids, thumbs, and SEO/OG still use the featured image."
+                : "Affects only the single post page hero. Home cards, lists, and social/SEO images always keep the featured image."}
+            </Typography>
+            <TextField
+              name="video_url"
+              label="Video URL (YouTube)"
+              fullWidth
+              helperText="Used by Must-Watch / video embeds (Plyr). On Video/Podcast with featured image hidden on the article page, this plays in the hero — home thumbs still use the featured image."
+              defaultValue={post?.video_url ?? ""}
+            />
+            <input
+              type="hidden"
+              name="published_at_original"
+              value={publishedAtOriginal}
+            />
+            <input
+              type="hidden"
+              name="published_at_display"
+              value={publishedAtDisplay}
+            />
+            <TextField
+              name="published_at"
+              label="Published at"
+              type="datetime-local"
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              defaultValue={publishedAtDisplay}
+              helperText="Interpreted in the site timezone (Settings → System timezone). Home and lists sort by this date. Leave unchanged (or blank) to keep the existing publish time — editing title/body alone will not reshuffle."
+            />
+            <Box>
+              <Typography variant="subtitle2" gutterBottom>
+                Home placement
+              </Typography>
+              <Typography variant="caption" color="text.secondary" display="block" mb={1}>
+                These flags control which home sections show this story. Saving never clears them
+                unless you toggle them here.
+              </Typography>
+              <TextField
+                select
+                fullWidth
+                label="First Section feature"
+                value={homeFirstSlot}
+                onChange={(e) =>
+                  setHomeFirstSlot(e.target.value as "" | "1" | "2" | "3")
+                }
+                helperText="Home top block: 1 = large left, 2 and 3 = stacked right. Only one post per slot — assigning here clears the previous occupant. Empty slots fall back to Latest chronology."
+                sx={{ mb: 1.5 }}
+              >
+                <MenuItem value="">None</MenuItem>
+                <MenuItem value="1">Slot 1 — large left</MenuItem>
+                <MenuItem value="2">Slot 2 — stacked top</MenuItem>
+                <MenuItem value="3">Slot 3 — stacked bottom</MenuItem>
+              </TextField>
+              <Stack direction="row" spacing={1} flexWrap="wrap">
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isFeatured}
+                      onChange={(e) => setIsFeatured(e.target.checked)}
+                    />
+                  }
+                  label="Featured"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isPremium}
+                      onChange={(e) => setIsPremium(e.target.checked)}
+                    />
+                  }
+                  label="Premium / Exclusive"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isVideo}
+                      onChange={(e) => setIsVideo(e.target.checked)}
+                    />
+                  }
+                  label="Video"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isPodcast}
+                      onChange={(e) => setIsPodcast(e.target.checked)}
+                    />
+                  }
+                  label="Podcast"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isPopular}
+                      onChange={(e) => setIsPopular(e.target.checked)}
+                    />
+                  }
+                  label="Popular"
+                />
+              </Stack>
+            </Box>
+
+            <SeoPanel
+              siteName={siteName}
+              siteUrl={siteUrl}
+              title={title}
+              slug={slug}
+              excerpt={excerpt}
+              featuredImageUrl={featuredImageUrl}
+              values={seo}
+              onChange={(patch) => setSeo((s) => ({ ...s, ...patch }))}
+            />
+
+            <Stack direction="row" spacing={1.5} flexWrap="wrap" sx={{ pb: 10 }}>
+              <Button
+                type="button"
+                variant="outlined"
+                onClick={() => void onPreview()}
+                disabled={previewBusy || saveBlocked}
+              >
+                {previewBusy ? "Saving preview…" : "Preview changes"}
+              </Button>
+              <Button component={Link} href="/admin/posts" variant="text">
+                Cancel
+              </Button>
+            </Stack>
+          </Stack>
+
+          {/* Floating sticky publish bar — always reachable without scrolling */}
+          <Box
+            sx={{
+              position: "fixed",
+              left: { xs: 0, lg: 270 },
+              right: 0,
+              bottom: 0,
+              zIndex: (theme) => theme.zIndex.appBar,
+              bgcolor: "background.paper",
+              borderTop: "1px solid",
+              borderColor: "divider",
+              boxShadow: "0 -4px 24px rgba(15, 23, 42, 0.08)",
+              px: { xs: 2, md: 3 },
+              py: 1.5,
             }}
-          />
-
-          <RichTextEditor
-            name="body"
-            label="Body"
-            placeholder="Write the article…"
-            minHeight={320}
-            initialHtml={post?.body ?? ""}
-            forceHtml={forceHtml}
-            forceToken={forceToken}
-          />
-          <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-            <TextField
-              select
-              name="status"
-              label="Status"
-              fullWidth
-              value={status}
-              onChange={(e) => setStatus(e.target.value as PostStatus)}
+          >
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={1.25}
+              alignItems={{ sm: "center" }}
+              justifyContent="space-between"
+              maxWidth={1200}
+              mx="auto"
             >
-              {STATUSES.map((s) => (
-                <MenuItem key={s} value={s}>
-                  {s}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              select
-              name="category_id"
-              label="Category"
-              fullWidth
-              defaultValue={post?.category_id ?? ""}
-            >
-              <MenuItem value="">— None —</MenuItem>
-              {categories.map((category) => (
-                <MenuItem key={category.id} value={category.id}>
-                  {category.name}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              name="reading_time_minutes"
-              label="Reading time (min)"
-              type="number"
-              fullWidth
-              defaultValue={post?.reading_time_minutes ?? 5}
-            />
-          </Stack>
-          <ImageUploadField
-            name="featured_image_url"
-            label="Featured image"
-            defaultValue={featuredImageUrl}
-            onUrlChange={setFeaturedImageUrl}
-          />
-          <TextField
-            name="video_url"
-            label="Video URL (YouTube)"
-            fullWidth
-            helperText="Used by Must-Watch / video embeds (Plyr)"
-            defaultValue={post?.video_url ?? ""}
-          />
-          <TextField
-            name="published_at"
-            label="Published at"
-            type="datetime-local"
-            fullWidth
-            InputLabelProps={{ shrink: true }}
-            defaultValue={toLocalInput(post?.published_at)}
-          />
-          <Stack direction="row" spacing={1} flexWrap="wrap">
-            <FormControlLabel
-              control={
-                <Checkbox name="is_featured" defaultChecked={post?.is_featured} />
-              }
-              label="Featured"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox name="is_premium" defaultChecked={post?.is_premium} />
-              }
-              label="Premium / Exclusive"
-            />
-            <FormControlLabel
-              control={<Checkbox name="is_video" defaultChecked={post?.is_video} />}
-              label="Video"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox name="is_podcast" defaultChecked={post?.is_podcast} />
-              }
-              label="Podcast"
-            />
-          </Stack>
+              <Typography variant="body2" color="text.secondary">
+                {saveBlocked
+                  ? slugValid
+                    ? "Add a title to save."
+                    : "Fix the permalink before saving."
+                  : !postId || !slug.trim()
+                    ? "Save Draft once to unlock Preview (needs a saved permalink)."
+                    : status === "published"
+                      ? "Live on the public site after save."
+                      : "Ready to save as draft, preview, or publish."}
+              </Typography>
+              <Stack direction="row" spacing={1.25} flexWrap="wrap" useFlexGap>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  disabled={saving || saveBlocked}
+                  onClick={() => submitWithStatus("draft")}
+                >
+                  {saving && status === "draft" ? "Saving…" : "Save Draft"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="contained"
+                  color="primary"
+                  disabled={saving || saveBlocked}
+                  onClick={() => submitWithStatus("published")}
+                >
+                  {saving && status === "published" ? "Publishing…" : "Publish"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  disabled={
+                    previewBusy ||
+                    saving ||
+                    !postId ||
+                    !slug.trim() ||
+                    !title.trim()
+                  }
+                  onClick={() => void onPreview()}
+                  title={
+                    !postId || !slug.trim()
+                      ? "Save the post first so it has a permalink to preview."
+                      : "Open draft/public preview in a new tab"
+                  }
+                >
+                  {previewBusy ? "Opening…" : "Preview"}
+                </Button>
+              </Stack>
+            </Stack>
+          </Box>
+        </Box>
 
-          <SeoPanel
-            siteName={siteName}
-            siteUrl={siteUrl}
-            title={title}
-            slug={slug}
-            excerpt={excerpt}
-            featuredImageUrl={featuredImageUrl}
-            values={seo}
-            onChange={(patch) => setSeo((s) => ({ ...s, ...patch }))}
-          />
-
-          <Stack direction="row" spacing={1.5} flexWrap="wrap">
-            <Button type="submit" variant="contained">
-              {postId ? "Save changes" : "Create news"}
-            </Button>
-            <Button
-              type="button"
-              variant="outlined"
-              onClick={() => void onPreview()}
-              disabled={previewBusy}
-            >
-              {previewBusy ? "Saving preview…" : "Preview changes"}
-            </Button>
-            <Button component={Link} href="/admin/posts" variant="text">
-              Cancel
-            </Button>
-          </Stack>
-        </Stack>
+        <NewsCardPreview
+          title={title}
+          slug={slug}
+          excerpt={excerpt}
+          featuredImageUrl={featuredImageUrl}
+          categoryName={categoryName}
+          status={status}
+          isFeatured={isFeatured}
+          isPremium={isPremium}
+          isVideo={isVideo}
+          isPodcast={isPodcast}
+          isPopular={isPopular}
+          siteUrl={siteUrl}
+          publicHref={status === "published" && slug ? `/news/${slug}` : null}
+        />
       </Box>
 
       {postId ? (

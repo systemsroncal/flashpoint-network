@@ -1,15 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getSiteUrl } from "@/lib/env";
-
-function safeNext(path: string | null) {
-  if (!path || !path.startsWith("/") || path.startsWith("//")) {
-    return "/";
-  }
-  return path;
-}
+import { getSiteUrl, scrubSiteUrlEnv } from "@/lib/env";
+import { safeNext } from "@/lib/auth/safe-next";
 
 export async function GET(request: NextRequest) {
+  scrubSiteUrlEnv();
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const next = safeNext(searchParams.get("next"));

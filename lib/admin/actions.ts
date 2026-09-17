@@ -4,16 +4,113 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/slug";
-import type { PostStatus } from "@/lib/types/cms";
-import { getCurrentProfile, getSessionUser } from "@/lib/auth/session";
+import type { PostStatus, UserRole } from "@/lib/types/cms";
+import {
+  getCurrentProfile,
+  getSessionUser,
+  isAdminRole,
+  requireStaffProfile,
+} from "@/lib/auth/session";
+import { CUSTOM_HTML_SETTING } from "@/lib/custom-html/constants";
 import {
   PROGRAM_MODULES_SETTING,
   isProgramModulesOwnerEmail,
 } from "@/lib/features/program-modules";
 import { getProgramModules } from "@/lib/features/program-modules-server";
+import { isAdminPostSlugAvailable } from "@/lib/admin/queries";
+import { resolvePublishedAt } from "@/lib/admin/published-at";
+import {
+  POST_EXISTING_SELECT,
+  buildCandidateFromFormValues,
+  diffPostPatch,
+  type PostExistingRow,
+} from "@/lib/admin/post-patch";
+import {
+  DEFAULT_SITE_TIMEZONE,
+  isValidIanaTimezone,
+  SITE_TIMEZONE_SETTING,
+} from "@/lib/timezone/constants";
+import { datetimeLocalToIso } from "@/lib/timezone/datetime";
+import { getSiteTimezone } from "@/lib/timezone/settings";
+import { normalizeExternalUrl } from "@/lib/events/upcoming";
 
 function boolFromForm(value: FormDataEntryValue | null): boolean {
   return value === "on" || value === "true" || value === "1";
+}
+
+/** True when the form sent an explicit true/false/on (hidden + checkbox pattern). */
+function hasExplicitBool(formData: FormData, key: string): boolean {
+  const raw = formData.get(key);
+  if (raw == null) return false;
+  const v = String(raw).toLowerCase();
+  return v === "true" || v === "false" || v === "on" || v === "1" || v === "0";
+}
+
+function explicitBool(formData: FormData, key: string, fallback: boolean): boolean {
+  if (!hasExplicitBool(formData, key)) return fallback;
+  const v = String(formData.get(key)).toLowerCase();
+  if (v === "false" || v === "0") return false;
+  return boolFromForm(formData.get(key));
+}
+
+function parseHomeFirstSlot(
+  raw: FormDataEntryValue | null,
+  fallback: 1 | 2 | 3 | null,
+): 1 | 2 | 3 | null {
+  if (raw == null) return fallback;
+  const text = String(raw).trim();
+  // Explicit empty / none from the select
+  if (text === "" || text === "0" || text.toLowerCase() === "none") return null;
+  const n = Number(text);
+  if (n === 1 || n === 2 || n === 3) return n;
+  return fallback;
+}
+
+/** Clear any other post occupying this First Section slot. */
+async function claimHomeFirstSlot(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  slot: 1 | 2 | 3,
+  keepPostId?: string,
+) {
+  let q = supabase
+    .from("posts")
+    .update({ home_first_slot: null })
+    .eq("home_first_slot", slot);
+  if (keepPostId) q = q.neq("id", keepPostId);
+  const { error } = await q;
+  if (error) throw new Error(error.message);
+}
+
+function parseTagIds(formData: FormData): string[] | null {
+  // Only sync when the Tags UI was rendered (sentinel).
+  if (String(formData.get("tags_present") || "") !== "1") return null;
+  const ids = formData
+    .getAll("tag_ids")
+    .map((v) => String(v || "").trim())
+    .filter(Boolean);
+  return Array.from(new Set(ids));
+}
+
+async function syncPostTags(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  postId: string,
+  formData: FormData,
+) {
+  const tagIds = parseTagIds(formData);
+  if (tagIds == null) return;
+
+  const { error: delErr } = await supabase
+    .from("post_tags")
+    .delete()
+    .eq("post_id", postId);
+  if (delErr) throw new Error(delErr.message);
+
+  if (tagIds.length === 0) return;
+  const rows = tagIds.map((tag_id) => ({ post_id: postId, tag_id }));
+  const { error: insErr } = await supabase.from("post_tags").insert(rows);
+  if (insErr) throw new Error(insErr.message);
 }
 
 function requireAdmin() {
@@ -57,8 +154,8 @@ export async function upsertPostAction(formData: FormData) {
   const status = (String(formData.get("status") || "draft") as PostStatus) || "draft";
   const categoryId = String(formData.get("category_id") || "") || null;
   const excerpt = String(formData.get("excerpt") || "");
-  const body = String(formData.get("body") || "");
-  const featuredImageUrl = String(formData.get("featured_image_url") || "") || null;
+  const bodyRaw = String(formData.get("body") || "");
+  const featuredImageRaw = String(formData.get("featured_image_url") || "") || null;
   const videoUrl = String(formData.get("video_url") || "") || null;
   const seoTitle = String(formData.get("seo_title") || "").trim() || null;
   const seoDescription =
@@ -69,62 +166,177 @@ export async function upsertPostAction(formData: FormData) {
     String(formData.get("og_description") || "").trim() || null;
   const readingTime = Number(formData.get("reading_time_minutes") || 5);
   const publishedAtRaw = String(formData.get("published_at") || "");
-  const publishedAt = publishedAtRaw
-    ? new Date(publishedAtRaw).toISOString()
-    : status === "published"
-      ? new Date().toISOString()
-      : null;
+  const publishedAtDisplay = String(
+    formData.get("published_at_display") || "",
+  );
+  const publishedAtOriginal =
+    String(formData.get("published_at_original") || "").trim() || null;
 
-  // Default author: seeded FPN desk editor
-  const authorId = "f1000000-0000-4000-8000-000000000001";
+  // Default author: seeded FPN desk editor (creates only)
+  const defaultAuthorId = "f1000000-0000-4000-8000-000000000001";
 
-  const payload = {
+  let existing: PostExistingRow | null = null;
+  if (id) {
+    const { data, error } = await supabase
+      .from("posts")
+      .select(POST_EXISTING_SELECT)
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    existing = (data as PostExistingRow | null) ?? null;
+  }
+
+  // Placement flags: prefer explicit form values; if a field is missing from FormData
+  // (e.g. unchecked MUI checkbox never serializes), keep the existing DB value on update.
+  const isFeatured = explicitBool(
+    formData,
+    "is_featured",
+    existing?.is_featured ?? false,
+  );
+  const isPremium = explicitBool(
+    formData,
+    "is_premium",
+    existing?.is_premium ?? false,
+  );
+  const isVideo = explicitBool(formData, "is_video", existing?.is_video ?? false);
+  const isPodcast = explicitBool(
+    formData,
+    "is_podcast",
+    existing?.is_podcast ?? false,
+  );
+  const isPopular = explicitBool(
+    formData,
+    "is_popular",
+    existing?.is_popular ?? false,
+  );
+  const showFeaturedImage = explicitBool(
+    formData,
+    "show_featured_image",
+    existing?.show_featured_image ?? true,
+  );
+  const homeFirstSlot = parseHomeFirstSlot(
+    formData.get("home_first_slot"),
+    // When the field is missing on update, keep existing; on create default none.
+    existing ? (existing.home_first_slot ?? null) : null,
+  );
+
+  const timeZone = await getSiteTimezone();
+  const publishedAtInput = {
+    submittedRaw: publishedAtRaw,
+    displayInitial: publishedAtDisplay,
+    originalIso: publishedAtOriginal ?? existing?.published_at ?? null,
+  };
+
+  // Candidate published_at for create / first-publish; updates omit it unless dirty.
+  const publishedAt = resolvePublishedAt({
+    ...publishedAtInput,
+    existingIso: existing?.published_at ?? null,
+    status,
+    timeZone,
+  });
+
+  const candidate = buildCandidateFromFormValues({
     title,
     slug,
     excerpt,
-    body,
+    body: bodyRaw,
     status,
-    category_id: categoryId,
-    author_id: authorId,
-    featured_image_url: featuredImageUrl,
-    video_url: videoUrl,
-    seo_title: seoTitle,
-    seo_description: seoDescription,
-    seo_keywords: seoKeywords,
-    og_title: ogTitle,
-    og_description: ogDescription,
-    // Meta / social image is always the featured image
-    og_image_url: featuredImageUrl,
-    is_featured: boolFromForm(formData.get("is_featured")),
-    is_premium: boolFromForm(formData.get("is_premium")),
-    is_video: boolFromForm(formData.get("is_video")),
-    is_podcast: boolFromForm(formData.get("is_podcast")),
-    reading_time_minutes: Number.isFinite(readingTime) ? readingTime : 5,
-    published_at: publishedAt,
-  };
+    categoryId,
+    featuredImageUrl: featuredImageRaw,
+    videoUrl,
+    seoTitle,
+    seoDescription,
+    seoKeywords,
+    ogTitle,
+    ogDescription,
+    isFeatured,
+    isPremium,
+    isVideo,
+    isPodcast,
+    isPopular,
+    showFeaturedImage,
+    homeFirstSlot,
+    readingTime: Number.isFinite(readingTime) ? readingTime : 5,
+    publishedAt,
+  });
 
   if (id) {
-    const { error } = await supabase.from("posts").update(payload).eq("id", id);
-    if (error) throw new Error(error.message);
-  } else {
-    const { data, error } = await supabase
-      .from("posts")
-      .insert(payload)
-      .select("id")
-      .single();
-    if (error) throw new Error(error.message);
+    if (!existing) throw new Error("Post not found");
+
+    const patch = diffPostPatch(candidate, existing, publishedAtInput);
+
+    // Slug uniqueness only when the permalink actually changes.
+    if (patch.slug) {
+      const slugFree = await isAdminPostSlugAvailable(patch.slug, id);
+      if (!slugFree) {
+        throw new Error(
+          "This slug is already used by another post. Choose a different permalink.",
+        );
+      }
+    }
+
+    // Claim slot before write so the unique index stays happy.
+    if (patch.home_first_slot === 1 || patch.home_first_slot === 2 || patch.home_first_slot === 3) {
+      await claimHomeFirstSlot(supabase, patch.home_first_slot, id);
+    }
+
+    // Existing posts: write only dirty fields. Empty patch → no UPDATE (avoids
+    // bumping updated_at / rewriting published_at / placement side-effects).
+    if (Object.keys(patch).length > 0) {
+      const { error } = await supabase.from("posts").update(patch).eq("id", id);
+      if (error) {
+        if (error.code === "23505" || /duplicate key|unique/i.test(error.message)) {
+          throw new Error(
+            "This slug is already used by another post. Choose a different permalink.",
+          );
+        }
+        throw new Error(error.message);
+      }
+    }
+
+    await syncPostTags(supabase, id, formData);
+
+    const publicSlug = patch.slug ?? existing.slug;
     revalidatePath("/");
+    revalidatePath(`/news/${publicSlug}`);
     revalidatePath("/admin");
     revalidatePath("/admin/posts");
-    redirect(`/admin/posts/${data.id}`);
+    revalidatePath(`/admin/posts/${id}`);
+    redirect(`/admin/posts/${id}`);
   }
 
+  const slugFree = await isAdminPostSlugAvailable(candidate.slug, null);
+  if (!slugFree) {
+    throw new Error(
+      "This slug is already used by another post. Choose a different permalink.",
+    );
+  }
+
+  if (candidate.home_first_slot === 1 || candidate.home_first_slot === 2 || candidate.home_first_slot === 3) {
+    await claimHomeFirstSlot(supabase, candidate.home_first_slot);
+  }
+
+  const { data, error } = await supabase
+    .from("posts")
+    .insert({
+      ...candidate,
+      author_id: defaultAuthorId,
+    })
+    .select("id")
+    .single();
+  if (error) {
+    if (error.code === "23505" || /duplicate key|unique/i.test(error.message)) {
+      throw new Error(
+        "This slug is already used by another post. Choose a different permalink.",
+      );
+    }
+    throw new Error(error.message);
+  }
+  await syncPostTags(supabase, data.id, formData);
   revalidatePath("/");
-  revalidatePath(`/news/${slug}`);
   revalidatePath("/admin");
   revalidatePath("/admin/posts");
-  revalidatePath(`/admin/posts/${id}`);
-  redirect(`/admin/posts/${id}`);
+  redirect(`/admin/posts/${data.id}`);
 }
 
 export async function deletePostAction(formData: FormData) {
@@ -210,8 +422,12 @@ export async function upsertEventAction(formData: FormData) {
   const videoUrl = String(formData.get("video_url") || "") || null;
   const hostName = String(formData.get("host_name") || "") || null;
   const thumbnailUrl = String(formData.get("thumbnail_url") || "") || null;
+  const externalUrl = normalizeExternalUrl(
+    String(formData.get("external_url") || ""),
+  );
   const startsAtRaw = String(formData.get("starts_at") || "");
   const endsAtRaw = String(formData.get("ends_at") || "");
+  const timeZone = await getSiteTimezone();
 
   const payload = {
     title,
@@ -222,8 +438,11 @@ export async function upsertEventAction(formData: FormData) {
     video_url: videoUrl,
     host_name: hostName,
     thumbnail_url: thumbnailUrl,
-    starts_at: startsAtRaw ? new Date(startsAtRaw).toISOString() : null,
-    ends_at: endsAtRaw ? new Date(endsAtRaw).toISOString() : null,
+    external_url: externalUrl,
+    starts_at: startsAtRaw
+      ? datetimeLocalToIso(startsAtRaw, timeZone)
+      : null,
+    ends_at: endsAtRaw ? datetimeLocalToIso(endsAtRaw, timeZone) : null,
     is_live: boolFromForm(formData.get("is_live")),
     show_on_home: boolFromForm(formData.get("show_on_home")),
   };
@@ -398,7 +617,56 @@ export async function saveMaintenanceSettingsAction(formData: FormData) {
   revalidatePath("/events");
   revalidatePath("/category");
   revalidatePath("/classic-programs");
-  revalidatePath("/ministry-programs");
+  revalidatePath("/network-programs");
+  revalidatePath("/schedule-programs");
+  revalidatePath("/admin/settings");
+}
+
+export async function saveTimezoneSettingsAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const raw = String(formData.get("timezone") || "").trim();
+  const timezone = isValidIanaTimezone(raw) ? raw : DEFAULT_SITE_TIMEZONE;
+
+  const { error } = await supabase.from("site_settings").upsert({
+    key: SITE_TIMEZONE_SETTING,
+    value: timezone,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/news");
+  revalidatePath("/events");
+  revalidatePath("/category");
+  revalidatePath("/admin");
+  revalidatePath("/admin/settings");
+  revalidatePath("/admin/posts");
+  revalidatePath("/admin/events");
+}
+
+/**
+ * Persist trusted third-party HTML (head / body / footer).
+ * Admin and superadmin only — these snippets execute on every public page.
+ */
+export async function saveCustomHtmlSettingsAction(formData: FormData) {
+  const profile = await getCurrentProfile();
+  if (!profile || !isAdminRole(profile.role)) {
+    throw new Error("Only admins can edit custom HTML scripts");
+  }
+  const supabase = requireAdmin();
+  const head = String(formData.get("head") || "");
+  const body = String(formData.get("body") || "");
+  const footer = String(formData.get("footer") || "");
+
+  const { error } = await supabase.from("site_settings").upsert({
+    key: CUSTOM_HTML_SETTING,
+    value: { head, body, footer },
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/news");
+  revalidatePath("/events");
+  revalidatePath("/category");
+  revalidatePath("/classic-programs");
+  revalidatePath("/network-programs");
   revalidatePath("/schedule-programs");
   revalidatePath("/admin/settings");
 }
@@ -418,7 +686,7 @@ export async function saveProgramModulesAction(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/");
   revalidatePath("/classic-programs");
-  revalidatePath("/ministry-programs");
+  revalidatePath("/network-programs");
   revalidatePath("/schedule-programs");
   revalidatePath("/admin");
   revalidatePath("/admin/classic-programs");
@@ -545,16 +813,16 @@ export async function upsertMinistryProgramAction(formData: FormData) {
       .select("id")
       .single();
     if (error) throw new Error(error.message);
-    revalidatePath("/ministry-programs");
-    revalidatePath("/admin/ministry-programs");
-    redirect(`/admin/ministry-programs/${data.id}`);
+    revalidatePath("/network-programs");
+    revalidatePath("/admin/network-programs");
+    redirect(`/admin/network-programs/${data.id}`);
   }
 
-  revalidatePath("/ministry-programs");
-  revalidatePath(`/ministry-programs/${slug}`);
-  revalidatePath("/admin/ministry-programs");
-  revalidatePath(`/admin/ministry-programs/${id}`);
-  redirect(`/admin/ministry-programs/${id}`);
+  revalidatePath("/network-programs");
+  revalidatePath(`/network-programs/${slug}`);
+  revalidatePath("/admin/network-programs");
+  revalidatePath(`/admin/network-programs/${id}`);
+  redirect(`/admin/network-programs/${id}`);
 }
 
 export async function deleteMinistryProgramAction(formData: FormData) {
@@ -563,9 +831,9 @@ export async function deleteMinistryProgramAction(formData: FormData) {
   if (!id) throw new Error("Missing id");
   const { error } = await supabase.from("ministry_programs").delete().eq("id", id);
   if (error) throw new Error(error.message);
-  revalidatePath("/ministry-programs");
-  revalidatePath("/admin/ministry-programs");
-  redirect("/admin/ministry-programs");
+  revalidatePath("/network-programs");
+  revalidatePath("/admin/network-programs");
+  redirect("/admin/network-programs");
 }
 
 export async function saveMinistryProgramsSortAction(formData: FormData) {
@@ -578,8 +846,8 @@ export async function saveMinistryProgramsSortAction(formData: FormData) {
     value,
   });
   if (error) throw new Error(error.message);
-  revalidatePath("/ministry-programs");
-  revalidatePath("/admin/ministry-programs");
+  revalidatePath("/network-programs");
+  revalidatePath("/admin/network-programs");
 }
 
 export async function upsertScheduleEntryAction(formData: FormData) {
@@ -686,4 +954,149 @@ export async function saveSchedulePdfAction(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/schedule-programs");
   revalidatePath("/admin/schedule-programs");
+}
+
+const ASSIGNABLE_ROLES: UserRole[] = [
+  "subscriber",
+  "guest",
+  "journalist",
+  "editor",
+  "admin",
+  "superadmin",
+];
+
+function parseAssignableRole(raw: FormDataEntryValue | null): UserRole {
+  const role = String(raw || "").trim() as UserRole;
+  if (ASSIGNABLE_ROLES.includes(role)) return role;
+  return "subscriber";
+}
+
+function usersRedirect(params: Record<string, string>): never {
+  const qs = new URLSearchParams(params);
+  redirect(`/admin/users?${qs.toString()}`);
+}
+
+/**
+ * Staff-only: create Auth user + profiles row (trigger + upsert for role/name).
+ */
+export async function createAdminUserAction(formData: FormData) {
+  const staff = await requireStaffProfile();
+  if (!staff) {
+    usersRedirect({ error: "Unauthorized — staff login required." });
+  }
+
+  const name = String(formData.get("name") || "").trim();
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+  const password = String(formData.get("password") || "");
+  const role = parseAssignableRole(formData.get("role"));
+
+  if (!name) usersRedirect({ error: "Name is required." });
+  if (!email || !email.includes("@")) {
+    usersRedirect({ error: "A valid email is required." });
+  }
+  if (password.length < 8) {
+    usersRedirect({ error: "Password must be at least 8 characters." });
+  }
+
+  const parts = name.split(/\s+/).filter(Boolean);
+  const firstName = parts[0] ?? name;
+  const lastName = parts.length > 1 ? parts.slice(1).join(" ") : "";
+  const fullName = name;
+
+  const supabase = requireAdmin();
+  const { data, error } = await supabase.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: {
+      first_name: firstName,
+      last_name: lastName || null,
+      full_name: fullName,
+      role,
+    },
+  });
+
+  if (error || !data.user) {
+    usersRedirect({
+      error: error?.message || "Could not create the auth user.",
+    });
+  }
+
+  // Trigger inserts profile from metadata; upsert ensures role/name stick
+  // even if the conflict path only refreshed email.
+  const { error: profileError } = await supabase.from("profiles").upsert(
+    {
+      id: data.user.id,
+      email,
+      full_name: fullName,
+      first_name: firstName,
+      last_name: lastName || null,
+      role,
+    },
+    { onConflict: "id" },
+  );
+
+  if (profileError) {
+    usersRedirect({
+      error: `Auth user created, but profile failed: ${profileError.message}`,
+    });
+  }
+
+  revalidatePath("/admin/users");
+  usersRedirect({ created: "1", email });
+}
+
+function bannersRedirect(params: Record<string, string>): never {
+  const qs = new URLSearchParams(params);
+  redirect(`/admin/banners?${qs.toString()}`);
+}
+
+/**
+ * Staff: update a banner widget slot. Requires at least one image (desktop or mobile).
+ */
+export async function upsertBannerWidgetAction(formData: FormData) {
+  const staff = await requireStaffProfile();
+  if (!staff) {
+    bannersRedirect({ error: "Unauthorized — staff login required." });
+  }
+
+  const id = String(formData.get("id") || "").trim();
+  if (!id) bannersRedirect({ error: "Missing banner id." });
+
+  const label = String(formData.get("label") || "").trim();
+  const href = String(formData.get("href") || "").trim();
+  const desktop = String(formData.get("desktop_image_url") || "").trim();
+  const mobile = String(formData.get("mobile_image_url") || "").trim();
+  const openInNewTab = String(formData.get("open_in_new_tab") || "") !== "false";
+  const enabled = String(formData.get("enabled") || "") !== "false";
+
+  if (!desktop && !mobile) {
+    bannersRedirect({
+      error:
+        "Save blocked: add a Desktop banner image and/or a Responsive (mobile) banner image.",
+    });
+  }
+
+  const supabase = requireAdmin();
+  const { error } = await supabase
+    .from("banner_widgets")
+    .update({
+      label: label || "Banner",
+      href,
+      desktop_image_url: desktop || null,
+      mobile_image_url: mobile || null,
+      open_in_new_tab: openInNewTab,
+      enabled,
+    })
+    .eq("id", id);
+
+  if (error) {
+    bannersRedirect({ error: error.message });
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin/banners");
+  revalidatePath("/news");
+  revalidatePath("/category");
+  bannersRedirect({ saved: "1" });
 }

@@ -3,12 +3,13 @@
 import { useMemo } from "react";
 import {
   Box,
+  Chip,
   Divider,
   Stack,
   TextField,
   Typography,
-  Chip,
 } from "@mui/material";
+import { normalizePublicUrl } from "@/lib/env";
 
 export type SeoValues = {
   seo_title: string;
@@ -95,7 +96,7 @@ export default function SeoPanel({
   const path = `/news/${slug || "your-slug"}`;
   const host = useMemo(() => {
     try {
-      return new URL(siteUrl).host;
+      return new URL(normalizePublicUrl(siteUrl)).host;
     } catch {
       return "fpnetwork.local";
     }

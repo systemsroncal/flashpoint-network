@@ -9,7 +9,10 @@ export type OptimizedImage = {
 };
 
 /**
- * Optimize an uploaded image with Sharp (rotate, max width, WebP).
+ * Optimize an uploaded image with Sharp:
+ * - max width 1920px (height scales proportionally — never stretches)
+ * - never enlarges smaller images
+ * - always outputs WebP for lighter page-weight / PageSpeed
  */
 export async function optimizeImage(
   input: Buffer,
@@ -22,6 +25,7 @@ export async function optimizeImage(
     .rotate()
     .resize({
       width: maxWidth,
+      height: undefined,
       withoutEnlargement: true,
       fit: "inside",
     })

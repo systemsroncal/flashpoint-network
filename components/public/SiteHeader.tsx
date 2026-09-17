@@ -1,5 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import HeaderSearch from "@/components/public/HeaderSearch";
+import MobileCategoryBar, {
+  type MobileCategoryItem,
+} from "@/components/public/MobileCategoryBar";
 import MobileNav from "@/components/public/MobileNav";
 import { getNavCategories } from "@/lib/data/home";
 import { getSiteName } from "@/lib/env";
@@ -7,137 +11,202 @@ import type { ProgramModules } from "@/lib/features/program-modules";
 import { DEFAULT_PROGRAM_MODULES } from "@/lib/features/program-modules";
 
 const FALLBACK_NAV = [
-  { name: "U.S.", chevron: true },
-  { name: "Politics", chevron: true },
-  { name: "World", chevron: true },
-  { name: "Opinion", chevron: false },
-  { name: "Business", chevron: false },
-  { name: "Science", chevron: false },
-  { name: "Lifestyle", chevron: true },
-  { name: "Health", chevron: true },
-  { name: "Tech & AI", chevron: true },
+  { name: "U.S." },
+  { name: "Politics" },
+  { name: "World" },
+  { name: "Opinion" },
+  { name: "Business" },
+  { name: "Science" },
+  { name: "Lifestyle" },
+  { name: "Health" },
+  { name: "Tech & AI" },
+  { name: "Elections" },
 ];
+
+function categoryLabel(name: string, slug: string): string {
+  if (slug === "elections") return "Elections 2026";
+  return name;
+}
 
 export default async function SiteHeader({
   modules = DEFAULT_PROGRAM_MODULES,
+  isLoggedIn = false,
+  isStaff = false,
 }: {
   modules?: ProgramModules;
+  isLoggedIn?: boolean;
+  isStaff?: boolean;
 }) {
   const siteName = getSiteName();
   const categories = await getNavCategories();
-  const fromDb = categories.filter((c) => c.slug !== "video").slice(0, 9);
-  const nav =
+  const fromDb = categories.filter((c) => c.slug !== "video");
+  const navAll =
     fromDb.length > 0
-      ? fromDb.map((c, i) => ({
+      ? fromDb.map((c) => ({
           id: c.id,
           name: c.name,
           slug: c.slug,
-          chevron: FALLBACK_NAV[i]?.chevron ?? true,
         }))
       : FALLBACK_NAV.map((item, i) => ({
           id: String(i),
           name: item.name,
           slug: item.name.toLowerCase().replace(/\s+/g, "-").replace("&", ""),
-          chevron: item.chevron,
         }));
+  const navDesktop = navAll.slice(0, 9);
+
+  const mobileBarItems: MobileCategoryItem[] = [
+    { id: "latest", label: "Latest", href: "/" },
+    ...navAll.map((c) => ({
+      id: c.id,
+      label: categoryLabel(c.name, c.slug),
+      href: `/category/${c.slug}`,
+    })),
+    { id: "for-you", label: "For You", href: "/feed/popular" },
+    { id: "exclusive", label: "Exclusive", href: "/feed/premium" },
+  ];
+
+  const authDesktop =
+    isLoggedIn ? (
+      isStaff ? (
+        <Link
+          href="/admin"
+          className="inline-flex h-[38px] items-center justify-center rounded-md bg-[var(--fpn-rojo)] px-4 text-[14px] font-black text-white hover:brightness-110"
+        >
+          Admin
+        </Link>
+      ) : null
+    ) : (
+      <>
+        <Link
+          href="/register"
+          className="hidden h-[38px] w-[105px] items-center justify-center rounded-md bg-white text-[14px] font-bold text-black md:inline-flex"
+        >
+          Subscribe
+        </Link>
+        <Link
+          href="/login"
+          className="hidden h-[38px] min-w-[72px] items-center justify-center rounded-md bg-[var(--fpn-rojo)] px-3 text-[14px] font-black text-white hover:brightness-110 md:inline-flex md:w-[105px]"
+        >
+          Login
+        </Link>
+      </>
+    );
+
+  const authMobile = isLoggedIn ? (
+    isStaff ? (
+      <Link
+        href="/admin"
+        className="text-[14px] font-bold text-black hover:opacity-70"
+      >
+        Admin
+      </Link>
+    ) : (
+      <span className="w-[52px]" aria-hidden />
+    )
+  ) : (
+    <Link
+      href="/login"
+      className="text-[14px] font-bold text-black hover:opacity-70"
+    >
+      Sign in
+    </Link>
+  );
 
   return (
-    <header className="relative z-20 bg-[var(--fpn-navy)] text-white">
-      <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--fpn-rojo)]" />
-      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-3 md:gap-4 md:px-8 lg:px-10">
-        <div className="flex items-center gap-3">
-          <MobileNav
-            items={nav.map(({ id, name, slug }) => ({ id, name, slug }))}
-            showClassic={modules.classic}
-            showSchedule={modules.schedule}
-          />
-          <Link href="/" className="relative z-10 shrink-0" aria-label={siteName}>
-            <span className="flex w-[100px] flex-col overflow-hidden rounded-[3px] border-2 border-white bg-black sm:w-[130px]">
-              <span className="relative flex h-[52px] items-center justify-center bg-black px-2 sm:h-[68px]">
-                <Image
-                  src="/brand/fpn-logo-mark.svg"
-                  alt={siteName}
-                  width={110}
-                  height={52}
-                  className="h-10 w-auto sm:h-[52px]"
-                  priority
-                />
-              </span>
-              <span className="bg-[var(--fpn-rojo)] py-1 text-center text-[10px] font-bold uppercase tracking-[0.35em] text-white sm:text-[11px]">
-                Network
-              </span>
-            </span>
-          </Link>
-        </div>
-
-        <nav className="hidden flex-1 items-center justify-center gap-1 xl:flex 2xl:gap-2">
-          {nav.map((category) => (
-            <Link
-              key={category.id}
-              href={`/category/${category.slug}`}
-              className="inline-flex items-center gap-1 px-1.5 py-2 text-[13px] font-black text-white transition-opacity hover:opacity-80 2xl:px-2 2xl:text-[15px]"
-            >
-              {category.name}
-              {category.chevron ? (
-                <span className="text-[9px] opacity-80" aria-hidden>
-                  ▼
+    <header className="relative z-20 w-full max-w-none">
+      {/* —— Desktop / xl+ : existing navy header —— */}
+      <div className="relative hidden w-full bg-[var(--fpn-navy)] text-white xl:block">
+        <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--fpn-rojo)]" />
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-3 md:gap-4 md:px-8 lg:px-10">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="relative z-10 shrink-0" aria-label={siteName}>
+              <span className="flex w-[130px] flex-col overflow-hidden rounded-[3px] border-2 border-white bg-black">
+                <span className="relative flex h-[68px] items-center justify-center bg-black px-2">
+                  <Image
+                    src="/brand/fpn-logo-mark.svg"
+                    alt={siteName}
+                    width={110}
+                    height={52}
+                    className="h-[52px] w-auto"
+                    priority
+                  />
                 </span>
-              ) : null}
+                <span className="bg-[var(--fpn-rojo)] py-1 text-center text-[11px] font-bold uppercase tracking-[0.35em] text-white">
+                  Network
+                </span>
+              </span>
             </Link>
-          ))}
-        </nav>
+          </div>
 
-        <div className="flex items-center gap-2 sm:gap-4">
-          {modules.schedule ? (
-            <Link
-              href="/schedule-programs"
-              className="hidden text-[13px] font-bold text-white/90 hover:text-white lg:inline"
-            >
-              Schedule
-            </Link>
-          ) : null}
-          {modules.classic ? (
-            <Link
-              href="/classic-programs"
-              className="hidden text-[13px] font-bold text-white/90 hover:text-white lg:inline"
-            >
-              Classics
-            </Link>
-          ) : null}
-          <Link
-            href="/ministry-programs"
-            className="hidden text-[13px] font-bold text-white/90 hover:text-white xl:inline"
-          >
-            Ministry
-          </Link>
-          <Link
-            href="/events"
-            className="hidden text-[13px] font-bold text-white/90 hover:text-white lg:inline"
-          >
-            Events
-          </Link>
-          <button
-            type="button"
-            aria-label="Search (coming soon)"
-            title="Search coming soon"
-            disabled
-            className="inline-flex h-6 w-6 items-center justify-center opacity-60"
-          >
-            <Image src="/brand/search.svg" alt="" width={23} height={23} />
-          </button>
-          <Link
-            href="/register"
-            className="hidden h-[38px] w-[105px] items-center justify-center rounded-md bg-white text-[14px] font-bold text-black sm:inline-flex"
-          >
-            Subscribe
-          </Link>
-          <Link
-            href="/login"
-            className="inline-flex h-[38px] min-w-[72px] items-center justify-center rounded-md border border-white px-3 text-[14px] font-black text-white sm:w-[105px]"
-          >
-            Login
-          </Link>
+          <nav className="hidden flex-1 items-center justify-center gap-1 xl:flex 2xl:gap-2">
+            {navDesktop.map((category) => (
+              <Link
+                key={category.id}
+                href={`/category/${category.slug}`}
+                className="inline-flex items-center px-1.5 py-2 text-[13px] font-black text-white transition-opacity hover:opacity-80 2xl:px-2 2xl:text-[15px]"
+              >
+                {category.name}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-2 sm:gap-4">
+            {modules.schedule ? (
+              <Link
+                href="/schedule-programs"
+                className="hidden text-[13px] font-bold text-white/90 hover:text-white lg:inline"
+              >
+                Schedule
+              </Link>
+            ) : null}
+            {modules.classic ? (
+              <Link
+                href="/classic-programs"
+                className="hidden text-[13px] font-bold text-white/90 hover:text-white lg:inline"
+              >
+                Classics
+              </Link>
+            ) : null}
+            <HeaderSearch tone="light" />
+            {authDesktop}
+          </div>
         </div>
+      </div>
+
+      {/* —— Mobile / tablet : WaPo-style white header (edge-to-edge) —— */}
+      <div className="w-full max-w-none bg-white text-black xl:hidden">
+        <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2 border-b border-[#E5E5E5] px-2 py-2.5 sm:px-3">
+          <div className="flex items-center justify-start gap-0.5">
+            <MobileNav
+              items={navAll}
+              showClassic={modules.classic}
+              showSchedule={modules.schedule}
+              isLoggedIn={isLoggedIn}
+              isStaff={isStaff}
+              tone="dark"
+            />
+            <HeaderSearch tone="dark" />
+          </div>
+
+          <Link
+            href="/"
+            className="justify-self-center"
+            aria-label={siteName}
+          >
+            <Image
+              src="/brand/fpn-logo-wordmark.png"
+              alt={siteName}
+              width={160}
+              height={34}
+              className="h-8 w-auto sm:h-9"
+              priority
+            />
+          </Link>
+
+          <div className="flex items-center justify-end pr-1">{authMobile}</div>
+        </div>
+
+        <MobileCategoryBar items={mobileBarItems} />
       </div>
     </header>
   );

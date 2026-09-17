@@ -3,18 +3,32 @@ import Link from "next/link";
 import VideoPlayer from "@/components/public/VideoPlayer";
 import type { Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
+import { youtubeThumbnailUrl } from "@/lib/media/youtube";
+import { cardFeaturedImageUrl } from "@/lib/posts/media-layout";
+import { DEFAULT_SITE_TIMEZONE } from "@/lib/timezone/constants";
+
+/** Small home grids / lists (Politics/World, Elections, stack, podcasts, latest). */
+const TITLE_SMALL =
+  "font-article text-[clamp(19px,1.6vw,1.5rem)] font-black leading-[1.3] tracking-[-0.03em]";
+
+/** Featured left / large exclusive — Figma 53px on lg+; clamp when columns stack. */
+const TITLE_FEATURED =
+  "font-article text-[clamp(19px,1.6vw,1.5rem)] font-black leading-[1.3] tracking-[-0.5568px] lg:text-[53px] lg:leading-[64.6px]";
 
 type Props = {
   post: Post;
   variant?: "hero" | "stack" | "grid" | "list" | "video" | "latest" | "podcast";
+  timeZone?: string;
 };
 
 function MetaRow({
   post,
   dateRight = false,
+  timeZone = DEFAULT_SITE_TIMEZONE,
 }: {
   post: Post;
   dateRight?: boolean;
+  timeZone?: string;
 }) {
   return (
     <div
@@ -33,56 +47,63 @@ function MetaRow({
         </span>
       </span>
       <span className="font-normal text-[var(--fpn-rojo)]">
-        {formatDate(post.published_at)}
+        {formatDate(post.published_at, timeZone)}
       </span>
     </div>
   );
 }
 
-export default function PostCard({ post, variant = "grid" }: Props) {
+export default function PostCard({ post, variant = "grid", timeZone = DEFAULT_SITE_TIMEZONE }: Props) {
   const href = `/news/${post.slug}`;
   const category = (post.category?.name ?? "News").toUpperCase();
+  // Grids/cards: never gate on show_featured_image (article-hero only).
+  // Prefer featured/og image; fall back to YouTube thumb when video-as-featured.
+  const featured = cardFeaturedImageUrl(post);
+  const podcastThumb = featured;
 
   if (variant === "list" || variant === "latest") {
     return (
       <article className="border-b border-[#ccc]/80 py-4 last:border-b-0">
-        <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
+        <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)] md:text-[15.6px]">
           {category}
         </p>
         <Link href={href} className="group mt-1 block">
-          <h3 className="font-article text-[17px] font-black leading-snug tracking-tight text-black group-hover:text-[var(--fpn-rojo)]">
+          <h3 className={`${TITLE_SMALL} text-black group-hover:text-[var(--fpn-rojo)]`}>
             {post.title}
           </h3>
         </Link>
-        <MetaRow post={post} dateRight />
+        <MetaRow post={post} dateRight timeZone={timeZone} />
       </article>
     );
   }
 
   if (variant === "podcast") {
     return (
-      <article className="flex gap-3 border-b border-[#ccc]/80 py-3 last:border-b-0">
+      <article className="flex gap-3.5 border-b border-[#ccc] py-3.5 last:border-b-0">
         <Link
           href={href}
-          className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-md bg-neutral-200"
+          className="relative aspect-video w-[128px] shrink-0 overflow-hidden rounded-[8px] bg-neutral-200 sm:w-[148px]"
         >
-          {post.featured_image_url ? (
+          {podcastThumb ? (
             <Image
-              src={post.featured_image_url}
+              src={podcastThumb}
               alt=""
               fill
               className="object-cover"
-              sizes="72px"
+              sizes="148px"
             />
           ) : null}
+          <span className="absolute bottom-1.5 left-1.5">
+            <Image src="/brand/play-btn.svg" alt="" width={22} height={22} />
+          </span>
         </Link>
-        <div className="min-w-0">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
+        <div className="min-w-0 flex-1 self-center">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)] md:text-[15.6px]">
             {category}
           </p>
           <Link
             href={href}
-            className="mt-0.5 block font-article text-[15px] font-black leading-snug text-black hover:text-[var(--fpn-rojo)]"
+            className={`mt-0.5 line-clamp-3 block ${TITLE_SMALL} text-black hover:text-[var(--fpn-rojo)]`}
           >
             {post.title}
           </Link>
@@ -96,11 +117,11 @@ export default function PostCard({ post, variant = "grid" }: Props) {
       <article className="border-b border-[#ccc]/80 py-4 last:border-b-0">
         <Link
           href={href}
-          className="relative mb-3 block aspect-[16/10] overflow-hidden rounded-[12px] bg-neutral-200"
+          className="relative mb-3 block aspect-video overflow-hidden rounded-[10px] bg-neutral-200"
         >
-          {post.featured_image_url ? (
+          {featured ? (
             <Image
-              src={post.featured_image_url}
+              src={featured}
               alt=""
               fill
               className="object-cover"
@@ -109,7 +130,7 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           ) : null}
         </Link>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
+          <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)] md:text-[15.6px]">
             {category}
           </p>
           <span className="inline-flex items-center gap-1.5 text-[12px] text-[var(--fpn-meta)]">
@@ -123,12 +144,12 @@ export default function PostCard({ post, variant = "grid" }: Props) {
         </div>
         <Link
           href={href}
-          className="mt-1.5 block font-article text-[1.15rem] font-black leading-snug tracking-tight text-black hover:text-[var(--fpn-rojo)]"
+          className={`mt-1.5 block ${TITLE_SMALL} text-black hover:text-[var(--fpn-rojo)]`}
         >
           {post.title}
         </Link>
-        <p className="mt-2 text-[13px] text-[var(--fpn-rojo)]">
-          {formatDate(post.published_at)}
+        <p className="mt-2 text-[13px] text-[var(--fpn-rojo)] md:text-[18.7px]">
+          {formatDate(post.published_at, timeZone)}
         </p>
       </article>
     );
@@ -142,15 +163,17 @@ export default function PostCard({ post, variant = "grid" }: Props) {
             <VideoPlayer
               url={post.video_url}
               title={post.title}
-              poster={post.featured_image_url}
+              poster={
+                youtubeThumbnailUrl(post.video_url) || featured
+              }
               className="aspect-video w-full md:min-h-[360px]"
             />
           ) : (
             <Link href={href} className="block">
               <div className="relative aspect-[4/5] md:aspect-[16/11] md:min-h-[360px]">
-                {post.featured_image_url ? (
+                {featured ? (
                   <Image
-                    src={post.featured_image_url}
+                    src={featured}
                     alt=""
                     fill
                     className="object-cover opacity-95 transition group-hover:opacity-100"
@@ -170,10 +193,11 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           <p className="mt-3 text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
             {category}
           </p>
-          <h3 className="mt-1 font-article text-xl font-black leading-snug tracking-tight text-black group-hover:text-[var(--fpn-rojo)]">
+          {/* Must-Watch featured: clamp when stacked; larger from md up */}
+          <h3 className={`mt-1 ${TITLE_SMALL} text-black group-hover:text-[var(--fpn-rojo)] md:text-[33.73px] md:leading-[44px]`}>
             {post.title}
           </h3>
-          <MetaRow post={post} dateRight />
+          <MetaRow post={post} dateRight timeZone={timeZone} />
         </Link>
       </article>
     );
@@ -184,11 +208,11 @@ export default function PostCard({ post, variant = "grid" }: Props) {
       <article>
         <Link
           href={href}
-          className="relative mb-4 block aspect-[16/10] overflow-hidden rounded-[15px] bg-neutral-200"
+          className="relative mb-4 block aspect-video overflow-hidden rounded-[24px] bg-neutral-200"
         >
-          {post.featured_image_url ? (
+          {featured ? (
             <Image
-              src={post.featured_image_url}
+              src={featured}
               alt=""
               fill
               priority
@@ -198,30 +222,25 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           ) : null}
         </Link>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <p className="text-[13px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
+          <p className="text-[13px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)] md:text-[28.2px]">
             {category}
           </p>
-          <span className="inline-flex items-center gap-1.5 text-[13px] text-[var(--fpn-meta)]">
+          <span className="inline-flex items-center gap-1.5 text-[13px] text-[var(--fpn-meta)] md:text-[21px]">
             <Image src="/brand/icon-clock.svg" alt="" width={16} height={16} />
             {formatReadTime(post.reading_time_minutes)}
           </span>
-          <span className="inline-flex items-center gap-1.5 text-[13px] text-[var(--fpn-meta)]">
+          <span className="inline-flex items-center gap-1.5 text-[13px] text-[var(--fpn-meta)] md:text-[21px]">
             <Image src="/brand/icon-comments.svg" alt="" width={15} height={15} />
             {formatViews(post.view_count)}
           </span>
         </div>
-        <h2 className="mt-2 font-article text-[1.75rem] font-black leading-[1.12] tracking-tight text-black md:text-[2.15rem]">
+        <h2 className={`mt-2 ${TITLE_FEATURED} text-black`}>
           <Link href={href} className="hover:text-[var(--fpn-rojo)]">
             {post.title}
           </Link>
         </h2>
-        {post.excerpt ? (
-          <p className="mt-3 text-[15px] leading-7 text-[var(--fpn-ink)]/85">
-            {post.excerpt}
-          </p>
-        ) : null}
-        <p className="mt-3 text-[14px] text-[var(--fpn-rojo)]">
-          {formatDate(post.published_at)}
+        <p className="mt-3 text-[14px] text-[var(--fpn-rojo)] md:text-[21.2px]">
+          {formatDate(post.published_at, timeZone)}
         </p>
       </article>
     );
@@ -233,9 +252,9 @@ export default function PostCard({ post, variant = "grid" }: Props) {
         href={href}
         className="relative mb-3 aspect-[16/10] overflow-hidden rounded-[12px] bg-neutral-200"
       >
-        {post.featured_image_url ? (
+        {featured ? (
           <Image
-            src={post.featured_image_url}
+            src={featured}
             alt=""
             fill
             className="object-cover transition duration-300 group-hover:scale-[1.02]"
@@ -248,15 +267,16 @@ export default function PostCard({ post, variant = "grid" }: Props) {
           </span>
         ) : null}
       </Link>
-      <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
+      <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)] md:text-[15.6px]">
         {category}
       </p>
-      <h3 className="mt-1 font-article text-[17px] font-black leading-snug tracking-tight text-black">
+      {/* Politics/World + Elections grid */}
+      <h3 className={`mt-1 ${TITLE_SMALL} text-black`}>
         <Link href={href} className="hover:text-[var(--fpn-rojo)]">
           {post.title}
         </Link>
       </h3>
-      <MetaRow post={post} dateRight />
+      <MetaRow post={post} dateRight timeZone={timeZone} />
     </article>
   );
 }

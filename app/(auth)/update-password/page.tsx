@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { updatePasswordAction } from "@/lib/auth/actions";
 
+export const dynamic = "force-dynamic";
+
 type Props = {
   searchParams: Promise<{ error?: string; done?: string }>;
 };
