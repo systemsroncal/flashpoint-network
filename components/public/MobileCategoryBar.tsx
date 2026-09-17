@@ -15,7 +15,8 @@ type Props = {
 
 function isActive(pathname: string, href: string): boolean {
   if (href === "/") {
-    return pathname === "/" || pathname === "/feed/latest";
+    // Latest = home sections landing (not a compact list feed).
+    return pathname === "/";
   }
   return pathname === href || pathname.startsWith(`${href}/`);
 }
@@ -26,9 +27,9 @@ export default function MobileCategoryBar({ items }: Props) {
   return (
     <nav
       aria-label="Sections"
-      className="border-b border-[#E5E5E5] bg-white"
+      className="w-full max-w-none border-b border-[#E5E5E5] bg-white"
     >
-      <ul className="flex gap-5 overflow-x-auto px-4 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <ul className="flex w-full gap-5 overflow-x-auto px-4 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.map((item) => {
           const active = isActive(pathname, item.href);
           return (

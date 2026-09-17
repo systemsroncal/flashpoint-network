@@ -53,7 +53,7 @@ export default async function HomeView({
       : [...data.politics.slice(0, 3), ...data.world.slice(0, 3)];
 
   return (
-    <div className="bg-white text-black">
+    <div className="w-full max-w-none bg-white text-black">
       <LatestNewsBar event={data.nextUpcomingEvent} timeZone={timeZone} />
 
       {!data.featured &&

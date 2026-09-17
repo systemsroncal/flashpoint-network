@@ -33,9 +33,9 @@ export default async function CategoryView({
     category.slug === "elections" ? "Elections 2026" : category.name;
 
   return (
-    <div className="bg-white text-black">
-      {/* Mobile WaPo-style compact feed */}
-      <div className="xl:hidden">
+    <div className="w-full max-w-none bg-white text-black">
+      {/* Mobile: WaPo compact list only when arriving via category bar / category URL */}
+      <div className="w-full max-w-none xl:hidden">
         <MobileFeedList
           posts={posts}
           timeZone={timeZone}

@@ -113,9 +113,9 @@ export default async function SiteHeader({
   );
 
   return (
-    <header className="relative z-20">
+    <header className="relative z-20 w-full max-w-none">
       {/* —— Desktop / xl+ : existing navy header —— */}
-      <div className="relative hidden bg-[var(--fpn-navy)] text-white xl:block">
+      <div className="relative hidden w-full bg-[var(--fpn-navy)] text-white xl:block">
         <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--fpn-rojo)]" />
         <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-3 md:gap-4 md:px-8 lg:px-10">
           <div className="flex items-center gap-3">
@@ -173,9 +173,9 @@ export default async function SiteHeader({
         </div>
       </div>
 
-      {/* —— Mobile / tablet : WaPo-style white header —— */}
-      <div className="bg-white text-black xl:hidden">
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 border-b border-[#E5E5E5] px-2 py-2.5 sm:px-3">
+      {/* —— Mobile / tablet : WaPo-style white header (edge-to-edge) —— */}
+      <div className="w-full max-w-none bg-white text-black xl:hidden">
+        <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2 border-b border-[#E5E5E5] px-2 py-2.5 sm:px-3">
           <div className="flex items-center justify-start gap-0.5">
             <MobileNav
               items={navAll}

@@ -61,7 +61,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${notoSerif.variable} ${roboto.variable} min-h-dvh h-full antialiased`}
     >
-      <body className="flex min-h-dvh min-h-full flex-col bg-white text-[#111111]">
+      <body className="flex min-h-dvh min-h-full w-full max-w-none flex-col bg-white text-[#111111]">
         {process.env.NODE_ENV !== "production" ? (
           <script
             dangerouslySetInnerHTML={{

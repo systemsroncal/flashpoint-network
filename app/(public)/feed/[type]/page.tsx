@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import MobileFeedList from "@/components/public/MobileFeedList";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
@@ -53,6 +53,9 @@ export default async function FeedPage({ params }: Props) {
   const kind = type as FeedKind;
   if (!FEEDS[kind]) notFound();
 
+  // "Latest" in the mobile bar lands on home sections — never a compact list.
+  if (kind === "latest") redirect("/");
+
   const [posts, timeZone] = await Promise.all([
     getFeedPosts(kind, 48),
     getSiteTimezone(),
@@ -60,8 +63,8 @@ export default async function FeedPage({ params }: Props) {
   const meta = FEEDS[kind];
 
   return (
-    <div className="bg-white text-black">
-      <div className="xl:hidden">
+    <div className="w-full max-w-none bg-white text-black">
+      <div className="w-full max-w-none xl:hidden">
         <MobileFeedList
           posts={posts}
           timeZone={timeZone}

@@ -35,14 +35,14 @@ export default function MobileFeedList({
   }
 
   return (
-    <ul className="divide-y divide-[#E5E5E5] border-b border-[#E5E5E5]">
+    <ul className="w-full max-w-none divide-y divide-[#E5E5E5] border-b border-[#E5E5E5]">
       {posts.map((post) => {
         const thumb = cardFeaturedImageUrl(post);
         return (
-          <li key={post.id}>
+          <li key={post.id} className="w-full">
             <Link
               href={`/news/${post.slug}`}
-              className="flex items-start gap-3 px-4 py-4"
+              className="flex w-full items-start gap-3 px-4 py-4"
             >
               <div className="min-w-0 flex-[0.72]">
                 <h2 className="font-article text-[1.05rem] font-bold leading-snug tracking-tight text-black">

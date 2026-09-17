@@ -63,13 +63,15 @@ export default async function PublicLayout({
         </div>
       ) : null}
       <AdSenseScript />
-      <SiteHeader
-        modules={modules}
-        isLoggedIn={Boolean(profile)}
-        isStaff={Boolean(profile && isStaffRole(profile.role))}
-      />
-      <main className="flex-1">{children}</main>
-      <SiteFooter siteName={siteName} modules={modules} />
+      <div className="flex min-h-0 w-full max-w-none flex-1 flex-col bg-white">
+        <SiteHeader
+          modules={modules}
+          isLoggedIn={Boolean(profile)}
+          isStaff={Boolean(profile && isStaffRole(profile.role))}
+        />
+        <main className="w-full max-w-none flex-1">{children}</main>
+        <SiteFooter siteName={siteName} modules={modules} />
+      </div>
       {htmlFooter}
     </TimezoneProvider>
   );
