@@ -98,7 +98,7 @@ export default async function HomeView({
                 <h2 className="font-article text-[2rem] font-black leading-[1.05] tracking-tight md:text-[2.75rem] lg:text-[3.25rem]">
                   Beyond the Broadcast
                 </h2>
-                <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-black/70 md:mt-4 md:text-[17px] md:leading-7">
+                <p className="mt-3 !max-w-full text-[15px] leading-relaxed text-black/70 md:mt-4 md:text-[17px] md:leading-7">
                   Stay informed with original reporting, analysis, opinion, and
                   stories shaping faith, culture, America, and the world
                 </p>
@@ -141,7 +141,7 @@ export default async function HomeView({
             <div>
               <div className="mb-4 flex items-end justify-between gap-3">
                 <h2 className="font-article text-[1.65rem] font-black leading-[0.95] tracking-tight md:text-[2.15rem]">
-                  Beyond the Broadcast
+                  Broadcast
                 </h2>
                 <SeeMore href="/feed/podcasts" label="SEE ALL" />
               </div>
