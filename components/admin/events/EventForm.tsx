@@ -13,19 +13,14 @@ import {
 import Link from "next/link";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
 import RichTextEditor from "@/components/admin/shared/RichTextEditor";
+import { useTimezone } from "@/components/timezone/TimezoneProvider";
 import { deleteEventAction, upsertEventAction } from "@/lib/admin/actions";
+import { isoToDatetimeLocal } from "@/lib/timezone/datetime";
 import type { EventItem } from "@/lib/types/cms";
-
-function toLocalInput(value: string | null | undefined) {
-  if (!value) return "";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return "";
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
 
 export default function EventForm({ event }: { event?: EventItem | null }) {
   const isEdit = Boolean(event?.id);
+  const timeZone = useTimezone();
 
   return (
     <DashboardCard
@@ -68,6 +63,14 @@ export default function EventForm({ event }: { event?: EventItem | null }) {
           </Stack>
           <TextField name="video_url" label="Video URL" fullWidth defaultValue={event?.video_url ?? ""} />
           <TextField
+            name="external_url"
+            label="External URL (optional)"
+            fullWidth
+            placeholder="https://"
+            defaultValue={event?.external_url ?? ""}
+            helperText="If set, the home orange bar and event title open this link in a new tab. Leave blank to use the event page."
+          />
+          <TextField
             name="thumbnail_url"
             label="Thumbnail URL"
             fullWidth
@@ -80,7 +83,8 @@ export default function EventForm({ event }: { event?: EventItem | null }) {
               type="datetime-local"
               fullWidth
               InputLabelProps={{ shrink: true }}
-              defaultValue={toLocalInput(event?.starts_at)}
+              defaultValue={isoToDatetimeLocal(event?.starts_at, timeZone)}
+              helperText="Site timezone (Settings → System timezone)"
             />
             <TextField
               name="ends_at"
@@ -88,7 +92,7 @@ export default function EventForm({ event }: { event?: EventItem | null }) {
               type="datetime-local"
               fullWidth
               InputLabelProps={{ shrink: true }}
-              defaultValue={toLocalInput(event?.ends_at)}
+              defaultValue={isoToDatetimeLocal(event?.ends_at, timeZone)}
             />
           </Stack>
           <Stack direction="row" spacing={1}>

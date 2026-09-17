@@ -2,7 +2,12 @@ import Link from "next/link";
 import { Button, Typography } from "@mui/material";
 import PageContainer from "@/components/admin/shared/PageContainer";
 import PostForm from "@/components/admin/posts/PostForm";
-import { getAdminCategories, getAdminPost } from "@/lib/admin/queries";
+import {
+  getAdminCategories,
+  getAdminPost,
+  getAdminPostTagIds,
+  getAdminTags,
+} from "@/lib/admin/queries";
 import { getSiteName, getSiteUrl } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
@@ -20,9 +25,11 @@ type Props = {
  */
 export default async function Page({ params }: Props) {
   const { id } = await params;
-  const [post, categories] = await Promise.all([
+  const [post, categories, tags, initialTagIds] = await Promise.all([
     getAdminPost(id),
     getAdminCategories(),
+    getAdminTags(),
+    getAdminPostTagIds(id).catch(() => [] as string[]),
   ]);
 
   if (!post) {
@@ -43,6 +50,8 @@ export default async function Page({ params }: Props) {
       <PostForm
         post={post}
         categories={categories}
+        tags={tags}
+        initialTagIds={initialTagIds}
         siteName={getSiteName()}
         siteUrl={getSiteUrl()}
       />

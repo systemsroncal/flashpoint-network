@@ -1,37 +1,31 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
+import { extractYoutubeId } from "@/lib/media/youtube";
+
+export { extractYoutubeId } from "@/lib/media/youtube";
 
 type Props = {
   url: string;
   title?: string;
   className?: string;
   poster?: string | null;
+  /** Muted autoplay (required by browsers for autoplay without a gesture). */
+  autoplay?: boolean;
+  loop?: boolean;
 };
-
-export function extractYoutubeId(url: string): string | null {
-  if (!url) return null;
-  try {
-    const u = new URL(url);
-    if (u.hostname.includes("youtu.be")) {
-      return u.pathname.replace(/^\//, "").slice(0, 11) || null;
-    }
-    if (u.searchParams.get("v")) return u.searchParams.get("v");
-    const embed = u.pathname.match(/\/embed\/([^/?]+)/);
-    if (embed) return embed[1];
-    const shorts = u.pathname.match(/\/shorts\/([^/?]+)/);
-    if (shorts) return shorts[1];
-  } catch {
-    /* plain id */
-  }
-  if (/^[\w-]{11}$/.test(url.trim())) return url.trim();
-  return null;
-}
 
 /**
  * Plyr player for YouTube — loads Plyr only in the browser (avoids SSR `document`).
  */
-export default function VideoPlayer({ url, title, className, poster }: Props) {
+export default function VideoPlayer({
+  url,
+  title,
+  className,
+  poster,
+  autoplay = false,
+  loop = false,
+}: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const reactId = useId().replace(/:/g, "");
   const ytId = extractYoutubeId(url);
@@ -41,22 +35,28 @@ export default function VideoPlayer({ url, title, className, poster }: Props) {
     if (!root || !ytId) return;
 
     let destroyed = false;
-    let player: { destroy: () => void } | null = null;
+    let player: { destroy: () => void; play?: () => void; muted?: boolean } | null =
+      null;
 
     (async () => {
       await import("plyr/dist/plyr.css");
       const { default: Plyr } = await import("plyr");
       if (destroyed || !wrapRef.current) return;
 
+      const autoParams = autoplay
+        ? "&amp;autoplay=1&amp;mute=1"
+        : "";
+      const loopParams = loop && ytId ? `&amp;loop=1&amp;playlist=${ytId}` : "";
+
       root.innerHTML = "";
       const embed = document.createElement("div");
       embed.className = "plyr__video-embed";
       embed.id = `plyr-${reactId}`;
       embed.innerHTML = `<iframe
-        src="https://www.youtube.com/embed/${ytId}?origin=${encodeURIComponent(window.location.origin)}&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1"
+        src="https://www.youtube.com/embed/${ytId}?origin=${encodeURIComponent(window.location.origin)}&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1${autoParams}${loopParams}"
         allowfullscreen
         allowtransparency
-        allow="autoplay"
+        allow="autoplay; encrypted-media; picture-in-picture"
         title="${(title || "Video").replace(/"/g, "&quot;")}"
       ></iframe>`;
       root.appendChild(embed);
@@ -69,6 +69,9 @@ export default function VideoPlayer({ url, title, className, poster }: Props) {
           iv_load_policy: 3,
           modestbranding: 1,
         },
+        autoplay,
+        muted: autoplay,
+        loop: { active: loop },
         controls: [
           "play-large",
           "play",
@@ -81,13 +84,22 @@ export default function VideoPlayer({ url, title, className, poster }: Props) {
         ratio: "16:9",
         ...(poster ? { poster } : {}),
       });
+
+      if (autoplay) {
+        try {
+          player.muted = true;
+          player.play?.();
+        } catch {
+          /* browser may still block; muted iframe params cover most cases */
+        }
+      }
     })();
 
     return () => {
       destroyed = true;
       player?.destroy();
     };
-  }, [ytId, reactId, title, poster]);
+  }, [ytId, reactId, title, poster, autoplay, loop]);
 
   if (!ytId) {
     return (

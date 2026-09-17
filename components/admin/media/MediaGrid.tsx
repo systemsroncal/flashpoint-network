@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import {
   Alert,
   Box,
@@ -15,7 +15,6 @@ import {
   Typography,
 } from "@mui/material";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
-import { uploadMediaAction } from "@/lib/admin/upload";
 
 type MediaItem = {
   id: string;
@@ -24,25 +23,49 @@ type MediaItem = {
   featured_image_url: string | null;
 };
 
+type UploadResponse =
+  | { ok: true; url: string; absoluteUrl?: string }
+  | { ok: false; error: string };
+
 export default function MediaGrid({ items }: { items: MediaItem[] }) {
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+  const [pending, setPending] = useState(false);
 
-  const onFile = (file: File | null) => {
+  const onFile = async (file: File | null) => {
     if (!file) return;
     setError(null);
     setUploadedUrl(null);
-    const fd = new FormData();
-    fd.set("file", file);
-    startTransition(async () => {
-      const result = await uploadMediaAction(fd);
-      if (!result.ok) {
-        setError(result.error);
+    setPending(true);
+    try {
+      const fd = new FormData();
+      fd.set("file", file);
+      const res = await fetch("/api/admin/media/upload", {
+        method: "POST",
+        body: fd,
+        credentials: "same-origin",
+      });
+      let result: UploadResponse;
+      try {
+        result = (await res.json()) as UploadResponse;
+      } catch {
+        setError(
+          res.status === 413
+            ? "Image is too large for the server (max 10MB)."
+            : `Upload failed (${res.status}).`,
+        );
         return;
       }
-      setUploadedUrl(result.url);
-    });
+      if (!result.ok) {
+        setError(result.error || `Upload failed (${res.status}).`);
+        return;
+      }
+      setUploadedUrl(result.absoluteUrl || result.url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setPending(false);
+    }
   };
 
   return (
@@ -52,9 +75,10 @@ export default function MediaGrid({ items }: { items: MediaItem[] }) {
     >
       <Stack spacing={2} mb={3}>
         <Typography variant="body2" color="text.secondary">
-          Upload optimizes with Sharp (WebP) and stores in the public Supabase{" "}
-          <code>media</code> bucket. Paste the URL into a News featured image
-          field.
+          Upload optimizes with Sharp (WebP) and saves on the server under{" "}
+          <code>public/uploads/</code> (public URL <code>/uploads/…</code>).
+          Paste the URL into a News featured image field. Existing Supabase
+          Storage URLs keep working as-is.
         </Typography>
         <Button
           variant="contained"
@@ -68,7 +92,7 @@ export default function MediaGrid({ items }: { items: MediaItem[] }) {
             hidden
             type="file"
             accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-            onChange={(e) => onFile(e.target.files?.[0] ?? null)}
+            onChange={(e) => void onFile(e.target.files?.[0] ?? null)}
           />
         </Button>
         {error ? <Alert severity="error">{error}</Alert> : null}

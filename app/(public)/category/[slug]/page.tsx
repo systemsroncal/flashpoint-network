@@ -18,7 +18,8 @@ export async function generateMetadata({ params }: Props) {
   if (!category) return { title: "Category not found" };
   return {
     title: category.name,
-    description: category.description ?? `${category.name} coverage from Flash Point Network`,
+    description:
+      category.description ?? `${category.name} coverage from Flash Point Network`,
   };
 }
 

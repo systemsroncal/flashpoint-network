@@ -13,9 +13,13 @@ import {
   Typography,
 } from "@mui/material";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
+import { useTimezone } from "@/components/timezone/TimezoneProvider";
+import { formatDateTime } from "@/lib/format";
 import type { EventItem } from "@/lib/types/cms";
 
 export default function EventsTable({ events }: { events: EventItem[] }) {
+  const timeZone = useTimezone();
+
   return (
     <DashboardCard
       title="Events"
@@ -53,7 +57,7 @@ export default function EventsTable({ events }: { events: EventItem[] }) {
                 </Stack>
               </TableCell>
               <TableCell>
-                {event.starts_at ? new Date(event.starts_at).toLocaleString() : "—"}
+                {event.starts_at ? formatDateTime(event.starts_at, timeZone) : "—"}
               </TableCell>
               <TableCell align="right">
                 <Button
