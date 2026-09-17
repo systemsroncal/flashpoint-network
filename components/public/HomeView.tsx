@@ -214,21 +214,28 @@ export default function HomeView({ data }: { data: HomePayload }) {
           </div>
 
           <aside className="min-w-0 space-y-8">
-            {/* Figma sidebar ad above Podcasts — MyPillow only */}
+            {/* Sidebar ad above Podcasts — Optimal Family Care (swap href in note if needed) */}
             <a
-              href="https://www.mypillow.com"
+              href="https://optimalfamilycare.com/"
               target="_blank"
               rel="noopener noreferrer sponsored"
-              className="relative block aspect-[370/186] w-full overflow-hidden rounded-[10px] bg-neutral-100"
-              aria-label="MyPillow advertisement — open mypillow.com"
+              className="relative block aspect-[371/389] w-full overflow-hidden rounded-[10px] bg-neutral-100"
+              aria-label="Optimal Family Care advertisement — open optimalfamilycare.com"
             >
-              <Image
-                src="/brand/ads/mypillow-banner.webp"
-                alt="MyPillow — use promo code NTD77"
-                fill
-                className="object-cover"
-                sizes="(max-width:1024px) 100vw, 370px"
-              />
+              <picture className="absolute inset-0 block h-full w-full">
+                <source
+                  srcSet="/brand/ads/optimal-family-care-banner.webp"
+                  type="image/webp"
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element -- picture/webp fallback pair */}
+                <img
+                  src="/brand/ads/optimal-family-care-banner.png"
+                  alt="Optimal Family Care — book an appointment"
+                  className="h-full w-full object-cover"
+                  width={371}
+                  height={389}
+                />
+              </picture>
             </a>
 
             <div>
