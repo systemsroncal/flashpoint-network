@@ -13,18 +13,15 @@ function scheduleDays(program: MinistryProgram): string {
   if (/^sundays\b/i.test(note)) return "Sundays";
   if (/^thursdays\b/i.test(note)) return "Thursdays";
   if (/^wednesdays\b/i.test(note)) return "Wednesdays";
+  if (/^starting at/i.test(note)) return "Sundays";
   return note.replace(/\s+at\s+.+$/i, "").trim() || note;
 }
 
 function scheduleTime(program: MinistryProgram): string {
   const source = `${program.schedule_line || ""} ${program.schedule_note || ""}`;
-  const multi = source.match(
-    /([0-9]{1,2}:[0-9]{2})\s*([AP]M)(?:\s*ET)?/gi,
-  );
-  if (multi && multi.length > 1) {
-    return multi
-      .map((part) => part.replace(/\s+/g, " ").trim())
-      .join(" · ");
+  const parts = source.match(/([0-9]{1,2}:[0-9]{2})\s*([AP]M)(?:\s*ET)?/gi);
+  if (parts && parts.length > 1) {
+    return parts.map((part) => part.replace(/\s+/g, " ").trim()).join(" · ");
   }
   const m = source.match(/([0-9]{1,2}:[0-9]{2})\s*([AP]M)/i);
   if (!m) return program.schedule_line || program.schedule_note || "";
@@ -41,6 +38,18 @@ function cardSchedule(program: MinistryProgram): string {
   const time = scheduleTime(program);
   if (time) return time;
   return "";
+}
+
+function modalBlurb(program: MinistryProgram): string {
+  const raw = program.description || program.excerpt || "";
+  const trimmed = raw.replace(/\s+/g, " ").trim();
+  if (trimmed.length > 20 && !/^smiling man|^portrait of|^black and white/i.test(trimmed)) {
+    return trimmed;
+  }
+  if (program.schedule_note) {
+    return `${program.title} airs ${program.schedule_note.replace(/\.$/, "")} on FlashPoint Television Network.`;
+  }
+  return `${program.title} on FlashPoint Television Network.`;
 }
 
 function InfoIcon({ className }: { className?: string }) {
@@ -93,8 +102,10 @@ function ExternalArrow({ className }: { className?: string }) {
 
 export default function MinistryProgramsView({
   programs,
+  siteName = "Flash Point Network",
 }: {
   programs: MinistryProgram[];
+  siteName?: string;
 }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const titleId = useId();
@@ -118,23 +129,36 @@ export default function MinistryProgramsView({
 
   return (
     <div className="min-h-full bg-[#0B0B0B] text-white">
-      <section className="mx-auto max-w-[1440px] px-4 py-10 md:px-8 lg:px-10 lg:py-14">
-        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-8">
+      {/* Figma: navy hero band + gospel dek */}
+      <div className="relative overflow-hidden border-b border-white/10 bg-[var(--fpn-navy)] text-white">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-40"
+          style={{
+            background:
+              "radial-gradient(ellipse 80% 60% at 15% 15%, rgba(225,6,0,0.32), transparent 55%), radial-gradient(ellipse 50% 40% at 90% 85%, rgba(255,255,255,0.08), transparent 50%)",
+          }}
+        />
+        <div className="relative mx-auto flex max-w-[1440px] flex-col gap-4 px-4 py-10 md:flex-row md:items-end md:justify-between md:gap-8 md:px-8 lg:px-10 lg:py-14">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
-              Faithful voices. Timeless truth.
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--fpn-rojo)]">
+              {siteName}
             </p>
-            <h1 className="mt-2 font-sans text-3xl font-bold tracking-tight text-white md:text-5xl">
-              Programs centered around the gospel of Jesus Christ
+            <h1 className="mt-2 font-article text-3xl font-black tracking-tight md:text-5xl">
+              Network Programs
             </h1>
+            <p className="mt-3 max-w-2xl text-sm text-white/75 md:text-base">
+              Programs centered around the gospel of Jesus Christ.
+            </p>
           </div>
-          <p className="shrink-0 text-sm text-white/45 md:pb-1 md:text-right">
-            On FPTN, across the week
+          <p className="shrink-0 text-sm text-white/50 md:max-w-[220px] md:pb-1 md:text-right">
+            Gospel-centered teaching and ministry on FPTN, across the week.
           </p>
         </div>
+      </div>
 
+      <section className="mx-auto max-w-[1440px] px-4 py-10 md:px-8 lg:px-10 lg:py-14">
         {programs.length === 0 ? (
-          <div className="mt-12 rounded-2xl border border-dashed border-white/15 px-6 py-16 text-center">
+          <div className="rounded-2xl border border-dashed border-white/15 px-6 py-16 text-center">
             <h2 className="text-2xl font-bold tracking-tight">No network programs listed</h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-white/50">
               Check back soon for teaching and worship broadcasts.
@@ -147,7 +171,7 @@ export default function MinistryProgramsView({
             </Link>
           </div>
         ) : (
-          <ul className="mt-10 grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <ul className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {programs.map((program, index) => {
               const schedule = cardSchedule(program);
               return (
@@ -172,7 +196,7 @@ export default function MinistryProgramsView({
                         />
                       ) : (
                         <span className="absolute inset-0 flex items-center justify-center text-xs font-bold uppercase tracking-wide text-white/30">
-                          Network
+                          Ministry
                         </span>
                       )}
                       {program.genre ? (
@@ -182,7 +206,7 @@ export default function MinistryProgramsView({
                       ) : null}
                       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-black/80 via-black/35 to-transparent px-2.5 pb-2.5 pt-10">
                         <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/70">
-                          FPTN Network
+                          FPTN Ministry
                         </span>
                         <span
                           className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/55 text-white/90 transition group-hover:border-white group-hover:bg-white/10"
@@ -242,7 +266,7 @@ export default function MinistryProgramsView({
             </div>
             <div className="overflow-y-auto px-5 py-5 sm:px-6 sm:py-6">
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
-                FPTN Network Programs
+                FPTN Ministry Programs
               </p>
               <h2
                 id={titleId}
@@ -254,13 +278,11 @@ export default function MinistryProgramsView({
                 {active.genres_label ||
                   (active.genre
                     ? `${active.genre} · Gospel teaching`
-                    : "Gospel teaching · Network broadcast")}
+                    : "Gospel teaching · Ministry broadcast")}
               </p>
-              {(active.description || active.excerpt) && (
-                <p className="mt-4 text-sm leading-relaxed text-white/55">
-                  {active.description || active.excerpt}
-                </p>
-              )}
+              <p className="mt-4 text-sm leading-relaxed text-white/55">
+                {modalBlurb(active)}
+              </p>
               <div className="mt-5">
                 <p className="text-sm text-white/50">{scheduleDays(active)}</p>
                 <p className="mt-1 font-sans text-3xl font-bold tracking-tight text-white sm:text-4xl">
