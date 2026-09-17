@@ -1,4 +1,6 @@
 import type { Post } from "@/lib/types/cms";
+import { resolveMediaUrl } from "@/lib/media/public-url";
+import { youtubeThumbnailUrl } from "@/lib/media/youtube";
 
 type MediaHints = {
   is_video?: boolean | null;
@@ -6,6 +8,11 @@ type MediaHints = {
   category?: { slug?: string | null; name?: string | null } | null;
   category_id?: string | null;
 };
+
+type CardImagePost = Pick<
+  Post,
+  "featured_image_url" | "og_image_url" | "video_url"
+>;
 
 const VIDEO_CATEGORY_ID = "b1000000-0000-4000-8000-00000000000b";
 
@@ -51,6 +58,23 @@ export function shouldShowFeaturedImageInArticleHero(
 
 /** @deprecated Use shouldShowFeaturedImageInArticleHero — name clarifies scope. */
 export const shouldShowFeaturedImage = shouldShowFeaturedImageInArticleHero;
+
+/**
+ * Thumbnail for PostCard / home / category / popular grids.
+ *
+ * Always prefers a real image URL. Never reads `show_featured_image` —
+ * that switch only moves the player into the single-post hero. When a
+ * video/podcast post has no stored featured image, fall back to the
+ * YouTube thumbnail so grids never show an empty grey box.
+ */
+export function cardFeaturedImageUrl(post: CardImagePost): string | null {
+  return (
+    resolveMediaUrl(post.featured_image_url) ||
+    resolveMediaUrl(post.og_image_url) ||
+    youtubeThumbnailUrl(post.video_url) ||
+    null
+  );
+}
 
 /** Default for a new/edited form when category or flags become media. */
 export function defaultShowFeaturedImage(hints: MediaHints): boolean {

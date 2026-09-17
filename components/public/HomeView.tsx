@@ -16,6 +16,7 @@ import {
   formatViews,
 } from "@/lib/format";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
+import { cardFeaturedImageUrl } from "@/lib/posts/media-layout";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
 function SeeMore({ href, label = "See more" }: { href: string; label?: string }) {
@@ -40,6 +41,9 @@ export default async function HomeView({
   const mainVideo = data.mustWatch[0];
   const sideVideos = data.mustWatch.slice(1, 5);
   const mainExclusive = data.exclusives[0];
+  const mainExclusiveThumb = mainExclusive
+    ? cardFeaturedImageUrl(mainExclusive)
+    : null;
   const exclusiveRows = data.exclusives.slice(1, 5);
   // Second band under First Section: exactly 3 Politics + 3 World (from data.grid).
   // No See more headers; excludes First Section pins/fills in getHomePayload.
@@ -316,8 +320,7 @@ export default async function HomeView({
             {mainVideo ? <PostCard post={mainVideo} variant="video"  timeZone={timeZone} /> : null}
             <div className="flex flex-col divide-y divide-[#ccc] border-t border-[#ccc]">
               {sideVideos.map((post) => {
-                const thumb =
-                  youtubeThumbnailUrl(post.video_url) || post.featured_image_url;
+                const thumb = cardFeaturedImageUrl(post);
                 return (
                   <article key={post.id} className="flex gap-4 py-5">
                     <Link
@@ -431,9 +434,9 @@ export default async function HomeView({
                 href={`/news/${mainExclusive.slug}`}
                 className="relative aspect-[16/10] overflow-hidden rounded-[18px] md:aspect-[775/434] md:rounded-[24px]"
               >
-                {mainExclusive.featured_image_url ? (
+                {mainExclusiveThumb ? (
                   <Image
-                    src={mainExclusive.featured_image_url}
+                    src={mainExclusiveThumb}
                     alt=""
                     fill
                     className="object-cover"
@@ -497,7 +500,9 @@ export default async function HomeView({
 
           <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(280px,370px)] lg:gap-12">
             <div className="divide-y divide-[#ccc] border-t border-[#ccc]">
-              {exclusiveRows.map((post) => (
+              {exclusiveRows.map((post) => {
+                const thumb = cardFeaturedImageUrl(post);
+                return (
                 <article
                   key={post.id}
                   className="grid gap-5 py-7 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:items-center"
@@ -549,9 +554,9 @@ export default async function HomeView({
                     href={`/news/${post.slug}`}
                     className="relative aspect-[556/311] overflow-hidden rounded-[12px] bg-neutral-200"
                   >
-                    {post.featured_image_url ? (
+                    {thumb ? (
                       <Image
-                        src={post.featured_image_url}
+                        src={thumb}
                         alt=""
                         fill
                         className="object-cover"
@@ -568,7 +573,8 @@ export default async function HomeView({
                     </span>
                   </Link>
                 </article>
-              ))}
+                );
+              })}
             </div>
 
             <aside className="min-w-0 lg:sticky lg:top-6">

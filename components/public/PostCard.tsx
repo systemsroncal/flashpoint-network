@@ -4,7 +4,7 @@ import VideoPlayer from "@/components/public/VideoPlayer";
 import type { Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
-import { resolveMediaUrl } from "@/lib/media/public-url";
+import { cardFeaturedImageUrl } from "@/lib/posts/media-layout";
 import { DEFAULT_SITE_TIMEZONE } from "@/lib/timezone/constants";
 
 /** Small home grids / lists (Politics/World, Elections, stack, podcasts, latest). */
@@ -56,10 +56,10 @@ function MetaRow({
 export default function PostCard({ post, variant = "grid", timeZone = DEFAULT_SITE_TIMEZONE }: Props) {
   const href = `/news/${post.slug}`;
   const category = (post.category?.name ?? "News").toUpperCase();
-  // Always use featured_image_url here — show_featured_image is article-hero only.
-  const featured = resolveMediaUrl(post.featured_image_url);
-  const podcastThumb =
-    youtubeThumbnailUrl(post.video_url) || featured;
+  // Grids/cards: never gate on show_featured_image (article-hero only).
+  // Prefer featured/og image; fall back to YouTube thumb when video-as-featured.
+  const featured = cardFeaturedImageUrl(post);
+  const podcastThumb = featured;
 
   if (variant === "list" || variant === "latest") {
     return (

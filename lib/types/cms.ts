@@ -130,8 +130,9 @@ export type Post = {
   is_popular?: boolean;
   /**
    * Article-page hero only. When false, NewsArticleView hides the hero image
-   * and may place the video player there. Home cards / SEO always keep
-   * featured_image_url (and og_image_url).
+   * and may place the video player there. Cards / grids / SEO never hide the
+   * image for this flag — they use featured_image_url, then og_image_url,
+   * then a YouTube thumbnail from video_url.
    */
   show_featured_image?: boolean;
   /**

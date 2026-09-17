@@ -7,6 +7,7 @@ import { getBannerWidgetsBySlots } from "@/lib/data/banners";
 import { getArticleSidebar, getPostBySlug } from "@/lib/data/home";
 import { getSiteName, getSiteUrl } from "@/lib/env";
 import { absoluteMediaUrl } from "@/lib/media/public-url";
+import { youtubeThumbnailUrl } from "@/lib/media/youtube";
 import { getPaywallSettings } from "@/lib/paywall/settings";
 
 export const dynamic = "force-dynamic";
@@ -34,6 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ogImage =
     absoluteMediaUrl(post.og_image_url)?.trim() ||
     absoluteMediaUrl(post.featured_image_url)?.trim() ||
+    youtubeThumbnailUrl(post.video_url) ||
     undefined;
   const url = `${getSiteUrl().replace(/\/$/, "")}/news/${post.slug}`;
 
@@ -96,7 +98,8 @@ export default async function NewsArticlePage({ params }: Props) {
     image: (() => {
       const img =
         absoluteMediaUrl(post.og_image_url) ||
-        absoluteMediaUrl(post.featured_image_url);
+        absoluteMediaUrl(post.featured_image_url) ||
+        youtubeThumbnailUrl(post.video_url);
       return img ? [img] : undefined;
     })(),
     datePublished: post.published_at || undefined,
