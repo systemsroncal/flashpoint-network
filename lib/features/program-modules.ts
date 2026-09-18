@@ -8,10 +8,10 @@ export type ProgramModules = {
   schedule: boolean;
 };
 
-/** Hidden until flipped in Settings (or this default is changed). */
+/** Classic stays off until enabled in Settings; schedule is on by default. */
 export const DEFAULT_PROGRAM_MODULES: ProgramModules = {
   classic: false,
-  schedule: false,
+  schedule: true,
 };
 
 export function isProgramModulesOwnerEmail(email?: string | null): boolean {
