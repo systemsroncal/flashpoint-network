@@ -144,12 +144,24 @@ export default async function SiteFooter({
           <p>
             © {new Date().getFullYear()} {siteName}. All rights reserved.
           </p>
-          <div className="flex gap-5">
-            <Link href="/register" className="hover:text-white">
-              Subscribe
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link href="/terms-and-conditions" className="hover:text-white">
+              Terms &amp; Conditions
             </Link>
-            <Link href="/login" className="hover:text-white">
-              Sign in
+            <Link href="/privacy-policy" className="hover:text-white">
+              Privacy Policy
+            </Link>
+            <Link href="/data-disclaimer" className="hover:text-white">
+              Data Disclaimer
+            </Link>
+            <Link href="/copyright-policy" className="hover:text-white">
+              Copyright Policy
+            </Link>
+            <Link href="/about" className="hover:text-white">
+              About
+            </Link>
+            <Link href="/contact" className="hover:text-white">
+              Contact
             </Link>
           </div>
         </div>
