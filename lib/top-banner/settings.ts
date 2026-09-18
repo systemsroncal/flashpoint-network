@@ -6,6 +6,7 @@ import {
   TOP_HEADER_BANNER_SETTING,
   type TopHeaderBannerSettings,
 } from "@/lib/top-banner/constants";
+import { sanitizeBannerMaxWidth } from "@/lib/top-banner/max-width";
 
 export type { TopHeaderBannerSettings };
 
@@ -14,6 +15,8 @@ const DEFAULTS: TopHeaderBannerSettings = {
   href: "",
   desktopImageUrl: null,
   mobileImageUrl: null,
+  desktopMaxWidth: "900px",
+  mobileMaxWidth: "100%",
   openInNewTab: true,
 };
 
@@ -59,6 +62,14 @@ export async function getTopHeaderBannerSettings(): Promise<TopHeaderBannerSetti
       typeof raw.open_in_new_tab === "boolean"
         ? raw.open_in_new_tab
         : DEFAULTS.openInNewTab,
+    desktopMaxWidth: sanitizeBannerMaxWidth(
+      raw.desktop_max_width,
+      DEFAULTS.desktopMaxWidth,
+    ),
+    mobileMaxWidth: sanitizeBannerMaxWidth(
+      raw.mobile_max_width,
+      DEFAULTS.mobileMaxWidth,
+    ),
   };
 }
 

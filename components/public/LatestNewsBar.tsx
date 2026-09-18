@@ -19,7 +19,6 @@ export default function LatestNewsBar({
     : event?.starts_at
       ? formatTickerTime(event.starts_at, timeZone)
       : formatTickerTime(now, timeZone);
-  const host = (event?.host_name ?? "FPN").trim() || "FPN";
   const headline = event?.title?.trim() || "FlashPoint coverage coming up";
   const external = event?.external_url?.trim() || null;
   const detailHref = event?.slug ? `/events/${event.slug}` : null;
@@ -29,12 +28,11 @@ export default function LatestNewsBar({
       {event?.is_live ? (
         <>
           <span className="font-black tracking-wide">{when}</span>{" "}
-          <span className="font-bold opacity-90">|</span> {host}: {headline}
+          <span className="font-bold opacity-90">|</span> {headline}
         </>
       ) : (
         <>
-          Today {when} <span className="font-bold opacity-90">|</span> {host}:{" "}
-          {headline}
+          Today {when} <span className="font-bold opacity-90">|</span> {headline}
         </>
       )}
     </>

@@ -5,5 +5,9 @@ export type TopHeaderBannerSettings = {
   href: string;
   desktopImageUrl: string | null;
   mobileImageUrl: string | null;
+  /** CSS max-width for the centered banner shell (desktop, ≥768px). */
+  desktopMaxWidth: string;
+  /** CSS max-width for the centered banner shell (mobile, ≤767px). */
+  mobileMaxWidth: string;
   openInNewTab: boolean;
 };

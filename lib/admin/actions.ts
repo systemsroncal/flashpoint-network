@@ -13,6 +13,7 @@ import {
 } from "@/lib/auth/session";
 import { CUSTOM_HTML_SETTING } from "@/lib/custom-html/constants";
 import { TOP_HEADER_BANNER_SETTING } from "@/lib/top-banner/constants";
+import { sanitizeBannerMaxWidth } from "@/lib/top-banner/max-width";
 import {
   PROGRAM_MODULES_SETTING,
   isProgramModulesOwnerEmail,
@@ -660,6 +661,14 @@ export async function saveTopHeaderBannerSettingsAction(formData: FormData) {
     String(formData.get("desktop_image_url") || "").trim() || null;
   const mobileImageUrl =
     String(formData.get("mobile_image_url") || "").trim() || null;
+  const desktopMaxWidth = sanitizeBannerMaxWidth(
+    formData.get("desktop_max_width"),
+    "900px",
+  );
+  const mobileMaxWidth = sanitizeBannerMaxWidth(
+    formData.get("mobile_max_width"),
+    "100%",
+  );
 
   const { error } = await supabase.from("site_settings").upsert({
     key: TOP_HEADER_BANNER_SETTING,
@@ -668,6 +677,8 @@ export async function saveTopHeaderBannerSettingsAction(formData: FormData) {
       href,
       desktop_image_url: desktopImageUrl,
       mobile_image_url: mobileImageUrl,
+      desktop_max_width: desktopMaxWidth,
+      mobile_max_width: mobileMaxWidth,
       open_in_new_tab: openInNewTab,
     },
   });

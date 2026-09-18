@@ -182,6 +182,18 @@ export default function SettingsManager({
                   : ""
               }
             />
+            <TextField
+              name="desktop_max_width"
+              label="Desktop max-width"
+              fullWidth
+              placeholder="900px"
+              helperText="Centers the banner. Examples: 700px, 90vw, 100%"
+              defaultValue={
+                typeof topHeaderBanner.desktop_max_width === "string"
+                  ? topHeaderBanner.desktop_max_width
+                  : "900px"
+              }
+            />
             <ImageUploadField
               name="mobile_image_url"
               label="Mobile banner (≤767px)"
@@ -189,6 +201,18 @@ export default function SettingsManager({
                 typeof topHeaderBanner.mobile_image_url === "string"
                   ? topHeaderBanner.mobile_image_url
                   : ""
+              }
+            />
+            <TextField
+              name="mobile_max_width"
+              label="Mobile max-width"
+              fullWidth
+              placeholder="100%"
+              helperText="Centers the banner on small screens. Examples: 400px, 100vw, 100%"
+              defaultValue={
+                typeof topHeaderBanner.mobile_max_width === "string"
+                  ? topHeaderBanner.mobile_max_width
+                  : "100%"
               }
             />
             <Button type="submit" variant="contained" sx={{ alignSelf: "flex-start" }}>

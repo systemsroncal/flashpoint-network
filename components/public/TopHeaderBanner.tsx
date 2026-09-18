@@ -11,6 +11,79 @@ type Props = {
   settings: TopHeaderBannerSettings;
 };
 
+const IMG_CLASS =
+  "block h-auto w-full max-h-[100px] object-contain object-center sm:max-h-[110px] md:max-h-[130px]";
+
+function BannerPicture({
+  desktop,
+  mobile,
+  imgSrc,
+}: {
+  desktop: string | null;
+  mobile: string | null;
+  imgSrc: string;
+}) {
+  return (
+    <picture className="block w-full">
+      {mobile ? <source media="(max-width: 767px)" srcSet={mobile} /> : null}
+      {desktop ? <source media="(min-width: 768px)" srcSet={desktop} /> : null}
+      {/* eslint-disable-next-line @next/next/no-img-element -- responsive promo pair */}
+      <img src={imgSrc} alt="" className={IMG_CLASS} />
+    </picture>
+  );
+}
+
+function BannerShell({
+  maxWidth,
+  href,
+  openInNewTab,
+  desktop,
+  mobile,
+  imgSrc,
+  onClose,
+}: {
+  maxWidth: string;
+  href: string;
+  openInNewTab: boolean;
+  desktop: string | null;
+  mobile: string | null;
+  imgSrc: string;
+  onClose: () => void;
+}) {
+  const inner = (
+    <BannerPicture desktop={desktop} mobile={mobile} imgSrc={imgSrc} />
+  );
+
+  return (
+    <div
+      className="relative mx-auto w-full bg-[#0a0a0a]"
+      style={{ maxWidth }}
+    >
+      {href ? (
+        <a
+          href={href}
+          className="block w-full"
+          {...(openInNewTab
+            ? { target: "_blank", rel: "noopener noreferrer" }
+            : {})}
+        >
+          {inner}
+        </a>
+      ) : (
+        inner
+      )}
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-lg leading-none text-white backdrop-blur-sm transition hover:bg-black/75"
+        aria-label="Close promotion for 24 hours"
+      >
+        ×
+      </button>
+    </div>
+  );
+}
+
 export default function TopHeaderBanner({ settings }: Props) {
   const [hidden, setHidden] = useState(true);
 
@@ -27,49 +100,40 @@ export default function TopHeaderBanner({ settings }: Props) {
 
   const desktop = settings.desktopImageUrl;
   const mobile = settings.mobileImageUrl;
-  const imgSrc = desktop || mobile;
-  if (!imgSrc) return null;
+  const desktopSrc = desktop || mobile;
+  const mobileSrc = mobile || desktop;
+  if (!desktopSrc && !mobileSrc) return null;
 
   const href = settings.href.trim();
-  const linkProps = href
-    ? {
-        href,
-        ...(settings.openInNewTab
-          ? { target: "_blank" as const, rel: "noopener noreferrer" }
-          : {}),
-      }
-    : null;
-
-  const inner = (
-    <picture className="block w-full">
-      {mobile ? <source media="(max-width: 767px)" srcSet={mobile} /> : null}
-      {desktop ? <source media="(min-width: 768px)" srcSet={desktop} /> : null}
-      {/* eslint-disable-next-line @next/next/no-img-element -- responsive promo pair */}
-      <img
-        src={imgSrc}
-        alt=""
-        className="block h-auto w-full max-h-[140px] object-cover object-center sm:max-h-[160px] md:max-h-[200px]"
-      />
-    </picture>
-  );
 
   return (
-    <div className="relative w-full bg-[#0a0a0a]" role="region" aria-label="Site promotion">
-      {linkProps ? (
-        <a {...linkProps} className="block w-full">
-          {inner}
-        </a>
-      ) : (
-        inner
-      )}
-      <button
-        type="button"
-        onClick={close}
-        className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-lg leading-none text-white backdrop-blur-sm transition hover:bg-black/75"
-        aria-label="Close promotion for 24 hours"
-      >
-        ×
-      </button>
+    <div className="w-full bg-[#0a0a0a]" role="region" aria-label="Site promotion">
+      {mobileSrc ? (
+        <div className="md:hidden">
+          <BannerShell
+            maxWidth={settings.mobileMaxWidth}
+            href={href}
+            openInNewTab={settings.openInNewTab}
+            desktop={desktop}
+            mobile={mobile}
+            imgSrc={mobileSrc}
+            onClose={close}
+          />
+        </div>
+      ) : null}
+      {desktopSrc ? (
+        <div className="hidden md:block">
+          <BannerShell
+            maxWidth={settings.desktopMaxWidth}
+            href={href}
+            openInNewTab={settings.openInNewTab}
+            desktop={desktop}
+            mobile={mobile}
+            imgSrc={desktopSrc}
+            onClose={close}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
