@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import { withPublicAuthAccess } from "@/lib/auth/public-auth-gate";
 
 /**
  * Root error UI — never echo raw Internal Server Error / Invalid URL.
@@ -21,10 +22,12 @@ export default function Error({
   const msg = error?.message || "";
   const isSiteUrl = /Invalid URL|ERR_INVALID_URL/i.test(msg);
   const loginHref = isSiteUrl
-    ? `/login?error=${encodeURIComponent(
-        "Site URL is misconfigured. Use a single origin like https://fptn.com, then rebuild and pm2 restart --update-env.",
-      )}`
-    : "/login";
+    ? withPublicAuthAccess(
+        `/login?error=${encodeURIComponent(
+          "Site URL is misconfigured. Use a single origin like https://fptn.com, then rebuild and pm2 restart --update-env.",
+        )}`,
+      )
+    : withPublicAuthAccess("/login");
 
   return (
     <div className="mx-auto flex min-h-[50vh] max-w-xl flex-col items-center justify-center px-4 py-16 text-center">

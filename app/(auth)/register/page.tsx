@@ -1,10 +1,16 @@
 import Link from "next/link";
 import { signUpAction } from "@/lib/auth/actions";
+import {
+  PUBLIC_AUTH_SECURITY_PARAM,
+  PUBLIC_AUTH_SECURITY_VALUE,
+  requirePublicAuthAccess,
+  withPublicAuthAccess,
+} from "@/lib/auth/public-auth-gate";
 
 export const dynamic = "force-dynamic";
 
 type Props = {
-  searchParams: Promise<{ error?: string; email?: string }>;
+  searchParams: Promise<{ error?: string; email?: string; security?: string }>;
 };
 
 function prefillEmail(raw: string | undefined): string {
@@ -21,6 +27,7 @@ function prefillEmail(raw: string | undefined): string {
 
 export default async function RegisterPage({ searchParams }: Props) {
   const params = await searchParams;
+  requirePublicAuthAccess(params.security);
   const emailPrefill = prefillEmail(params.email);
 
   return (
@@ -39,6 +46,11 @@ export default async function RegisterPage({ searchParams }: Props) {
       ) : null}
 
       <form action={signUpAction} className="mt-6 space-y-4">
+        <input
+          type="hidden"
+          name={PUBLIC_AUTH_SECURITY_PARAM}
+          value={PUBLIC_AUTH_SECURITY_VALUE}
+        />
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block space-y-1.5">
             <span className="text-xs font-bold uppercase tracking-wide text-black/55">
@@ -100,7 +112,7 @@ export default async function RegisterPage({ searchParams }: Props) {
       <p className="mt-6 text-center text-sm text-black/60">
         Already have an account?{" "}
         <Link
-          href="/login"
+          href={withPublicAuthAccess("/login")}
           className="font-semibold text-[var(--fpn-rojo)] hover:underline"
         >
           Sign in

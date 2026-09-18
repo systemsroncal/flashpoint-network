@@ -64,8 +64,8 @@ export default async function HomeView({
             Stories are on the way
           </h1>
           <p className="mx-auto mt-3 max-w-lg text-sm text-black/65">
-            The newsroom hasn&apos;t published coverage yet. Check Events or
-            sign in if you&apos;re on staff.
+            The newsroom hasn&apos;t published coverage yet. Check Events for
+            upcoming programs.
           </p>
           <div className="mt-6 flex justify-center gap-3">
             <Link
@@ -73,12 +73,6 @@ export default async function HomeView({
               className="rounded-md bg-[var(--fpn-rojo)] px-5 py-2.5 text-sm font-bold text-white"
             >
               Browse events
-            </Link>
-            <Link
-              href="/login"
-              className="rounded-md border border-black/15 px-5 py-2.5 text-sm font-bold"
-            >
-              Staff login
             </Link>
           </div>
         </div>
@@ -195,12 +189,6 @@ export default async function HomeView({
                   Subscribe for complete FPTN access
                 </p>
               </div>
-              <Link
-                href="/register"
-                className="inline-flex w-full shrink-0 items-center justify-center rounded-md bg-[var(--fpn-rojo)] px-5 py-2.5 text-[13px] font-black text-white hover:brightness-110 sm:w-auto sm:self-start sm:text-sm md:self-center md:px-7 md:py-3"
-              >
-                Subscribe
-              </Link>
             </div>
           </div>
         </section>

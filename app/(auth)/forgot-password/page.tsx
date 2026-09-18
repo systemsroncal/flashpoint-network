@@ -1,14 +1,21 @@
 import Link from "next/link";
 import { requestPasswordResetAction } from "@/lib/auth/actions";
+import {
+  PUBLIC_AUTH_SECURITY_PARAM,
+  PUBLIC_AUTH_SECURITY_VALUE,
+  requirePublicAuthAccess,
+  withPublicAuthAccess,
+} from "@/lib/auth/public-auth-gate";
 
 export const dynamic = "force-dynamic";
 
 type Props = {
-  searchParams: Promise<{ error?: string; sent?: string }>;
+  searchParams: Promise<{ error?: string; sent?: string; security?: string }>;
 };
 
 export default async function ForgotPasswordPage({ searchParams }: Props) {
   const params = await searchParams;
+  requirePublicAuthAccess(params.security);
 
   return (
     <div className="rounded-2xl border border-white/15 bg-white/95 p-6 text-[#111] shadow-2xl backdrop-blur sm:p-8">
@@ -31,6 +38,11 @@ export default async function ForgotPasswordPage({ searchParams }: Props) {
       ) : null}
 
       <form action={requestPasswordResetAction} className="mt-6 space-y-4">
+        <input
+          type="hidden"
+          name={PUBLIC_AUTH_SECURITY_PARAM}
+          value={PUBLIC_AUTH_SECURITY_VALUE}
+        />
         <label className="block space-y-1.5">
           <span className="text-xs font-bold uppercase tracking-wide text-black/55">
             Email
@@ -53,7 +65,7 @@ export default async function ForgotPasswordPage({ searchParams }: Props) {
 
       <p className="mt-6 text-center text-sm text-black/60">
         <Link
-          href="/login"
+          href={withPublicAuthAccess("/login")}
           className="font-semibold text-[var(--fpn-rojo)] hover:underline"
         >
           Back to sign in

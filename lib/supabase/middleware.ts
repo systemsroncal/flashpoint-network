@@ -1,6 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import {
+  PUBLIC_AUTH_SECURITY_PARAM,
+  PUBLIC_AUTH_SECURITY_VALUE,
+} from "@/lib/auth/public-auth-gate";
+import {
   getSiteUrl,
   getSupabaseUrl,
   normalizeForwardedHost,
@@ -134,7 +138,12 @@ export async function updateSession(request: NextRequest) {
       if (!user) {
         const login = request.nextUrl.clone();
         login.pathname = "/login";
+        login.search = "";
         login.searchParams.set("next", path);
+        login.searchParams.set(
+          PUBLIC_AUTH_SECURITY_PARAM,
+          PUBLIC_AUTH_SECURITY_VALUE,
+        );
         return NextResponse.redirect(login);
       }
 

@@ -1,4 +1,5 @@
 import AdSenseScript from "@/components/public/AdSenseScript";
+import GlobalLivePip from "@/components/public/GlobalLivePip";
 import MaintenanceWithProgramException from "@/components/public/MaintenanceWithProgramException";
 import SiteFooter from "@/components/public/SiteFooter";
 import SiteHeader from "@/components/public/SiteHeader";
@@ -93,6 +94,7 @@ export default async function PublicLayout({
         />
         <main className="w-full max-w-none flex-1">{children}</main>
         <SiteFooter modules={modules} />
+        <GlobalLivePip />
       </div>
       {htmlFooter}
     </TimezoneProvider>

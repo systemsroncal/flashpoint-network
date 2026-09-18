@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { updatePasswordAction } from "@/lib/auth/actions";
+import { withPublicAuthAccess } from "@/lib/auth/public-auth-gate";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,10 @@ export default async function UpdatePasswordPage({ searchParams }: Props) {
       {params.done ? (
         <p className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
           Password updated.{" "}
-          <Link href="/login" className="font-semibold underline">
+          <Link
+            href={withPublicAuthAccess("/login")}
+            className="font-semibold underline"
+          >
             Sign in
           </Link>
         </p>

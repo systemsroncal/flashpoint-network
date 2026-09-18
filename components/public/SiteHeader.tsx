@@ -119,7 +119,7 @@ export default async function SiteHeader({
   ];
 
   return (
-    <div className="relative z-20 w-full max-w-none">
+    <div className="sticky top-0 z-50 w-full max-w-none">
       <DesktopSiteHeader
         siteName={siteName}
         logoSrc={logoSrc}
@@ -132,7 +132,7 @@ export default async function SiteHeader({
       />
 
       {/* Mobile / tablet */}
-      <header className="sticky top-0 z-50 w-full max-w-none bg-[var(--fpn-navy)] text-white xl:hidden">
+      <header className="w-full max-w-none bg-[var(--fpn-navy)] text-white xl:hidden">
         <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--fpn-rojo)]" />
         <div className="relative flex items-center justify-between gap-2 px-2 pb-2.5 pt-3.5 sm:px-3">
           <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2">

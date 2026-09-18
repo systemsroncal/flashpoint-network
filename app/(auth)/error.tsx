@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo } from "react";
+import { withPublicAuthAccess } from "@/lib/auth/public-auth-gate";
 
 export default function AuthError({
   error,
@@ -43,14 +44,18 @@ export default function AuthError({
 
   const loginHref =
     kind === "site-url"
-      ? `/login?error=${encodeURIComponent(
-          "Site URL is misconfigured (app env, PM2, or Supabase Auth → Site URL). Use a single origin like https://fptn.com, then rebuild and pm2 restart --update-env.",
-        )}`
+      ? withPublicAuthAccess(
+          `/login?error=${encodeURIComponent(
+            "Site URL is misconfigured (app env, PM2, or Supabase Auth → Site URL). Use a single origin like https://fptn.com, then rebuild and pm2 restart --update-env.",
+          )}`,
+        )
       : kind === "stale-action"
-        ? `/login?error=${encodeURIComponent(
-            "The app was updated. Please hard-refresh and sign in again.",
-          )}`
-        : "/login";
+        ? withPublicAuthAccess(
+            `/login?error=${encodeURIComponent(
+              "The app was updated. Please hard-refresh and sign in again.",
+            )}`,
+          )
+        : withPublicAuthAccess("/login");
 
   return (
     <div className="rounded-2xl border border-white/15 bg-white/95 p-6 text-[#111] shadow-2xl backdrop-blur sm:p-8">
@@ -79,7 +84,7 @@ export default function AuthError({
           Sign in
         </Link>
         <Link
-          href="/forgot-password"
+          href={withPublicAuthAccess("/forgot-password")}
           className="rounded-lg border border-black/15 px-4 py-3 text-center text-sm font-bold"
         >
           Reset password

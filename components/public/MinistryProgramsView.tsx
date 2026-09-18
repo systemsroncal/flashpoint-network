@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import { useMemo } from "react";
 import LiveTvIcon from "@/components/public/LiveTvIcon";
 import type { MinistryProgram } from "@/lib/types/cms";
 
@@ -36,53 +36,12 @@ function scheduleLines(program: MinistryProgram): string[] {
   return [];
 }
 
-function modalBlurb(program: MinistryProgram): string {
-  const raw = program.description || program.excerpt || "";
-  const trimmed = raw.replace(/\s+/g, " ").trim();
-  if (trimmed.length > 20 && !/^smiling man|^portrait of|^black and white/i.test(trimmed)) {
-    return trimmed;
-  }
-  if (program.schedule_note) {
-    return `${program.title} airs ${program.schedule_note.replace(/\.$/, "")} on FlashPoint Television Network.`;
-  }
-  return `${program.title} on FlashPoint Television Network.`;
-}
-
-function CloseIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden className={className} width="18" height="18">
-      <path
-        d="M7 7l10 10M17 7L7 17"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function ExternalArrow({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden className={className} width="16" height="16">
-      <path
-        d="M7 17L17 7M10 7h7v7"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 function ProgramCard({
   program,
   index,
-  onInfo,
 }: {
   program: MinistryProgram;
   index: number;
-  onInfo: () => void;
 }) {
   const lines = scheduleLines(program);
   return (
@@ -90,14 +49,14 @@ function ProgramCard({
       className="min-w-0 animate-[fpnFadeUp_0.55s_ease-out_both]"
       style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
     >
-      <button type="button" onClick={onInfo} className="group w-full cursor-pointer text-left">
+      <article className="w-full text-left">
         <div className="relative aspect-square w-full overflow-hidden rounded-[6px] bg-[#19191c]">
           {program.featured_image_url ? (
             <Image
               src={program.featured_image_url}
               alt=""
               fill
-              className="object-cover transition duration-500 group-hover:scale-[1.02]"
+              className="object-cover"
               sizes="(max-width:640px) 100vw, (max-width:1280px) 33vw, 18vw"
             />
           ) : (
@@ -105,12 +64,6 @@ function ProgramCard({
               FPTN
             </span>
           )}
-          <span
-            className="absolute bottom-3 right-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/60 bg-[rgba(16,16,17,0.79)] font-serif text-lg italic leading-none text-[#faf9f6]"
-            aria-hidden
-          >
-            i
-          </span>
         </div>
         <h2 className="mt-3.5 font-sans text-[17px] font-bold leading-snug text-[#faf9f6]">
           {program.title}
@@ -127,7 +80,7 @@ function ProgramCard({
             ))}
           </ul>
         ) : null}
-      </button>
+      </article>
     </li>
   );
 }
@@ -138,10 +91,6 @@ export default function MinistryProgramsView({
   programs: MinistryProgram[];
   siteName?: string;
 }) {
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const titleId = useId();
-  const active = programs.find((p) => p.id === activeId) ?? null;
-
   const gridPrograms = useMemo(
     () => [...programs].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)),
     [programs],
@@ -150,24 +99,6 @@ export default function MinistryProgramsView({
     () => gridPrograms.findIndex((p) => (p.sort_order ?? 0) >= BOTTOM_ROW_SORT_FROM),
     [gridPrograms],
   );
-
-  const close = useCallback(() => setActiveId(null), []);
-
-  useEffect(() => {
-    if (!active) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-    };
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [active, close]);
-
-  const activeLines = active ? scheduleLines(active) : [];
 
   return (
     <div className="min-h-full bg-[#101011] text-white">
@@ -259,7 +190,6 @@ export default function MinistryProgramsView({
                   key={program.id}
                   program={program}
                   index={index}
-                  onInfo={() => setActiveId(program.id)}
                 />,
               ];
             })}
@@ -320,73 +250,6 @@ export default function MinistryProgramsView({
           </Link>
         </div>
       </section>
-
-      {active ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={titleId}
-        >
-          <button
-            type="button"
-            className="absolute inset-0 bg-black/70 backdrop-blur-[3px]"
-            aria-label="Close dialog"
-            onClick={close}
-          />
-          <div className="relative z-10 flex max-h-[min(92vh,860px)] w-full max-w-[440px] flex-col overflow-hidden rounded-2xl bg-[#121212] shadow-[0_24px_80px_rgba(0,0,0,0.55)] animate-[fpnFadeUp_0.35s_ease-out]">
-            <div className="relative aspect-square shrink-0 bg-[#1a1a1a]">
-              {active.featured_image_url ? (
-                <Image
-                  src={active.featured_image_url}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="440px"
-                  priority
-                />
-              ) : null}
-              <button
-                type="button"
-                onClick={close}
-                className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/70 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/45"
-                aria-label="Close"
-              >
-                <CloseIcon />
-              </button>
-            </div>
-            <div className="overflow-y-auto px-5 py-5 sm:px-6 sm:py-6">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
-                FPTN Shows
-              </p>
-              <h2
-                id={titleId}
-                className="mt-2 font-sans text-2xl font-bold leading-tight tracking-tight text-white sm:text-[1.75rem]"
-              >
-                {active.title}
-              </h2>
-              {active.host_name ? (
-                <p className="mt-2 text-sm text-[#ccc3b8]">{active.host_name}</p>
-              ) : null}
-              <p className="mt-4 text-sm leading-relaxed text-white/55">{modalBlurb(active)}</p>
-              {activeLines.length > 0 ? (
-                <ul className="mt-5 space-y-1 border-t border-white/10 pt-5">
-                  {activeLines.map((line) => (
-                    <li key={line} className="text-sm text-[#d2cfd0]">{line}</li>
-                  ))}
-                </ul>
-              ) : null}
-              <Link
-                href="/schedule-programs"
-                className="mt-7 inline-flex items-center gap-2 rounded-md bg-[var(--fpn-rojo)] px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110"
-              >
-                View network schedule
-                <ExternalArrow />
-              </Link>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }

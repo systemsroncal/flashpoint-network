@@ -7,6 +7,12 @@ import { compileEmailPreviewHtml, replaceEmailShortcodes } from "@/lib/email/pre
 import { sendEmail } from "@/lib/email";
 import { getSiteName, getSiteUrl, scrubSiteUrlEnv } from "@/lib/env";
 import { safeNext } from "@/lib/auth/safe-next";
+import {
+  isPublicAuthUnlocked,
+  PUBLIC_AUTH_SECURITY_PARAM,
+  PUBLIC_AUTH_SECURITY_VALUE,
+  withPublicAuthAccess,
+} from "@/lib/auth/public-auth-gate";
 
 function rethrowRedirect(error: unknown) {
   if (
@@ -45,6 +51,7 @@ function friendlyAuthMessage(error: unknown, fallback: string): string {
 function fail(path: string, message: string, extra?: string): never {
   const qs = new URLSearchParams({ error: message });
   if (extra) qs.set("next", extra);
+  qs.set(PUBLIC_AUTH_SECURITY_PARAM, PUBLIC_AUTH_SECURITY_VALUE);
   redirect(`${path}?${qs.toString()}`);
 }
 
@@ -52,6 +59,11 @@ export async function signInAction(formData: FormData) {
   const next = safeNext(String(formData.get("next") || "/"));
   try {
     scrubSiteUrlEnv();
+    if (
+      !isPublicAuthUnlocked(String(formData.get(PUBLIC_AUTH_SECURITY_PARAM) || ""))
+    ) {
+      redirect("/");
+    }
     const email = String(formData.get("email") || "").trim();
     const password = String(formData.get("password") || "");
     // Touch site URL early so a bad env fails inside this try, not later.
@@ -92,10 +104,16 @@ export async function signUpAction(formData: FormData) {
   function failRegister(message: string): never {
     const qs = new URLSearchParams({ error: message });
     if (email) qs.set("email", email);
+    qs.set(PUBLIC_AUTH_SECURITY_PARAM, PUBLIC_AUTH_SECURITY_VALUE);
     redirect(`/register?${qs.toString()}`);
   }
   try {
     scrubSiteUrlEnv();
+    if (
+      !isPublicAuthUnlocked(String(formData.get(PUBLIC_AUTH_SECURITY_PARAM) || ""))
+    ) {
+      redirect("/");
+    }
     const password = String(formData.get("password") || "");
     const firstName = String(formData.get("first_name") || "").trim();
     const lastName = String(formData.get("last_name") || "").trim();
@@ -124,7 +142,7 @@ export async function signUpAction(formData: FormData) {
         CURRENT_USER_NAME: firstName || "Reader",
       }).catch(() => undefined);
     }
-    redirect("/login?registered=1");
+    redirect(withPublicAuthAccess("/login?registered=1"));
   } catch (error) {
     rethrowRedirect(error);
     console.error("[auth] signUpAction", error);
@@ -145,6 +163,11 @@ export async function signOutAction() {
 export async function requestPasswordResetAction(formData: FormData) {
   try {
     scrubSiteUrlEnv();
+    if (
+      !isPublicAuthUnlocked(String(formData.get(PUBLIC_AUTH_SECURITY_PARAM) || ""))
+    ) {
+      redirect("/");
+    }
     const email = String(formData.get("email") || "").trim();
     const supabase = await createClient();
     if (!supabase) fail("/forgot-password", AUTH_UNAVAILABLE);
@@ -159,7 +182,7 @@ export async function requestPasswordResetAction(formData: FormData) {
       CURRENT_USER_NAME: email.split("@")[0] || "there",
       RESET_LINK: redirectTo,
     }).catch(() => undefined);
-    redirect("/forgot-password?sent=1");
+    redirect(withPublicAuthAccess("/forgot-password?sent=1"));
   } catch (error) {
     rethrowRedirect(error);
     console.error("[auth] requestPasswordResetAction", error);

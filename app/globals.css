@@ -432,6 +432,25 @@ button.fpn-live-cta {
   animation: fpn-live-pip-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+@media (min-width: 768px) {
+  .fpn-live-pip-wrap {
+    right: 20px;
+    bottom: max(20px, env(safe-area-inset-bottom));
+  }
+
+  .fpn-live-pip-video {
+    width: 148px;
+  }
+
+  .fpn-live-pip-title {
+    font-size: 14px;
+  }
+
+  .fpn-live-pip-action {
+    font-size: 14px;
+  }
+}
+
 @keyframes fpn-live-pip-in {
   from {
     opacity: 0;

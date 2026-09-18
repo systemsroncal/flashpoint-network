@@ -2,6 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import {
+  PUBLIC_AUTH_SECURITY_PARAM,
+  PUBLIC_AUTH_SECURITY_VALUE,
+  withPublicAuthAccess,
+} from "@/lib/auth/public-auth-gate";
 
 type Props = {
   next: string;
@@ -49,6 +54,11 @@ export default function LoginForm({ next, initialError, registered }: Props) {
         }}
       >
         <input type="hidden" name="next" value={next} />
+        <input
+          type="hidden"
+          name={PUBLIC_AUTH_SECURITY_PARAM}
+          value={PUBLIC_AUTH_SECURITY_VALUE}
+        />
         <label className="block space-y-1.5">
           <span className="text-xs font-bold uppercase tracking-wide text-black/55">
             Email
@@ -75,7 +85,7 @@ export default function LoginForm({ next, initialError, registered }: Props) {
         </label>
         <div className="flex justify-end">
           <Link
-            href="/forgot-password"
+            href={withPublicAuthAccess("/forgot-password")}
             className="text-sm font-semibold text-[var(--fpn-rojo)] hover:underline"
           >
             Forgot password?
@@ -93,7 +103,7 @@ export default function LoginForm({ next, initialError, registered }: Props) {
       <p className="mt-6 text-center text-sm text-black/60">
         New here?{" "}
         <Link
-          href="/register"
+          href={withPublicAuthAccess("/register")}
           className="font-semibold text-[var(--fpn-rojo)] hover:underline"
         >
           Create an account

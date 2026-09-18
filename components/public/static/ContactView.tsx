@@ -162,12 +162,6 @@ export default function ContactView() {
               Find out the rest of this story, and the scoops and exclusive
               information.
             </p>
-            <Link
-              href="/register"
-              className="flex min-h-[58px] w-full max-w-[419px] items-center justify-center rounded-lg bg-white px-3 py-2 text-center text-[17px] font-bold text-black hover:bg-white/95"
-            >
-              Create your FPTN All Access account for Free
-            </Link>
             <div className="relative mx-auto w-full max-w-[323px]">
               <Image
                 src={CONTACT_APP_MOCKUP}

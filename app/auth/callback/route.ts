@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteUrl, scrubSiteUrlEnv } from "@/lib/env";
 import { safeNext } from "@/lib/auth/safe-next";
+import { withPublicAuthAccess } from "@/lib/auth/public-auth-gate";
 
 export async function GET(request: NextRequest) {
   scrubSiteUrlEnv();
@@ -26,6 +27,8 @@ export async function GET(request: NextRequest) {
   }
 
   return NextResponse.redirect(
-    `${origin}/login?error=${encodeURIComponent("Could not confirm email link")}`,
+    `${origin}${withPublicAuthAccess(
+      `/login?error=${encodeURIComponent("Could not confirm email link")}`,
+    )}`,
   );
 }

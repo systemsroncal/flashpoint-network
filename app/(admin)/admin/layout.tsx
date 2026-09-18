@@ -3,6 +3,7 @@ import AdminShell from "@/components/admin/AdminShell";
 import AdminThemeProvider from "@/components/admin/AdminThemeProvider";
 import { TimezoneProvider } from "@/components/timezone/TimezoneProvider";
 import { requireStaffProfile } from "@/lib/auth/session";
+import { withPublicAuthAccess } from "@/lib/auth/public-auth-gate";
 import { getProgramModules } from "@/lib/features/program-modules-server";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
@@ -17,7 +18,7 @@ export default async function AdminLayout({
     getSiteTimezone(),
   ]);
   if (!profile) {
-    redirect("/login?next=/admin");
+    redirect(withPublicAuthAccess("/login?next=/admin"));
   }
 
   return (

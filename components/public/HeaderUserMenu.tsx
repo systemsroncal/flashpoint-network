@@ -13,11 +13,10 @@ export type HeaderUser = {
 export default function HeaderUserMenu({
   user,
   tone = "light",
-  iconSize = 22,
 }: {
   user: HeaderUser | null;
   tone?: "light" | "dark";
-  /** Sign-in user glyph size in px (mobile header). */
+  /** Sign-in user glyph size in px (mobile header). Kept for API compat. */
   iconSize?: number;
 }) {
   const [open, setOpen] = useState(false);
@@ -42,16 +41,9 @@ export default function HeaderUserMenu({
   const iconClass =
     tone === "dark" ? "text-black" : "text-white";
 
+  // Public sign-in entry is hidden while email delivery is unstable.
   if (!user) {
-    return (
-      <Link
-        href="/login"
-        aria-label="Sign in"
-        className={`inline-flex h-9 w-9 items-center justify-center hover:opacity-80 ${iconClass}`}
-      >
-        <UserIcon size={iconSize} />
-      </Link>
-    );
+    return null;
   }
 
   const initial =
@@ -101,27 +93,5 @@ export default function HeaderUserMenu({
         </div>
       ) : null}
     </div>
-  );
-}
-
-function UserIcon({ size = 22 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden
-      className="shrink-0"
-      style={{ width: size, height: size }}
-    >
-      <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.75" />
-      <path
-        d="M5 20c1.5-3.5 4.2-5 7-5s5.5 1.5 7 5"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-    </svg>
   );
 }

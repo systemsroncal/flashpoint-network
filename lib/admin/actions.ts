@@ -936,54 +936,81 @@ export async function upsertMinistryProgramAction(formData: FormData) {
   const id = String(formData.get("id") || "");
   const title = String(formData.get("title") || "").trim();
   if (!title) throw new Error("Title is required");
-  let slug = slugify(String(formData.get("slug") || "").trim() || title) || "program";
   const status = (String(formData.get("status") || "published") ||
     "published") as "draft" | "published" | "archived";
   const sortOrder = Number(formData.get("sort_order") || 0);
 
-  const payload = {
+  const fields = {
     title,
-    slug,
-    excerpt: String(formData.get("excerpt") || "").trim() || null,
-    description: String(formData.get("description") || "").trim() || null,
-    body: String(formData.get("body") || "").trim() || null,
     featured_image_url:
       String(formData.get("featured_image_url") || "").trim() || null,
-    external_url: null,
-    schedule_note: String(formData.get("schedule_note") || "").trim() || null,
-    genre: String(formData.get("genre") || "").trim() || null,
-    genres_label: String(formData.get("genres_label") || "").trim() || null,
-    schedule_line: String(formData.get("schedule_line") || "").trim() || null,
     host_name: String(formData.get("host_name") || "").trim() || null,
     schedule_detail: String(formData.get("schedule_detail") || "").trim() || null,
     sort_order: Number.isFinite(sortOrder) ? sortOrder : 0,
     status,
-    source_url: null,
   };
 
   if (id) {
+    const { data: existing, error: existingError } = await supabase
+      .from("ministry_programs")
+      .select("slug")
+      .eq("id", id)
+      .maybeSingle();
+    if (existingError) throw new Error(existingError.message);
+    const slug = (existing?.slug as string | undefined) || `np-${crypto.randomUUID().slice(0, 12)}`;
+
     const { error } = await supabase
       .from("ministry_programs")
-      .update(payload)
+      .update(fields)
       .eq("id", id);
     if (error) throw new Error(error.message);
-  } else {
-    const { data, error } = await supabase
-      .from("ministry_programs")
-      .insert(payload)
-      .select("id")
-      .single();
-    if (error) throw new Error(error.message);
+
     revalidatePath("/network-programs");
+    revalidatePath(`/network-programs/${slug}`);
     revalidatePath("/admin/network-programs");
-    redirect(`/admin/network-programs/${data.id}`);
+    revalidatePath(`/admin/network-programs/${id}`);
+    redirect(`/admin/network-programs/${id}`);
   }
 
+  const slug = await uniqueMinistryProgramSlug(supabase);
+  const { data, error } = await supabase
+    .from("ministry_programs")
+    .insert({
+      ...fields,
+      slug,
+      excerpt: null,
+      description: null,
+      body: null,
+      external_url: null,
+      schedule_note: null,
+      genre: null,
+      genres_label: null,
+      schedule_line: null,
+      source_url: null,
+    })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+
   revalidatePath("/network-programs");
-  revalidatePath(`/network-programs/${slug}`);
   revalidatePath("/admin/network-programs");
-  revalidatePath(`/admin/network-programs/${id}`);
-  redirect(`/admin/network-programs/${id}`);
+  redirect(`/admin/network-programs/${data.id}`);
+}
+
+async function uniqueMinistryProgramSlug(
+  supabase: NonNullable<ReturnType<typeof createAdminClient>>,
+): Promise<string> {
+  for (let attempt = 0; attempt < 12; attempt++) {
+    const slug = `np-${crypto.randomUUID().replace(/-/g, "").slice(0, 12)}`;
+    const { data, error } = await supabase
+      .from("ministry_programs")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!data) return slug;
+  }
+  return `np-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export async function deleteMinistryProgramAction(formData: FormData) {

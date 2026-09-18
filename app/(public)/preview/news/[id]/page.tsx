@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import NewsArticleView from "@/components/public/NewsArticleView";
 import { requireStaffProfile } from "@/lib/auth/session";
+import { withPublicAuthAccess } from "@/lib/auth/public-auth-gate";
 import { getAdminPost } from "@/lib/admin/queries";
 import { getBannerWidgetsBySlots } from "@/lib/data/banners";
 import { getArticleSidebar } from "@/lib/data/home";
@@ -28,7 +29,11 @@ export default async function NewsPreviewPage({ params }: Props) {
   const profile = await requireStaffProfile();
   if (!profile) {
     const { id } = await params;
-    redirect(`/login?next=${encodeURIComponent(`/preview/news/${id}`)}`);
+    redirect(
+      withPublicAuthAccess(
+        `/login?next=${encodeURIComponent(`/preview/news/${id}`)}`,
+      ),
+    );
   }
 
   const { id } = await params;

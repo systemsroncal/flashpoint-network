@@ -161,7 +161,7 @@ export default function DesktopSiteHeader({
   ];
 
   return (
-    <header className="sticky top-0 z-50 hidden w-full xl:block">
+    <header className="hidden w-full xl:block">
       <div className="relative bg-[var(--fpn-navy)] text-white">
         <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-[var(--fpn-rojo)]" />
 

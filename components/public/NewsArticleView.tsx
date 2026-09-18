@@ -195,12 +195,6 @@ export default async function NewsArticleView({
                 Share the FPTN with someone special.
               </p>
             </div>
-            <Link
-              href="/register"
-              className="ml-auto hidden rounded-md bg-[var(--fpn-rojo)] px-4 py-2 text-sm font-bold text-white sm:inline-flex"
-            >
-              Gift now
-            </Link>
           </div>
 
           {/* Prev / Next */}
@@ -245,12 +239,9 @@ export default async function NewsArticleView({
             <p className="mt-2 text-sm text-black/65">
               Only FPTN all-access subscribers can comment.
             </p>
-            <Link
-              href="/register"
-              className="mt-4 inline-flex rounded-md bg-[var(--fpn-rojo)] px-5 py-3 text-sm font-bold text-white hover:brightness-110"
-            >
-              Unlock FPTN All-Access to join the conversation
-            </Link>
+            <p className="mt-4 text-sm text-black/55">
+              Account signup is temporarily paused. Check back soon.
+            </p>
           </div>
         </div>
 

@@ -1,30 +1,31 @@
-const STORAGE_KEY = "fpn-live-pip-dismissed-until";
-const TWENTY_FOUR_H_MS = 24 * 60 * 60 * 1000;
+const STORAGE_KEY = "fpn-live-pip-dismissed";
 
+/** True after the user closes the floating live PiP (this browser tab/session). */
 export function isLivePipDismissed(): boolean {
   if (typeof window === "undefined") return false;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return false;
-    const until = Number.parseInt(raw, 10);
-    if (!Number.isFinite(until)) return false;
-    if (Date.now() >= until) {
-      localStorage.removeItem(STORAGE_KEY);
-      return false;
-    }
-    return true;
+    return sessionStorage.getItem(STORAGE_KEY) === "1";
   } catch {
     return false;
   }
 }
 
-export function dismissLivePipFor24Hours(): void {
+export function dismissLivePip(): void {
   try {
-    localStorage.setItem(
-      STORAGE_KEY,
-      String(Date.now() + TWENTY_FOUR_H_MS),
-    );
+    sessionStorage.setItem(STORAGE_KEY, "1");
   } catch {
     /* private mode / blocked storage */
   }
 }
+
+/** Re-enable sitewide PiP after the user scrolls past the live hero on / or /live. */
+export function clearLivePipDismiss(): void {
+  try {
+    sessionStorage.removeItem(STORAGE_KEY);
+  } catch {
+    /* private mode / blocked storage */
+  }
+}
+
+/** Marker for the main live player on home + /live (observed by GlobalLivePip). */
+export const LIVE_HERO_ATTR = "data-live-hero";

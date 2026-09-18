@@ -63,12 +63,6 @@ export default async function SiteFooter({
           <p className="font-article text-xl font-black tracking-tight md:text-2xl">
             {tagline}
           </p>
-          <Link
-            href="/register"
-            className="inline-flex rounded-md bg-[var(--fpn-rojo)] px-5 py-2.5 text-[12px] font-bold uppercase tracking-wide text-white"
-          >
-            Subscribe Today
-          </Link>
         </div>
 
         <div className="grid gap-10 md:grid-cols-[1.1fr_2fr]">

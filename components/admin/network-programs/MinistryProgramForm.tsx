@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
 import ImageUploadField from "@/components/admin/shared/ImageUploadField";
-import RichTextEditor from "@/components/admin/shared/RichTextEditor";
 import {
   deleteMinistryProgramAction,
   upsertMinistryProgramAction,
@@ -26,170 +25,135 @@ export default function MinistryProgramForm({
   program?: MinistryProgram | null;
 }) {
   const isEdit = Boolean(program?.id);
+  const formId = "network-program-form";
 
   return (
-    <DashboardCard
-      title={isEdit ? "Edit program" : "New network program"}
-      subtitle="Shown on the public Network Programs grid when published"
-      action={
-        isEdit && program?.slug ? (
-          <Button
-            component={Link}
-            href={`/network-programs/${program.slug}`}
-            target="_blank"
-            rel="noopener noreferrer"
+    <>
+      <DashboardCard
+        title={isEdit ? "Edit program" : "New network program"}
+        subtitle="Fields match the public FPTN Shows grid card"
+      >
+        <Box
+          id={formId}
+          component="form"
+          action={upsertMinistryProgramAction}
+          sx={{ pb: 10 }}
+        >
+          {program?.id ? (
+            <input type="hidden" name="id" value={program.id} />
+          ) : null}
+          <Stack spacing={2.5}>
+            <TextField
+              name="title"
+              label="Title"
+              required
+              fullWidth
+              defaultValue={program?.title ?? ""}
+            />
+            <TextField
+              name="host_name"
+              label="Host name"
+              fullWidth
+              placeholder="Jeff Seker"
+              helperText="Shown under the title on the grid"
+              defaultValue={program?.host_name ?? ""}
+            />
+            <TextField
+              name="schedule_detail"
+              label="Schedule"
+              fullWidth
+              multiline
+              minRows={3}
+              placeholder={"Monday – 9:00 AM ET\nTuesday – 12:00 PM ET"}
+              helperText="One air time per line on the public grid"
+              defaultValue={program?.schedule_detail ?? ""}
+            />
+            <ImageUploadField
+              name="featured_image_url"
+              label="Image"
+              defaultValue={program?.featured_image_url ?? ""}
+            />
+            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+              <TextField
+                select
+                name="status"
+                label="Status"
+                fullWidth
+                defaultValue={program?.status ?? "published"}
+              >
+                {STATUSES.map((s) => (
+                  <MenuItem key={s} value={s}>
+                    {s}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                name="sort_order"
+                label="Sort order"
+                type="number"
+                fullWidth
+                helperText="Lower numbers appear first in manual mode"
+                defaultValue={program?.sort_order ?? 0}
+              />
+            </Stack>
+          </Stack>
+        </Box>
+
+        {isEdit && program?.id ? (
+          <Box
+            component="form"
+            action={deleteMinistryProgramAction}
+            sx={{ mt: 4, pt: 3, borderTop: "1px solid", borderColor: "divider" }}
           >
-            Open public page
-          </Button>
-        ) : null
-      }
-    >
-      <Box component="form" action={upsertMinistryProgramAction}>
-        {program?.id ? <input type="hidden" name="id" value={program.id} /> : null}
-        <Stack spacing={2.5}>
-          <TextField
-            name="title"
-            label="Title"
-            required
-            fullWidth
-            defaultValue={program?.title ?? ""}
-          />
-          <TextField
-            name="slug"
-            label="Slug"
-            fullWidth
-            helperText="Used in /network-programs/[slug]"
-            defaultValue={program?.slug ?? ""}
-          />
-          <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-            <TextField
-              select
-              name="status"
-              label="Status"
-              fullWidth
-              defaultValue={program?.status ?? "published"}
-            >
-              {STATUSES.map((s) => (
-                <MenuItem key={s} value={s}>
-                  {s}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              name="sort_order"
-              label="Sort order"
-              type="number"
-              fullWidth
-              helperText="Lower numbers appear first in manual mode"
-              defaultValue={program?.sort_order ?? 0}
-            />
-          </Stack>
-          <TextField
-            name="schedule_note"
-            label="Schedule note (full)"
-            fullWidth
-            placeholder="Monday through Friday at 2:30PM (ET)"
-            helperText="Used in the detail modal days line when present"
-            defaultValue={program?.schedule_note ?? ""}
-          />
-          <TextField
-            name="schedule_line"
-            label="Schedule line (card)"
-            fullWidth
-            placeholder="Mon–Fri · 2:30 PM ET"
-            helperText="Fallback compact line when schedule detail is empty"
-            defaultValue={program?.schedule_line ?? ""}
-          />
-          <TextField
-            name="host_name"
-            label="Host name"
-            fullWidth
-            placeholder="Jeff Seker"
-            helperText="Shown under the title on the FPTN Shows grid"
-            defaultValue={program?.host_name ?? ""}
-          />
-          <TextField
-            name="schedule_detail"
-            label="Schedule detail (grid)"
-            fullWidth
-            multiline
-            minRows={3}
-            placeholder={'Monday – 9:00 AM ET\nTuesday – 12:00 PM ET'}
-            helperText="One air time per line on the public grid"
-            defaultValue={program?.schedule_detail ?? ""}
-          />
-          <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-            <TextField
-              name="genre"
-              label="Genre badge"
-              fullWidth
-              placeholder="Teaching"
-              helperText="Short badge on the card image"
-              defaultValue={program?.genre ?? ""}
-            />
-            <TextField
-              name="genres_label"
-              label="Genres label (modal)"
-              fullWidth
-              placeholder="Teaching · Gospel broadcast"
-              helperText="Shown under the title in the detail modal"
-              defaultValue={program?.genres_label ?? ""}
-            />
-          </Stack>
-          <TextField
-            name="excerpt"
-            label="Excerpt"
-            fullWidth
-            multiline
-            minRows={2}
-            defaultValue={program?.excerpt ?? ""}
-          />
-          <TextField
-            name="description"
-            label="Short description"
-            fullWidth
-            multiline
-            minRows={2}
-            defaultValue={program?.description ?? ""}
-          />
-          <ImageUploadField
-            name="featured_image_url"
-            label="Featured image"
-            defaultValue={program?.featured_image_url ?? ""}
-          />
-          <RichTextEditor
-            name="body"
-            label="Body (optional)"
-            placeholder="Longer program notes…"
-            minHeight={200}
-            initialHtml={program?.body ?? ""}
-          />
-          <Stack direction="row" spacing={1.5}>
-            <Button type="submit" variant="contained">
-              {isEdit ? "Save changes" : "Create program"}
+            <input type="hidden" name="id" value={program.id} />
+            <Typography variant="subtitle2" color="error" mb={1}>
+              Danger zone
+            </Typography>
+            <Button type="submit" color="error" variant="outlined">
+              Delete program
             </Button>
+          </Box>
+        ) : null}
+      </DashboardCard>
+
+      <Box
+        sx={{
+          position: "fixed",
+          left: { xs: 0, lg: 270 },
+          right: 0,
+          bottom: 0,
+          zIndex: (theme) => theme.zIndex.appBar,
+          bgcolor: "background.paper",
+          borderTop: "1px solid",
+          borderColor: "divider",
+          boxShadow: "0 -4px 24px rgba(15, 23, 42, 0.08)",
+          px: { xs: 2, md: 3 },
+          py: 1.5,
+        }}
+      >
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={1.25}
+          alignItems={{ sm: "center" }}
+          justifyContent="space-between"
+          maxWidth={1200}
+          mx="auto"
+        >
+          <Typography variant="body2" color="text.secondary">
+            {isEdit
+              ? "Changes appear on /network-programs when published."
+              : "Create a card for the public FPTN Shows grid."}
+          </Typography>
+          <Stack direction="row" spacing={1.25} flexWrap="wrap" useFlexGap>
             <Button component={Link} href="/admin/network-programs" variant="outlined">
               Cancel
+            </Button>
+            <Button type="submit" form={formId} variant="contained">
+              {isEdit ? "Save changes" : "Create program"}
             </Button>
           </Stack>
         </Stack>
       </Box>
-
-      {isEdit && program?.id ? (
-        <Box
-          component="form"
-          action={deleteMinistryProgramAction}
-          sx={{ mt: 4, pt: 3, borderTop: "1px solid", borderColor: "divider" }}
-        >
-          <input type="hidden" name="id" value={program.id} />
-          <Typography variant="subtitle2" color="error" mb={1}>
-            Danger zone
-          </Typography>
-          <Button type="submit" color="error" variant="outlined">
-            Delete program
-          </Button>
-        </Box>
-      ) : null}
-    </DashboardCard>
+    </>
   );
 }

@@ -15,11 +15,13 @@ export default function LivePage() {
     <article className="bg-[#070b14] text-white">
       <div className="mx-auto flex max-w-[1100px] flex-col gap-6 px-4 py-8 md:gap-8 md:px-8 md:py-12">
         <LiveHeroCopy />
-        <BrightcoveLivePlayer
-          title={LIVE_HEADLINE}
-          autoplay
-          className="overflow-hidden rounded-[15px]"
-        />
+        <div data-live-hero="">
+          <BrightcoveLivePlayer
+            title={LIVE_HEADLINE}
+            autoplay
+            className="overflow-hidden rounded-[15px]"
+          />
+        </div>
       </div>
     </article>
   );

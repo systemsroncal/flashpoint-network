@@ -207,12 +207,6 @@ export default async function CategoryView({
                   Subscribe for complete FPTN access.
                 </p>
               </div>
-              <Link
-                href="/register"
-                className="inline-flex rounded-full bg-[var(--fpn-rojo)] px-7 py-3 text-sm font-bold text-white hover:brightness-110"
-              >
-                Subscribe
-              </Link>
             </section>
 
             {list.length > 0 ? (

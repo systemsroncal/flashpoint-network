@@ -3,6 +3,11 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { safeNext } from "@/lib/auth/safe-next";
 import { getSiteUrl, scrubSiteUrlEnv } from "@/lib/env";
+import {
+  isPublicAuthUnlocked,
+  PUBLIC_AUTH_SECURITY_PARAM,
+  PUBLIC_AUTH_SECURITY_VALUE,
+} from "@/lib/auth/public-auth-gate";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +23,12 @@ export async function POST(request: NextRequest) {
     form = await request.formData();
   } catch (err) {
     console.error("[api/auth/login] formData", err);
-    return redirectLogin("Could not read sign-in form.");
+    return NextResponse.redirect(absolute("/"), 303);
+  }
+
+  const security = String(form.get(PUBLIC_AUTH_SECURITY_PARAM) || "");
+  if (!isPublicAuthUnlocked(security)) {
+    return NextResponse.redirect(absolute("/"), 303);
   }
 
   const email = String(
@@ -91,5 +101,6 @@ function absolute(path: string): string {
 function redirectLogin(message: string, next?: string) {
   const qs = new URLSearchParams({ error: message });
   if (next && next !== "/") qs.set("next", next);
+  qs.set(PUBLIC_AUTH_SECURITY_PARAM, PUBLIC_AUTH_SECURITY_VALUE);
   return NextResponse.redirect(absolute(`/login?${qs.toString()}`), 303);
 }
