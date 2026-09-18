@@ -162,9 +162,9 @@ export default function MobileNav({
             className="mx-auto w-full max-w-[1440px] flex-1 overflow-y-auto px-4 pb-10 md:px-8"
             aria-label="Mobile"
           >
-            <ul className="border-t border-white/20">
+            <ul>
               {primaryLinks.map((link) => (
-                <li key={link.href} className="border-b border-white/15">
+                <li key={link.href}>
                   <Link
                     href={link.href}
                     onClick={close}
@@ -176,7 +176,7 @@ export default function MobileNav({
                 </li>
               ))}
 
-              <li className="border-b border-white/15">
+              <li>
                 <Link
                   href={FPTN_NEWS.href}
                   onClick={close}
@@ -186,7 +186,7 @@ export default function MobileNav({
                   <RowArrow />
                 </Link>
                 {topCategories.length > 0 ? (
-                  <ul className="border-t border-white/10 pb-2">
+                  <ul className="pb-2">
                     {topCategories.map((item) => (
                       <li key={item.id}>
                         <Link
@@ -204,8 +204,8 @@ export default function MobileNav({
               </li>
             </ul>
 
-            <div className="mt-6 border-t border-white/25 pt-5">
-              <ul className="divide-y divide-white/10">
+            <div className="mt-6 pt-2">
+              <ul>
                 {footerLinks.map((link) => (
                   <li key={link.href}>
                     <Link
