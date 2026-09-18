@@ -381,7 +381,7 @@ export default function SettingsManager({
               defaultValue={
                 typeof paywall.modal_body === "string"
                   ? paywall.modal_body
-                  : "Create your FPN All Access account for free to keep reading and join the conversation."
+                  : "Create your FPTN All Access account for free to keep reading and join the conversation."
               }
             />
             <Button type="submit" variant="contained" sx={{ alignSelf: "flex-start" }}>
@@ -582,7 +582,7 @@ export default function SettingsManager({
               fullWidth
               multiline
               minRows={3}
-              placeholder='"Flash Point Network"'
+              placeholder='"Flash Point Television Network"'
             />
             <Button type="submit" variant="contained" sx={{ alignSelf: "flex-start" }}>
               Save setting

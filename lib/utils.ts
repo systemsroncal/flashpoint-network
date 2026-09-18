@@ -1,4 +1,4 @@
-/** Shared string helpers for FP Network. */
+/** Shared string helpers for FP Television Network. */
 
 export function cn(...inputs: Array<string | false | null | undefined>): string {
   return inputs.filter(Boolean).join(" ");

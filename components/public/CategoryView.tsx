@@ -186,7 +186,7 @@ export default async function CategoryView({
                   Get The Full Story. As It Is.
                 </h2>
                 <p className="mt-1.5 text-sm text-white/70">
-                  Subscribe for complete FPN access.
+                  Subscribe for complete FPTN access.
                 </p>
               </div>
               <Link

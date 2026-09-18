@@ -234,8 +234,8 @@ async function ensureSeedAuthor() {
       password,
       email_confirm: true,
       user_metadata: {
-        full_name: "FPN Desk",
-        first_name: "FPN",
+        full_name: "FPTN Desk",
+        first_name: "FPTN",
         last_name: "Desk",
         role: "editor",
       },
@@ -251,8 +251,8 @@ async function ensureSeedAuthor() {
   const { error: profileError } = await admin.from("profiles").upsert({
     id: userId,
     email: SEED_AUTHOR_EMAIL,
-    full_name: "FPN Desk",
-    first_name: "FPN",
+    full_name: "FPTN Desk",
+    first_name: "FPTN",
     last_name: "Desk",
     role: "editor",
   });

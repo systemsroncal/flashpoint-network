@@ -78,7 +78,7 @@ export default function MaintenanceView({ message }: Props) {
         {/* Logo lockup — Flash Point badge + NETWORK bar (not a link) */}
         <div
           className="flex w-[min(100%,256px)] flex-col overflow-hidden rounded-[6px] border-[4px] border-white bg-black"
-          aria-label="Flash Point Network"
+          aria-label="Flash Point Television Network"
         >
           <span className="relative flex h-[134px] items-center justify-center bg-black px-3">
             <Image

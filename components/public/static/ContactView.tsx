@@ -153,7 +153,7 @@ export default function ContactView() {
 
         <aside className="lg:pt-2">
           <div
-            className="flex flex-col items-center justify-between gap-6 rounded-[21px] bg-[#b80529] px-6 pb-8 pt-10 text-center text-white lg:min-h-[520px]"
+            className="flex flex-col items-center justify-between gap-6 overflow-hidden rounded-[21px] bg-[#b80529] px-6 pb-0 pt-10 text-center text-white lg:min-h-[520px]"
           >
             <h2 className="max-w-[340px] text-[2rem] font-bold leading-tight md:text-[2.85rem] md:leading-[1.05]">
               Get The Full Story. As It Is.
@@ -168,7 +168,7 @@ export default function ContactView() {
             >
               Create your FPTN All Access account for Free
             </Link>
-            <div className="relative mx-auto mt-2 w-full max-w-[323px]">
+            <div className="relative mx-auto w-full max-w-[323px]">
               <Image
                 src={CONTACT_APP_MOCKUP}
                 alt="FlashPoint Television Network mobile app preview"

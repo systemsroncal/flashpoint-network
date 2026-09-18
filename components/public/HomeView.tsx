@@ -181,7 +181,7 @@ export default async function HomeView({
                 {/* eslint-disable-next-line @next/next/no-img-element -- picture/webp fallback pair */}
                 <img
                   src="/brand/banners/fpn-full-story-couple.png"
-                  alt="FlashPoint Network hosts"
+                  alt="FlashPoint Television Network hosts"
                   className="absolute inset-0 h-full w-full max-h-full object-cover object-[center_18%] sm:object-[center_12%] md:object-[center_8%]"
                   width={197}
                   height={164}
@@ -195,7 +195,7 @@ export default async function HomeView({
                   Get The Full Story. As It Is.
                 </h2>
                 <p className="mt-1 max-w-[36ch] text-[12.5px] leading-snug text-white/80 sm:mt-1.5 sm:text-sm md:max-w-none md:text-[1.05rem] md:leading-normal">
-                  Subscribe for complete FPN access
+                  Subscribe for complete FPTN access
                 </p>
               </div>
               <Link

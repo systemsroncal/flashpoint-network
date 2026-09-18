@@ -171,7 +171,7 @@ async function ensureSiteSettings(admin) {
         free_article_limit: 3,
         modal_title: "Don't stop here",
         modal_body:
-          "Create your FPN All Access account for free to keep reading and join the conversation.",
+          "Create your FPTN All Access account for free to keep reading and join the conversation.",
       },
     },
     {

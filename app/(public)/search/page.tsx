@@ -15,7 +15,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const q = (sp.q || "").trim();
   return {
     title: q ? `Search: ${q}` : "Search",
-    description: "Search FlashPoint Network news.",
+    description: "Search FlashPoint Television Network news.",
   };
 }
 

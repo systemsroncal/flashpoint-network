@@ -23,7 +23,7 @@ export default function LoginForm({ next, initialError, registered }: Props) {
         Sign in
       </h1>
       <p className="mt-2 text-sm text-black/65">
-        Access your FPN account or the newsroom admin.
+        Access your FPTN account or the newsroom admin.
       </p>
 
       {registered ? (

@@ -16,7 +16,7 @@ export default async function UpdatePasswordPage({ searchParams }: Props) {
         Choose a new password
       </h1>
       <p className="mt-2 text-sm text-black/65">
-        Enter a strong password for your FPN account.
+        Enter a strong password for your FPTN account.
       </p>
 
       {params.done ? (

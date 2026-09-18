@@ -14,7 +14,7 @@ const baselightTheme = createTheme({
   direction: "ltr",
   palette: {
     primary: {
-      // Flash Point Network orange — same as --fpn-rojo / home events ticker
+      // Flash Point Television Network orange — same as --fpn-rojo / home events ticker
       main: "#FF490D",
       light: "#FFE8E0",
       dark: "#D93E0A",

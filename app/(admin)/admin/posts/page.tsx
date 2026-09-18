@@ -31,7 +31,7 @@ export default async function AdminPostsPage({ searchParams }: Props) {
   ]);
 
   return (
-    <PageContainer title="News" description="Manage FP Network articles">
+    <PageContainer title="News" description="Manage FP Television Network articles">
       <PostsTable
         posts={result.posts}
         categories={categories}

@@ -18,7 +18,7 @@ function normalizeColorKey(color: string): string {
   return color.trim().toLowerCase().replace(/\s+/g, "");
 }
 
-/** Schedule entries stored with FPN orange/navy should render as white on the grid. */
+/** Schedule entries stored with brand orange/navy should render as white on the grid. */
 export function isBrandScheduleColor(color: string | null | undefined): boolean {
   if (!color) return false;
   const key = normalizeColorKey(color);

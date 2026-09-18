@@ -9,7 +9,7 @@ export type EmailDesign = {
 };
 
 export const EMAIL_SHORTCODE_SAMPLES: Record<string, string> = {
-  SITE_NAME: "Flash Point Network",
+  SITE_NAME: "Flash Point Television Network",
   SITE_URL: "https://fpnetwork.local",
   SITE_TAGLINE: "Get The Full Story. As It Is.",
   CURRENT_USER_FULLNAME: "Alex Rivera",

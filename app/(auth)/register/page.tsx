@@ -29,7 +29,7 @@ export default async function RegisterPage({ searchParams }: Props) {
         Create your account
       </h1>
       <p className="mt-2 text-sm text-black/65">
-        Free FPN All Access — keep reading and join the conversation.
+        Free FPTN All Access — keep reading and join the conversation.
       </p>
 
       {params.error ? (

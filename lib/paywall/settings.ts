@@ -22,7 +22,7 @@ const DEFAULT_PAYWALL: PaywallSettings = {
   freeArticleLimit: 3,
   modalTitle: "Don't stop here",
   modalBody:
-    "Create your FPN All Access account for free to keep reading and join the conversation.",
+    "Create your FPTN All Access account for free to keep reading and join the conversation.",
 };
 
 const DEFAULT_ADSENSE: AdSenseSettings = {

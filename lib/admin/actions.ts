@@ -183,7 +183,7 @@ export async function upsertPostAction(formData: FormData) {
   const publishedAtOriginal =
     String(formData.get("published_at_original") || "").trim() || null;
 
-  // Default author: seeded FPN desk editor (creates only)
+  // Default author: seeded FPTN desk editor (creates only)
   const defaultAuthorId = "f1000000-0000-4000-8000-000000000001";
 
   let existing: PostExistingRow | null = null;
@@ -566,7 +566,7 @@ export async function savePaywallSettingsAction(formData: FormData) {
     String(formData.get("modal_title") || "").trim() || "Don't stop here";
   const modalBody =
     String(formData.get("modal_body") || "").trim() ||
-    "Create your FPN All Access account for free to keep reading and join the conversation.";
+    "Create your FPTN All Access account for free to keep reading and join the conversation.";
 
   const { error } = await supabase.from("site_settings").upsert({
     key: "paywall",

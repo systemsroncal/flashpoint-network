@@ -15,7 +15,7 @@ const FEEDS: Record<
 > = {
   latest: {
     title: "Latest News",
-    description: "The newest published stories from Flash Point Network.",
+    description: "The newest published stories from Flash Point Television Network.",
     mobileTitle: "Latest",
   },
   podcasts: {
@@ -28,7 +28,7 @@ const FEEDS: Record<
   },
   premium: {
     title: "Exclusive Content",
-    description: "Premium and exclusive FPN stories, newest first.",
+    description: "Premium and exclusive FPTN stories, newest first.",
     mobileTitle: "Exclusive",
   },
   popular: {

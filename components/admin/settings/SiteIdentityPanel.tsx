@@ -40,7 +40,7 @@ export default function SiteIdentityPanel({ identity }: { identity: SiteIdentity
           defaultValue={identity.footerLogoUrl ?? ""}
         />
         <Typography variant="caption" color="text.secondary" sx={{ mt: -1.5 }}>
-          Leave empty to use the default Flash Point lockup in the footer.
+          Leave empty to use the default Flash Point Television lockup in the footer.
         </Typography>
         <LogoSizingFields
           prefix="footer"

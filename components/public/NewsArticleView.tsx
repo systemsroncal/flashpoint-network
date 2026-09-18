@@ -192,7 +192,7 @@ export default async function NewsArticleView({
                 Give a Gift Subscription
               </p>
               <p className="text-sm text-black/70">
-                Share the FPN with someone special.
+                Share the FPTN with someone special.
               </p>
             </div>
             <Link
@@ -243,13 +243,13 @@ export default async function NewsArticleView({
               Comments
             </h2>
             <p className="mt-2 text-sm text-black/65">
-              Only FPN all-access subscribers can comment.
+              Only FPTN all-access subscribers can comment.
             </p>
             <Link
               href="/register"
               className="mt-4 inline-flex rounded-md bg-[var(--fpn-rojo)] px-5 py-3 text-sm font-bold text-white hover:brightness-110"
             >
-              Unlock FPN All-Access to join the conversation
+              Unlock FPTN All-Access to join the conversation
             </Link>
           </div>
         </div>

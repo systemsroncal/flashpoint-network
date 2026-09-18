@@ -60,5 +60,7 @@ export function resolveLegalPlaceholders(text: string): string {
   for (const [from, to] of Object.entries(map)) {
     out = out.split(from).join(to);
   }
+  out = out.split("FlashPointNetwork.com").join(c.siteHost);
+  out = out.split("flashpointnetwork.com").join(c.siteHost);
   return out;
 }
