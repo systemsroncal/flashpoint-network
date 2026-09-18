@@ -25,7 +25,7 @@ import DailyViewsChart from "@/components/admin/analytics/DailyViewsChart";
 import type { AnalyticsOverview, AnalyticsRange } from "@/lib/admin/analytics";
 
 const FPN_NAVY = "#1B2A64";
-const FPN_ORANGE = "#FF490D";
+const FPN_ORANGE = "#B80529";
 const INSIGHT_BG = "#E8ECF5";
 
 function KpiValue({

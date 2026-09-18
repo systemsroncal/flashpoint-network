@@ -101,8 +101,8 @@ export default function ScheduleEntryForm({
               name="color"
               label="Color"
               fullWidth
-              placeholder="#FF490D"
-              defaultValue={entry?.color ?? "#FF490D"}
+              placeholder="#B80529"
+              defaultValue={entry?.color ?? "#B80529"}
             />
           </Stack>
           <TextField

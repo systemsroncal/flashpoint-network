@@ -11,7 +11,7 @@ const Chart = dynamic(() => import("react-apexcharts"), {
 });
 
 const FPN_NAVY = "#1B2A64";
-const FPN_ORANGE = "#FF490D";
+const FPN_ORANGE = "#B80529";
 
 export default function DailyViewsChart({
   daily,

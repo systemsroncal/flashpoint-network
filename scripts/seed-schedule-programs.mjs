@@ -85,7 +85,7 @@ function categoryColor(cat) {
     case "movie":
       return "#7C3AED";
     default:
-      return "#FF490D";
+      return "#B80529";
   }
 }
 

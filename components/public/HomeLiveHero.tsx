@@ -55,7 +55,7 @@ export default function HomeLiveHero() {
       <section ref={heroRef} className="relative bg-black text-white">
         <div aria-hidden className="pointer-events-none absolute inset-0 opacity-40">
           <span className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-[#1b2a64]/55" />
-          <span className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(255,73,13,0.18),transparent_55%)]" />
+          <span className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_50%,rgba(184,5,41,0.18),transparent_55%)]" />
         </div>
 
         <div className="relative mx-auto flex max-w-[1440px] flex-col-reverse items-center gap-6 px-4 py-8 md:flex-row md:gap-12 md:px-8 md:py-10 lg:gap-[49px] lg:px-10 lg:py-12">

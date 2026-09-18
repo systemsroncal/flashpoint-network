@@ -90,7 +90,7 @@ export default function ScheduleProgramsView({
           className="pointer-events-none absolute inset-0 opacity-35"
           style={{
             background:
-              "radial-gradient(ellipse 70% 50% at 80% 0%, rgba(255,73,13,0.35), transparent 55%)",
+              "radial-gradient(ellipse 70% 50% at 80% 0%, rgba(184,5,41,0.35), transparent 55%)",
           }}
         />
         <div className="relative mx-auto max-w-[1440px] px-4 py-10 md:px-8 lg:px-10 lg:py-14">

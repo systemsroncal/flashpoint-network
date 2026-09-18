@@ -7,7 +7,7 @@ Digital newspaper: public SEO portal + Flash Point Network admin CMS on Next.js 
 - Next.js App Router (TypeScript) + Tailwind
 - Supabase (Auth, Postgres, RLS; legacy Storage URLs still load)
 - Sharp → local `public/uploads/` for new admin images; Tiptap, Resend/Nodemailer, Plyr
-- Admin UI (MUI) branded with Flash Point Network orange (`--fpn-rojo` / `#FF490D`)
+- Admin UI (MUI) branded with Flash Point Television Network red (`--fpn-rojo` / `#B80529`)
 
 ## Getting started
 

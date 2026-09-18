@@ -112,7 +112,7 @@ const SidebarItems = ({
         width="100%"
         showProfile={false}
         themeColor="#1B2A64"
-        themeSecondaryColor="#FF490D"
+        themeSecondaryColor="#B80529"
       >
         <Logo img="/brand/fpn-logo-wordmark.png" component={Link} href="/admin">
           <span className="sr-only">Flash Point Television Network</span>

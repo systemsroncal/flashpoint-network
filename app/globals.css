@@ -6,9 +6,9 @@
   --fpn-black: #000000;
   --fpn-navy: #1b2a64;
   --fpn-sky: #00b8f0;
-  --fpn-rojo: #ff490d;
-  --fpn-orange: #ff490d;
-  --fpn-red: #ff490d;
+  --fpn-rojo: #b80529;
+  --fpn-orange: #b80529;
+  --fpn-red: #b80529;
   --fpn-meta: #929292;
   --fpn-ink: #1f2937;
   --font-article: var(--font-fraunces), var(--font-noto-serif), "Times New Roman",
@@ -488,7 +488,7 @@ button.fpn-live-cta {
   flex-shrink: 0;
   overflow: hidden;
   border-radius: 8px;
-  border: 2px solid rgba(255, 73, 13, 0.55);
+  border: 2px solid rgba(184, 5, 41, 0.55);
   background: #000;
   pointer-events: none;
 }

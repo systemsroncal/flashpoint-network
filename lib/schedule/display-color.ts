@@ -1,4 +1,10 @@
-const BRAND_ORANGE = new Set([
+/** Brand accent (current red + legacy orange still stored on some schedule rows). */
+const BRAND_ACCENT = new Set([
+  "#b80529",
+  "rgb(184, 5, 41)",
+  "rgb(184,5,41)",
+  "rgba(184, 5, 41, 1)",
+  "rgba(184,5,41,1)",
   "#ff490d",
   "rgb(255, 73, 13)",
   "rgb(255,73,13)",
@@ -18,11 +24,11 @@ function normalizeColorKey(color: string): string {
   return color.trim().toLowerCase().replace(/\s+/g, "");
 }
 
-/** Schedule entries stored with brand orange/navy should render as white on the grid. */
+/** Schedule entries stored with brand red/orange/navy should render as white on the grid. */
 export function isBrandScheduleColor(color: string | null | undefined): boolean {
   if (!color) return false;
   const key = normalizeColorKey(color);
-  if (BRAND_ORANGE.has(key) || BRAND_NAVY.has(key)) return true;
+  if (BRAND_ACCENT.has(key) || BRAND_NAVY.has(key)) return true;
   if (key === "var(--fpn-rojo)" || key === "var(--fpn-navy)") return true;
   return false;
 }
