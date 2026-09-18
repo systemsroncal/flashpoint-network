@@ -80,7 +80,8 @@ export default async function SiteFooter({
                   alt={siteName}
                   widths={identity.footerLogoMaxWidth}
                   className={`object-left ${identity.footerLogoClassName}`.trim()}
-                  heightClass="h-14"
+                  fluid={false}
+                  heightClass="h-14 w-auto"
                 />
               </Link>
             ) : (

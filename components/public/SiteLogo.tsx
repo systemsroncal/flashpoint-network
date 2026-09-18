@@ -8,7 +8,9 @@ type Props = {
   widths: ResponsiveLogoMaxWidth;
   className?: string;
   priority?: boolean;
-  /** Base height utility; max-width is responsive via CSS variables. */
+  /** Header: link fills width, image scales with height auto. */
+  fluid?: boolean;
+  /** Optional extra height utility when fluid is false. */
   heightClass?: string;
 };
 
@@ -18,8 +20,10 @@ export default function SiteLogo({
   widths,
   className = "",
   priority,
-  heightClass = "h-8 sm:h-9 xl:h-[52px]",
+  fluid = true,
+  heightClass = "h-auto",
 }: Props) {
+  const widthClass = fluid ? "w-full" : "w-auto";
   return (
     <BrandImage
       src={src}
@@ -27,8 +31,11 @@ export default function SiteLogo({
       width={240}
       height={64}
       priority={priority}
-      className={`site-logo-responsive w-auto object-contain ${heightClass} ${className}`.trim()}
-      style={responsiveLogoMaxWidthStyle(widths)}
+      className={`site-logo-responsive ${widthClass} object-contain ${heightClass} ${className}`.trim()}
+      style={{
+        ...responsiveLogoMaxWidthStyle(widths),
+        ...(fluid ? { width: "100%", height: "auto" } : {}),
+      }}
     />
   );
 }

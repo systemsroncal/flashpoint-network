@@ -110,14 +110,17 @@ export default async function SiteHeader({
         <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--fpn-rojo)]" />
         <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-3 md:gap-4 md:px-8 lg:px-10">
           <div className="flex items-center gap-3">
-            <Link href="/" className="relative z-10 shrink-0" aria-label={siteName}>
+            <Link
+              href="/"
+              className="relative z-10 block w-full max-w-[240px] shrink-0"
+              aria-label={siteName}
+            >
               <SiteLogo
                 src={logoSrc}
                 alt={siteName}
                 widths={identity.headerLogoMaxWidth}
                 className={identity.headerLogoClassName}
                 priority
-                heightClass="h-[52px]"
               />
             </Link>
           </div>
@@ -161,14 +164,17 @@ export default async function SiteHeader({
               isStaff={isStaff}
               tone="light"
             />
-            <Link href="/" className="min-w-0 shrink" aria-label={siteName}>
+            <Link
+              href="/"
+              className="block min-w-0 w-full flex-1"
+              aria-label={siteName}
+            >
               <SiteLogo
                 src={logoSrc}
                 alt={siteName}
                 widths={identity.headerLogoMaxWidth}
                 className={identity.headerLogoClassName}
                 priority
-                heightClass="h-8 sm:h-9"
               />
             </Link>
           </div>
