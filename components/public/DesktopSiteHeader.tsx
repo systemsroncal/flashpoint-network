@@ -122,7 +122,7 @@ export default function DesktopSiteHeader({
 }) {
   const pathname = usePathname() || "/";
   const showCategoryBar = isNewsSectionPath(pathname);
-  const categoryNavPaddingLeft = `calc(${logoWidths.desktop} + 20px)`;
+  const categoryNavPaddingLeft = `calc(${logoWidths.desktop} + 50px)`;
 
   const primaryLinks: PrimaryLink[] = [
     {
