@@ -7,6 +7,7 @@ import {
   IconDeviceTvOld,
   IconLayoutDashboard,
   IconMail,
+  IconMessageCircle,
   IconNews,
   IconPhoto,
   IconAd2,
@@ -108,6 +109,12 @@ const Menuitems: MenuItemConfig[] = [
     title: "Banners",
     icon: IconAd2,
     href: "/admin/banners",
+  },
+  {
+    id: "nav-help-center",
+    title: "Help Center",
+    icon: IconMessageCircle,
+    href: "/admin/help-center",
   },
   {
     navlabel: true,

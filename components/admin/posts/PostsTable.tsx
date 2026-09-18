@@ -19,6 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
+import { categoryOptionLabel, flattenCategoriesHierarchy } from "@/lib/categories/hierarchy";
 import type { Category, Post, Tag } from "@/lib/types/cms";
 
 const statusColor: Record<
@@ -73,6 +74,11 @@ export default function PostsTable({
   const [q, setQ] = useState(filters.q);
   const [categoryId, setCategoryId] = useState(filters.categoryId);
   const [tagId, setTagId] = useState(filters.tagId);
+
+  const categoriesOrdered = useMemo(
+    () => flattenCategoriesHierarchy(categories),
+    [categories],
+  );
 
   const rangeLabel = useMemo(() => {
     if (total === 0) return "0 results";
@@ -143,9 +149,9 @@ export default function PostsTable({
             sx={{ minWidth: { md: 180 }, flex: 1 }}
           >
             <MenuItem value="">All categories</MenuItem>
-            {categories.map((c) => (
+            {categoriesOrdered.map((c) => (
               <MenuItem key={c.id} value={c.id}>
-                {c.name}
+                {categoryOptionLabel(c, categories)}
               </MenuItem>
             ))}
           </TextField>

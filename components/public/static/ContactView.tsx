@@ -89,7 +89,7 @@ export default function ContactView() {
               Center for answers to common questions and technical support.
             </p>
             <Link
-              href="/register"
+              href="/help-center"
               className="mt-5 inline-flex h-[58px] min-w-[209px] items-center justify-center rounded-lg bg-[#b80529] px-4 text-center text-[18px] font-bold text-white hover:brightness-110"
             >
               Help Center

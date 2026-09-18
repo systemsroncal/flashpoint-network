@@ -6,6 +6,9 @@ import { saveSiteIdentitySettingsAction } from "@/lib/admin/actions";
 import type { SiteIdentity } from "@/lib/site-identity/constants";
 import LogoSizingFields from "@/components/admin/settings/LogoSizingFields";
 
+const LOGO_ACCEPT =
+  "image/jpeg,image/png,image/webp,image/gif,image/avif,image/svg+xml,.svg";
+
 export default function SiteIdentityPanel({ identity }: { identity: SiteIdentity }) {
   return (
     <Box component="form" action={saveSiteIdentitySettingsAction}>
@@ -23,9 +26,11 @@ export default function SiteIdentityPanel({ identity }: { identity: SiteIdentity
           name="header_logo_url"
           label="Header logo"
           defaultValue={identity.headerLogoUrl}
+          accept={LOGO_ACCEPT}
         />
         <Typography variant="caption" color="text.secondary" sx={{ mt: -1.5 }}>
           Shown in the site header (desktop and mobile, left of the menu on small screens).
+          SVG uploads are kept as vector files (not converted to WebP).
         </Typography>
         <LogoSizingFields
           prefix="header"
@@ -38,6 +43,7 @@ export default function SiteIdentityPanel({ identity }: { identity: SiteIdentity
           name="footer_logo_url"
           label="Footer logo"
           defaultValue={identity.footerLogoUrl ?? ""}
+          accept={LOGO_ACCEPT}
         />
         <Typography variant="caption" color="text.secondary" sx={{ mt: -1.5 }}>
           Leave empty to use the default Flash Point Television lockup in the footer.
@@ -53,6 +59,7 @@ export default function SiteIdentityPanel({ identity }: { identity: SiteIdentity
           name="auth_logo_url"
           label="Login / Register logo"
           defaultValue={identity.authLogoUrl ?? ""}
+          accept={LOGO_ACCEPT}
         />
         <Typography variant="caption" color="text.secondary" sx={{ mt: -1.5 }}>
           Login, register, and password pages. Leave empty to use the header logo

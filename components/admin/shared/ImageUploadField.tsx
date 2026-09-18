@@ -96,8 +96,9 @@ export default function ImageUploadField({
           />
         </Button>
         <Typography variant="caption" color="text.secondary" sx={{ pt: 1 }}>
-          Auto-resizes to max 1920px wide (height scales), converts to WebP on
-          disk (`/uploads/…`).
+          {accept.includes("svg")
+            ? "JPEG/PNG/WebP convert to WebP on disk; SVG files are stored as-is."
+            : "Auto-resizes to max 1920px wide (height scales), converts to WebP on disk (`/uploads/…`)."}
         </Typography>
       </Stack>
       <TextField

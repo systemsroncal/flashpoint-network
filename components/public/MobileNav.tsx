@@ -9,6 +9,7 @@ type NavCategory = {
   id: string;
   name: string;
   slug: string;
+  parent_id?: string | null;
 };
 
 type MenuLink = {
@@ -192,7 +193,7 @@ export default function MobileNav({
                         <Link
                           href={`/category/${item.slug}`}
                           onClick={close}
-                          className={subNewsRowClass}
+                          className={`${subNewsRowClass} ${item.parent_id ? "pl-6" : "pl-3"}`}
                         >
                           {categoryLabel(item.name, item.slug)}
                           <RowArrow />

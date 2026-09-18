@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { pickNextUpcomingEvent } from "@/lib/events/upcoming";
+import { getDescendantCategoryIds } from "@/lib/categories/hierarchy";
 import type { Category, EventItem, HomePayload, Post } from "@/lib/types/cms";
 
 const POST_SELECT = `
@@ -149,7 +150,7 @@ export async function getHomePayload(): Promise<HomePayload> {
   ] = await Promise.all([
     supabase
       .from("categories")
-      .select("id, name, slug, description, sort_order")
+      .select("id, name, slug, description, sort_order, parent_id")
       .order("sort_order", { ascending: true }),
     supabase
       .from("events")
@@ -434,9 +435,12 @@ export async function getNavCategories(): Promise<Category[]> {
   if (!supabase) return [];
   const { data } = await supabase
     .from("categories")
-    .select("id, name, slug, description, sort_order")
+    .select("id, name, slug, description, sort_order, parent_id")
     .order("sort_order", { ascending: true });
-  return (data as Category[]) ?? [];
+  return ((data as Category[]) ?? []).map((c) => ({
+    ...c,
+    parent_id: c.parent_id ?? null,
+  }));
 }
 
 /** Top categories by published post count (for mobile menu). */
@@ -448,9 +452,12 @@ export async function getTopCategoriesByPostCount(
 
   const { data: categories } = await supabase
     .from("categories")
-    .select("id, name, slug, description, sort_order");
+    .select("id, name, slug, description, sort_order, parent_id");
 
-  const rows = (categories as Category[]) ?? [];
+  const rows = ((categories as Category[]) ?? []).map((c) => ({
+    ...c,
+    parent_id: c.parent_id ?? null,
+  }));
   if (rows.length === 0) return [];
 
   const { data: posts } = await supabase
@@ -476,10 +483,28 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
   if (!supabase) return null;
   const { data } = await supabase
     .from("categories")
-    .select("id, name, slug, description, sort_order")
+    .select("id, name, slug, description, sort_order, parent_id")
     .eq("slug", slug)
     .maybeSingle();
-  return (data as Category) ?? null;
+  if (!data) return null;
+  const row = data as Category;
+  return { ...row, parent_id: row.parent_id ?? null };
+}
+
+export async function getSubcategoriesForCategory(
+  categoryId: string,
+): Promise<Category[]> {
+  const supabase = await db();
+  if (!supabase) return [];
+  const { data } = await supabase
+    .from("categories")
+    .select("id, name, slug, description, sort_order, parent_id")
+    .eq("parent_id", categoryId)
+    .order("sort_order", { ascending: true });
+  return ((data as Category[]) ?? []).map((c) => ({
+    ...c,
+    parent_id: c.parent_id ?? null,
+  }));
 }
 
 export async function getPostsByCategorySlug(
@@ -490,11 +515,21 @@ export async function getPostsByCategorySlug(
   if (!supabase) return [];
   const category = await getCategoryBySlug(slug);
   if (!category) return [];
+
+  const { data: allCats } = await supabase
+    .from("categories")
+    .select("id, name, slug, description, sort_order, parent_id");
+  const categories = ((allCats as Category[]) ?? []).map((c) => ({
+    ...c,
+    parent_id: c.parent_id ?? null,
+  }));
+  const categoryIds = getDescendantCategoryIds(categories, category.id);
+
   const { data } = await supabase
     .from("posts")
     .select(POST_SELECT)
     .eq("status", "published")
-    .eq("category_id", category.id)
+    .in("category_id", categoryIds)
     .order("published_at", { ascending: false })
     .limit(limit);
   return asPosts(data);

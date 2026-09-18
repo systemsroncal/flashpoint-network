@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/slug";
-import type { PostStatus, UserRole } from "@/lib/types/cms";
+import { wouldCreateCategoryCycle } from "@/lib/categories/hierarchy";
+import type { Category, PostStatus, UserRole } from "@/lib/types/cms";
 import {
   getCurrentProfile,
   getSessionUser,
@@ -370,11 +371,34 @@ export async function upsertCategoryAction(formData: FormData) {
   const slug = slugify(String(formData.get("slug") || name));
   const description = String(formData.get("description") || "");
   const sortOrder = Number(formData.get("sort_order") || 0);
+  const parentRaw = String(formData.get("parent_id") || "").trim();
+  const parent_id = parentRaw || null;
+
+  if (id && parent_id === id) {
+    throw new Error("A category cannot be its own parent.");
+  }
+
+  if (parent_id) {
+    const { data: allRows } = await supabase
+      .from("categories")
+      .select("id, name, slug, description, sort_order, parent_id");
+    const categories = (allRows ?? []) as Category[];
+    if (id && wouldCreateCategoryCycle(categories, id, parent_id)) {
+      throw new Error("Invalid parent: would create a circular hierarchy.");
+    }
+    const parent = categories.find((c) => c.id === parent_id);
+    if (!parent) throw new Error("Parent category not found.");
+    if (parent.parent_id) {
+      throw new Error("Subcategories can only be nested one level deep.");
+    }
+  }
+
   const payload = {
     name,
     slug,
     description,
     sort_order: Number.isFinite(sortOrder) ? sortOrder : 0,
+    parent_id,
   };
   if (id) {
     const { error } = await supabase.from("categories").update(payload).eq("id", id);
@@ -390,6 +414,14 @@ export async function upsertCategoryAction(formData: FormData) {
 export async function deleteCategoryAction(formData: FormData) {
   const supabase = requireAdmin();
   const id = String(formData.get("id") || "");
+  const { count, error: childError } = await supabase
+    .from("categories")
+    .select("*", { count: "exact", head: true })
+    .eq("parent_id", id);
+  if (childError) throw new Error(childError.message);
+  if ((count ?? 0) > 0) {
+    throw new Error("Remove or reassign subcategories before deleting this category.");
+  }
   const { error } = await supabase.from("categories").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/");

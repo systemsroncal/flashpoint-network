@@ -8,6 +8,10 @@ import MobileCategoryBar, {
 } from "@/components/public/MobileCategoryBar";
 import MobileNav from "@/components/public/MobileNav";
 import SiteLogo from "@/components/public/SiteLogo";
+import {
+  flattenCategoriesHierarchy,
+  getRootCategories,
+} from "@/lib/categories/hierarchy";
 import { getNavCategories, getTopCategoriesByPostCount } from "@/lib/data/home";
 import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { DEFAULT_FOOTER_MARK_URL } from "@/lib/site-identity/constants";
@@ -52,9 +56,9 @@ export default async function SiteHeader({
   const headerLogo = identity.headerLogoUrl;
   const logoSrc = headerLogo || DEFAULT_FOOTER_MARK_URL;
   const fromDb = categories.filter((c) => c.slug !== "video");
-  const navAll =
+  const navRoots =
     fromDb.length > 0
-      ? fromDb.map((c) => ({
+      ? getRootCategories(fromDb).map((c) => ({
           id: c.id,
           name: c.name,
           slug: c.slug,
@@ -64,13 +68,22 @@ export default async function SiteHeader({
           name: item.name,
           slug: item.name.toLowerCase().replace(/\s+/g, "-").replace("&", ""),
         }));
-  const navDesktop = navAll.slice(0, 9);
+  const navAll =
+    fromDb.length > 0
+      ? flattenCategoriesHierarchy(fromDb).map((c) => ({
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          parent_id: c.parent_id,
+        }))
+      : navRoots.map((c) => ({ ...c, parent_id: null as string | null }));
+  const navDesktop = navRoots.slice(0, 9);
 
   const mobileBarItems: MobileCategoryItem[] = [
     { id: "latest", label: "Latest", href: "/" },
     ...navAll.map((c) => ({
       id: c.id,
-      label: categoryLabel(c.name, c.slug),
+      label: c.parent_id ? `  ${categoryLabel(c.name, c.slug)}` : categoryLabel(c.name, c.slug),
       href: `/category/${c.slug}`,
     })),
     { id: "for-you", label: "For You", href: "/feed/popular" },

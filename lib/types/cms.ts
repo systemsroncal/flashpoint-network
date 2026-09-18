@@ -16,6 +16,18 @@ export type PostStatus =
 
 export type EventFormat = "video" | "text";
 
+export type HelpCenterSubmission = {
+  id: string;
+  created_at: string;
+  email: string;
+  help_area: string;
+  journalism_issue: string | null;
+  subject: string;
+  description: string;
+  attachment_paths: string[];
+  read_at: string | null;
+};
+
 export type ClassicProgramStatus = "draft" | "published" | "archived";
 
 export type ClassicProgramsSortMode =
@@ -92,6 +104,7 @@ export type Category = {
   slug: string;
   description: string | null;
   sort_order: number;
+  parent_id: string | null;
 };
 
 export type Tag = {

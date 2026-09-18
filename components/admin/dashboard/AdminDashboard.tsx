@@ -18,6 +18,7 @@ import {
   IconCalendarEvent,
   IconCategory,
   IconEye,
+  IconMessageCircle,
   IconNews,
 } from "@tabler/icons-react";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
@@ -32,6 +33,7 @@ type Stats = {
   tags: number;
   users: number;
   totalViews: number;
+  helpCenterSubmissions: number;
 };
 
 export default function AdminDashboard({
@@ -41,7 +43,14 @@ export default function AdminDashboard({
   stats: Stats;
   recent: Post[];
 }) {
-  const cards = [
+  const cards: {
+    title: string;
+    value: string;
+    hint: string;
+    icon: typeof IconNews;
+    color: string;
+    href?: string;
+  }[] = [
     {
       title: "Published news",
       value: String(stats.published),
@@ -69,6 +78,14 @@ export default function AdminDashboard({
       hint: `${stats.users} profiles`,
       icon: IconEye,
       color: "warning.main",
+    },
+    {
+      title: "Help Center",
+      value: String(stats.helpCenterSubmissions),
+      hint: "Form entries",
+      icon: IconMessageCircle,
+      color: "info.main",
+      href: "/admin/help-center",
     },
   ];
 
@@ -101,8 +118,7 @@ export default function AdminDashboard({
         <Grid container spacing={3}>
           {cards.map((stat) => {
             const Icon = stat.icon;
-            return (
-              <Grid key={stat.title} size={{ xs: 12, sm: 6, lg: 3 }}>
+            const card = (
                 <DashboardCard>
                   <Stack direction="row" spacing={2} alignItems="center">
                     <Box
@@ -130,6 +146,25 @@ export default function AdminDashboard({
                     </Box>
                   </Stack>
                 </DashboardCard>
+            );
+            return (
+              <Grid key={stat.title} size={{ xs: 12, sm: 6, lg: 3 }}>
+                {stat.href ? (
+                  <Box
+                    component={Link}
+                    href={stat.href}
+                    sx={{
+                      display: "block",
+                      textDecoration: "none",
+                      color: "inherit",
+                      "&:hover": { opacity: 0.92 },
+                    }}
+                  >
+                    {card}
+                  </Box>
+                ) : (
+                  card
+                )}
               </Grid>
             );
           })}

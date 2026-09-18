@@ -5,6 +5,7 @@ import {
   getArticleSidebar,
   getCategoryBySlug,
   getPostsByCategorySlug,
+  getSubcategoriesForCategory,
 } from "@/lib/data/home";
 
 export const dynamic = "force-dynamic";
@@ -29,8 +30,9 @@ export default async function CategoryPage({ params }: Props) {
   const category = await getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const [posts, sidebar, banners] = await Promise.all([
+  const [posts, subcategories, sidebar, banners] = await Promise.all([
     getPostsByCategorySlug(slug, 24),
+    getSubcategoriesForCategory(category.id),
     getArticleSidebar(),
     getBannerWidgetsBySlots([
       "article_above_latest_patriot",
@@ -42,6 +44,7 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <CategoryView
       category={category}
+      subcategories={subcategories}
       posts={posts}
       podcasts={sidebar.podcasts}
       latest={sidebar.latest}

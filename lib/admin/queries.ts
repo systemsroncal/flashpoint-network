@@ -13,6 +13,7 @@ import type {
   ScheduleEntry,
   SchedulePdf,
   Tag,
+  HelpCenterSubmission,
 } from "@/lib/types/cms";
 
 const POST_SELECT = `
@@ -46,7 +47,7 @@ function normalizePost(p: unknown): Post {
 
 export async function getAdminStats() {
   const supabase = requireAdmin();
-  const [posts, published, events, categories, tags, users, views] =
+  const [posts, published, events, categories, tags, users, views, helpCenter] =
     await Promise.all([
       supabase.from("posts").select("*", { count: "exact", head: true }),
       supabase
@@ -58,6 +59,9 @@ export async function getAdminStats() {
       supabase.from("tags").select("*", { count: "exact", head: true }),
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("posts").select("view_count"),
+      supabase
+        .from("help_center_submissions")
+        .select("*", { count: "exact", head: true }),
     ]);
 
   const totalViews = (views.data ?? []).reduce(
@@ -73,7 +77,46 @@ export async function getAdminStats() {
     tags: tags.count ?? 0,
     users: users.count ?? 0,
     totalViews,
+    helpCenterSubmissions: helpCenter.error ? 0 : (helpCenter.count ?? 0),
   };
+}
+
+function normalizeHelpCenterRow(row: unknown): HelpCenterSubmission {
+  const r = row as HelpCenterSubmission & { attachment_paths?: unknown };
+  const paths = Array.isArray(r.attachment_paths)
+    ? r.attachment_paths.filter((p): p is string => typeof p === "string")
+    : [];
+  return { ...r, attachment_paths: paths };
+}
+
+export async function getAdminHelpCenterSubmissions(): Promise<
+  HelpCenterSubmission[]
+> {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("help_center_submissions")
+    .select(
+      "id, created_at, email, help_area, journalism_issue, subject, description, attachment_paths, read_at",
+    )
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map(normalizeHelpCenterRow);
+}
+
+export async function getAdminHelpCenterSubmission(
+  id: string,
+): Promise<HelpCenterSubmission | null> {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("help_center_submissions")
+    .select(
+      "id, created_at, email, help_area, journalism_issue, subject, description, attachment_paths, read_at",
+    )
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  return normalizeHelpCenterRow(data);
 }
 
 export async function getAdminPosts(): Promise<Post[]> {
@@ -191,7 +234,7 @@ export async function getAdminCategories(): Promise<Category[]> {
   const supabase = requireAdmin();
   const { data, error } = await supabase
     .from("categories")
-    .select("id, name, slug, description, sort_order")
+    .select("id, name, slug, description, sort_order, parent_id")
     .order("sort_order", { ascending: true });
   if (error) throw new Error(error.message);
   return (data as Category[]) ?? [];

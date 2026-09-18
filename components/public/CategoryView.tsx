@@ -13,6 +13,7 @@ import { getSiteTimezone } from "@/lib/timezone/settings";
 
 type Props = {
   category: Category;
+  subcategories?: Category[];
   posts: Post[];
   podcasts: Post[];
   latest: Post[];
@@ -22,6 +23,7 @@ type Props = {
 
 export default async function CategoryView({
   category,
+  subcategories = [],
   posts,
   podcasts,
   latest,
@@ -85,6 +87,22 @@ export default async function CategoryView({
           <p className="mt-2 max-w-2xl text-sm text-black/65 md:text-base">
             {category.description}
           </p>
+        ) : null}
+        {subcategories.length > 0 ? (
+          <nav
+            className="mt-4 flex flex-wrap gap-2"
+            aria-label="Subcategories"
+          >
+            {subcategories.map((sub) => (
+              <Link
+                key={sub.id}
+                href={`/category/${sub.slug}`}
+                className="rounded-full border border-black/15 px-4 py-1.5 text-sm font-semibold text-black/80 hover:border-[var(--fpn-rojo)] hover:text-[var(--fpn-rojo)]"
+              >
+                {sub.name}
+              </Link>
+            ))}
+          </nav>
         ) : null}
 
         <div className="mt-8 grid gap-10 lg:mt-10 lg:grid-cols-[minmax(0,1.7fr)_370px] lg:gap-12">

@@ -27,6 +27,7 @@ import {
   defaultShowFeaturedImage,
   isVideoOrPodcastPost,
 } from "@/lib/posts/media-layout";
+import { categoryOptionLabel, flattenCategoriesHierarchy } from "@/lib/categories/hierarchy";
 import { slugify } from "@/lib/slug";
 import type { Category, Post, PostStatus, Tag } from "@/lib/types/cms";
 import { useTimezone } from "@/components/timezone/TimezoneProvider";
@@ -97,6 +98,10 @@ export default function PostForm({
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [status, setStatus] = useState<PostStatus>(post?.status ?? "draft");
   const [categoryId, setCategoryId] = useState(post?.category_id ?? "");
+  const categoriesOrdered = useMemo(
+    () => flattenCategoriesHierarchy(categories),
+    [categories],
+  );
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(initialTagIds);
   const [isFeatured, setIsFeatured] = useState(Boolean(post?.is_featured));
   const [isPremium, setIsPremium] = useState(Boolean(post?.is_premium));
@@ -443,9 +448,9 @@ export default function PostForm({
                 onChange={(e) => setCategoryId(e.target.value)}
               >
                 <MenuItem value="">— None —</MenuItem>
-                {categories.map((category) => (
+                {categoriesOrdered.map((category) => (
                   <MenuItem key={category.id} value={category.id}>
-                    {category.name}
+                    {categoryOptionLabel(category, categories)}
                   </MenuItem>
                 ))}
               </TextField>
