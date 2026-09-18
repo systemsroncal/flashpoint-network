@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import BannerWidget from "@/components/public/BannerWidget";
 import HomeLiveHero from "@/components/public/HomeLiveHero";
-import LatestNewsBar from "@/components/public/LatestNewsBar";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PatriotHomeBanner from "@/components/public/PatriotHomeBanner";
 import PostCard from "@/components/public/PostCard";
@@ -57,8 +56,6 @@ export default async function HomeView({
 
   return (
     <div className="w-full max-w-none bg-white text-black">
-      <LatestNewsBar event={data.nextUpcomingEvent} timeZone={timeZone} />
-
       {!data.featured &&
       politicsWorld.length === 0 &&
       data.latest.length === 0 ? (

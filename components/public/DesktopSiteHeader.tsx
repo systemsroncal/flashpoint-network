@@ -122,19 +122,26 @@ export default function DesktopSiteHeader({
 }) {
   const pathname = usePathname() || "/";
   const showCategoryBar = isNewsSectionPath(pathname);
+  const categoryNavPaddingLeft = `calc(${logoWidths.desktop} + 20px)`;
 
   const primaryLinks: PrimaryLink[] = [
     {
       label: "Home",
       href: "/",
-      // `/` is the news hub — highlight FPTN News there instead (Figma).
-      match: () => false,
+      match: (p) => p === "/",
     },
     { label: "Watch Live", href: "/live", match: (p) => p.startsWith("/live") },
     {
       label: "FPTN News",
       href: "/news",
-      match: (p) => isNewsSectionPath(p),
+      match: (p) =>
+        p === "/news" ||
+        p.startsWith("/news/") ||
+        p.startsWith("/category/") ||
+        p.startsWith("/tag/") ||
+        p.startsWith("/tags/") ||
+        p.startsWith("/feed/") ||
+        p.startsWith("/preview/news/"),
     },
     ...(showSchedule
       ? [
@@ -161,9 +168,10 @@ export default function DesktopSiteHeader({
         {/* Logo overlaps navy + sky bars when the news category strip is visible */}
         <Link
           href="/"
-          className={`absolute left-4 z-20 block w-[min(200px,18vw)] max-w-[200px] md:left-8 lg:left-10 ${
+          className={`absolute left-4 z-20 block md:left-8 lg:left-10 ${
             showCategoryBar ? "top-2.5" : "top-1/2 -translate-y-1/2"
           }`}
+          style={{ width: logoWidths.desktop, maxWidth: logoWidths.desktop }}
           aria-label={siteName}
         >
           <SiteLogo
@@ -212,7 +220,10 @@ export default function DesktopSiteHeader({
 
       {showCategoryBar ? (
         <div className="bg-[var(--fpn-sky)] text-white">
-          <div className="mx-auto flex max-w-[1920px] items-center justify-between gap-4 px-4 py-2 pl-[min(220px,20vw)] md:px-8 md:pl-[min(240px,22vw)] lg:px-10">
+          <div
+            className="mx-auto flex max-w-[1920px] items-center justify-between gap-4 py-2 pr-4 md:pr-8 lg:pr-10"
+            style={{ paddingLeft: categoryNavPaddingLeft }}
+          >
             <nav
               className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1 gap-y-0"
               aria-label="News categories"
