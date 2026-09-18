@@ -1,24 +1,23 @@
 import Image from "next/image";
 import Link from "next/link";
+import { FPTN_PUBLIC_CONTACT } from "@/lib/static-pages/contact-info";
 
-/** Hero / owners photo — replace in public when a permanent asset is available. */
-const OWNERS_IMAGE =
-  "https://fptn.com/uploads/2026-09-18/db1ce1c7-e18c-475d-4d9-cf125da4a913.webp";
+const OWNERS_IMAGE = "/brand/about-gene-teri-bailey.jpg";
 
 const CONTACT_LINES = [
   {
     label: "For sponsorship and advertising opportunities:",
-    email: "partnerships@fptn.com",
+    email: FPTN_PUBLIC_CONTACT.partnershipsEmail,
   },
   {
     label: "For help with your FPTN subscription:",
-    email: "subscriptions@fptn.com",
+    email: FPTN_PUBLIC_CONTACT.subscriptionsEmail,
   },
   {
     label: "To submit a story idea or confidential information:",
-    email: "tips@fptn.com",
+    email: FPTN_PUBLIC_CONTACT.tipsEmail,
   },
-  { label: "For press requests:", email: "press@fptn.com" },
+  { label: "For press requests:", email: FPTN_PUBLIC_CONTACT.pressEmail },
 ] as const;
 
 export default function AboutView() {
@@ -167,8 +166,33 @@ export default function AboutView() {
           ))}
           <li>
             <span>Follow us </span>
-            <span className="font-medium text-[var(--fpn-rojo)]">
-              X | Facebook | Instagram
+            <span className="font-medium">
+              <a
+                href={FPTN_PUBLIC_CONTACT.social.x}
+                className="text-[var(--fpn-rojo)] hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                X
+              </a>
+              {" | "}
+              <a
+                href={FPTN_PUBLIC_CONTACT.social.facebook}
+                className="text-[var(--fpn-rojo)] hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Facebook
+              </a>
+              {" | "}
+              <a
+                href={FPTN_PUBLIC_CONTACT.social.instagram}
+                className="text-[var(--fpn-rojo)] hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Instagram
+              </a>
             </span>
           </li>
         </ul>

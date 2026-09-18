@@ -4,6 +4,7 @@ import {
   type LegalPageKey,
   LEGAL_PAGES,
 } from "@/lib/static-pages/legal";
+import { resolveLegalPlaceholders } from "@/lib/static-pages/contact-info";
 
 export default function LegalDocumentView({ pageKey }: { pageKey: LegalPageKey }) {
   const meta = LEGAL_PAGES[pageKey];
@@ -22,17 +23,18 @@ export default function LegalDocumentView({ pageKey }: { pageKey: LegalPageKey }
 
       <div className="mt-10 md:mt-12">
         {paragraphs.map((paragraph, index) => {
-          const section = isLegalSectionHeading(paragraph);
+          const text = resolveLegalPlaceholders(paragraph);
+          const section = isLegalSectionHeading(text);
           return (
             <p
-              key={`${index}-${paragraph.slice(0, 24)}`}
+              key={`${index}-${text.slice(0, 24)}`}
               className={
                 section
                   ? "mt-8 mb-3 text-[18px] font-bold leading-7 text-[#000028] md:mt-10 md:text-[22px] md:leading-8"
                   : "mb-4 text-[18px] font-normal leading-7 text-[#000028] md:text-[22px] md:leading-[28px]"
               }
             >
-              {paragraph}
+              {text}
             </p>
           );
         })}

@@ -3,51 +3,49 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { FPTN_PUBLIC_CONTACT } from "@/lib/static-pages/contact-info";
+
+const c = FPTN_PUBLIC_CONTACT;
 
 const ACCORDION = [
   {
     id: "editorial",
     title: "Contact Editorial",
-    body:
-      "For news tips, corrections, and editorial questions, email tips@fptn.com or use the form on our help center when available.",
+    body: `For news tips, corrections, and editorial questions, email ${c.tipsEmail}.`,
   },
   {
     id: "oped",
     title: "Op-Ed.",
-    body:
-      "To submit an opinion piece for consideration, contact our editorial team with your draft, bio, and contact information at tips@fptn.com.",
+    body: `To submit an opinion piece for consideration, send your draft, bio, and contact information to ${c.tipsEmail}.`,
   },
   {
     id: "media",
     title: "Media Inquiries",
-    body:
-      "Members of the press may reach our team at press@fptn.com. Please include your outlet, deadline, and the nature of your request.",
+    body: `Members of the press may reach our team at ${c.pressEmail}. Please include your outlet, deadline, and the nature of your request.`,
   },
   {
     id: "rights",
     title: "Rights and Permissions",
-    body:
-      "For licensing, reprint, or permission requests regarding FlashPoint Television Network content, contact press@fptn.com with details of the requested use.",
+    body: `For licensing, reprint, or permission requests regarding ${c.siteName} content, contact ${c.pressEmail} with details of the requested use.`,
   },
   {
     id: "advertising",
     title: "Advertising",
-    body:
-      "For sponsorship and advertising opportunities, email partnerships@fptn.com.",
+    body: `For sponsorship and advertising opportunities, email ${c.partnershipsEmail}.`,
   },
   {
     id: "leadership",
     title: "Editorial Leadership US Editions",
-    body:
-      "For questions about U.S. editorial leadership and standards, contact press@fptn.com.",
+    body: `For questions about U.S. editorial leadership and standards, contact ${c.pressEmail}.`,
   },
   {
     id: "regional",
     title: "Regional Offices",
-    body:
-      "For regional or local inquiries, email info@fptn.com and include your location and topic.",
+    body: `For regional or local inquiries, email ${c.infoEmail} and include your location and topic.`,
   },
 ] as const;
+
+const CONTACT_APP_MOCKUP = "/brand/contact-app-mockup.png";
 
 function Chevron({ open }: { open: boolean }) {
   return (
@@ -110,18 +108,18 @@ export default function ContactView() {
               <p>
                 <span className="font-semibold">Email:</span>{" "}
                 <a
-                  href="mailto:support@fptn.com"
+                  href={`mailto:${c.supportEmail}`}
                   className="underline hover:text-[var(--fpn-rojo)]"
                 >
-                  support@fptn.com
+                  {c.supportEmail}
                 </a>
               </p>
               <p>
                 <span className="font-semibold">Support Hours:</span>
                 <br />
-                Monday–Friday: 8:00 AM–8:00 PM CT
+                {c.supportHoursLines[0]}
                 <br />
-                Saturday–Sunday: 10:00 AM–6:00 PM CT
+                {c.supportHoursLines[1]}
               </p>
             </div>
           </div>
@@ -170,13 +168,13 @@ export default function ContactView() {
             >
               Create your FPTN All Access account for Free
             </Link>
-            <div className="relative mx-auto mt-2 h-[200px] w-[200px] md:h-[280px] md:w-[280px]">
+            <div className="relative mx-auto mt-2 w-full max-w-[323px]">
               <Image
-                src="/brand/fpn-logo-mark.svg"
-                alt=""
-                width={280}
-                height={280}
-                className="h-full w-full object-contain opacity-90"
+                src={CONTACT_APP_MOCKUP}
+                alt="FlashPoint Television Network mobile app preview"
+                width={323}
+                height={322}
+                className="h-auto w-full object-contain"
               />
             </div>
           </div>
