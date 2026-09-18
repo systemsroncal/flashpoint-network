@@ -439,6 +439,38 @@ export async function getNavCategories(): Promise<Category[]> {
   return (data as Category[]) ?? [];
 }
 
+/** Top categories by published post count (for mobile menu). */
+export async function getTopCategoriesByPostCount(
+  limit = 5,
+): Promise<Category[]> {
+  const supabase = await db();
+  if (!supabase) return [];
+
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("id, name, slug, description, sort_order");
+
+  const rows = (categories as Category[]) ?? [];
+  if (rows.length === 0) return [];
+
+  const { data: posts } = await supabase
+    .from("posts")
+    .select("category_id")
+    .eq("status", "published");
+
+  const counts = new Map<string, number>();
+  for (const row of posts ?? []) {
+    const id = row.category_id as string | null;
+    if (!id) continue;
+    counts.set(id, (counts.get(id) ?? 0) + 1);
+  }
+
+  return rows
+    .filter((c) => c.slug !== "video")
+    .sort((a, b) => (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0))
+    .slice(0, limit);
+}
+
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
   const supabase = await db();
   if (!supabase) return null;

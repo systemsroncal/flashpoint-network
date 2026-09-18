@@ -8,7 +8,7 @@ import MobileCategoryBar, {
 } from "@/components/public/MobileCategoryBar";
 import MobileNav from "@/components/public/MobileNav";
 import SiteLogo from "@/components/public/SiteLogo";
-import { getNavCategories } from "@/lib/data/home";
+import { getNavCategories, getTopCategoriesByPostCount } from "@/lib/data/home";
 import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { DEFAULT_FOOTER_MARK_URL } from "@/lib/site-identity/constants";
 import type { ProgramModules } from "@/lib/features/program-modules";
@@ -43,9 +43,10 @@ export default async function SiteHeader({
   isStaff?: boolean;
   user?: HeaderUser | null;
 }) {
-  const [identity, categories] = await Promise.all([
+  const [identity, categories, menuTopCategories] = await Promise.all([
     getSiteIdentity(),
     getNavCategories(),
+    getTopCategoriesByPostCount(5),
   ]);
   const siteName = identity.siteName;
   const headerLogo = identity.headerLogoUrl;
@@ -161,11 +162,17 @@ export default async function SiteHeader({
         <div className="relative flex items-center justify-between gap-2 px-2 pb-2.5 pt-3.5 sm:px-3">
           <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2">
             <MobileNav
-              items={navAll}
-              showClassic={modules.classic}
+              topCategories={
+                menuTopCategories.length > 0 ? menuTopCategories : navAll.slice(0, 5)
+              }
+              showSchedule={modules.schedule}
               isLoggedIn={isLoggedIn}
               isStaff={isStaff}
               tone="light"
+              logoSrc={logoSrc}
+              logoAlt={siteName}
+              logoWidths={identity.headerLogoMaxWidth}
+              logoClassName={identity.headerLogoClassName}
             />
             <Link
               href="/"

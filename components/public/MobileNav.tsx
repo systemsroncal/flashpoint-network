@@ -2,30 +2,88 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import HeaderSearch from "@/components/public/HeaderSearch";
+import SiteLogo from "@/components/public/SiteLogo";
+import type { ResponsiveLogoMaxWidth } from "@/lib/site-identity/logo-layout";
 
-type NavItem = {
+type NavCategory = {
   id: string;
   name: string;
   slug: string;
 };
 
+type MenuLink = {
+  label: string;
+  href: string;
+};
+
+const PRIMARY_LINKS: MenuLink[] = [
+  { label: "Watch Live", href: "/live" },
+  { label: "Broadcast Schedule", href: "/schedule-programs" },
+  { label: "Shows", href: "/network-programs" },
+];
+
+const FPTN_NEWS: MenuLink = { label: "FPTN News", href: "/news" };
+
+/** Enable when the advertise landing page ships. */
+const ADVERTISE_LINK: MenuLink | null = null;
+
+const FOOTER_LINKS: MenuLink[] = [
+  { label: "About", href: "/about" },
+  { label: "Contact Us", href: "/contact" },
+  { label: "Copyright Policy", href: "/copyright-policy" },
+  { label: "Terms & Conditions", href: "/terms-and-conditions" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
+];
+
+const primaryRowClass =
+  "flex items-center justify-between py-3.5 text-[length:clamp(1.125rem,4.5vw,1.65rem)] font-black uppercase leading-tight tracking-wide";
+const subNewsRowClass =
+  "flex items-center justify-between py-2.5 pl-3 text-[length:clamp(0.975rem,3.8vw,1.2rem)] font-bold leading-snug tracking-tight text-white/95";
+const footerRowClass =
+  "flex items-center justify-between py-2.5 text-[length:clamp(0.8125rem,3.2vw,0.9375rem)] font-medium leading-snug text-white/80";
+
+function categoryLabel(name: string, slug: string): string {
+  if (slug === "elections") return "Elections 2026";
+  return name;
+}
+
+function RowArrow() {
+  return <span className="shrink-0 text-[0.85em] opacity-50" aria-hidden>→</span>;
+}
+
 export default function MobileNav({
-  items,
-  showClassic = false,
+  topCategories,
+  showSchedule = true,
   isLoggedIn = false,
   isStaff = false,
   tone = "light",
+  logoSrc,
+  logoAlt,
+  logoWidths,
+  logoClassName = "",
 }: {
-  items: NavItem[];
-  showClassic?: boolean;
+  topCategories: NavCategory[];
+  showSchedule?: boolean;
   isLoggedIn?: boolean;
   isStaff?: boolean;
   /** `light` = white bars (navy header); `dark` = black bars (WaPo mobile). */
   tone?: "light" | "dark";
+  logoSrc?: string;
+  logoAlt?: string;
+  logoWidths?: ResponsiveLogoMaxWidth;
+  logoClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
   const barClass = tone === "dark" ? "bg-black" : "bg-white";
+  const close = () => setOpen(false);
+
+  const primaryLinks = PRIMARY_LINKS.filter(
+    (link) => link.label !== "Broadcast Schedule" || showSchedule,
+  );
+
+  const footerLinks = ADVERTISE_LINK
+    ? [ADVERTISE_LINK, ...FOOTER_LINKS]
+    : FOOTER_LINKS;
 
   useEffect(() => {
     if (!open) return;
@@ -69,61 +127,110 @@ export default function MobileNav({
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-50 bg-[var(--fpn-navy)]/98 text-white">
-          <div className="mx-auto flex max-w-[1440px] items-center justify-between px-4 py-4 md:px-8">
-            <p className="text-sm font-bold uppercase tracking-[0.18em]">
-              Sections
-            </p>
+        <div className="fixed inset-0 z-50 flex flex-col bg-[var(--fpn-navy)] text-white">
+          <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-3 px-4 py-4 md:px-8">
+            {logoSrc && logoWidths ? (
+              <Link
+                href="/"
+                onClick={close}
+                className="block max-w-[min(52vw,200px)]"
+                aria-label={logoAlt ?? "Home"}
+              >
+                <SiteLogo
+                  src={logoSrc}
+                  alt={logoAlt ?? ""}
+                  widths={logoWidths}
+                  className={logoClassName}
+                />
+              </Link>
+            ) : (
+              <span className="text-sm font-bold uppercase tracking-[0.18em]">
+                Menu
+              </span>
+            )}
             <button
               type="button"
               aria-label="Close menu"
-              onClick={() => setOpen(false)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/40"
+              onClick={close}
+              className="inline-flex h-10 w-10 items-center justify-center text-2xl leading-none text-white"
             >
-              ✕
+              ×
             </button>
           </div>
-          <nav className="mx-auto max-h-[calc(100vh-5rem)] max-w-[1440px] overflow-y-auto px-4 pb-10 md:px-8">
-            <div className="mb-6 flex items-center justify-between gap-3 rounded-md border border-white/20 px-3 py-2">
-              <p className="text-xs font-bold uppercase tracking-wide text-white/60">
-                Search
-              </p>
-              <HeaderSearch />
-            </div>
-            <ul className="divide-y divide-white/15 border-t border-white/15">
-              {items.map((item) => (
-                <li key={item.id}>
+
+          <nav
+            className="mx-auto w-full max-w-[1440px] flex-1 overflow-y-auto px-4 pb-10 md:px-8"
+            aria-label="Mobile"
+          >
+            <ul className="border-t border-white/20">
+              {primaryLinks.map((link) => (
+                <li key={link.href} className="border-b border-white/15">
                   <Link
-                    href={`/category/${item.slug}`}
-                    onClick={() => setOpen(false)}
-                    className="flex items-center justify-between py-4 text-lg font-black tracking-tight"
+                    href={link.href}
+                    onClick={close}
+                    className={primaryRowClass}
                   >
-                    {item.name}
-                    <span className="text-sm opacity-60">→</span>
+                    {link.label}
+                    <RowArrow />
                   </Link>
                 </li>
               ))}
+
+              <li className="border-b border-white/15">
+                <Link
+                  href={FPTN_NEWS.href}
+                  onClick={close}
+                  className={primaryRowClass}
+                >
+                  {FPTN_NEWS.label}
+                  <RowArrow />
+                </Link>
+                {topCategories.length > 0 ? (
+                  <ul className="border-t border-white/10 pb-2">
+                    {topCategories.map((item) => (
+                      <li key={item.id}>
+                        <Link
+                          href={`/category/${item.slug}`}
+                          onClick={close}
+                          className={subNewsRowClass}
+                        >
+                          {categoryLabel(item.name, item.slug)}
+                          <RowArrow />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </li>
             </ul>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              {isLoggedIn && isStaff ? (
+
+            <div className="mt-6 border-t border-white/25 pt-5">
+              <ul className="divide-y divide-white/10">
+                {footerLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      onClick={close}
+                      className={footerRowClass}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {isLoggedIn && isStaff ? (
+              <div className="mt-6">
                 <Link
                   href="/admin"
-                  onClick={() => setOpen(false)}
-                  className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--fpn-rojo)] text-sm font-black text-white"
+                  onClick={close}
+                  className="inline-flex h-11 w-full items-center justify-center rounded-md bg-[var(--fpn-rojo)] text-sm font-black text-white"
                 >
                   Admin
                 </Link>
-              ) : null}
-              {showClassic ? (
-                <Link
-                  href="/classic-programs"
-                  onClick={() => setOpen(false)}
-                  className="inline-flex h-11 items-center justify-center rounded-md border border-white/40 text-sm font-semibold"
-                >
-                  Classics
-                </Link>
-              ) : null}
-            </div>
+              </div>
+            ) : null}
           </nav>
         </div>
       ) : null}
