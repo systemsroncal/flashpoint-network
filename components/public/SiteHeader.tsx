@@ -149,14 +149,6 @@ export default async function SiteHeader({
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            {modules.schedule ? (
-              <Link
-                href="/schedule-programs"
-                className="hidden text-[13px] font-bold text-white/90 hover:text-white lg:inline"
-              >
-                Schedule
-              </Link>
-            ) : null}
             {modules.classic ? (
               <Link
                 href="/classic-programs"
@@ -179,7 +171,6 @@ export default async function SiteHeader({
             <MobileNav
               items={navAll}
               showClassic={modules.classic}
-              showSchedule={modules.schedule}
               isLoggedIn={isLoggedIn}
               isStaff={isStaff}
               tone="light"

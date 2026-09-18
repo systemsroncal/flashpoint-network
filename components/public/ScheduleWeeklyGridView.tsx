@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import type { ScheduleEntry, SchedulePdf } from "@/lib/types/cms";
+import { scheduleEntryDisplayColor } from "@/lib/schedule/display-color";
 
 const MONTH_NAMES = [
   "January",
@@ -105,7 +106,11 @@ function buildGrid(entries: ScheduleEntry[], dates: string[]) {
       byKey.get(`${date}|${hhmm(slot)}`) ??
       byKey.get(`${date}|${slot.slice(0, 8)}`);
     if (!e) return null;
-    return { title: e.title, color: accentForTitle(e.title, e.color) };
+    const accent = accentForTitle(e.title, e.color);
+    return {
+      title: e.title,
+      color: scheduleEntryDisplayColor(e.color, accent),
+    };
   };
   return lookup;
 }

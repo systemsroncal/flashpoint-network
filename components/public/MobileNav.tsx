@@ -13,14 +13,12 @@ type NavItem = {
 export default function MobileNav({
   items,
   showClassic = false,
-  showSchedule = false,
   isLoggedIn = false,
   isStaff = false,
   tone = "light",
 }: {
   items: NavItem[];
   showClassic?: boolean;
-  showSchedule?: boolean;
   isLoggedIn?: boolean;
   isStaff?: boolean;
   /** `light` = white bars (navy header); `dark` = black bars (WaPo mobile). */
@@ -114,15 +112,6 @@ export default function MobileNav({
                   className="inline-flex h-11 items-center justify-center rounded-md bg-[var(--fpn-rojo)] text-sm font-black text-white"
                 >
                   Admin
-                </Link>
-              ) : null}
-              {showSchedule ? (
-                <Link
-                  href="/schedule-programs"
-                  onClick={() => setOpen(false)}
-                  className="inline-flex h-11 items-center justify-center rounded-md border border-white/40 text-sm font-semibold"
-                >
-                  Schedule
                 </Link>
               ) : null}
               {showClassic ? (

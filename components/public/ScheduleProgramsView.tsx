@@ -7,6 +7,7 @@ import type {
   ScheduleEntry,
   SchedulePdf,
 } from "@/lib/types/cms";
+import { isBrandScheduleColor } from "@/lib/schedule/display-color";
 
 const MONTH_NAMES = [
   "January",
@@ -206,10 +207,19 @@ export default function ScheduleProgramsView({
                       </div>
                       {entry.category ? (
                         <span
-                          className="inline-flex shrink-0 rounded px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white"
-                          style={{
-                            backgroundColor: entry.color || "var(--fpn-rojo)",
-                          }}
+                          className={`inline-flex shrink-0 rounded px-2 py-1 text-[10px] font-bold uppercase tracking-wide ${
+                            isBrandScheduleColor(entry.color)
+                              ? "bg-[#0B0F14] text-white"
+                              : "text-white"
+                          }`}
+                          style={
+                            isBrandScheduleColor(entry.color)
+                              ? undefined
+                              : {
+                                  backgroundColor:
+                                    entry.color || "var(--fpn-rojo)",
+                                }
+                          }
                         >
                           {entry.category}
                         </span>
