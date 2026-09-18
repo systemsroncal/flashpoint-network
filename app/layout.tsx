@@ -40,7 +40,7 @@ const notoSerif = Noto_Serif({
 const roboto = Roboto({
   variable: "--font-roboto",
   subsets: ["latin"],
-  weight: ["400", "500", "700", "900"],
+  weight: ["100", "400", "500", "700", "900"],
 });
 
 export const dynamic = "force-dynamic";

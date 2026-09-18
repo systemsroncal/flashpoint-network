@@ -562,3 +562,25 @@ aside img[src*="fpn-logo-wordmark"] {
   object-fit: contain;
 }
 
+.site-logo-responsive {
+  max-width: var(--site-logo-max-phone, 140px);
+}
+
+@media (min-width: 640px) {
+  .site-logo-responsive {
+    max-width: var(--site-logo-max-tablet, 160px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-logo-responsive {
+    max-width: var(--site-logo-max-laptop, 180px);
+  }
+}
+
+@media (min-width: 1280px) {
+  .site-logo-responsive {
+    max-width: var(--site-logo-max-desktop, 200px);
+  }
+}
+

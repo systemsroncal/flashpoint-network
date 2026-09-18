@@ -7,6 +7,7 @@ export default function BrandImage({
   width,
   height,
   className,
+  style,
   priority,
 }: {
   src: string | null | undefined;
@@ -14,6 +15,7 @@ export default function BrandImage({
   width: number;
   height: number;
   className?: string;
+  style?: React.CSSProperties;
   priority?: boolean;
 }) {
   const resolved = resolveMediaUrl(src) ?? src?.trim();
@@ -26,6 +28,7 @@ export default function BrandImage({
       width={width}
       height={height}
       className={className}
+      style={style}
       priority={priority}
       unoptimized={isSvg}
     />

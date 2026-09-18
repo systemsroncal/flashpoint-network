@@ -1,3 +1,5 @@
+import type { ResponsiveLogoMaxWidth } from "@/lib/site-identity/logo-layout";
+
 export const SITE_IDENTITY_SETTING = "site_identity";
 
 /** Default header / mobile wordmark when nothing is saved yet. */
@@ -11,6 +13,10 @@ export type SiteIdentity = {
   siteName: string;
   headerLogoUrl: string;
   footerLogoUrl: string | null;
+  headerLogoMaxWidth: ResponsiveLogoMaxWidth;
+  footerLogoMaxWidth: ResponsiveLogoMaxWidth;
+  headerLogoClassName: string;
+  footerLogoClassName: string;
   /** Login, register, forgot/update password — empty = header logo in badge lockup */
   authLogoUrl: string | null;
   faviconUrl: string | null;

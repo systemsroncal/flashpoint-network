@@ -38,6 +38,12 @@ import { normalizeExternalUrl } from "@/lib/events/upcoming";
 import { normalizeStoredMediaUrl } from "@/lib/media/public-url";
 import { getSiteName } from "@/lib/env";
 import { SITE_IDENTITY_SETTING } from "@/lib/site-identity/constants";
+import {
+  DEFAULT_FOOTER_LOGO_MAX,
+  DEFAULT_HEADER_LOGO_MAX,
+  parseResponsiveLogoMaxWidth,
+  sanitizeLogoClassName,
+} from "@/lib/site-identity/logo-layout";
 
 function boolFromForm(value: FormDataEntryValue | null): boolean {
   return value === "on" || value === "true" || value === "1";
@@ -623,12 +629,39 @@ export async function saveSiteIdentitySettingsAction(formData: FormData) {
     String(formData.get("default_featured_image_url") || "").trim(),
   );
 
+  const headerLogoMaxWidth = {
+    phone: formData.get("header_logo_max_phone"),
+    tablet: formData.get("header_logo_max_tablet"),
+    laptop: formData.get("header_logo_max_laptop"),
+    desktop: formData.get("header_logo_max_desktop"),
+  };
+  const footerLogoMaxWidth = {
+    phone: formData.get("footer_logo_max_phone"),
+    tablet: formData.get("footer_logo_max_tablet"),
+    laptop: formData.get("footer_logo_max_laptop"),
+    desktop: formData.get("footer_logo_max_desktop"),
+  };
+
   const { error } = await supabase.from("site_settings").upsert({
     key: SITE_IDENTITY_SETTING,
     value: {
       site_name: siteName,
       header_logo_url: headerLogoUrl,
       footer_logo_url: footerLogoUrl,
+      header_logo_max_width: parseResponsiveLogoMaxWidth(
+        headerLogoMaxWidth,
+        DEFAULT_HEADER_LOGO_MAX,
+      ),
+      footer_logo_max_width: parseResponsiveLogoMaxWidth(
+        footerLogoMaxWidth,
+        DEFAULT_FOOTER_LOGO_MAX,
+      ),
+      header_logo_class_name: sanitizeLogoClassName(
+        formData.get("header_logo_class_name"),
+      ),
+      footer_logo_class_name: sanitizeLogoClassName(
+        formData.get("footer_logo_class_name"),
+      ),
       auth_logo_url: authLogoUrl,
       favicon_url: faviconUrl,
       default_featured_image_url: defaultFeaturedImageUrl,

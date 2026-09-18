@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import BrandImage from "@/components/public/BrandImage";
+import SiteLogo from "@/components/public/SiteLogo";
 import type { ProgramModules } from "@/lib/features/program-modules";
 import { DEFAULT_PROGRAM_MODULES } from "@/lib/features/program-modules";
 import { DEFAULT_FOOTER_MARK_URL } from "@/lib/site-identity/constants";
@@ -75,12 +75,12 @@ export default async function SiteFooter({
           <div>
             {footerLogo ? (
               <Link href="/" className="inline-block" aria-label={siteName}>
-                <BrandImage
+                <SiteLogo
                   src={footerLogo}
                   alt={siteName}
-                  width={160}
-                  height={72}
-                  className="h-14 w-auto max-w-[160px] object-contain object-left"
+                  widths={identity.footerLogoMaxWidth}
+                  className={`object-left ${identity.footerLogoClassName}`.trim()}
+                  heightClass="h-14"
                 />
               </Link>
             ) : (

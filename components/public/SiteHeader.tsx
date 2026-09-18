@@ -1,10 +1,13 @@
 import Link from "next/link";
 import HeaderSearch from "@/components/public/HeaderSearch";
+import HeaderUserMenu, {
+  type HeaderUser,
+} from "@/components/public/HeaderUserMenu";
 import MobileCategoryBar, {
   type MobileCategoryItem,
 } from "@/components/public/MobileCategoryBar";
 import MobileNav from "@/components/public/MobileNav";
-import BrandImage from "@/components/public/BrandImage";
+import SiteLogo from "@/components/public/SiteLogo";
 import { getNavCategories } from "@/lib/data/home";
 import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { DEFAULT_FOOTER_MARK_URL } from "@/lib/site-identity/constants";
@@ -33,10 +36,12 @@ export default async function SiteHeader({
   modules = DEFAULT_PROGRAM_MODULES,
   isLoggedIn = false,
   isStaff = false,
+  user = null,
 }: {
   modules?: ProgramModules;
   isLoggedIn?: boolean;
   isStaff?: boolean;
+  user?: HeaderUser | null;
 }) {
   const [identity, categories] = await Promise.all([
     getSiteIdentity(),
@@ -44,6 +49,7 @@ export default async function SiteHeader({
   ]);
   const siteName = identity.siteName;
   const headerLogo = identity.headerLogoUrl;
+  const logoSrc = headerLogo || DEFAULT_FOOTER_MARK_URL;
   const fromDb = categories.filter((c) => c.slug !== "video");
   const navAll =
     fromDb.length > 0
@@ -97,26 +103,6 @@ export default async function SiteHeader({
       </>
     );
 
-  const authMobile = isLoggedIn ? (
-    isStaff ? (
-      <Link
-        href="/admin"
-        className="text-[14px] font-bold text-white hover:opacity-80"
-      >
-        Admin
-      </Link>
-    ) : (
-      <span className="w-[52px]" aria-hidden />
-    )
-  ) : (
-    <Link
-      href="/login"
-      className="text-[14px] font-bold text-white hover:opacity-80"
-    >
-      Sign in
-    </Link>
-  );
-
   return (
     <header className="relative z-20 w-full max-w-none">
       {/* —— Desktop / xl+ : existing navy header —— */}
@@ -125,13 +111,13 @@ export default async function SiteHeader({
         <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-3 md:gap-4 md:px-8 lg:px-10">
           <div className="flex items-center gap-3">
             <Link href="/" className="relative z-10 shrink-0" aria-label={siteName}>
-              <BrandImage
-                src={headerLogo || DEFAULT_FOOTER_MARK_URL}
+              <SiteLogo
+                src={logoSrc}
                 alt={siteName}
-                width={200}
-                height={52}
-                className="h-[52px] w-auto max-w-[200px] object-contain"
+                widths={identity.headerLogoMaxWidth}
+                className={identity.headerLogoClassName}
                 priority
+                heightClass="h-[52px]"
               />
             </Link>
           </div>
@@ -163,11 +149,11 @@ export default async function SiteHeader({
         </div>
       </div>
 
-      {/* —— Mobile / tablet : same navy as desktop so the logo reads —— */}
+      {/* —— Mobile / tablet : hamburger + logo left; search + account right —— */}
       <div className="relative w-full max-w-none bg-[var(--fpn-navy)] text-white xl:hidden">
         <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--fpn-rojo)]" />
-        <div className="relative grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2 px-2 pb-2.5 pt-3.5 sm:px-3">
-          <div className="flex items-center justify-start gap-0.5">
+        <div className="relative flex items-center justify-between gap-2 px-2 pb-2.5 pt-3.5 sm:px-3">
+          <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2">
             <MobileNav
               items={navAll}
               showClassic={modules.classic}
@@ -175,25 +161,22 @@ export default async function SiteHeader({
               isStaff={isStaff}
               tone="light"
             />
-            <HeaderSearch tone="light" />
+            <Link href="/" className="min-w-0 shrink" aria-label={siteName}>
+              <SiteLogo
+                src={logoSrc}
+                alt={siteName}
+                widths={identity.headerLogoMaxWidth}
+                className={identity.headerLogoClassName}
+                priority
+                heightClass="h-8 sm:h-9"
+              />
+            </Link>
           </div>
 
-          <Link
-            href="/"
-            className="justify-self-center"
-            aria-label={siteName}
-          >
-            <BrandImage
-              src={headerLogo || DEFAULT_FOOTER_MARK_URL}
-              alt={siteName}
-              width={160}
-              height={34}
-              className="h-8 w-auto max-w-[180px] object-contain sm:h-9"
-              priority
-            />
-          </Link>
-
-          <div className="flex items-center justify-end pr-1">{authMobile}</div>
+          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
+            <HeaderSearch tone="light" />
+            <HeaderUserMenu user={user} tone="light" />
+          </div>
         </div>
 
         <MobileCategoryBar items={mobileBarItems} />

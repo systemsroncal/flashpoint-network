@@ -129,7 +129,7 @@ function GridTable({
       <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/55">
         {rangeLabel}
       </p>
-      <table className="w-full min-w-[920px] border-collapse text-left">
+      <table className="schedule-week-grid w-full min-w-[920px] border-collapse text-left">
         <thead>
           <tr className="text-[10px] font-bold uppercase tracking-[0.12em] text-white/70">
             <th className="w-[72px] py-2 pr-2 font-bold">Time</th>
@@ -149,10 +149,13 @@ function GridTable({
               {DAYS.map((_, dayIndex) => {
                 const cell = lookup(slot, dayIndex);
                 return (
-                  <td key={`${slot}-${dayIndex}`} className="px-1 py-1.5 align-middle">
+                  <td
+                    key={`${slot}-${dayIndex}`}
+                    className="px-1 py-2 align-middle text-center"
+                  >
                     {cell ? (
                       <span
-                        className="block truncate text-[11px] font-semibold leading-tight md:text-[12px]"
+                        className="schedule-week-grid-cell mx-auto block max-w-[11rem] text-[11px] leading-[1.35] md:text-[12px] md:leading-[1.4]"
                         style={{ color: cell.color }}
                         title={cell.title}
                       >
@@ -193,6 +196,12 @@ export default function ScheduleWeeklyGridView({
   return (
     <div className="bg-white text-black">
       <style>{`
+        .schedule-week-grid-cell {
+          font-family: var(--font-ui);
+          font-weight: 100;
+          letter-spacing: 0.01em;
+          -webkit-font-smoothing: antialiased;
+        }
         @media print {
           header, footer, .schedule-week-nav { display: none !important; }
           .schedule-week-card { box-shadow: none !important; }

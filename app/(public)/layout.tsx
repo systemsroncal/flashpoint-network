@@ -76,6 +76,20 @@ export default async function PublicLayout({
           modules={modules}
           isLoggedIn={Boolean(profile)}
           isStaff={Boolean(profile && isStaffRole(profile.role))}
+          user={
+            profile?.email
+              ? {
+                  email: profile.email,
+                  displayName:
+                    profile.full_name?.trim() ||
+                    [profile.first_name, profile.last_name]
+                      .filter(Boolean)
+                      .join(" ") ||
+                    profile.email,
+                  isStaff: isStaffRole(profile.role),
+                }
+              : null
+          }
         />
         <main className="w-full max-w-none flex-1">{children}</main>
         <SiteFooter modules={modules} />

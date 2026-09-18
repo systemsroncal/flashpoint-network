@@ -9,6 +9,12 @@ import {
   SITE_IDENTITY_SETTING,
   type SiteIdentity,
 } from "@/lib/site-identity/constants";
+import {
+  DEFAULT_FOOTER_LOGO_MAX,
+  DEFAULT_HEADER_LOGO_MAX,
+  parseResponsiveLogoMaxWidth,
+  sanitizeLogoClassName,
+} from "@/lib/site-identity/logo-layout";
 
 export type { SiteIdentity };
 
@@ -71,6 +77,20 @@ function normalizeIdentity(raw: Record<string, unknown>): SiteIdentity {
     siteName,
     headerLogoUrl,
     footerLogoUrl,
+    headerLogoMaxWidth: parseResponsiveLogoMaxWidth(
+      raw.header_logo_max_width ?? raw.headerLogoMaxWidth,
+      DEFAULT_HEADER_LOGO_MAX,
+    ),
+    footerLogoMaxWidth: parseResponsiveLogoMaxWidth(
+      raw.footer_logo_max_width ?? raw.footerLogoMaxWidth,
+      DEFAULT_FOOTER_LOGO_MAX,
+    ),
+    headerLogoClassName: sanitizeLogoClassName(
+      raw.header_logo_class_name ?? raw.headerLogoClassName,
+    ),
+    footerLogoClassName: sanitizeLogoClassName(
+      raw.footer_logo_class_name ?? raw.footerLogoClassName,
+    ),
     authLogoUrl,
     faviconUrl,
     defaultFeaturedImageUrl,

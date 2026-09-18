@@ -4,6 +4,7 @@ import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import ImageUploadField from "@/components/admin/shared/ImageUploadField";
 import { saveSiteIdentitySettingsAction } from "@/lib/admin/actions";
 import type { SiteIdentity } from "@/lib/site-identity/constants";
+import LogoSizingFields from "@/components/admin/settings/LogoSizingFields";
 
 export default function SiteIdentityPanel({ identity }: { identity: SiteIdentity }) {
   return (
@@ -24,8 +25,14 @@ export default function SiteIdentityPanel({ identity }: { identity: SiteIdentity
           defaultValue={identity.headerLogoUrl}
         />
         <Typography variant="caption" color="text.secondary" sx={{ mt: -1.5 }}>
-          Desktop badge image and mobile center wordmark in the site header.
+          Shown in the site header (desktop and mobile, left of the menu on small screens).
         </Typography>
+        <LogoSizingFields
+          prefix="header"
+          label="Header logo"
+          widths={identity.headerLogoMaxWidth}
+          classNameDefault={identity.headerLogoClassName}
+        />
 
         <ImageUploadField
           name="footer_logo_url"
@@ -35,6 +42,12 @@ export default function SiteIdentityPanel({ identity }: { identity: SiteIdentity
         <Typography variant="caption" color="text.secondary" sx={{ mt: -1.5 }}>
           Leave empty to use the default Flash Point lockup in the footer.
         </Typography>
+        <LogoSizingFields
+          prefix="footer"
+          label="Footer logo"
+          widths={identity.footerLogoMaxWidth}
+          classNameDefault={identity.footerLogoClassName}
+        />
 
         <ImageUploadField
           name="auth_logo_url"
