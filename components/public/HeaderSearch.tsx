@@ -9,12 +9,15 @@ type Props = {
   /** `light` = white icon (navy header); `dark` = black icon (WaPo mobile). */
   tone?: "light" | "dark";
   className?: string;
+  /** Search glyph size in px (mobile header uses 22). */
+  iconSize?: number;
 };
 
 export default function HeaderSearch({
   initialQuery = "",
   tone = "light",
   className = "",
+  iconSize = 23,
 }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -76,7 +79,14 @@ export default function HeaderSearch({
             />
           </svg>
         ) : (
-          <Image src="/brand/search.svg" alt="" width={23} height={23} />
+          <Image
+            src="/brand/search.svg"
+            alt=""
+            width={iconSize}
+            height={iconSize}
+            className="shrink-0"
+            style={{ width: iconSize, height: iconSize }}
+          />
         )}
       </button>
 

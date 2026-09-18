@@ -13,9 +13,12 @@ export type HeaderUser = {
 export default function HeaderUserMenu({
   user,
   tone = "light",
+  iconSize = 22,
 }: {
   user: HeaderUser | null;
   tone?: "light" | "dark";
+  /** Sign-in user glyph size in px (mobile header). */
+  iconSize?: number;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -46,7 +49,7 @@ export default function HeaderUserMenu({
         aria-label="Sign in"
         className={`inline-flex h-9 w-9 items-center justify-center hover:opacity-80 ${iconClass}`}
       >
-        <UserIcon />
+        <UserIcon size={iconSize} />
       </Link>
     );
   }
@@ -101,9 +104,17 @@ export default function HeaderUserMenu({
   );
 }
 
-function UserIcon() {
+function UserIcon({ size = 22 }: { size?: number }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+      className="shrink-0"
+      style={{ width: size, height: size }}
+    >
       <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.75" />
       <path
         d="M5 20c1.5-3.5 4.2-5 7-5s5.5 1.5 7 5"

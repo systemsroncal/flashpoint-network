@@ -108,11 +108,11 @@ export default async function SiteHeader({
       {/* —— Desktop / xl+ : existing navy header —— */}
       <div className="relative hidden w-full bg-[var(--fpn-navy)] text-white xl:block">
         <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--fpn-rojo)]" />
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-3 md:gap-4 md:px-8 lg:px-10">
-          <div className="flex w-full min-w-0 items-center gap-3">
+        <div className="mx-auto grid max-w-[1440px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 px-4 py-3 md:gap-4 md:px-8 lg:px-10">
+          <div className="flex min-w-0 items-center justify-start">
             <Link
               href="/"
-              className="relative z-10 block w-full max-w-[240px] shrink-0"
+              className="relative z-10 block w-full max-w-[240px]"
               aria-label={siteName}
             >
               <SiteLogo
@@ -125,7 +125,10 @@ export default async function SiteHeader({
             </Link>
           </div>
 
-          <nav className="hidden flex-1 items-center justify-center gap-1 xl:flex 2xl:gap-2">
+          <nav
+            className="hidden items-center justify-center gap-1 xl:flex 2xl:gap-2"
+            aria-label="Primary"
+          >
             {navDesktop.map((category) => (
               <Link
                 key={category.id}
@@ -137,7 +140,7 @@ export default async function SiteHeader({
             ))}
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center justify-end gap-2 sm:gap-4">
             {modules.classic ? (
               <Link
                 href="/classic-programs"
@@ -180,8 +183,8 @@ export default async function SiteHeader({
           </div>
 
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
-            <HeaderSearch tone="light" />
-            <HeaderUserMenu user={user} tone="light" />
+            <HeaderSearch tone="light" iconSize={22} />
+            <HeaderUserMenu user={user} tone="light" iconSize={22} />
           </div>
         </div>
 
