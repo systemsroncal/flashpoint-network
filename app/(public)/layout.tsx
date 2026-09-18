@@ -2,12 +2,17 @@ import AdSenseScript from "@/components/public/AdSenseScript";
 import MaintenanceWithProgramException from "@/components/public/MaintenanceWithProgramException";
 import SiteFooter from "@/components/public/SiteFooter";
 import SiteHeader from "@/components/public/SiteHeader";
+import TopHeaderBanner from "@/components/public/TopHeaderBanner";
 import TrustedHtmlInject from "@/components/public/TrustedHtmlInject";
 import { TimezoneProvider } from "@/components/timezone/TimezoneProvider";
 import { getCurrentProfile, isAdminRole, isStaffRole } from "@/lib/auth/session";
 import { getCustomHtmlSettings } from "@/lib/custom-html/settings";
 import { getProgramModules } from "@/lib/features/program-modules-server";
 import { getMaintenanceSettings } from "@/lib/maintenance/settings";
+import {
+  getTopHeaderBannerSettings,
+  topHeaderBannerIsRenderable,
+} from "@/lib/top-banner/settings";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
 export const dynamic = "force-dynamic";
@@ -17,14 +22,16 @@ export default async function PublicLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [maintenance, profile, modules, timeZone, customHtml] =
+  const [maintenance, profile, modules, timeZone, customHtml, topHeaderBanner] =
     await Promise.all([
       getMaintenanceSettings(),
       getCurrentProfile(),
       getProgramModules(),
       getSiteTimezone(),
       getCustomHtmlSettings(),
+      getTopHeaderBannerSettings(),
     ]);
+  const showTopHeaderBanner = topHeaderBannerIsRenderable(topHeaderBanner);
 
   // Only admin / superadmin bypass Coming Soon on the public site.
   const adminBypass = Boolean(profile && isAdminRole(profile.role));
@@ -62,6 +69,9 @@ export default async function PublicLayout({
       ) : null}
       <AdSenseScript />
       <div className="flex min-h-0 w-full max-w-none flex-1 flex-col bg-white">
+        {showTopHeaderBanner ? (
+          <TopHeaderBanner settings={topHeaderBanner} />
+        ) : null}
         <SiteHeader
           modules={modules}
           isLoggedIn={Boolean(profile)}

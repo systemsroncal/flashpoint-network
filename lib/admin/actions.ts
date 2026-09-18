@@ -12,6 +12,7 @@ import {
   requireStaffProfile,
 } from "@/lib/auth/session";
 import { CUSTOM_HTML_SETTING } from "@/lib/custom-html/constants";
+import { TOP_HEADER_BANNER_SETTING } from "@/lib/top-banner/constants";
 import {
   PROGRAM_MODULES_SETTING,
   isProgramModulesOwnerEmail,
@@ -645,6 +646,36 @@ export async function saveSiteIdentitySettingsAction(formData: FormData) {
   revalidatePath("/icon");
   revalidatePath("/apple-icon");
   revalidatePath("/api/site/favicon");
+}
+
+export async function saveTopHeaderBannerSettingsAction(formData: FormData) {
+  const supabase = requireAdmin();
+  const active =
+    formData.get("active") === "on" || formData.get("active") === "true";
+  const openInNewTab =
+    formData.get("open_in_new_tab") === "on" ||
+    formData.get("open_in_new_tab") === "true";
+  const href = String(formData.get("href") || "").trim();
+  const desktopImageUrl =
+    String(formData.get("desktop_image_url") || "").trim() || null;
+  const mobileImageUrl =
+    String(formData.get("mobile_image_url") || "").trim() || null;
+
+  const { error } = await supabase.from("site_settings").upsert({
+    key: TOP_HEADER_BANNER_SETTING,
+    value: {
+      active,
+      href,
+      desktop_image_url: desktopImageUrl,
+      mobile_image_url: mobileImageUrl,
+      open_in_new_tab: openInNewTab,
+    },
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/news");
+  revalidatePath("/category");
+  revalidatePath("/admin/settings");
 }
 
 export async function saveMaintenanceSettingsAction(formData: FormData) {

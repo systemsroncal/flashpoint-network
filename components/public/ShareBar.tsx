@@ -9,6 +9,8 @@ type Props = {
   urlPath: string;
   excerpt?: string | null;
   orientation?: "vertical" | "horizontal";
+  /** Compact row under article hero (no “Share” heading). */
+  variant?: "default" | "strip";
 };
 
 type NetworkKey = "linkedin" | "threads" | "facebook" | "x";
@@ -56,7 +58,13 @@ function buildNetworkHref(
   }
 }
 
-function itemClass(orientation: "vertical" | "horizontal") {
+function itemClass(
+  orientation: "vertical" | "horizontal",
+  variant: "default" | "strip",
+) {
+  if (variant === "strip") {
+    return "inline-flex items-center gap-2 py-1 text-[14px] font-medium text-black hover:text-[var(--fpn-rojo)]";
+  }
   return orientation === "vertical"
     ? "inline-flex items-center gap-3 py-1.5 text-[15px] font-medium text-black hover:text-[var(--fpn-rojo)]"
     : "inline-flex items-center gap-2.5 text-[15px] font-medium text-black hover:text-[var(--fpn-rojo)]";
@@ -67,6 +75,7 @@ export default function ShareBar({
   urlPath,
   excerpt,
   orientation = "horizontal",
+  variant = "default",
 }: Props) {
   const [pageUrl, setPageUrl] = useState(() => absolutePageUrl(urlPath));
   const [copied, setCopied] = useState(false);
@@ -116,7 +125,7 @@ export default function ShareBar({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`Share on ${item.label}`}
-      className={itemClass(orientation)}
+      className={itemClass(orientation, variant)}
     >
       <Image src={item.icon} alt="" width={18} height={18} />
       {item.label}
@@ -129,7 +138,7 @@ export default function ShareBar({
         type="button"
         onClick={onNativeShare}
         aria-label={copied ? "Link copied" : "Share or copy link"}
-        className={itemClass(orientation)}
+        className={itemClass(orientation, variant)}
       >
         <Image src="/brand/share/share.svg" alt="" width={18} height={18} />
         {copied ? "Copied" : "Share"}
@@ -138,13 +147,22 @@ export default function ShareBar({
         type="button"
         onClick={() => window.print()}
         aria-label="Print this page"
-        className={itemClass(orientation)}
+        className={itemClass(orientation, variant)}
       >
         <Image src="/brand/share/print.svg" alt="" width={18} height={18} />
         Print
       </button>
     </>
   );
+
+  if (variant === "strip") {
+    return (
+      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 sm:gap-x-8">
+        {networkLinks}
+        {actions}
+      </div>
+    );
+  }
 
   if (orientation === "vertical") {
     return (
@@ -160,7 +178,7 @@ export default function ShareBar({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Share on ${item.label}`}
-                className={itemClass(orientation)}
+                className={itemClass(orientation, variant)}
               >
                 <Image src={item.icon} alt="" width={18} height={18} />
                 {item.label}
@@ -172,7 +190,7 @@ export default function ShareBar({
               type="button"
               onClick={onNativeShare}
               aria-label={copied ? "Link copied" : "Share or copy link"}
-              className={itemClass(orientation)}
+              className={itemClass(orientation, variant)}
             >
               <Image src="/brand/share/share.svg" alt="" width={18} height={18} />
               {copied ? "Copied" : "Share"}
@@ -183,7 +201,7 @@ export default function ShareBar({
               type="button"
               onClick={() => window.print()}
               aria-label="Print this page"
-              className={itemClass(orientation)}
+              className={itemClass(orientation, variant)}
             >
               <Image src="/brand/share/print.svg" alt="" width={18} height={18} />
               Print

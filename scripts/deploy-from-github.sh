@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Flash Point Network — deploy from GitHub (pull → build → PM2)
 #
+# Does NOT run Supabase migrations. Apply SQL from your local machine:
+#   npm run db:apply
+#
 # Typical paths:
 #   CyberPanel (current):  /home/fptn.com/app/flashpoint-network
 #   Hestia-style (future): /home/admin/web/app.fptn.com/public_html

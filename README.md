@@ -54,11 +54,21 @@ Passwords via `STAFF_USER_*_PASSWORD` env vars (never commit them).
 
 ## Supabase
 
+**Migrations run on your local machine only** — not on the VPS. Supabase is cloud-hosted; `db:apply` talks to the project API/DB from `.env.local`. The server only needs app env vars for the Next.js runtime.
+
 ```bash
 npm run db:apply
+# optional after ministry seed changes:
+npm run db:sync-ministry-figma
 ```
 
 Requires `SUPABASE_SERVICE_ROLE_KEY` + DB password or access token (see `scripts/apply-supabase.mjs`).
+
+Typical release order:
+
+1. Local: `npm run db:apply` (and any seed scripts) when `supabase/migrations/` changed.
+2. Local: commit, `git push origin main`.
+3. VPS: `bash scripts/deploy-from-github.sh` (pull, build, pm2 — **no** `db:apply`).
 
 ## Classic Programs seed
 
@@ -105,9 +115,10 @@ curl -sI "https://fptn.com/uploads/YYYY-MM-DD/<uuid>.webp" | head -20
 
 **Important:** The VPS must deploy from **Git**, not from copying individual files in Cursor Projects or SFTP. If you upload only the latest file (change 13) without pushing changes 10–12 to GitHub, the server will never see them. Always:
 
-1. Commit **all** local changes on your machine.
-2. `git push origin main`
-3. On the VPS: `bash scripts/deploy-from-github.sh` (pulls the full branch, then `npm ci`, build, pm2).
+1. Local: `npm run db:apply` if there are new SQL migrations (never on the VPS).
+2. Commit **all** local changes on your machine.
+3. `git push origin main`
+4. On the VPS: `bash scripts/deploy-from-github.sh` (pulls the full branch, then `npm ci`, build, pm2).
 
 From Windows (PowerShell, repo root):
 

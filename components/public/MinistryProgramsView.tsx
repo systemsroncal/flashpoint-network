@@ -2,13 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useId, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useMemo, useState } from "react";
 import LiveTvIcon from "@/components/public/LiveTvIcon";
 import type { MinistryProgram } from "@/lib/types/cms";
 
 /** Last row divider: programs at or above this sort_order sit below the rule (Figma). */
 const BOTTOM_ROW_SORT_FROM = 190;
 const PAGE_MAX = "mx-auto max-w-[1728px] px-4 md:px-8 xl:px-[96px]";
+const HERO_IMAGE =
+  "https://fptn.com/uploads/2026-09-18/db1ce1c7-e18c-475d-b4d9-cf125da4a913.webp";
 
 function formatScheduleLine(line: string): string {
   return line
@@ -130,12 +132,6 @@ function ProgramCard({
   );
 }
 
-function HeroMetaLink({ children }: { children: ReactNode }) {
-  return (
-    <span className="text-[13px] text-[#a8a5a3]">{children}</span>
-  );
-}
-
 export default function MinistryProgramsView({
   programs,
 }: {
@@ -177,7 +173,7 @@ export default function MinistryProgramsView({
     <div className="min-h-full bg-[#101011] text-white">
       <section className="relative min-h-[420px] overflow-hidden md:min-h-[520px] lg:min-h-[580px]">
         <Image
-          src="/brand/network-programs/hero-collage.png"
+          src={HERO_IMAGE}
           alt=""
           fill
           className="object-cover object-[center_20%]"
@@ -216,13 +212,6 @@ export default function MinistryProgramsView({
                 We are live
               </Link>
             </div>
-            <p className="mt-7 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px]">
-              <HeroMetaLink>Biblical teaching</HeroMetaLink>
-              <span className="text-[#6d6763]" aria-hidden>•</span>
-              <HeroMetaLink>Worship</HeroMetaLink>
-              <span className="text-[#6d6763]" aria-hidden>•</span>
-              <HeroMetaLink>Revival</HeroMetaLink>
-            </p>
           </div>
         </div>
       </section>
@@ -232,16 +221,9 @@ export default function MinistryProgramsView({
           FPTN Shows
         </h2>
 
-        <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#aaa4a2]">
-              Grounded in scripture. Centered on Jesus.
-            </p>
-            <p className="mt-3 text-[31px] font-bold leading-tight tracking-[-0.03em] text-[#faf9f6]">
-              Every Sunday
-            </p>
-          </div>
-        </div>
+        <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-[#aaa4a2]">
+          Grounded in scripture. Centered on Jesus.
+        </p>
 
         {programs.length === 0 ? (
           <div className="mt-12 rounded-2xl border border-dashed border-white/15 px-6 py-16 text-center">

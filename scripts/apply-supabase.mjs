@@ -2,6 +2,9 @@
 /**
  * Apply FP Network Supabase migrations + seed to the live project.
  *
+ * Run from your **local** machine only (see scripts/assert-local-db-apply.mjs).
+ * The VPS deploy script does not run this — push migration files via git, apply locally.
+ *
  * Auth for DDL (one of):
  *   - DATABASE_URL / SUPABASE_DB_URL
  *   - SUPABASE_DB_PASSWORD (+ project ref from NEXT_PUBLIC_SUPABASE_URL)
@@ -16,6 +19,7 @@ import { Client } from "pg";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { resolve, join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { assertLocalDbApply } from "./assert-local-db-apply.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -288,6 +292,8 @@ async function countRows() {
 }
 
 async function main() {
+  assertLocalDbApply();
+
   const migrationsDir = join(ROOT, "supabase/migrations");
   const files = readdirSync(migrationsDir)
     .filter((f) => f.endsWith(".sql"))

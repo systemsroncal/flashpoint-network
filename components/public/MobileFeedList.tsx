@@ -46,7 +46,7 @@ export default function MobileFeedList({
               href={`/news/${post.slug}`}
               className="flex w-full items-start gap-3 px-4 py-4"
             >
-              <div className="min-w-0 flex-[0.72]">
+              <div className="min-w-0 flex-1">
                 <h2 className="font-article text-[1.05rem] font-bold leading-snug tracking-tight text-black">
                   {post.title}
                 </h2>

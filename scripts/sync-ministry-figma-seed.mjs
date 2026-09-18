@@ -1,8 +1,9 @@
 /**
  * Upsert FPTN Shows catalog from scripts/data/ministry-programs-figma-seed.json
- * Run after db:apply: node scripts/sync-ministry-figma-seed.mjs
+ * Run after db:apply locally: npm run db:sync-ministry-figma
  */
 import { createClient } from "@supabase/supabase-js";
+import { assertLocalDbApply } from "./assert-local-db-apply.mjs";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -47,6 +48,8 @@ const admin = createClient(url, key, {
 });
 
 async function main() {
+  assertLocalDbApply();
+
   const { data: published, error: listErr } = await admin
     .from("ministry_programs")
     .select("id, slug")

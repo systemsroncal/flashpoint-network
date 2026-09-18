@@ -15,6 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
+import ImageUploadField from "@/components/admin/shared/ImageUploadField";
 import SiteIdentityPanel from "@/components/admin/settings/SiteIdentityPanel";
 import type { SiteIdentity } from "@/lib/site-identity/constants";
 import { saveAiProviderKeysAction } from "@/lib/admin/ai-actions";
@@ -22,6 +23,7 @@ import {
   saveAdSenseSettingsAction,
   saveCustomHtmlSettingsAction,
   saveMaintenanceSettingsAction,
+  saveTopHeaderBannerSettingsAction,
   savePaywallSettingsAction,
   saveProgramModulesAction,
   saveTimezoneSettingsAction,
@@ -37,6 +39,7 @@ import {
   SITE_TIMEZONE_SETTING,
 } from "@/lib/timezone/constants";
 import { SITE_IDENTITY_SETTING } from "@/lib/site-identity/constants";
+import { TOP_HEADER_BANNER_SETTING } from "@/lib/top-banner/constants";
 
 type Setting = {
   key: string;
@@ -75,6 +78,7 @@ export default function SettingsManager({
   const paywall = asObject(byKey.get("paywall")?.value);
   const adsense = asObject(byKey.get("adsense")?.value);
   const maintenance = asObject(byKey.get("maintenance")?.value);
+  const topHeaderBanner = asObject(byKey.get(TOP_HEADER_BANNER_SETTING)?.value);
   const programModules = asObject(byKey.get("program_modules")?.value);
   const timezone = normalizeSiteTimezone(byKey.get(SITE_TIMEZONE_SETTING)?.value);
   const customHtml = asObject(byKey.get(CUSTOM_HTML_SETTING)?.value);
@@ -96,6 +100,7 @@ export default function SettingsManager({
     CUSTOM_HTML_SETTING,
     AI_KEYS_SETTING,
     SITE_IDENTITY_SETTING,
+    TOP_HEADER_BANNER_SETTING,
   ]);
   const visibleSettings = settings.filter((s) => !hiddenKeys.has(s.key));
 
@@ -126,6 +131,73 @@ export default function SettingsManager({
 
       {tab === "general" ? (
         <>
+      <DashboardCard
+        title="Top header banner"
+        subtitle="Promotional strip above the site header (desktop + mobile images). Visitors can close it for 24 hours."
+      >
+        <Box component="form" action={saveTopHeaderBannerSettingsAction}>
+          <Stack spacing={2.5}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="active"
+                  defaultChecked={
+                    typeof topHeaderBanner.active === "boolean"
+                      ? topHeaderBanner.active
+                      : false
+                  }
+                />
+              }
+              label="Active (show on public site)"
+            />
+            <TextField
+              name="href"
+              label="Link URL"
+              fullWidth
+              placeholder="https://fptn.com/..."
+              helperText="Optional. Entire banner is clickable when set."
+              defaultValue={
+                typeof topHeaderBanner.href === "string" ? topHeaderBanner.href : ""
+              }
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="open_in_new_tab"
+                  defaultChecked={
+                    typeof topHeaderBanner.open_in_new_tab === "boolean"
+                      ? topHeaderBanner.open_in_new_tab
+                      : true
+                  }
+                />
+              }
+              label="Open link in a new tab"
+            />
+            <ImageUploadField
+              name="desktop_image_url"
+              label="Desktop banner (≥768px)"
+              defaultValue={
+                typeof topHeaderBanner.desktop_image_url === "string"
+                  ? topHeaderBanner.desktop_image_url
+                  : ""
+              }
+            />
+            <ImageUploadField
+              name="mobile_image_url"
+              label="Mobile banner (≤767px)"
+              defaultValue={
+                typeof topHeaderBanner.mobile_image_url === "string"
+                  ? topHeaderBanner.mobile_image_url
+                  : ""
+              }
+            />
+            <Button type="submit" variant="contained" sx={{ alignSelf: "flex-start" }}>
+              Save top banner
+            </Button>
+          </Stack>
+        </Box>
+      </DashboardCard>
+
       <DashboardCard
         title="System timezone"
         subtitle="Used for dates on the public site and in admin (publish times, tickers, datetime fields). Stored as UTC in the database."

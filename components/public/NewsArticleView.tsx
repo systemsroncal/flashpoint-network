@@ -43,7 +43,11 @@ export default async function NewsArticleView({
     getSiteTimezone(),
     getSiteIdentity(),
   ]);
-  const category = (post.category?.name ?? "News").toUpperCase();
+  const categoryName = post.category?.name ?? "News";
+  const category = categoryName.toUpperCase();
+  const categoryHref = post.category?.slug
+    ? `/category/${post.category.slug}`
+    : null;
   const href = `/news/${post.slug}`;
   const featured =
     resolveMediaUrl(post.featured_image_url) ||
@@ -54,93 +58,103 @@ export default async function NewsArticleView({
 
   return (
     <article className="bg-white text-black">
-      {/* Title + dek */}
-      <div className="mx-auto max-w-[1280px] px-4 pb-6 pt-10 text-center md:px-8 lg:px-10 lg:pt-12">
-        <h1 className="mx-auto max-w-[1100px] font-article text-[2rem] font-black leading-[1.15] tracking-tight text-black md:text-[2.75rem] lg:text-[3.2rem]">
-          {post.title}
-        </h1>
-        {post.excerpt ? (
-          <p className="mx-auto mt-5 max-w-[980px] text-base leading-7 text-black md:text-[1.25rem] md:leading-9">
-            {post.excerpt}
-          </p>
-        ) : null}
-      </div>
-
-      {/* Hero + meta / vertical share */}
-      <div className="mx-auto max-w-[1440px] px-4 md:px-8 lg:px-10">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-center lg:gap-8">
-          <div className="w-full max-w-[1100px] flex-1">
-            {playerInHero && post.video_url ? (
-              <div className="overflow-hidden rounded-[13px] bg-black">
-                <VideoPlayer
-                  url={post.video_url}
-                  title={post.title}
-                  poster={
-                    featured ||
-                    youtubeThumbnailUrl(post.video_url) ||
-                    null
-                  }
+      {/* Hero: category, title, dek, meta, image, share strip (Figma single post) */}
+      <div className="mx-auto max-w-[906px] px-4 pb-8 pt-10 md:px-8 lg:px-10 lg:pt-12">
+        <header className="text-left">
+          {categoryHref ? (
+            <Link
+              href={categoryHref}
+              className="inline-flex rounded-full bg-[var(--fpn-rojo)] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white hover:brightness-110"
+            >
+              {category}
+            </Link>
+          ) : (
+            <span className="inline-flex rounded-full bg-[var(--fpn-rojo)] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white">
+              {category}
+            </span>
+          )}
+          <h1 className="mt-5 font-article text-[2rem] font-black leading-[1.12] tracking-tight text-black md:text-[2.65rem] lg:text-[3rem]">
+            {post.title}
+          </h1>
+          {post.excerpt ? (
+            <p className="mt-4 text-base leading-7 text-black/90 md:text-lg md:leading-8">
+              {post.excerpt}
+            </p>
+          ) : null}
+          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[15px] text-black">
+            <span className="inline-flex items-center gap-2">
+              <Image src="/brand/icon-clock.svg" alt="" width={18} height={18} />
+              {formatReadTime(post.reading_time_minutes)}
+            </span>
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 text-black/80 hover:text-[var(--fpn-rojo)]"
+              aria-label="Save article"
+            >
+              <svg width="16" height="20" viewBox="0 0 16 20" fill="none" aria-hidden>
+                <path
+                  d="M2 1.5h12v17L8 14.5 2 18.5v-17z"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinejoin="round"
                 />
-              </div>
-            ) : showFeatured && featured ? (
-              <div className="relative aspect-[16/9] overflow-hidden rounded-[13px] bg-neutral-200 lg:aspect-[1245/697]">
-                <Image
-                  src={featured}
-                  alt=""
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="(max-width:1024px) 100vw, 1100px"
-                />
-              </div>
-            ) : showFeatured ? (
-              <div className="aspect-[16/9] rounded-[13px] bg-neutral-200" />
-            ) : null}
+              </svg>
+            </button>
+            <span className="inline-flex items-center gap-2">
+              <Image src="/brand/icon-comments.svg" alt="" width={17} height={17} />
+              {formatViews(post.view_count)}
+            </span>
+            <span className="hidden text-black/50 sm:inline" aria-hidden>·</span>
+            <time
+              dateTime={post.published_at ?? undefined}
+              className="hidden text-[14px] text-[var(--fpn-rojo)] sm:inline"
+            >
+              {formatDate(post.published_at, timeZone)}
+            </time>
           </div>
+        </header>
 
-          <aside className="flex w-full shrink-0 flex-row flex-wrap items-start justify-between gap-6 border-t border-[#ccc] pt-4 lg:w-[140px] lg:flex-col lg:border-t-0 lg:pt-0">
-            <div className="space-y-2">
-              <p className="text-[18px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)] lg:text-[22px]">
-                {category}
-              </p>
-              <p className="text-[15px] font-semibold text-[var(--fpn-rojo)] lg:text-[17px]">
-                {formatDate(post.published_at, timeZone)}
-              </p>
-              <div className="flex flex-col gap-2 text-[15px] text-black lg:text-[17px]">
-                <span className="inline-flex items-center gap-2">
-                  <Image
-                    src="/brand/icon-clock.svg"
-                    alt=""
-                    width={18}
-                    height={18}
-                  />
-                  {formatReadTime(post.reading_time_minutes)}
-                </span>
-                <span className="inline-flex items-center gap-2">
-                  <Image
-                    src="/brand/icon-comments.svg"
-                    alt=""
-                    width={17}
-                    height={17}
-                  />
-                  {formatViews(post.view_count)}
-                </span>
-              </div>
-            </div>
-            <div className="hidden lg:block">
-              <ShareBar
+        <div className="mt-8">
+          {playerInHero && post.video_url ? (
+            <div className="overflow-hidden rounded-[13px] bg-black">
+              <VideoPlayer
+                url={post.video_url}
                 title={post.title}
-                urlPath={href}
-                excerpt={post.excerpt}
-                orientation="vertical"
+                poster={
+                  featured ||
+                  youtubeThumbnailUrl(post.video_url) ||
+                  null
+                }
               />
             </div>
-          </aside>
+          ) : showFeatured && featured ? (
+            <div className="relative aspect-[16/9] overflow-hidden rounded-[13px] bg-neutral-200 lg:aspect-[1245/697]">
+              <Image
+                src={featured}
+                alt=""
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width:1024px) 100vw, 906px"
+              />
+            </div>
+          ) : showFeatured ? (
+            <div className="aspect-[16/9] rounded-[13px] bg-neutral-200 lg:aspect-[1245/697]" />
+          ) : null}
+        </div>
+
+        <div className="mt-6 border-b border-[#ccc] pb-8 pt-2">
+          <ShareBar
+            title={post.title}
+            urlPath={href}
+            excerpt={post.excerpt}
+            variant="strip"
+          />
         </div>
       </div>
 
       {/* Body + sidebar */}
-      <div className="mx-auto mt-10 grid max-w-[1440px] gap-10 px-4 pb-6 md:px-8 lg:mt-12 lg:grid-cols-[minmax(0,1fr)_370px] lg:gap-12 lg:px-10">
+      <div className="mx-auto grid max-w-[1440px] gap-10 px-4 pb-6 md:px-8 lg:grid-cols-[minmax(0,1fr)_370px] lg:gap-12 lg:px-10">
         <div className="mx-auto w-full max-w-[906px] lg:mx-0">
           {/* Player in body only when hero still shows the featured image */}
           {post.video_url && showFeatured ? (
@@ -187,22 +201,6 @@ export default async function NewsArticleView({
             >
               Gift now
             </Link>
-          </div>
-
-          <div className="mt-10 lg:hidden">
-            <ShareBar
-              title={post.title}
-              urlPath={href}
-              excerpt={post.excerpt}
-            />
-          </div>
-
-          <div className="mt-10 hidden lg:block">
-            <ShareBar
-              title={post.title}
-              urlPath={href}
-              excerpt={post.excerpt}
-            />
           </div>
 
           {/* Prev / Next */}
