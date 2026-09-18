@@ -1,0 +1,41 @@
+---
+description: Never overwrite live CMS/content data via Supabase migrations or seeds unless explicitly requested
+alwaysApply: true
+---
+
+# Supabase / data safety (FlashPoint Network)
+
+## Hard rule
+
+**Do not overwrite, archive, delete, or bulk-update existing content rows** (network/ministry programs, classic programs, posts, events, categories, banners, settings values that editors manage, media metadata, help-center submissions, etc.) via:
+
+- SQL migrations under `supabase/migrations/`
+- `supabase/seed.sql` or re-running seeds against production/staging
+- `npm run db:apply` / apply scripts with destructive `UPDATE` / `DELETE` / mass `status = 'archived'`
+- “sync from Figma” or catalog-replacement scripts
+
+…**unless the user explicitly asks** to change that live data in the current request.
+
+## Allowed without asking
+
+- Additive schema only: `CREATE TABLE`, `ADD COLUMN`, indexes, RLS policies, grants
+- `CREATE … IF NOT EXISTS` / `ADD COLUMN IF NOT EXISTS`
+- New empty tables or nullable columns with safe defaults that do not rewrite existing rows
+- Local-only fixtures the user clearly scoped to a fresh/dev database
+
+## Forbidden patterns (without explicit user approval)
+
+- `UPDATE … SET status = 'archived'` (or similar) on content tables
+- `ON CONFLICT DO UPDATE` that replaces titles, bodies, images, or publish state for existing UUIDs/slugs
+- Re-seeding production to “match mockup” or Figma
+- Destructive resets (`TRUNCATE`, drop-and-recreate with data loss)
+
+## Before `db:apply` or shipping a migration
+
+1. Read the migration/SQL end-to-end for any DML that touches content.
+2. Prefer schema-only migrations; put one-time content changes in a **separate** migration and **ask** before applying.
+3. If a past migration already archived or overwrote editor data, **do not** silently reverse it—ask the user whether to restore.
+
+## Incident note (2026-09)
+
+`20260917230000_ministry_programs_figma_layout.sql` archived a fixed list of `ministry_programs` (Network Programs) by slug. That overwrote editor work. Future agents must not repeat this pattern without an explicit request.

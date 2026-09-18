@@ -3,20 +3,25 @@ import HeaderSearch from "@/components/public/HeaderSearch";
 import HeaderUserMenu, {
   type HeaderUser,
 } from "@/components/public/HeaderUserMenu";
-import MobileCategoryBar, {
-  type MobileCategoryItem,
-} from "@/components/public/MobileCategoryBar";
+import DesktopSiteHeader, {
+  type DesktopCategoryNav,
+} from "@/components/public/DesktopSiteHeader";
+import NewsSectionMobileCategoryBar from "@/components/public/NewsSectionMobileCategoryBar";
 import MobileNav from "@/components/public/MobileNav";
 import SiteLogo from "@/components/public/SiteLogo";
 import {
   flattenCategoriesHierarchy,
+  getChildCategories,
   getRootCategories,
 } from "@/lib/categories/hierarchy";
 import { getNavCategories, getTopCategoriesByPostCount } from "@/lib/data/home";
+import { formatDate } from "@/lib/format";
 import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { DEFAULT_FOOTER_MARK_URL } from "@/lib/site-identity/constants";
+import { getSiteTimezone } from "@/lib/timezone/settings";
 import type { ProgramModules } from "@/lib/features/program-modules";
 import { DEFAULT_PROGRAM_MODULES } from "@/lib/features/program-modules";
+import type { MobileCategoryItem } from "@/components/public/MobileCategoryBar";
 
 const FALLBACK_NAV = [
   { name: "U.S." },
@@ -47,10 +52,11 @@ export default async function SiteHeader({
   isStaff?: boolean;
   user?: HeaderUser | null;
 }) {
-  const [identity, categories, menuTopCategories] = await Promise.all([
+  const [identity, categories, menuTopCategories, timeZone] = await Promise.all([
     getSiteIdentity(),
     getNavCategories(),
     getTopCategoriesByPostCount(5),
+    getSiteTimezone(),
   ]);
   const siteName = identity.siteName;
   const headerLogo = identity.headerLogoUrl;
@@ -77,100 +83,56 @@ export default async function SiteHeader({
           parent_id: c.parent_id,
         }))
       : navRoots.map((c) => ({ ...c, parent_id: null as string | null }));
-  const navDesktop = navRoots.slice(0, 9);
+
+  const desktopCategories: DesktopCategoryNav[] =
+    fromDb.length > 0
+      ? getRootCategories(fromDb).map((root) => ({
+          id: root.id,
+          name: root.name,
+          slug: root.slug,
+          children: getChildCategories(fromDb, root.id).map((c) => ({
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
+          })),
+        }))
+      : navRoots.map((r) => ({
+          id: r.id,
+          name: r.name,
+          slug: r.slug,
+          children: [],
+        }));
+
+  const todayLabel = formatDate(new Date().toISOString(), timeZone);
 
   const mobileBarItems: MobileCategoryItem[] = [
     { id: "latest", label: "Latest", href: "/" },
     ...navAll.map((c) => ({
       id: c.id,
-      label: c.parent_id ? `  ${categoryLabel(c.name, c.slug)}` : categoryLabel(c.name, c.slug),
+      label: c.parent_id
+        ? `  ${categoryLabel(c.name, c.slug)}`
+        : categoryLabel(c.name, c.slug),
       href: `/category/${c.slug}`,
     })),
     { id: "for-you", label: "For You", href: "/feed/popular" },
     { id: "exclusive", label: "Exclusive", href: "/feed/premium" },
   ];
 
-  const authDesktop =
-    isLoggedIn ? (
-      isStaff ? (
-        <Link
-          href="/admin"
-          className="inline-flex h-[38px] items-center justify-center rounded-md bg-[var(--fpn-rojo)] px-4 text-[14px] font-black text-white hover:brightness-110"
-        >
-          Admin
-        </Link>
-      ) : null
-    ) : (
-      <>
-        <Link
-          href="/register"
-          className="hidden h-[38px] w-[105px] items-center justify-center rounded-md bg-white text-[14px] font-bold text-black md:inline-flex"
-        >
-          Subscribe
-        </Link>
-        <Link
-          href="/login"
-          className="hidden h-[38px] min-w-[72px] items-center justify-center rounded-md bg-[var(--fpn-rojo)] px-3 text-[14px] font-black text-white hover:brightness-110 md:inline-flex md:w-[105px]"
-        >
-          Login
-        </Link>
-      </>
-    );
-
   return (
-    <header className="relative z-20 w-full max-w-none">
-      {/* —— Desktop / xl+ : existing navy header —— */}
-      <div className="relative hidden w-full bg-[var(--fpn-navy)] text-white xl:block">
-        <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--fpn-rojo)]" />
-        <div className="mx-auto grid max-w-[1440px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 px-4 py-3 md:gap-4 md:px-8 lg:px-10">
-          <div className="flex min-w-0 items-center justify-start">
-            <Link
-              href="/"
-              className="relative z-10 block w-full max-w-[240px]"
-              aria-label={siteName}
-            >
-              <SiteLogo
-                src={logoSrc}
-                alt={siteName}
-                widths={identity.headerLogoMaxWidth}
-                className={identity.headerLogoClassName}
-                priority
-              />
-            </Link>
-          </div>
+    <div className="relative z-20 w-full max-w-none">
+      <DesktopSiteHeader
+        siteName={siteName}
+        logoSrc={logoSrc}
+        logoWidths={identity.headerLogoMaxWidth}
+        logoClassName={identity.headerLogoClassName}
+        categories={desktopCategories}
+        showSchedule={modules.schedule}
+        todayLabel={todayLabel}
+        user={user}
+      />
 
-          <nav
-            className="hidden items-center justify-center gap-1 xl:flex 2xl:gap-2"
-            aria-label="Primary"
-          >
-            {navDesktop.map((category) => (
-              <Link
-                key={category.id}
-                href={`/category/${category.slug}`}
-                className="inline-flex items-center px-1.5 py-2 text-[13px] font-black text-white transition-opacity hover:opacity-80 2xl:px-2 2xl:text-[15px]"
-              >
-                {category.name}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center justify-end gap-2 sm:gap-4">
-            {modules.classic ? (
-              <Link
-                href="/classic-programs"
-                className="hidden text-[13px] font-bold text-white/90 hover:text-white lg:inline"
-              >
-                Classics
-              </Link>
-            ) : null}
-            <HeaderSearch tone="light" />
-            {authDesktop}
-          </div>
-        </div>
-      </div>
-
-      {/* —— Mobile / tablet : hamburger + logo left; search + account right —— */}
-      <div className="relative w-full max-w-none bg-[var(--fpn-navy)] text-white xl:hidden">
+      {/* Mobile / tablet */}
+      <header className="sticky top-0 z-50 w-full max-w-none bg-[var(--fpn-navy)] text-white xl:hidden">
         <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--fpn-rojo)]" />
         <div className="relative flex items-center justify-between gap-2 px-2 pb-2.5 pt-3.5 sm:px-3">
           <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2">
@@ -208,8 +170,8 @@ export default async function SiteHeader({
           </div>
         </div>
 
-        <MobileCategoryBar items={mobileBarItems} />
-      </div>
-    </header>
+        <NewsSectionMobileCategoryBar items={mobileBarItems} />
+      </header>
+    </div>
   );
 }
