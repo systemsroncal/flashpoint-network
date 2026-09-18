@@ -109,7 +109,7 @@ export default async function SiteHeader({
       <div className="relative hidden w-full bg-[var(--fpn-navy)] text-white xl:block">
         <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--fpn-rojo)]" />
         <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-3 md:gap-4 md:px-8 lg:px-10">
-          <div className="flex items-center gap-3">
+          <div className="flex w-full min-w-0 items-center gap-3">
             <Link
               href="/"
               className="relative z-10 block w-full max-w-[240px] shrink-0"
