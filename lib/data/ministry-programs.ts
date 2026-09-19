@@ -69,12 +69,19 @@ export async function getPublishedMinistryPrograms(): Promise<MinistryProgram[]>
     return query;
   }
 
-  let { data, error } = await run(MINISTRY_SELECT_WITH_CAROUSEL);
+  const primary = await run(MINISTRY_SELECT_WITH_CAROUSEL);
+  let rawRows: unknown[] | null = primary.data as unknown[] | null;
+  let error = primary.error;
   if (error && isMissingCarouselColumn(error)) {
-    ({ data, error } = await run(MINISTRY_SELECT_BASE));
+    const fallback = await run(MINISTRY_SELECT_BASE);
+    rawRows = fallback.data as unknown[] | null;
+    error = fallback.error;
   }
   if (error) throw new Error(error.message);
-  let rows = (data as MinistryProgram[]) ?? [];
+  let rows = ((rawRows ?? []) as MinistryProgram[]).map((row) => ({
+    ...row,
+    carousel_image_url: row.carousel_image_url ?? null,
+  }));
   if (mode === "random") {
     rows = [...rows].sort(() => Math.random() - 0.5);
   }
@@ -86,22 +93,31 @@ export async function getMinistryProgramBySlug(
 ): Promise<MinistryProgram | null> {
   const supabase = await db();
   if (!supabase) return null;
-  let { data, error } = await supabase
+  const primary = await supabase
     .from("ministry_programs")
     .select(MINISTRY_SELECT_WITH_CAROUSEL)
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
+  let raw: unknown = primary.data;
+  let error = primary.error;
   if (error && isMissingCarouselColumn(error)) {
-    ({ data, error } = await supabase
+    const fallback = await supabase
       .from("ministry_programs")
       .select(MINISTRY_SELECT_BASE)
       .eq("slug", slug)
       .eq("status", "published")
-      .maybeSingle());
+      .maybeSingle();
+    raw = fallback.data;
+    error = fallback.error;
   }
   if (error) throw new Error(error.message);
-  return data ? withLocalProgramImages(data as MinistryProgram) : null;
+  if (!raw) return null;
+  const row = raw as MinistryProgram;
+  return withLocalProgramImages({
+    ...row,
+    carousel_image_url: row.carousel_image_url ?? null,
+  });
 }
 
 /** Published shows that have a home-carousel image set. */

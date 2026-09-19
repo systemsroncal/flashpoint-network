@@ -221,7 +221,7 @@ export default function HomeNetworkMarketing({
                     <div className="mt-3 flex items-center justify-between gap-3 text-sm text-[#929292]">
                       <span>{formatReadTime(post.reading_time_minutes)}</span>
                       <span className="text-[var(--fpn-rojo)]">
-                        {formatDate(post.published_at || post.created_at, timeZone)}
+                        {formatDate(post.published_at, timeZone)}
                       </span>
                     </div>
                   </article>

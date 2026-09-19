@@ -400,40 +400,53 @@ export async function getClassicProgramsSortMode(): Promise<ClassicProgramsSortM
 
 export async function getAdminMinistryPrograms(): Promise<MinistryProgram[]> {
   const supabase = requireAdmin();
-  let { data, error } = await supabase
+  const primary = await supabase
     .from("ministry_programs")
     .select(MINISTRY_SELECT_WITH_CAROUSEL)
     .order("sort_order", { ascending: true })
     .order("title", { ascending: true });
-  if (error && isMissingCarouselColumn(error)) {
-    ({ data, error } = await supabase
-      .from("ministry_programs")
-      .select(MINISTRY_SELECT)
-      .order("sort_order", { ascending: true })
-      .order("title", { ascending: true }));
+  if (!primary.error) {
+    return (primary.data as MinistryProgram[]) ?? [];
   }
-  if (error) throw new Error(error.message);
-  return (data as MinistryProgram[]) ?? [];
+  if (!isMissingCarouselColumn(primary.error)) {
+    throw new Error(primary.error.message);
+  }
+  const fallback = await supabase
+    .from("ministry_programs")
+    .select(MINISTRY_SELECT)
+    .order("sort_order", { ascending: true })
+    .order("title", { ascending: true });
+  if (fallback.error) throw new Error(fallback.error.message);
+  return ((fallback.data ?? []) as MinistryProgram[]).map((row) => ({
+    ...row,
+    carousel_image_url: row.carousel_image_url ?? null,
+  }));
 }
 
 export async function getAdminMinistryProgram(
   id: string,
 ): Promise<MinistryProgram | null> {
   const supabase = requireAdmin();
-  let { data, error } = await supabase
+  const primary = await supabase
     .from("ministry_programs")
     .select(MINISTRY_SELECT_WITH_CAROUSEL)
     .eq("id", id)
     .maybeSingle();
-  if (error && isMissingCarouselColumn(error)) {
-    ({ data, error } = await supabase
-      .from("ministry_programs")
-      .select(MINISTRY_SELECT)
-      .eq("id", id)
-      .maybeSingle());
+  if (!primary.error) {
+    return (primary.data as MinistryProgram) ?? null;
   }
-  if (error) throw new Error(error.message);
-  return (data as MinistryProgram) ?? null;
+  if (!isMissingCarouselColumn(primary.error)) {
+    throw new Error(primary.error.message);
+  }
+  const fallback = await supabase
+    .from("ministry_programs")
+    .select(MINISTRY_SELECT)
+    .eq("id", id)
+    .maybeSingle();
+  if (fallback.error) throw new Error(fallback.error.message);
+  if (!fallback.data) return null;
+  const row = fallback.data as MinistryProgram;
+  return { ...row, carousel_image_url: row.carousel_image_url ?? null };
 }
 
 export async function getMinistryProgramsSortMode(): Promise<MinistryProgramsSortMode> {
