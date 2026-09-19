@@ -14,8 +14,6 @@ export default async function HomePage() {
     ]),
   ]);
 
-  // Mobile and desktop share HomeView sections. The WaPo compact list
-  // (title + thumb + relative time) is only for category / feed taps in
-  // the mobile header bar — never for the home landing ("Latest").
+  // Same news landing as /news (Beyond the Broadcast + sidebar feeds).
   return <HomeView data={data} banners={banners} />;
 }

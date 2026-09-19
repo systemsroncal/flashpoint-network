@@ -353,6 +353,12 @@ const CLASSIC_SELECT =
 const MINISTRY_SELECT =
   "id, title, slug, excerpt, description, body, featured_image_url, external_url, schedule_note, genre, genres_label, schedule_line, host_name, schedule_detail, sort_order, status, source_url, created_at, updated_at";
 
+const MINISTRY_SELECT_WITH_CAROUSEL = `${MINISTRY_SELECT}, carousel_image_url`;
+
+function isMissingCarouselColumn(error: { message?: string } | null): boolean {
+  return /carousel_image_url/i.test(error?.message || "");
+}
+
 export async function getAdminClassicPrograms(): Promise<ClassicProgram[]> {
   const supabase = requireAdmin();
   const { data, error } = await supabase
@@ -394,11 +400,18 @@ export async function getClassicProgramsSortMode(): Promise<ClassicProgramsSortM
 
 export async function getAdminMinistryPrograms(): Promise<MinistryProgram[]> {
   const supabase = requireAdmin();
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("ministry_programs")
-    .select(MINISTRY_SELECT)
+    .select(MINISTRY_SELECT_WITH_CAROUSEL)
     .order("sort_order", { ascending: true })
     .order("title", { ascending: true });
+  if (error && isMissingCarouselColumn(error)) {
+    ({ data, error } = await supabase
+      .from("ministry_programs")
+      .select(MINISTRY_SELECT)
+      .order("sort_order", { ascending: true })
+      .order("title", { ascending: true }));
+  }
   if (error) throw new Error(error.message);
   return (data as MinistryProgram[]) ?? [];
 }
@@ -407,11 +420,18 @@ export async function getAdminMinistryProgram(
   id: string,
 ): Promise<MinistryProgram | null> {
   const supabase = requireAdmin();
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("ministry_programs")
-    .select(MINISTRY_SELECT)
+    .select(MINISTRY_SELECT_WITH_CAROUSEL)
     .eq("id", id)
     .maybeSingle();
+  if (error && isMissingCarouselColumn(error)) {
+    ({ data, error } = await supabase
+      .from("ministry_programs")
+      .select(MINISTRY_SELECT)
+      .eq("id", id)
+      .maybeSingle());
+  }
   if (error) throw new Error(error.message);
   return (data as MinistryProgram) ?? null;
 }

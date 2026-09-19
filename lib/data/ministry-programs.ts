@@ -6,7 +6,12 @@ import type {
   MinistryProgram,
   MinistryProgramsSortMode,
 } from "@/lib/types/cms";
-import { withLocalFeaturedImage } from "@/lib/media/prefer-local";
+import { withLocalProgramImages } from "@/lib/media/prefer-local";
+
+const MINISTRY_SELECT_BASE =
+  "id, title, slug, excerpt, description, body, featured_image_url, external_url, schedule_note, genre, genres_label, schedule_line, host_name, schedule_detail, sort_order, status, source_url, created_at, updated_at";
+
+const MINISTRY_SELECT_WITH_CAROUSEL = `${MINISTRY_SELECT_BASE}, carousel_image_url`;
 
 async function db() {
   return (await createClient()) ?? createAdminClient();
@@ -21,6 +26,10 @@ function parseSortMode(value: unknown): MinistryProgramsSortMode {
     return raw as MinistryProgramsSortMode;
   }
   return "manual";
+}
+
+function isMissingCarouselColumn(error: { message?: string } | null): boolean {
+  return /carousel_image_url/i.test(error?.message || "");
 }
 
 export async function getPublicMinistryProgramsSortMode(): Promise<MinistryProgramsSortMode> {
@@ -39,32 +48,37 @@ export async function getPublishedMinistryPrograms(): Promise<MinistryProgram[]>
   if (!supabase) return [];
   const mode = await getPublicMinistryProgramsSortMode();
 
-  let query = supabase
-    .from("ministry_programs")
-    .select(
-      "id, title, slug, excerpt, description, body, featured_image_url, external_url, schedule_note, genre, genres_label, schedule_line, host_name, schedule_detail, sort_order, status, source_url, created_at, updated_at",
-    )
-    .eq("status", "published");
+  async function run(selectCols: string) {
+    let query = supabase!
+      .from("ministry_programs")
+      .select(selectCols)
+      .eq("status", "published");
 
-  if (mode === "a_z") {
-    query = query.order("title", { ascending: true });
-  } else if (mode === "z_a") {
-    query = query.order("title", { ascending: false });
-  } else if (mode === "newest") {
-    query = query.order("created_at", { ascending: false });
-  } else {
-    query = query
-      .order("sort_order", { ascending: true })
-      .order("title", { ascending: true });
+    if (mode === "a_z") {
+      query = query.order("title", { ascending: true });
+    } else if (mode === "z_a") {
+      query = query.order("title", { ascending: false });
+    } else if (mode === "newest") {
+      query = query.order("created_at", { ascending: false });
+    } else {
+      query = query
+        .order("sort_order", { ascending: true })
+        .order("title", { ascending: true });
+    }
+
+    return query;
   }
 
-  const { data, error } = await query;
+  let { data, error } = await run(MINISTRY_SELECT_WITH_CAROUSEL);
+  if (error && isMissingCarouselColumn(error)) {
+    ({ data, error } = await run(MINISTRY_SELECT_BASE));
+  }
   if (error) throw new Error(error.message);
   let rows = (data as MinistryProgram[]) ?? [];
   if (mode === "random") {
     rows = [...rows].sort(() => Math.random() - 0.5);
   }
-  return rows.map((row) => withLocalFeaturedImage(row));
+  return rows.map((row) => withLocalProgramImages(row));
 }
 
 export async function getMinistryProgramBySlug(
@@ -72,13 +86,33 @@ export async function getMinistryProgramBySlug(
 ): Promise<MinistryProgram | null> {
   const supabase = await db();
   if (!supabase) return null;
-  const { data } = await supabase
+  let { data, error } = await supabase
     .from("ministry_programs")
-    .select(
-      "id, title, slug, excerpt, description, body, featured_image_url, external_url, schedule_note, genre, genres_label, schedule_line, host_name, schedule_detail, sort_order, status, source_url, created_at, updated_at",
-    )
+    .select(MINISTRY_SELECT_WITH_CAROUSEL)
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();
-  return data ? withLocalFeaturedImage(data as MinistryProgram) : null;
+  if (error && isMissingCarouselColumn(error)) {
+    ({ data, error } = await supabase
+      .from("ministry_programs")
+      .select(MINISTRY_SELECT_BASE)
+      .eq("slug", slug)
+      .eq("status", "published")
+      .maybeSingle());
+  }
+  if (error) throw new Error(error.message);
+  return data ? withLocalProgramImages(data as MinistryProgram) : null;
+}
+
+/** Published shows that have a home-carousel image set. */
+export async function getNetworkProgramsForHomeCarousel(): Promise<
+  MinistryProgram[]
+> {
+  try {
+    const programs = await getPublishedMinistryPrograms();
+    return programs.filter((p) => Boolean(p.carousel_image_url?.trim()));
+  } catch (error) {
+    if (isMissingCarouselColumn(error as { message?: string })) return [];
+    throw error;
+  }
 }

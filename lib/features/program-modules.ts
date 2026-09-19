@@ -8,9 +8,9 @@ export type ProgramModules = {
   schedule: boolean;
 };
 
-/** Classic stays off until enabled in Settings; schedule is on by default. */
+/** Classic and schedule are on by default; Settings can still kill-switch them. */
 export const DEFAULT_PROGRAM_MODULES: ProgramModules = {
-  classic: false,
+  classic: true,
   schedule: true,
 };
 

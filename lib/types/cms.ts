@@ -68,6 +68,8 @@ export type MinistryProgram = ClassicProgram & {
   host_name?: string | null;
   /** Multi-line air times for the public grid (newline-separated). */
   schedule_detail?: string | null;
+  /** Image for the upcoming home carousel of network programs. */
+  carousel_image_url?: string | null;
 };
 
 export type ScheduleDisplayMode = "dynamic" | "pdf" | "both";

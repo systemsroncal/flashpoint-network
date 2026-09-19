@@ -944,6 +944,8 @@ export async function upsertMinistryProgramAction(formData: FormData) {
     title,
     featured_image_url:
       String(formData.get("featured_image_url") || "").trim() || null,
+    carousel_image_url:
+      String(formData.get("carousel_image_url") || "").trim() || null,
     host_name: String(formData.get("host_name") || "").trim() || null,
     schedule_detail: String(formData.get("schedule_detail") || "").trim() || null,
     sort_order: Number.isFinite(sortOrder) ? sortOrder : 0,

@@ -204,7 +204,8 @@ export default function MinistryProgramsTable({
         ) : null}
         <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2 }}>
           Excel columns: id, title, host_name, schedule_detail, featured_image_url,
-          sort_order, status. Blank id creates a new row; existing id updates.
+          carousel_image_url, sort_order, status. Blank id creates a new row; existing
+          id updates.
         </Typography>
         <Table size="small">
           <TableHead>

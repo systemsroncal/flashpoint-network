@@ -1,13 +1,15 @@
+import { Buffer as NodeBuffer } from "node:buffer";
 import ExcelJS from "exceljs";
 import type { MinistryProgram } from "@/lib/types/cms";
 
-/** Columns that match the public FPTN Shows grid + publish controls. */
+/** Columns that match the public FPTN Shows grid + carousel + publish controls. */
 export const NETWORK_PROGRAM_EXCEL_HEADERS = [
   "id",
   "title",
   "host_name",
   "schedule_detail",
   "featured_image_url",
+  "carousel_image_url",
   "sort_order",
   "status",
 ] as const;
@@ -18,6 +20,7 @@ export type NetworkProgramExcelRow = {
   host_name: string;
   schedule_detail: string;
   featured_image_url: string;
+  carousel_image_url: string;
   sort_order: number;
   status: "draft" | "published" | "archived";
 };
@@ -53,6 +56,7 @@ export function programsToExcelRows(
     host_name: p.host_name ?? "",
     schedule_detail: p.schedule_detail ?? "",
     featured_image_url: p.featured_image_url ?? "",
+    carousel_image_url: p.carousel_image_url ?? "",
     sort_order: Number.isFinite(p.sort_order) ? p.sort_order : 0,
     status: normalizeStatus(String(p.status || "published")),
   }));
@@ -60,7 +64,7 @@ export function programsToExcelRows(
 
 export async function buildNetworkProgramsWorkbook(
   programs: MinistryProgram[],
-): Promise<Buffer> {
+): Promise<NodeBuffer> {
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "FPTN Admin";
   workbook.created = new Date();
@@ -75,6 +79,7 @@ export async function buildNetworkProgramsWorkbook(
     { header: "host_name", key: "host_name", width: 24 },
     { header: "schedule_detail", key: "schedule_detail", width: 40 },
     { header: "featured_image_url", key: "featured_image_url", width: 48 },
+    { header: "carousel_image_url", key: "carousel_image_url", width: 48 },
     { header: "sort_order", key: "sort_order", width: 12 },
     { header: "status", key: "status", width: 12 },
   ];
@@ -95,21 +100,29 @@ export async function buildNetworkProgramsWorkbook(
   notes.addRow([
     "schedule_detail: one air time per line (use Alt+Enter in Excel for new lines).",
   ]);
+  notes.addRow([
+    "featured_image_url: grid card image. carousel_image_url: home carousel image.",
+  ]);
   notes.addRow(["status: draft | published | archived"]);
   notes.addRow([
     "Import upserts by id when present; otherwise inserts a new row with a random slug.",
   ]);
 
-  const buffer = await workbook.xlsx.writeBuffer();
-  return Buffer.from(buffer);
+  // exceljs types `Buffer` as ArrayBuffer (`declare interface Buffer extends ArrayBuffer`).
+  // Convert to a real Node Buffer for the export API.
+  const raw = await workbook.xlsx.writeBuffer();
+  return NodeBuffer.from(raw as ArrayBuffer);
 }
 
 export async function parseNetworkProgramsWorkbook(
-  data: ArrayBuffer | Buffer,
+  data: ArrayBuffer | NodeBuffer,
 ): Promise<NetworkProgramExcelRow[]> {
   const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(Buffer.isBuffer(data) ? data : Buffer.from(data));
-
+  const nodeBuf = NodeBuffer.isBuffer(data)
+    ? data
+    : NodeBuffer.from(data);
+  // exceljs `.load` is typed against its ambient Buffer (= ArrayBuffer) alias.
+  await workbook.xlsx.load(nodeBuf as unknown as ArrayBuffer);
   const sheet =
     workbook.getWorksheet("Network Programs") || workbook.worksheets[0];
   if (!sheet) throw new Error("Excel file has no worksheets.");
@@ -154,6 +167,9 @@ export async function parseNetworkProgramsWorkbook(
         : "",
       featured_image_url: colIndex.has("featured_image_url")
         ? cellText(row.getCell(colIndex.get("featured_image_url")!).value)
+        : "",
+      carousel_image_url: colIndex.has("carousel_image_url")
+        ? cellText(row.getCell(colIndex.get("carousel_image_url")!).value)
         : "",
       sort_order: Number.isFinite(sort_order) ? sort_order : 0,
       status: normalizeStatus(statusRaw),

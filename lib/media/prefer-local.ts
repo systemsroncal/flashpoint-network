@@ -26,3 +26,16 @@ export function withLocalFeaturedImage<T extends { featured_image_url?: string |
     featured_image_url: preferLocalMediaUrl(row.featured_image_url ?? null),
   };
 }
+
+export function withLocalProgramImages<
+  T extends {
+    featured_image_url?: string | null;
+    carousel_image_url?: string | null;
+  },
+>(row: T): T {
+  return {
+    ...row,
+    featured_image_url: preferLocalMediaUrl(row.featured_image_url ?? null),
+    carousel_image_url: preferLocalMediaUrl(row.carousel_image_url ?? null),
+  };
+}

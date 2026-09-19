@@ -78,6 +78,7 @@ export async function POST(request: Request) {
       host_name: row.host_name || null,
       schedule_detail: row.schedule_detail || null,
       featured_image_url: row.featured_image_url || null,
+      carousel_image_url: row.carousel_image_url || null,
       sort_order: row.sort_order,
       status: row.status,
     };

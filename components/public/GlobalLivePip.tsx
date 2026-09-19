@@ -16,12 +16,14 @@ import {
 const SCROLL_SHOW_PX = 160;
 
 function isLiveHeroPath(pathname: string | null): boolean {
-  return pathname === "/" || pathname === "/live";
+  return (
+    pathname === "/" || pathname === "/home2" || pathname === "/live"
+  );
 }
 
 /**
  * Sitewide floating live mini-player (desktop + mobile).
- * - On `/` and `/live`: shows when the main live hero scrolls out of view.
+ * - On `/`, `/home2`, and `/live`: shows when the main live hero scrolls out of view.
  * - Elsewhere: shows after a short scroll, unless the user closed it.
  * - Close hides it; scrolling past the hero on `/` or `/live` brings it back
  *   (and re-enables it for the rest of the site).

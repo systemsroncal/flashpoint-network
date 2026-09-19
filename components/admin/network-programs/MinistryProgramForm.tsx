@@ -70,9 +70,18 @@ export default function MinistryProgramForm({
             />
             <ImageUploadField
               name="featured_image_url"
-              label="Image"
+              label="Grid image"
               defaultValue={program?.featured_image_url ?? ""}
             />
+            <ImageUploadField
+              name="carousel_image_url"
+              label="Home carousel image"
+              defaultValue={program?.carousel_image_url ?? ""}
+            />
+            <Typography variant="caption" color="text.secondary">
+              Carousel image is for the upcoming home design that lists Network
+              Programs. It is separate from the grid card image.
+            </Typography>
             <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
               <TextField
                 select

@@ -2,12 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import BannerWidget from "@/components/public/BannerWidget";
 import HomeLiveHero from "@/components/public/HomeLiveHero";
+import HomeNetworkMarketing from "@/components/public/HomeNetworkMarketing";
+import HomeShowsCarousel from "@/components/public/HomeShowsCarousel";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PatriotHomeBanner from "@/components/public/PatriotHomeBanner";
 import PostCard from "@/components/public/PostCard";
 import StarlinkHomeBanner from "@/components/public/StarlinkHomeBanner";
 import type { BannerSlot, BannerWidget as BannerWidgetRow } from "@/lib/banners/slots";
-import type { HomePayload } from "@/lib/types/cms";
+import type { HomePayload, MinistryProgram } from "@/lib/types/cms";
 import {
   formatDate,
   formatReadTime,
@@ -31,9 +33,14 @@ function SeeMore({ href, label = "See more" }: { href: string; label?: string })
 export default async function HomeView({
   data,
   banners = {},
+  carouselShows = [],
+  showNetworkExtras = false,
 }: {
   data: HomePayload;
   banners?: Partial<Record<BannerSlot, BannerWidgetRow>>;
+  carouselShows?: MinistryProgram[];
+  /** Network landing extras (shows carousel + marketing blocks). Used by /home2. */
+  showNetworkExtras?: boolean;
 }) {
   const [timeZone, identity] = await Promise.all([
     getSiteTimezone(),
@@ -53,6 +60,26 @@ export default async function HomeView({
     data.grid.length > 0
       ? data.grid.slice(0, 6)
       : [...data.politics.slice(0, 3), ...data.world.slice(0, 3)];
+
+  const showCarouselItems = showNetworkExtras
+    ? carouselShows
+        .filter((p) => p.carousel_image_url)
+        .map((p) => ({
+          id: p.id,
+          title: p.title,
+          hostName: p.host_name ?? null,
+          imageUrl: p.carousel_image_url as string,
+          href: "/network-programs",
+        }))
+    : [];
+
+  const stayInformedPosts = showNetworkExtras
+    ? [...data.latest, ...data.politics, ...data.world]
+        .filter(
+          (post, index, all) => all.findIndex((p) => p.id === post.id) === index,
+        )
+        .slice(0, 4)
+    : [];
 
   return (
     <div className="w-full max-w-none bg-white text-black">
@@ -158,6 +185,17 @@ export default async function HomeView({
             </div>
           </aside>
         </section>
+
+        {showNetworkExtras ? (
+          <>
+            <HomeShowsCarousel items={showCarouselItems} />
+            <HomeNetworkMarketing
+              newsPosts={stayInformedPosts}
+              defaultFeatured={defaultFeatured}
+              timeZone={timeZone}
+            />
+          </>
+        ) : null}
 
         {/* Subscribe banner — Figma Group 29790 (desktop row). Mobile/tablet: same row, scaled. */}
         <section className="mx-auto w-full max-w-[1160px] overflow-hidden rounded-[12px] bg-black text-white">

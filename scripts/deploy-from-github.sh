@@ -145,6 +145,16 @@ sync_git() {
     -e 'public/uploads/**'
 }
 
+pm2_stop_for_build() {
+  if pm2 describe "$PM2_APP_NAME" >/dev/null 2>&1; then
+    # `next build` replaces `.next` in place. Leaving the app running during
+    # that wipe serves HTML that references deleted CSS/JS chunks → client
+    # error boundary ("Couldn't load this page").
+    log "pm2 stop $PM2_APP_NAME (avoid serving mid-build static wipe)"
+    pm2 stop "$PM2_APP_NAME" || true
+  fi
+}
+
 pm2_restart_or_start() {
   if pm2 describe "$PM2_APP_NAME" >/dev/null 2>&1; then
     log "pm2 restart $PM2_APP_NAME --update-env"
@@ -155,6 +165,29 @@ pm2_restart_or_start() {
   fi
   pm2 save
   pm2 flush
+}
+
+verify_static_chunks() {
+  local base="${VERIFY_BASE_URL:-http://127.0.0.1:${APP_PORT}}"
+  local path="${VERIFY_PATH:-/help-center}"
+  local html chunk missing=0
+  log "verify static chunks via ${base}${path}"
+  html="$(curl -fsS --max-time 30 "${base}${path}" || true)"
+  if [[ -z "$html" ]]; then
+    log "WARN: could not fetch ${base}${path} for chunk verification"
+    return 0
+  fi
+  while IFS= read -r chunk; do
+    [[ -z "$chunk" ]] && continue
+    if ! curl -fsSI --max-time 15 "${base}${chunk}" >/dev/null 2>&1; then
+      log "MISSING chunk: ${chunk}"
+      missing=1
+    fi
+  done < <(printf '%s' "$html" | grep -oE '/_next/static/chunks/[^\"[:space:]]+\.(js|css)' | sort -u)
+  if [[ "$missing" -eq 1 ]]; then
+    die "HTML references static chunks that 404 — build/serve mismatch; do not leave site running"
+  fi
+  log "static chunk verification OK"
 }
 
 # --- main ---
@@ -176,6 +209,10 @@ ENV_RESTORED=1
 log "npm ci"
 npm ci
 
+if [[ "${SKIP_PM2:-0}" != "1" ]]; then
+  pm2_stop_for_build
+fi
+
 log "npm run build"
 npm run build
 
@@ -188,6 +225,9 @@ if [[ "${SKIP_PM2:-0}" == "1" ]]; then
   log "SKIP_PM2=1 — skipping pm2 restart"
 else
   pm2_restart_or_start
+  # Give next start a moment before probing.
+  sleep 2
+  verify_static_chunks
 fi
 
 log "OK → $BRANCH @ $(git rev-parse --short HEAD) (pm2=$PM2_APP_NAME port=$APP_PORT)"
