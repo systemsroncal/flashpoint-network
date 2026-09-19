@@ -171,7 +171,7 @@ export default function MinistryProgramsView({
           </div>
         ) : (
           <ul
-            className="mt-10 grid grid-cols-1 gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+            className="mt-10 grid grid-cols-1 gap-x-5 gap-y-10 min-[400px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
           >
             {gridPrograms.flatMap((program, index) => {
               const divider =
@@ -220,7 +220,7 @@ export default function MinistryProgramsView({
         </div>
       </section>
 
-      <section className="relative hidden overflow-hidden border-t border-white/5">
+      <section className="relative overflow-hidden border-t border-white/5">
         <div className="absolute inset-0 bg-[#0d0d0d]" aria-hidden />
         <Image
           src="/brand/network-programs/family-camera.png"

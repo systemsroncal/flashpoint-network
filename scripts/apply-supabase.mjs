@@ -304,19 +304,8 @@ async function main() {
     await execSql(sql, file);
   }
 
-  try {
-    const { spawnSync } = await import("node:child_process");
-    const sync = spawnSync(process.execPath, ["scripts/sync-ministry-figma-seed.mjs"], {
-      cwd: ROOT,
-      stdio: "inherit",
-      env: process.env,
-    });
-    if (sync.status !== 0) {
-      console.warn("ministry figma seed sync skipped or failed (non-fatal)");
-    }
-  } catch {
-    console.warn("ministry figma seed sync could not run");
-  }
+  // Never auto-sync ministry/network program catalog content here.
+  // Editors manage rows in admin (or Excel import). See .cursor/rules/supabase-data-safety.mdc
 
   await ensureSeedAuthor();
 

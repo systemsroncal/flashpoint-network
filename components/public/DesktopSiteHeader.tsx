@@ -46,8 +46,7 @@ function CategoryNavItem({
 }) {
   const [open, setOpen] = useState(false);
   const href = `/category/${item.slug}`;
-  const active =
-    pathname === href || pathname.startsWith(`${href}/`);
+  const active = pathname === href || pathname.startsWith(`${href}/`);
   const hasChildren = item.children.length > 0;
 
   if (!hasChildren) {
@@ -98,6 +97,41 @@ function CategoryNavItem({
         </div>
       ) : null}
     </div>
+  );
+}
+
+function PrimaryNav({
+  links,
+  pathname,
+}: {
+  links: PrimaryLink[];
+  pathname: string;
+}) {
+  return (
+    <nav
+      className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 2xl:gap-x-10"
+      aria-label="Primary"
+    >
+      {links.map((link) => {
+        const active = link.match(pathname);
+        const isNews = link.label === "FPTN News";
+        return (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={`text-[length:clamp(0.9rem,1.1vw,1.2rem)] font-black tracking-tight transition-opacity hover:opacity-90 ${
+              active
+                ? isNews
+                  ? "text-[var(--fpn-sky)]"
+                  : "text-white"
+                : "text-white/75"
+            }`}
+          >
+            {link.label}
+          </Link>
+        );
+      })}
+    </nav>
   );
 }
 
@@ -162,82 +196,97 @@ export default function DesktopSiteHeader({
 
   return (
     <header className="hidden w-full xl:block">
-      <div className="relative bg-[var(--fpn-navy)] text-white">
-        <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-[var(--fpn-rojo)]" />
-
-        {/* Logo overlaps navy + sky bars when the news category strip is visible */}
-        <Link
-          href="/"
-          className={`absolute left-4 z-20 block md:left-8 lg:left-10 ${
-            showCategoryBar ? "top-2.5" : "top-1/2 -translate-y-1/2"
-          }`}
-          style={{ width: logoWidths.desktop, maxWidth: logoWidths.desktop }}
-          aria-label={siteName}
-        >
-          <SiteLogo
-            src={logoSrc}
-            alt={siteName}
-            widths={logoWidths}
-            className={logoClassName}
-            priority
-          />
-        </Link>
-
-        <div className="relative mx-auto max-w-[1920px] px-4 py-3 pl-[min(220px,20vw)] md:px-8 md:pl-[min(240px,22vw)] lg:px-10">
-          <div className="grid grid-cols-[1fr_auto] items-center gap-4">
-            <nav
-              className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 2xl:gap-x-10"
-              aria-label="Primary"
+      {showCategoryBar ? (
+        <>
+          {/* Two-tier news header: logo overlaps navy + cyan */}
+          <div className="relative bg-[var(--fpn-navy)] text-white">
+            <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-[var(--fpn-rojo)]" />
+            <Link
+              href="/"
+              className="absolute left-4 top-2.5 z-20 block md:left-8 lg:left-10"
+              style={{
+                width: logoWidths.desktop,
+                maxWidth: logoWidths.desktop,
+              }}
+              aria-label={siteName}
             >
-              {primaryLinks.map((link) => {
-                const active = link.match(pathname);
-                const isNews = link.label === "FPTN News";
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`text-[length:clamp(0.9rem,1.1vw,1.2rem)] font-black tracking-tight transition-opacity hover:opacity-90 ${
-                      active
-                        ? isNews
-                          ? "text-[var(--fpn-sky)]"
-                          : "text-white"
-                        : "text-white/75"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </nav>
+              <SiteLogo
+                src={logoSrc}
+                alt={siteName}
+                widths={logoWidths}
+                className={logoClassName}
+                priority
+              />
+            </Link>
 
-            <div className="flex items-center justify-end gap-3">
+            <div className="relative mx-auto max-w-[1920px] px-4 py-3 pl-[min(220px,20vw)] md:px-8 md:pl-[min(240px,22vw)] lg:px-10">
+              <div className="grid grid-cols-[1fr_auto] items-center gap-4">
+                <PrimaryNav links={primaryLinks} pathname={pathname} />
+                <div className="flex items-center justify-end gap-3">
+                  <HeaderSearch tone="light" />
+                  <HeaderUserMenu user={user} tone="light" iconSize={24} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[var(--fpn-sky)] text-white">
+            <div
+              className="mx-auto flex max-w-[1920px] items-center justify-between gap-4 py-2 pr-4 md:pr-8 lg:pr-10"
+              style={{ paddingLeft: categoryNavPaddingLeft }}
+            >
+              <nav
+                className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1 gap-y-0"
+                aria-label="News categories"
+              >
+                {categories.map((item) => (
+                  <CategoryNavItem
+                    key={item.id}
+                    item={item}
+                    pathname={pathname}
+                  />
+                ))}
+              </nav>
+              <p className="hidden shrink-0 text-[14px] font-medium text-white/95 sm:block">
+                {todayLabel}
+              </p>
+            </div>
+          </div>
+        </>
+      ) : (
+        /* Compact header (Shows, Live, About, etc.): logo in-flow, no cyan strip */
+        <div className="relative bg-[var(--fpn-navy)] text-white">
+          <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-[var(--fpn-rojo)]" />
+          <div className="relative mx-auto flex max-w-[1920px] items-center gap-6 px-4 py-3 md:gap-8 md:px-8 lg:px-10">
+            <Link
+              href="/"
+              className="relative z-20 block shrink-0"
+              style={{
+                width: logoWidths.desktop,
+                maxWidth: logoWidths.desktop,
+              }}
+              aria-label={siteName}
+            >
+              <SiteLogo
+                src={logoSrc}
+                alt={siteName}
+                widths={logoWidths}
+                className={logoClassName}
+                priority
+              />
+            </Link>
+
+            <div className="flex min-w-0 flex-1 items-center justify-center">
+              <PrimaryNav links={primaryLinks} pathname={pathname} />
+            </div>
+
+            <div className="flex shrink-0 items-center justify-end gap-3">
               <HeaderSearch tone="light" />
               <HeaderUserMenu user={user} tone="light" iconSize={24} />
             </div>
           </div>
         </div>
-      </div>
-
-      {showCategoryBar ? (
-        <div className="bg-[var(--fpn-sky)] text-white">
-          <div
-            className="mx-auto flex max-w-[1920px] items-center justify-between gap-4 py-2 pr-4 md:pr-8 lg:pr-10"
-            style={{ paddingLeft: categoryNavPaddingLeft }}
-          >
-            <nav
-              className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1 gap-y-0"
-              aria-label="News categories"
-            >
-              {categories.map((item) => (
-                <CategoryNavItem key={item.id} item={item} pathname={pathname} />
-              ))}
-            </nav>
-            <p className="hidden shrink-0 text-[14px] font-medium text-white/95 sm:block">
-              {todayLabel}
-            </p>
-          </div>
-        </div>
-      ) : null}
+      )}
     </header>
   );
 }

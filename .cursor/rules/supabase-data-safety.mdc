@@ -38,4 +38,4 @@ alwaysApply: true
 
 ## Incident note (2026-09)
 
-`20260917230000_ministry_programs_figma_layout.sql` archived a fixed list of `ministry_programs` (Network Programs) by slug. That overwrote editor work. Future agents must not repeat this pattern without an explicit request.
+`20260917230000_ministry_programs_figma_layout.sql` previously archived a fixed list of `ministry_programs` by slug and overwrote editor work. That DML was removed; the file is schema-only (`ADD COLUMN`). `db:apply` must **not** run `sync-ministry-figma-seed.mjs`. Use admin Excel import/export for catalog changes.
