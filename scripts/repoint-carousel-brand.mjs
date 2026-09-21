@@ -1,4 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
+/**
+ * Point published ministry_programs.carousel_image_url at /brand/home/carousel/*.png
+ * (Node 20+ safe — uses PostgREST fetch, no @supabase/supabase-js / WebSocket).
+ *
+ * Usage: node scripts/repoint-carousel-brand.mjs
+ */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -19,22 +24,36 @@ function loadEnvLocal() {
   }
 }
 
+function restHeaders(key) {
+  return {
+    apikey: key,
+    Authorization: `Bearer ${key}`,
+    "Content-Type": "application/json",
+  };
+}
+
 loadEnvLocal();
-const s = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-);
 
-const files = readdirSync(resolve("public/brand/home/carousel"));
-const { data: programs, error } = await s
-  .from("ministry_programs")
-  .select("id,slug,title,carousel_image_url,status")
-  .eq("status", "published");
+const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (error) {
-  console.error(error);
+if (!baseUrl || !serviceKey) {
+  console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local");
   process.exit(1);
 }
+
+const listRes = await fetch(
+  `${baseUrl}/rest/v1/ministry_programs?status=eq.published&select=id,slug,title,carousel_image_url,status`,
+  { headers: restHeaders(serviceKey) },
+);
+
+if (!listRes.ok) {
+  console.error("list failed:", listRes.status, await listRes.text());
+  process.exit(1);
+}
+
+const programs = await listRes.json();
+const files = readdirSync(resolve("public/brand/home/carousel"));
 
 const special = {
   "daily-faith": "daily-faith-with-philip-cameron.png",
@@ -58,10 +77,21 @@ for (const p of programs || []) {
   }
 
   const url = `/brand/home/carousel/${file}`;
-  const { error: upErr } = await s
-    .from("ministry_programs")
-    .update({ carousel_image_url: url })
-    .eq("id", p.id);
-  if (upErr) console.error(p.slug, upErr.message);
-  else console.log(p.slug, "→", url);
+  const patchRes = await fetch(
+    `${baseUrl}/rest/v1/ministry_programs?id=eq.${encodeURIComponent(p.id)}`,
+    {
+      method: "PATCH",
+      headers: {
+        ...restHeaders(serviceKey),
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({ carousel_image_url: url }),
+    },
+  );
+
+  if (!patchRes.ok) {
+    console.error(p.slug, patchRes.status, await patchRes.text());
+  } else {
+    console.log(p.slug, "→", url);
+  }
 }
