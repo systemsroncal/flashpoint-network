@@ -130,7 +130,9 @@ export function normalizeForwardedHost(raw: unknown): string | null {
 }
 
 export function getSiteName(): string {
-  return process.env.NEXT_PUBLIC_SITE_NAME || "Flash Point Television Network";
+  const raw =
+    process.env.NEXT_PUBLIC_SITE_NAME || "FlashPoint Television Network";
+  return raw.replace(/Flash\s+Point/gi, "FlashPoint");
 }
 
 /**

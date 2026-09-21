@@ -1,5 +1,4 @@
-import HomeView from "@/components/public/HomeView";
-import { getBannerWidgetsBySlots } from "@/lib/data/banners";
+import Home2View from "@/components/public/Home2View";
 import { getHomePayload } from "@/lib/data/home";
 import { getNetworkProgramsForHomeCarousel } from "@/lib/data/ministry-programs";
 import type { Metadata } from "next";
@@ -13,22 +12,10 @@ export const metadata: Metadata = {
 };
 
 export default async function Home2Page() {
-  const [data, banners, carouselShows] = await Promise.all([
+  const [data, carouselShows] = await Promise.all([
     getHomePayload(),
-    getBannerWidgetsBySlots([
-      "home_above_podcasts",
-      "home_above_latest",
-      "home_patriot_banner",
-    ]),
     getNetworkProgramsForHomeCarousel(),
   ]);
 
-  return (
-    <HomeView
-      data={data}
-      banners={banners}
-      carouselShows={carouselShows}
-      showNetworkExtras
-    />
-  );
+  return <Home2View data={data} carouselShows={carouselShows} />;
 }

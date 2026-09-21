@@ -41,7 +41,7 @@ export default async function ClassicProgramPage({ params }: Props) {
             href="/classic-programs"
             className="text-xs font-bold uppercase tracking-[0.14em] text-white/55 transition hover:text-white"
           >
-            ← Classic Programs
+            ← Family Classics
           </Link>
           <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-[var(--fpn-rojo)]">
             {siteName}
@@ -87,7 +87,7 @@ export default async function ClassicProgramPage({ params }: Props) {
               href="/classic-programs"
               className="inline-flex rounded-md bg-[var(--fpn-rojo)] px-5 py-2.5 text-sm font-bold text-white hover:brightness-110"
             >
-              All classic programs
+              All Family Classics
             </Link>
           </div>
         </div>

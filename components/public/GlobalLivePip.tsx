@@ -24,6 +24,7 @@ function isLiveHeroPath(pathname: string | null): boolean {
 /**
  * Sitewide floating live mini-player (desktop + mobile).
  * - On `/`, `/home2`, and `/live`: shows when the main live hero scrolls out of view.
+ *   Those pages already have a sounding player, so the mini player stays muted.
  * - Elsewhere: shows after a short scroll, unless the user closed it.
  * - Close hides it; scrolling past the hero on `/` or `/live` brings it back
  *   (and re-enables it for the rest of the site).
@@ -131,6 +132,7 @@ export default function GlobalLivePip() {
           <BrightcoveLivePlayer
             title={LIVE_HEADLINE}
             autoplay
+            muted={heroPage}
             className="fpn-live-pip-player"
           />
         </span>

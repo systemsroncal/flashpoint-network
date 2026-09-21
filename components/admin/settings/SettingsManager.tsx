@@ -306,7 +306,7 @@ export default function SettingsManager({
                   }
                 />
               }
-              label="Enable Classic Programs (public + admin)"
+              label="Enable Family Classics (public + admin)"
             />
             <FormControlLabel
               control={
@@ -582,7 +582,7 @@ export default function SettingsManager({
               fullWidth
               multiline
               minRows={3}
-              placeholder='"Flash Point Television Network"'
+              placeholder='"FlashPoint Television Network"'
             />
             <Button type="submit" variant="contained" sx={{ alignSelf: "flex-start" }}>
               Save setting

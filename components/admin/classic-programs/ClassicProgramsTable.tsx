@@ -77,7 +77,7 @@ export default function ClassicProgramsTable({
       </DashboardCard>
 
       <DashboardCard
-        title="Classic Programs"
+        title="Family Classics"
         subtitle={`${programs.length} total`}
         action={
           <Button

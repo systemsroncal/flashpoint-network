@@ -54,7 +54,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s · ${identity.siteName}`,
     },
     description:
-      "Flash Point Television Network — digital newspaper. Get The Full Story. As It Is.",
+      "FlashPoint Television Network — digital newspaper. Get The Full Story. As It Is.",
     icons: buildSiteFaviconMetadata(identity),
   };
 }

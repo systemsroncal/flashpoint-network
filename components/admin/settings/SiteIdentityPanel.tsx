@@ -46,7 +46,7 @@ export default function SiteIdentityPanel({ identity }: { identity: SiteIdentity
           accept={LOGO_ACCEPT}
         />
         <Typography variant="caption" color="text.secondary" sx={{ mt: -1.5 }}>
-          Leave empty to use the default Flash Point Television lockup in the footer.
+          Leave empty to use the default FlashPoint Television lockup in the footer.
         </Typography>
         <LogoSizingFields
           prefix="footer"

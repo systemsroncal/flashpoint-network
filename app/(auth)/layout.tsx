@@ -14,7 +14,7 @@ export default async function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let siteName = "Flash Point Television Network";
+  let siteName = "FlashPoint Television Network";
   let authLogoUrl: string | null = null;
   let headerLogoUrl = DEFAULT_FOOTER_MARK_URL;
 

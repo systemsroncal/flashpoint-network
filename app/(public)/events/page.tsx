@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Events",
-  description: "Live and upcoming Flash Point Television Network events",
+  description: "Live and upcoming FlashPoint Television Network events",
 };
 
 export default async function EventsIndexPage() {

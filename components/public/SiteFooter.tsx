@@ -39,7 +39,7 @@ const COLUMNS = [
       { label: "Health", href: "/category/health" },
       { label: "Science", href: "/category/science" },
       { label: "Culture", href: "/category/lifestyle" },
-      { label: "Classic Programs", href: "/classic-programs" },
+      { label: "Family Classics", href: "/classic-programs" },
       { label: "Network Programs", href: "/network-programs" },
     ],
   },
@@ -135,9 +135,22 @@ export default async function SiteFooter({
 
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-4 py-4 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between md:px-8 lg:px-10">
-          <p>
-            © {new Date().getFullYear()} {siteName}. All rights reserved.
-          </p>
+          <div className="flex flex-col gap-1.5">
+            <p>
+              © {new Date().getFullYear()} {siteName}. All rights reserved.
+            </p>
+            <p>
+              Platform Developed By{" "}
+              <a
+                href="https://www.dreamsanimation.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/70 transition-colors hover:text-white"
+              >
+                Dreams Animation
+              </a>
+            </p>
+          </div>
           <div className="flex flex-wrap gap-x-5 gap-y-2">
             <Link href="/terms-and-conditions" className="hover:text-white">
               Terms &amp; Conditions

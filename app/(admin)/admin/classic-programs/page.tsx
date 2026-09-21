@@ -14,7 +14,7 @@ export default async function AdminClassicProgramsPage() {
   ]);
   return (
     <PageContainer
-      title="Classic Programs"
+      title="Family Classics"
       description="Timeless FPTN favorites — grid order and listings"
     >
       <ClassicProgramsTable programs={programs} sortMode={sortMode} />

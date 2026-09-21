@@ -51,7 +51,7 @@ export class ProviderHttpError extends Error {
 
 function mockArticle(input: GenerateNewsInput): GenerateNewsResult {
   const topic = input.prompt.slice(0, 120).replace(/\s+/g, " ").trim();
-  const focus = topic.split(/\s+/).slice(0, 3).join(" ") || "Flash Point";
+  const focus = topic.split(/\s+/).slice(0, 3).join(" ") || "FlashPoint";
   const title = input.fillTitle
     ? `FlashPoint desk draft: ${topic.slice(0, 72) || "Untitled"}`
     : undefined;
@@ -77,11 +77,11 @@ function mockArticle(input: GenerateNewsInput): GenerateNewsResult {
     excerpt,
     bodyHtml,
     seoTitle: title
-      ? `${title.slice(0, 50)} | Flash Point Television Network`.slice(0, 60)
-      : `Flash Point coverage | ${focus}`.slice(0, 60),
+      ? `${title.slice(0, 50)} | FlashPoint Television Network`.slice(0, 60)
+      : `FlashPoint coverage | ${focus}`.slice(0, 60),
     seoDescription: (
       excerpt ||
-      `Flash Point Television Network coverage of ${topic || "today's top stories"}.`
+      `FlashPoint Television Network coverage of ${topic || "today's top stories"}.`
     ).slice(0, 160),
     seoKeywords: [focus, ...pickTags.map((t) => t.name)]
       .filter(Boolean)
@@ -139,7 +139,7 @@ function buildSystemPrompt(catalog: {
       ? catalog.tags.map((t) => `${t.slug} (${t.name})`).join(", ")
       : "(none provided)";
 
-  return `You are a senior SEO newsroom writing assistant for Flash Point Television Network (FPTN).
+  return `You are a senior SEO newsroom writing assistant for FlashPoint Television Network (FPTN).
 Return ONLY a single JSON object (no markdown fences) with these keys:
 - "title": string (news headline, ~60–90 chars)
 - "excerpt": string (1–2 sentence dek / standfirst)

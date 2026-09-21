@@ -75,15 +75,15 @@ export default function MaintenanceView({ message }: Props) {
       </p>
 
       <div className="relative z-10 mx-auto flex w-full max-w-[1166px] flex-1 flex-col items-center px-4 pb-16 pt-10 sm:pt-14 md:pt-[6.5rem]">
-        {/* Logo lockup — Flash Point badge + NETWORK bar (not a link) */}
+        {/* Logo lockup — FlashPoint badge + NETWORK bar (not a link) */}
         <div
           className="flex w-[min(100%,256px)] flex-col overflow-hidden rounded-[6px] border-[4px] border-white bg-black"
-          aria-label="Flash Point Television Network"
+          aria-label="FlashPoint Television Network"
         >
           <span className="relative flex h-[134px] items-center justify-center bg-black px-3">
             <Image
               src="/brand/maintenance/fpn-logo-lockup.svg"
-              alt="Flash Point"
+              alt="FlashPoint"
               width={216}
               height={103}
               className="h-[88px] w-auto sm:h-[103px]"

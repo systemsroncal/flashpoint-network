@@ -74,7 +74,7 @@ function normalizeIdentity(raw: Record<string, unknown>): SiteIdentity {
     : null;
 
   return {
-    siteName,
+    siteName: siteName.replace(/Flash\s+Point/gi, "FlashPoint"),
     headerLogoUrl,
     footerLogoUrl,
     headerLogoMaxWidth: parseResponsiveLogoMaxWidth(

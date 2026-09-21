@@ -30,7 +30,7 @@ export default function ClassicProgramForm({
   return (
     <DashboardCard
       title={isEdit ? "Edit program" : "New classic program"}
-      subtitle="Shown on the public Classic Programs grid when published"
+      subtitle="Shown on the public Family Classics grid when published"
       action={
         isEdit && program?.slug ? (
           <Button

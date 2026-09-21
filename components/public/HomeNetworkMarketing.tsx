@@ -1,26 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import { PartnersGrid } from "@/components/public/HomePartnerLogos";
 import type { Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime } from "@/lib/format";
 import { cardFeaturedImageUrl } from "@/lib/posts/media-layout";
 
-const PARTNERS = [
-  { src: "/brand/home/partner-roku.png", alt: "Roku", w: 108, h: 34 },
-  { src: "/brand/home/partner-xfinity.png", alt: "Xfinity", w: 120, h: 40 },
-  { src: "/brand/home/partner-gtn.png", alt: "GTN", w: 88, h: 34 },
-  { src: "/brand/home/daystar.svg", alt: "Daystar", w: 120, h: 34 },
-  { src: "/brand/home/partner-ovtv.png", alt: "OVTV", w: 76, h: 40 },
-  { src: "/brand/home/partner-circle.png", alt: "Partner", w: 56, h: 56 },
-  { src: "/brand/home/partner-stream.png", alt: "Streaming partner", w: 150, h: 40 },
-  { src: "/brand/home/partner-now.png", alt: "NOW Network", w: 90, h: 40 },
-  { src: "/brand/home/partner-unnamed10.png", alt: "Partner", w: 56, h: 56 },
-  { src: "/brand/home/partner-logo.png", alt: "Partner", w: 110, h: 26 },
-  { src: "/brand/home/partner-wbna.png", alt: "WBNA", w: 110, h: 36 },
-  { src: "/brand/home/partner-wbnm.png", alt: "WBNM", w: 110, h: 40 },
-  { src: "/brand/home/partner-wjde.png", alt: "WJDE", w: 110, h: 34 },
-  { src: "/brand/home/partner-kbpx.png", alt: "KBPX", w: 110, h: 36 },
-  { src: "/brand/home/partner-fcc.png", alt: "FCC", w: 110, h: 28 },
-];
 
 const REASONS = [
   {
@@ -47,45 +31,26 @@ const REASONS = [
 
 const PILLARS = [
   {
-    title: "Black & White Favorites",
+    label: "Family Classics",
     href: "/classic-programs",
-    // sprite positions approximated from Figma collage
-    objectPosition: "12% 40%",
+    image: "/brand/home/pillars/black-and-white.png",
   },
   {
-    title: "Pastors & Ministries",
+    label: "Pastors & Ministries",
     href: "/network-programs",
-    objectPosition: "38% 40%",
+    image: "/brand/home/pillars/pastors-and-ministries.png",
   },
   {
-    title: "News & Analysis",
+    label: "News & Analysis",
     href: "/news",
-    objectPosition: "64% 40%",
+    image: "/brand/home/pillars/new-and-analysis.png",
   },
   {
-    title: "Gene Bailey & More",
+    label: "Gene Bailey & More",
     href: "/live",
-    objectPosition: "88% 40%",
+    image: "/brand/home/pillars/gene-bailey-and-more.png",
   },
 ];
-
-function PartnersGrid({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`flex flex-wrap items-center justify-center gap-x-8 gap-y-6 md:justify-start ${className}`}
-    >
-      {PARTNERS.map((p) => (
-        <div
-          key={p.src + p.alt}
-          className="relative opacity-90 grayscale invert"
-          style={{ width: p.w, height: p.h }}
-        >
-          <Image src={p.src} alt={p.alt} fill className="object-contain" sizes={`${p.w}px`} />
-        </div>
-      ))}
-    </div>
-  );
-}
 
 export default function HomeNetworkMarketing({
   newsPosts,
@@ -97,10 +62,10 @@ export default function HomeNetworkMarketing({
   timeZone: string;
 }) {
   return (
-    <div className="bg-[#101011] text-white">
-      {/* Classics banner */}
-      <section className="px-4 py-10 md:px-8 lg:px-10">
-        <div className="mx-auto flex max-w-[1350px] flex-col items-stretch overflow-hidden rounded-[22px] border border-[#2a1747] bg-[#000d3c] md:flex-row md:items-center">
+    <div className="w-full max-w-none bg-[#101011] text-white">
+      {/* Classics banner — full width rail */}
+      <section className="w-full px-4 py-10 md:px-8 lg:px-16 xl:px-20">
+        <div className="mx-auto flex w-full max-w-[1920px] flex-col items-stretch overflow-hidden rounded-[22px] border border-[#2a1747] bg-[#000d3c] md:flex-row md:items-center">
           <div className="relative mx-auto h-[140px] w-[160px] shrink-0 md:mx-0 md:h-[154px] md:w-[182px]">
             <Image
               src="/brand/home/classics-popcorn.png"
@@ -126,18 +91,18 @@ export default function HomeNetworkMarketing({
               href="/classic-programs"
               className="inline-flex shrink-0 items-center justify-center rounded-full bg-white px-8 py-3 text-sm font-bold text-[#101011] hover:bg-white/90"
             >
-              See All Family Shows
+              See All Family Classics
             </Link>
           </div>
         </div>
       </section>
 
       {/* More reasons */}
-      <section className="px-4 py-12 md:px-8 md:py-16 lg:px-10">
-        <h2 className="mx-auto max-w-[1560px] text-center font-article text-[1.85rem] font-bold tracking-tight md:text-left md:text-[2.7rem]">
+      <section className="w-full px-4 py-12 md:px-8 md:py-16 lg:px-16 xl:px-20">
+        <h2 className="mx-auto w-full max-w-[1920px] text-center font-article text-[1.85rem] font-bold tracking-tight md:text-left md:text-[2.7rem]">
           More Reasons to Stay Connected with FlashPoint TV Network
         </h2>
-        <div className="mx-auto mt-8 grid max-w-[1560px] gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mx-auto mt-8 grid w-full max-w-[1920px] gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {REASONS.map((reason) => (
             <article
               key={reason.title}
@@ -169,8 +134,8 @@ export default function HomeNetworkMarketing({
 
       {/* Stay informed news */}
       {newsPosts.length > 0 ? (
-        <section className="bg-white px-4 py-12 text-black md:px-8 md:py-16 lg:px-10">
-          <div className="mx-auto max-w-[1560px]">
+        <section className="w-full bg-white px-4 py-12 text-black md:px-8 md:py-16 lg:px-16 xl:px-20">
+          <div className="mx-auto w-full max-w-[1920px]">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[2.85rem]">
@@ -233,7 +198,7 @@ export default function HomeNetworkMarketing({
       ) : null}
 
       {/* Four pillars */}
-      <section className="px-4 py-14 md:px-8 md:py-16 lg:px-10">
+      <section className="w-full px-4 py-14 md:px-8 md:py-16 lg:px-16 xl:px-20">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="font-article text-[2rem] font-bold tracking-tight md:text-[3rem]">
             Four Pillars of the Network
@@ -244,32 +209,28 @@ export default function HomeNetworkMarketing({
             strengthens and inspires.
           </p>
         </div>
-        <div className="mx-auto mt-10 grid max-w-[1560px] gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+        <div className="mx-auto mt-10 grid w-full max-w-[1920px] grid-cols-1 gap-4 min-[345px]:grid-cols-2 lg:grid-cols-4 lg:gap-8">
           {PILLARS.map((pillar) => (
             <Link
-              key={pillar.title}
+              key={pillar.label}
               href={pillar.href}
-              className="group relative aspect-[336/519] overflow-hidden rounded-[9px]"
+              aria-label={pillar.label}
+              className="group relative aspect-[336/519] overflow-hidden rounded-[9px] shadow-[0_8px_24px_rgba(0,0,0,0.28)] transition-[transform,box-shadow] duration-300 ease-in-out hover:z-10 hover:scale-[1.06] hover:shadow-[0_10px_28px_rgba(255,255,255,0.28)]"
             >
               <Image
-                src="/brand/home/pillars-sprite.png"
+                src={pillar.image}
                 alt=""
                 fill
-                className="object-cover transition duration-500 group-hover:scale-[1.03]"
-                style={{ objectPosition: pillar.objectPosition }}
-                sizes="(max-width:1024px) 50vw, 25vw"
+                className="object-cover"
+                sizes="(max-width:344px) 100vw, (max-width:1024px) 50vw, 25vw"
               />
-              <span className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <span className="absolute inset-x-0 bottom-0 p-5 text-lg font-bold leading-snug md:text-xl">
-                {pillar.title}
-              </span>
             </Link>
           ))}
         </div>
       </section>
 
       {/* Watch anywhere */}
-      <section className="relative overflow-hidden">
+      <section className="relative w-full overflow-hidden">
         <div className="absolute inset-0">
           <Image
             src="/brand/home/watch-anywhere-bg.png"
@@ -280,7 +241,7 @@ export default function HomeNetworkMarketing({
           />
           <div className="absolute inset-0 bg-[rgba(8,52,13,0.75)]" />
         </div>
-        <div className="relative mx-auto grid max-w-[1560px] gap-10 px-4 py-14 md:px-8 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.9fr)] lg:px-10">
+        <div className="relative mx-auto grid w-full max-w-[1920px] items-center gap-10 px-4 py-14 md:px-8 md:py-20 lg:grid-cols-[minmax(0,720px)_minmax(280px,1fr)] lg:px-16 xl:px-20">
           <div>
             <h2 className="font-article text-[2rem] font-bold tracking-tight md:text-[3.2rem]">
               Watch FlashPoint Anywhere
@@ -295,6 +256,15 @@ export default function HomeNetworkMarketing({
             <p className="mt-6 text-sm text-white/40 md:text-[1.05rem]">
               More channels and distribution partners continue to be added.
             </p>
+          </div>
+          <div className="relative mx-auto aspect-[935/769] w-full max-w-[720px] lg:max-w-none">
+            <Image
+              src="/brand/home/watch-anywhere-tv.png"
+              alt="FlashPoint on a smart TV channel guide"
+              fill
+              className="object-contain object-center"
+              sizes="(max-width:1024px) 90vw, 640px"
+            />
           </div>
         </div>
       </section>

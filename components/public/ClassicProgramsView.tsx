@@ -113,7 +113,7 @@ export default function ClassicProgramsView({
               Familiar faces. Unforgettable moments.
             </p>
             <h1 className="mt-2 font-sans text-3xl font-bold tracking-tight text-white md:text-5xl">
-              Your classic favorites
+              Family Classics
             </h1>
           </div>
           <p className="shrink-0 text-sm text-white/45 md:pb-1 md:text-right">

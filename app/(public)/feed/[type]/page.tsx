@@ -15,7 +15,7 @@ const FEEDS: Record<
 > = {
   latest: {
     title: "Latest News",
-    description: "The newest published stories from Flash Point Television Network.",
+    description: "The newest published stories from FlashPoint Television Network.",
     mobileTitle: "Latest",
   },
   podcasts: {

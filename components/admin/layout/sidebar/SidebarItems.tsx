@@ -115,12 +115,12 @@ const SidebarItems = ({
         themeSecondaryColor="#B80529"
       >
         <Logo img="/brand/fpn-logo-wordmark.png" component={Link} href="/admin">
-          <span className="sr-only">Flash Point Television Network</span>
+          <span className="sr-only">FlashPoint Television Network</span>
         </Logo>
         {renderMenuItems(items, pathname)}
         <Box px={2} mt={3}>
           <Typography variant="caption" color="textSecondary">
-            Flash Point Television Network — Admin
+            FlashPoint Television Network — Admin
           </Typography>
         </Box>
       </MUI_Sidebar>

@@ -68,7 +68,7 @@ const Menuitems: MenuItemConfig[] = [
   },
   {
     id: "nav-classic-programs",
-    title: "Classic Programs",
+    title: "Family Classics",
     icon: IconDeviceTvOld,
     href: "/admin/classic-programs",
     module: "classic",

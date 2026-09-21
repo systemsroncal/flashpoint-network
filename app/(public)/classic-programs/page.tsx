@@ -5,9 +5,9 @@ import { getPublishedClassicPrograms } from "@/lib/data/classic-programs";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Classic Programs",
+  title: "Family Classics",
   description:
-    "Weekday classic television favorites on FlashPoint Television Network.",
+    "Weekday family classic television favorites on FlashPoint Television Network.",
 };
 
 export default async function ClassicProgramsPage() {

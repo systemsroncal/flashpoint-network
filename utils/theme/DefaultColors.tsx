@@ -14,7 +14,7 @@ const baselightTheme = createTheme({
   direction: "ltr",
   palette: {
     primary: {
-      // Flash Point Television Network brand red — same as --fpn-rojo
+      // FlashPoint Television Network brand red — same as --fpn-rojo
       main: "#B80529",
       light: "#F8E4E9",
       dark: "#8F041F",

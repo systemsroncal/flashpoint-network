@@ -3,10 +3,12 @@ import { brightcovePlayerSrc } from "@/lib/media/brightcove";
 export default function BrightcoveLivePlayer({
   title = "FlashPoint Live",
   autoplay = false,
+  muted = false,
   className,
 }: {
   title?: string;
   autoplay?: boolean;
+  muted?: boolean;
   className?: string;
 }) {
   return (
@@ -19,7 +21,7 @@ export default function BrightcoveLivePlayer({
         .join(" ")}
     >
       <iframe
-        src={brightcovePlayerSrc({ autoplay })}
+        src={brightcovePlayerSrc({ autoplay, muted })}
         title={title}
         allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
         allowFullScreen

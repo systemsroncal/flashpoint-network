@@ -92,7 +92,7 @@ export default function AdminDashboard({
   return (
     <PageContainer
       title="FP Television Network Admin"
-      description="Flash Point Television Network editorial dashboard"
+      description="FlashPoint Television Network editorial dashboard"
     >
       <Box>
         <Stack

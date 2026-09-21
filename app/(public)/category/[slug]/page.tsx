@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props) {
   return {
     title: category.name,
     description:
-      category.description ?? `${category.name} coverage from Flash Point Television Network`,
+      category.description ?? `${category.name} coverage from FlashPoint Television Network`,
   };
 }
 
