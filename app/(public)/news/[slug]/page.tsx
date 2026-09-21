@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import JsonLd from "@/components/seo/JsonLd";
 import NewsArticleView from "@/components/public/NewsArticleView";
 import { recordPostView } from "@/lib/analytics/record-view";
 import { getCurrentProfile, isStaffRole } from "@/lib/auth/session";
 import { getBannerWidgetsBySlots } from "@/lib/data/banners";
 import { getArticleSidebar, getPostBySlug } from "@/lib/data/home";
-import { getSiteUrl } from "@/lib/env";
 import { absoluteMediaUrl } from "@/lib/media/public-url";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
 import { getPaywallSettings } from "@/lib/paywall/settings";
-import { DEFAULT_FOOTER_MARK_URL } from "@/lib/site-identity/constants";
+import { buildArticleJsonLdGraph } from "@/lib/seo/article-json-ld";
+import { absoluteSiteUrl } from "@/lib/seo/urls";
 import { getSiteIdentity } from "@/lib/site-identity/settings";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     getPostBySlug(slug),
     getSiteIdentity(),
   ]);
-  if (!post) return { title: "Not found" };
+  if (!post) return { title: "Not found", robots: { index: false, follow: false } };
 
   const title = post.seo_title?.trim() || post.title;
   const description =
@@ -36,27 +37,32 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ogTitle = post.og_title?.trim() || title;
   const ogDescription =
     post.og_description?.trim() || description || undefined;
-  // Social / meta image ignores show_featured_image (article-hero switch only).
   const ogImage =
     absoluteMediaUrl(post.og_image_url)?.trim() ||
     absoluteMediaUrl(post.featured_image_url)?.trim() ||
     youtubeThumbnailUrl(post.video_url) ||
     absoluteMediaUrl(identity.defaultFeaturedImageUrl) ||
     undefined;
-  const url = `${getSiteUrl().replace(/\/$/, "")}/news/${post.slug}`;
+  const url = absoluteSiteUrl(`/news/${post.slug}`);
 
   return {
     title,
     description,
     keywords: keywords?.length ? keywords : undefined,
     alternates: { canonical: url },
+    robots: { index: true, follow: true },
     openGraph: {
       type: "article",
+      locale: "en_US",
       siteName: identity.siteName,
       title: ogTitle,
       description: ogDescription,
       url,
-      images: ogImage ? [{ url: ogImage }] : undefined,
+      publishedTime: post.published_at || undefined,
+      modifiedTime: post.updated_at || post.published_at || undefined,
+      section: post.category?.name || undefined,
+      tags: keywords?.length ? keywords : undefined,
+      images: ogImage ? [{ url: ogImage, alt: title }] : undefined,
     },
     twitter: {
       card: ogImage ? "summary_large_image" : "summary",
@@ -91,55 +97,13 @@ export default async function NewsArticlePage({ params }: Props) {
         profile.role === "guest"),
   );
 
-  const siteUrl = getSiteUrl().replace(/\/$/, "");
-  const url = `${siteUrl}/news/${post.slug}`;
-  const authorName =
-    post.author?.full_name ||
-    [post.author?.first_name, post.author?.last_name].filter(Boolean).join(" ") ||
-    identity.siteName;
-  const publisherLogo =
-    absoluteMediaUrl(identity.headerLogoUrl) ||
-    `${siteUrl}${DEFAULT_FOOTER_MARK_URL}`;
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "NewsArticle",
-    headline: post.seo_title?.trim() || post.title,
-    description: post.seo_description?.trim() || post.excerpt || undefined,
-    image: (() => {
-      const img =
-        absoluteMediaUrl(post.og_image_url) ||
-        absoluteMediaUrl(post.featured_image_url) ||
-        youtubeThumbnailUrl(post.video_url) ||
-        absoluteMediaUrl(identity.defaultFeaturedImageUrl);
-      return img ? [img] : undefined;
-    })(),
-    datePublished: post.published_at || undefined,
-    author: {
-      "@type": "Person",
-      name: authorName,
-    },
-    publisher: {
-      "@type": "Organization",
-      name: identity.siteName,
-      logo: {
-        "@type": "ImageObject",
-        url: publisherLogo,
-      },
-    },
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": url,
-    },
-    articleSection: post.category?.name || undefined,
-    isAccessibleForFree: !post.is_premium,
-  };
+  const jsonLd = buildArticleJsonLdGraph(post, identity, {
+    updatedAt: post.updated_at,
+  });
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
       <NewsArticleView
         post={post}
         latest={sidebar.latest}

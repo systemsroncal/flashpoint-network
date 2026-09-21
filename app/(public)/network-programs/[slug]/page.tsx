@@ -2,9 +2,13 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import StaticWebPageJsonLd from "@/components/seo/StaticWebPageJsonLd";
 import RichHtml from "@/components/public/RichHtml";
 import { getMinistryProgramBySlug } from "@/lib/data/ministry-programs";
 import { getSiteName } from "@/lib/env";
+import { absoluteMediaUrl } from "@/lib/media/public-url";
+import { buildPublicPageMetadata } from "@/lib/seo/metadata";
+import { getSiteIdentity } from "@/lib/site-identity/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -14,12 +18,20 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const program = await getMinistryProgramBySlug(slug);
+  const [program, identity] = await Promise.all([
+    getMinistryProgramBySlug(slug),
+    getSiteIdentity(),
+  ]);
   if (!program) return { title: "Not found" };
-  return {
+  const description = program.excerpt ?? program.description ?? undefined;
+  const ogImage = absoluteMediaUrl(program.featured_image_url) ?? undefined;
+  return buildPublicPageMetadata({
     title: program.title,
-    description: program.excerpt ?? program.description ?? undefined,
-  };
+    description,
+    path: `/network-programs/${slug}`,
+    siteName: identity.siteName,
+    ogImage,
+  });
 }
 
 export default async function MinistryProgramPage({ params }: Props) {
@@ -32,8 +44,15 @@ export default async function MinistryProgramPage({ params }: Props) {
     program.description ||
     program.excerpt ||
     `${program.title} on FlashPoint Television Network.`;
+  const path = `/network-programs/${slug}`;
 
   return (
+    <>
+      <StaticWebPageJsonLd
+        title={program.title}
+        description={blurb}
+        path={path}
+      />
     <article className="bg-white text-black">
       <div className="border-b border-black/10 bg-[var(--fpn-navy)] text-white">
         <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-8 lg:px-10">
@@ -93,5 +112,6 @@ export default async function MinistryProgramPage({ params }: Props) {
         </div>
       </div>
     </article>
+    </>
   );
 }

@@ -162,6 +162,7 @@ export type Post = {
   reading_time_minutes: number;
   view_count: number;
   published_at: string | null;
+  updated_at?: string | null;
   category?: Category | null;
   author?: Profile | null;
 };

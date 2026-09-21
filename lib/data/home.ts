@@ -10,7 +10,7 @@ const POST_SELECT = `
   og_title, og_description, og_image_url,
   is_featured, is_premium, is_video, is_podcast, is_popular,
   show_featured_image, home_first_slot,
-  reading_time_minutes, view_count, published_at,
+  reading_time_minutes, view_count, published_at, updated_at, updated_at,
   category:categories ( id, name, slug, description, sort_order ),
   author:profiles ( id, email, full_name, first_name, last_name, role, avatar_url )
 `;

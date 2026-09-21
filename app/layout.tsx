@@ -56,6 +56,21 @@ export async function generateMetadata(): Promise<Metadata> {
     description:
       "FlashPoint Television Network — digital newspaper. Get The Full Story. As It Is.",
     icons: buildSiteFaviconMetadata(identity),
+    robots: { index: true, follow: true },
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      siteName: identity.siteName,
+      title: identity.siteName,
+      description:
+        "FlashPoint Television Network — digital newspaper. Get The Full Story. As It Is.",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: identity.siteName,
+      description:
+        "FlashPoint Television Network — digital newspaper. Get The Full Story. As It Is.",
+    },
   };
 }
 

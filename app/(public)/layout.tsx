@@ -1,3 +1,4 @@
+import SiteJsonLd from "@/components/seo/SiteJsonLd";
 import AdSenseScript from "@/components/public/AdSenseScript";
 import GlobalLivePip from "@/components/public/GlobalLivePip";
 import MaintenanceWithProgramException from "@/components/public/MaintenanceWithProgramException";
@@ -50,6 +51,7 @@ export default async function PublicLayout({
   if (maintenance.enabled && !adminBypass) {
     return (
       <TimezoneProvider timeZone={timeZone}>
+        <SiteJsonLd />
         {htmlInjects}
         <MaintenanceWithProgramException message={maintenance.message}>
           {children}
@@ -61,6 +63,7 @@ export default async function PublicLayout({
 
   return (
     <TimezoneProvider timeZone={timeZone}>
+      <SiteJsonLd />
       {htmlInjects}
       {maintenance.enabled && adminBypass ? (
         <div className="bg-amber-500 px-4 py-2 text-center text-sm font-semibold text-black">

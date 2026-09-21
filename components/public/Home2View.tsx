@@ -6,7 +6,7 @@ import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
 /**
- * Network landing for /home2 — full-width Figma layout (625:8349):
+ * Network landing for / — full-width Figma layout (625:8349):
  * live hero → Original Live Shows → marketing blocks.
  * Does not include the news “Beyond the Broadcast” grid.
  */

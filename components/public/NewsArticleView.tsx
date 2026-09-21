@@ -13,6 +13,7 @@ import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media/public-url";
 import { shouldShowFeaturedImageInArticleHero } from "@/lib/posts/media-layout";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
+import { withPublicAuthAccess } from "@/lib/auth/public-auth-gate";
 import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
@@ -55,11 +56,18 @@ export default async function NewsArticleView({
   // Switch is article-hero only — cards/home/SEO always keep featured_image_url.
   const showFeatured = shouldShowFeaturedImageInArticleHero(post);
   const playerInHero = Boolean(post.video_url) && !showFeatured;
+  const loginHref = withPublicAuthAccess(
+    `/login?next=${encodeURIComponent(href)}`,
+  );
+  const registerHref = withPublicAuthAccess(
+    `/register?next=${encodeURIComponent(href)}`,
+  );
 
   return (
     <article className="bg-white text-black">
-      {/* Hero: category, title, dek, meta, image, share strip (Figma single post) */}
-      <div className="mx-auto max-w-[906px] px-4 pb-8 pt-10 md:px-8 lg:px-10 lg:pt-12">
+      <div className="mx-auto grid max-w-[1440px] gap-10 px-4 pb-6 md:px-8 lg:grid-cols-[minmax(0,1fr)_370px] lg:gap-12 lg:px-10">
+        <div className="min-w-0 lg:col-start-1">
+          <div className="w-full max-w-[906px] pb-8 pt-10 lg:mx-0 lg:pt-12">
         <header className="text-left">
           {categoryHref ? (
             <Link
@@ -151,11 +159,9 @@ export default async function NewsArticleView({
             variant="strip"
           />
         </div>
-      </div>
+          </div>
 
-      {/* Body + sidebar */}
-      <div className="mx-auto grid max-w-[1440px] gap-10 px-4 pb-6 md:px-8 lg:grid-cols-[minmax(0,1fr)_370px] lg:gap-12 lg:px-10">
-        <div className="mx-auto w-full max-w-[906px] lg:mx-0">
+        <div className="w-full max-w-[906px] lg:mx-0">
           {/* Player in body only when hero still shows the featured image */}
           {post.video_url && showFeatured ? (
             <div className="mb-8">
@@ -184,69 +190,75 @@ export default async function NewsArticleView({
             />
           </PaywallGate>
 
-          {/* Gift CTA */}
-          <div className="mt-10 flex items-center gap-4 border-y border-[#ccc] py-5">
-            <Image src="/brand/gift.svg" alt="" width={48} height={48} />
-            <div>
-              <p className="font-article text-lg font-black tracking-tight">
-                Give a Gift Subscription
-              </p>
-              <p className="text-sm text-black/70">
-                Share the FPTN with someone special.
-              </p>
-            </div>
+          <div className="mt-10 border-t border-[#ccc] pt-8 pb-8">
+            <ShareBar
+              title={post.title}
+              urlPath={href}
+              excerpt={post.excerpt}
+              orientation="horizontal"
+            />
           </div>
 
-          {/* Prev / Next */}
-          <div className="mt-10 grid gap-6 border-t border-[#ccc] pt-8 sm:grid-cols-2">
+          <div className="grid gap-8 border-y border-[#ccc] py-8 sm:grid-cols-2 sm:gap-6">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-black/50">
+              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--fpn-rojo)]">
                 Previous
               </p>
               {previous ? (
                 <Link
                   href={`/news/${previous.slug}`}
-                  className="mt-2 block font-article text-lg font-black leading-snug tracking-tight hover:text-[var(--fpn-rojo)]"
+                  className="mt-3 block font-article text-lg font-black leading-snug tracking-tight hover:text-[var(--fpn-rojo)] md:text-xl"
                 >
                   {previous.title}
                 </Link>
               ) : (
-                <p className="mt-2 text-sm text-black/40">Start of the feed</p>
+                <p className="mt-3 text-sm text-black/40">Start of the feed</p>
               )}
             </div>
             <div className="sm:text-right">
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-black/50">
+              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--fpn-rojo)]">
                 Next
               </p>
               {next ? (
                 <Link
                   href={`/news/${next.slug}`}
-                  className="mt-2 block font-article text-lg font-black leading-snug tracking-tight hover:text-[var(--fpn-rojo)]"
+                  className="mt-3 block font-article text-lg font-black leading-snug tracking-tight hover:text-[var(--fpn-rojo)] md:text-xl"
                 >
                   {next.title}
                 </Link>
               ) : (
-                <p className="mt-2 text-sm text-black/40">End of the feed</p>
+                <p className="mt-3 text-sm text-black/40">End of the feed</p>
               )}
             </div>
           </div>
 
-          {/* Comments CTA */}
-          <div className="mt-12 border-t border-[#ccc] pt-8">
-            <h2 className="font-article text-[1.75rem] font-black tracking-tight">
+          <div className="pt-10">
+            <h2 className="font-article text-[1.75rem] font-black tracking-tight md:text-[2rem]">
               Comments
             </h2>
-            <p className="mt-2 text-sm text-black/65">
-              Only FPTN all-access subscribers can comment.
+            <p className="mt-6 text-center text-[15px] text-black/80">
+              Only FPTN All Access subscribers can comment
             </p>
-            <p className="mt-4 text-sm text-black/55">
-              Account signup is temporarily paused. Check back soon.
+            <Link
+              href={registerHref}
+              className="mt-5 flex w-full items-center justify-center rounded-[6px] bg-[var(--fpn-rojo)] px-6 py-4 text-center text-[15px] font-bold leading-snug text-white hover:brightness-110"
+            >
+              Unlock FPTN All Access to join the conversation.
+            </Link>
+            <p className="mt-5 text-center text-[15px] text-black/80">
+              Already a subscriber?{" "}
+              <Link
+                href={loginHref}
+                className="font-bold text-black underline underline-offset-2 hover:text-[var(--fpn-rojo)]"
+              >
+                Log In
+              </Link>
             </p>
           </div>
         </div>
+        </div>
 
-        {/* Right sidebar — no Revival/Special Offer promo on single posts */}
-        <aside className="space-y-10">
+        <aside className="space-y-10 lg:col-start-2 lg:row-start-1 lg:self-start lg:pt-12">
           <div className="flex flex-col gap-3">
             <BannerWidget
               widget={banners.article_above_latest_patriot}

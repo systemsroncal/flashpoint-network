@@ -17,13 +17,13 @@ const SCROLL_SHOW_PX = 160;
 
 function isLiveHeroPath(pathname: string | null): boolean {
   return (
-    pathname === "/" || pathname === "/home2" || pathname === "/live"
+    pathname === "/" || pathname === "/live"
   );
 }
 
 /**
  * Sitewide floating live mini-player (desktop + mobile).
- * - On `/`, `/home2`, and `/live`: shows when the main live hero scrolls out of view.
+ * - On `/` and `/live`: shows when the main live hero scrolls out of view.
  *   Those pages already have a sounding player, so the mini player stays muted.
  * - Elsewhere: shows after a short scroll, unless the user closed it.
  * - Close hides it; scrolling past the hero on `/` or `/live` brings it back

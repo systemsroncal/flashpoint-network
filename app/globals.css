@@ -394,6 +394,11 @@ article h3 {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
+/* /home2 hero partner row on white background (Figma 640:10245) */
+.container-hero-player img {
+  filter: invert(0.7);
+}
+
 .fpn-live-cta--ministry {
   color: #ff5000;
   font-weight: 900;

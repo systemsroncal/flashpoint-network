@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import StaticWebPageJsonLd from "@/components/seo/StaticWebPageJsonLd";
 import ScheduleProgramsView from "@/components/public/ScheduleProgramsView";
 import ScheduleWeeklyGridView from "@/components/public/ScheduleWeeklyGridView";
 import {
@@ -8,14 +9,21 @@ import {
   getSchedulePdf,
 } from "@/lib/data/schedule-programs";
 import { getSiteName } from "@/lib/env";
+import { buildStaticPageMetadata } from "@/lib/seo/metadata";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Schedule / Programs",
-  description:
-    "FlashPoint Television Network broadcast schedule — Eastern Time.",
-};
+const TITLE = "Schedule / Programs";
+const DESCRIPTION =
+  "FlashPoint Television Network broadcast schedule — Eastern Time.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildStaticPageMetadata({
+    title: TITLE,
+    description: DESCRIPTION,
+    path: "/schedule-programs",
+  });
+}
 
 type Props = {
   searchParams: Promise<{ year?: string; month?: string }>;
@@ -59,8 +67,18 @@ export default async function ScheduleProgramsPage({ searchParams }: Props) {
     "December",
   ];
 
+  const jsonLd = (
+    <StaticWebPageJsonLd
+      title={TITLE}
+      description={DESCRIPTION}
+      path="/schedule-programs"
+    />
+  );
+
   if (layoutTemplate === "template_2" && displayMode !== "pdf") {
     return (
+      <>
+        {jsonLd}
       <ScheduleWeeklyGridView
         year={year}
         month={month}
@@ -68,10 +86,13 @@ export default async function ScheduleProgramsPage({ searchParams }: Props) {
         pdfHref={pdfHref}
         pdfTitle={pdf?.title || `${monthNames[month - 1]} ${year} broadcast grid`}
       />
+      </>
     );
   }
 
   return (
+    <>
+      {jsonLd}
     <ScheduleProgramsView
       year={year}
       month={month}
@@ -80,5 +101,6 @@ export default async function ScheduleProgramsPage({ searchParams }: Props) {
       pdf={pdf}
       siteName={siteName}
     />
+    </>
   );
 }

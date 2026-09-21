@@ -12,7 +12,7 @@ type Props = {
 };
 
 const IMG_CLASS =
-  "block h-auto w-full max-h-[100px] object-contain object-center sm:max-h-[110px] md:max-h-[130px]";
+  "block h-auto w-full max-h-none object-contain object-center";
 
 function BannerPicture({
   desktop,
@@ -56,7 +56,7 @@ function BannerShell({
 
   return (
     <div
-      className="relative mx-auto w-full bg-[#0a0a0a]"
+      className="relative mx-auto w-full bg-white"
       style={{ maxWidth }}
     >
       {href ? (
@@ -75,7 +75,7 @@ function BannerShell({
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-lg leading-none text-white backdrop-blur-sm transition hover:bg-black/75"
+        className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-black/15 bg-white/90 text-lg leading-none text-black shadow-sm transition hover:bg-white"
         aria-label="Close promotion for 24 hours"
       >
         ×
@@ -107,7 +107,7 @@ export default function TopHeaderBanner({ settings }: Props) {
   const href = settings.href.trim();
 
   return (
-    <div className="w-full bg-[#0a0a0a]" role="region" aria-label="Site promotion">
+    <div className="w-full bg-white" role="region" aria-label="Site promotion">
       {mobileSrc ? (
         <div className="md:hidden">
           <BannerShell

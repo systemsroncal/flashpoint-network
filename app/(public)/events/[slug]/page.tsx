@@ -1,10 +1,15 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import JsonLd from "@/components/seo/JsonLd";
 import RichHtml from "@/components/public/RichHtml";
 import VideoPlayer from "@/components/public/VideoPlayer";
 import { getEventBySlug } from "@/lib/data/home";
 import { formatDate } from "@/lib/format";
+import { buildEventJsonLd } from "@/lib/seo/event-json-ld";
+import { buildPublicPageMetadata } from "@/lib/seo/metadata";
+import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
 export const dynamic = "force-dynamic";
@@ -13,14 +18,20 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const event = await getEventBySlug(slug);
+  const [event, identity] = await Promise.all([
+    getEventBySlug(slug),
+    getSiteIdentity(),
+  ]);
   if (!event) return { title: "Not found" };
-  return {
+  return buildPublicPageMetadata({
     title: event.title,
     description: event.description ?? undefined,
-  };
+    path: `/events/${slug}`,
+    siteName: identity.siteName,
+    ogImage: event.thumbnail_url ?? undefined,
+  });
 }
 
 export default async function EventPage({ params }: Props) {
@@ -32,7 +43,9 @@ export default async function EventPage({ params }: Props) {
   if (!event) notFound();
 
   return (
-    <article className="bg-white">
+    <>
+      <JsonLd data={buildEventJsonLd(event)} />
+      <article className="bg-white">
       <div className="bg-[#0B0F14] text-white">
         <div className="mx-auto grid max-w-5xl gap-6 px-4 py-10 md:grid-cols-2 md:items-center">
           <div className="relative aspect-video overflow-hidden rounded-[12px] bg-black">
@@ -132,5 +145,6 @@ export default async function EventPage({ params }: Props) {
         </div>
       </div>
     </article>
+    </>
   );
 }

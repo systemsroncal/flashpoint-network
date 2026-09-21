@@ -1,17 +1,25 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import StaticWebPageJsonLd from "@/components/seo/StaticWebPageJsonLd";
 import { getPublicEvents } from "@/lib/data/home";
 import { formatDate } from "@/lib/format";
 import { getSiteName } from "@/lib/env";
+import { buildStaticPageMetadata } from "@/lib/seo/metadata";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Events",
-  description: "Live and upcoming FlashPoint Television Network events",
-};
+const TITLE = "Events";
+const DESCRIPTION = "Live and upcoming FlashPoint Television Network events";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return buildStaticPageMetadata({
+    title: TITLE,
+    description: DESCRIPTION,
+    path: "/events",
+  });
+}
 
 export default async function EventsIndexPage() {
   const [events, timeZone] = await Promise.all([
@@ -21,6 +29,12 @@ export default async function EventsIndexPage() {
   const siteName = getSiteName();
 
   return (
+    <>
+      <StaticWebPageJsonLd
+        title={TITLE}
+        description={DESCRIPTION}
+        path="/events"
+      />
     <div className="bg-white text-black">
       <div className="border-b border-black/10 bg-[#0B0F14] text-white">
         <div className="mx-auto max-w-[1440px] px-4 py-10 md:px-8 lg:px-10 lg:py-12">
@@ -105,5 +119,6 @@ export default async function EventsIndexPage() {
         )}
       </div>
     </div>
+    </>
   );
 }

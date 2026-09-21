@@ -214,10 +214,10 @@ export default function ShareBar({
 
   return (
     <div>
-      <p className="font-article text-[1.35rem] font-black tracking-tight text-black">
+      <p className="font-article text-[1.75rem] font-black tracking-tight text-black md:text-[2rem]">
         Share
       </p>
-      <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2">
+      <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
         {networkLinks}
         {actions}
       </div>
