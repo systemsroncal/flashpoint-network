@@ -29,7 +29,6 @@ export default async function Home2View({
       title: p.title,
       hostName: p.host_name ?? null,
       imageUrl: p.carousel_image_url as string,
-      href: `/network-programs/${p.slug}`,
     }));
 
   const stayInformedPosts = [
@@ -45,7 +44,7 @@ export default async function Home2View({
   return (
     <div className="w-full max-w-none bg-[#101011] text-white">
       <Home2LiveHero />
-      <HomeShowsCarousel items={showCarouselItems} />
+      <HomeShowsCarousel items={showCarouselItems} linkable={false} />
       <HomeNetworkMarketing
         newsPosts={stayInformedPosts}
         defaultFeatured={identity.defaultFeaturedImageUrl}

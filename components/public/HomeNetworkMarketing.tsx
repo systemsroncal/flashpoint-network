@@ -1,9 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PartnersGrid } from "@/components/public/HomePartnerLogos";
+import HomeStayInformedSection from "@/components/public/HomeStayInformedSection";
 import type { Post } from "@/lib/types/cms";
-import { formatDate, formatReadTime } from "@/lib/format";
-import { cardFeaturedImageUrl } from "@/lib/posts/media-layout";
 
 
 const REASONS = [
@@ -31,19 +30,19 @@ const REASONS = [
 
 const PILLARS = [
   {
-    label: "Family Classics",
-    href: "/classic-programs",
-    image: "/brand/home/pillars/black-and-white.png",
-  },
-  {
-    label: "Pastors & Ministries",
-    href: "/network-programs",
-    image: "/brand/home/pillars/pastors-and-ministries.png",
-  },
-  {
     label: "News & Analysis",
     href: "/news",
-    image: "/brand/home/pillars/new-and-analysis.png",
+    image: "/brand/home/pillars/news-v2.png",
+  },
+  {
+    label: "Family Classics",
+    href: "/classic-programs",
+    image: "/brand/home/pillars/classics-v2.png",
+  },
+  {
+    label: "Network Programs",
+    href: "/network-programs",
+    image: "/brand/home/pillars/ministry-programs-v2.png",
   },
   {
     label: "Gene Bailey & More",
@@ -56,10 +55,13 @@ export default function HomeNetworkMarketing({
   newsPosts,
   defaultFeatured,
   timeZone,
+  showStayInformed = true,
 }: {
   newsPosts: Post[];
   defaultFeatured: string | null;
   timeZone: string;
+  /** Set false when Stay Informed is rendered elsewhere (e.g. /home2 after hero). */
+  showStayInformed?: boolean;
 }) {
   return (
     <div className="w-full max-w-none bg-[#101011] text-white">
@@ -78,7 +80,7 @@ export default function HomeNetworkMarketing({
           <div className="flex flex-1 flex-col gap-4 px-6 pb-6 pt-2 md:flex-row md:items-center md:justify-between md:px-8 md:py-6">
             <div className="min-w-0">
               <h2 className="text-xl font-bold tracking-tight md:text-[1.4rem]">
-                The Black & White Classics Are Back
+                Family Classics Are Back
               </h2>
               <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-white/90 md:text-[19px] md:leading-7">
                 Rediscover the timeless American shows generations grew up
@@ -132,69 +134,12 @@ export default function HomeNetworkMarketing({
         </div>
       </section>
 
-      {/* Stay informed news */}
-      {newsPosts.length > 0 ? (
-        <section className="w-full bg-white px-4 py-12 text-black md:px-8 md:py-16 lg:px-16 xl:px-20">
-          <div className="mx-auto w-full max-w-[1920px]">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[2.85rem]">
-                  STAY INFORMED. GO DEEPER.
-                </h2>
-                <p className="mt-3 max-w-3xl text-[15px] text-black/70 md:text-[19px]">
-                  Watch the conversation live, then explore the stories,
-                  analysis, and articles behind the issues shaping America and
-                  the world.
-                </p>
-              </div>
-              <Link
-                href="/news"
-                className="text-sm font-bold text-[#101011] hover:underline"
-              >
-                View More &gt;
-              </Link>
-            </div>
-            <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-              {newsPosts.slice(0, 4).map((post) => {
-                const thumb = cardFeaturedImageUrl(post, defaultFeatured);
-                const category =
-                  post.category?.name?.toUpperCase() || "NEWS";
-                return (
-                  <article key={post.id} className="min-w-0">
-                    <Link
-                      href={`/news/${post.slug}`}
-                      className="relative block aspect-[369/206] overflow-hidden rounded-[10px] bg-neutral-200"
-                    >
-                      {thumb ? (
-                        <Image
-                          src={thumb}
-                          alt=""
-                          fill
-                          className="object-cover"
-                          sizes="(max-width:1280px) 50vw, 25vw"
-                        />
-                      ) : null}
-                    </Link>
-                    <p className="mt-3 text-[13px] font-medium uppercase tracking-wide text-[var(--fpn-rojo)]">
-                      {category}
-                    </p>
-                    <Link href={`/news/${post.slug}`}>
-                      <h3 className="mt-1 font-article text-xl font-black leading-snug tracking-tight hover:text-[var(--fpn-rojo)] md:text-[1.5rem]">
-                        {post.title}
-                      </h3>
-                    </Link>
-                    <div className="mt-3 flex items-center justify-between gap-3 text-sm text-[#929292]">
-                      <span>{formatReadTime(post.reading_time_minutes)}</span>
-                      <span className="text-[var(--fpn-rojo)]">
-                        {formatDate(post.published_at, timeZone)}
-                      </span>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        </section>
+      {showStayInformed ? (
+        <HomeStayInformedSection
+          newsPosts={newsPosts}
+          defaultFeatured={defaultFeatured}
+          timeZone={timeZone}
+        />
       ) : null}
 
       {/* Four pillars */}
@@ -215,7 +160,7 @@ export default function HomeNetworkMarketing({
               key={pillar.label}
               href={pillar.href}
               aria-label={pillar.label}
-              className="group relative aspect-[336/519] overflow-hidden rounded-[9px] shadow-[0_8px_24px_rgba(0,0,0,0.28)] transition-[transform,box-shadow] duration-300 ease-in-out hover:z-10 hover:scale-[1.06] hover:shadow-[0_10px_28px_rgba(255,255,255,0.28)]"
+              className="group relative aspect-[336/519] overflow-hidden rounded-[9px] shadow-[0_8px_24px_rgba(0,0,0,0.28)] transition-[transform,box-shadow] duration-[550ms] ease-[cubic-bezier(0.22,1,0.36,1)] delay-150 hover:z-10 hover:scale-[1.015] hover:delay-75 hover:shadow-[0_8px_22px_rgba(255,255,255,0.14)]"
             >
               <Image
                 src={pillar.image}
