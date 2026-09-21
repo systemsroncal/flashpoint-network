@@ -14,6 +14,7 @@ export type HomeShowCarouselItem = {
 
 const BORDER_COLORS = ["#ffeebe", "#ffbebe", "#bed5ff", "#bee8ff", "#e8beff"];
 const AUTOPLAY_MS = 2400;
+const DRAG_THRESHOLD_PX = 4;
 
 const CARD_HOVER =
   "shadow-[0_8px_24px_rgba(0,0,0,0.28)] transition-[transform,box-shadow] duration-[550ms] ease-[cubic-bezier(0.22,1,0.36,1)] delay-150 hover:delay-75 hover:scale-[1.015] hover:shadow-[0_8px_22px_rgba(255,255,255,0.14)]";
@@ -32,11 +33,12 @@ export default function HomeShowsCarousel({
 }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const pausedRef = useRef(false);
-  const dragRef = useRef({
-    active: false,
-    startX: 0,
-    startLeft: 0,
+  const draggingRef = useRef(false);
+  const dragStateRef = useRef({
     pointerId: -1,
+    startX: 0,
+    startScrollLeft: 0,
+    moved: false,
   });
   const loopReadyRef = useRef(false);
 
@@ -49,17 +51,23 @@ export default function HomeShowsCarousel({
     }));
   }, [items]);
 
+  const getSegmentWidth = useCallback((el: HTMLDivElement) => {
+    return el.scrollWidth / 3;
+  }, []);
+
   const normalizeLoopScroll = useCallback(() => {
     const el = scrollerRef.current;
     if (!el || items.length === 0) return;
-    const segment = el.scrollWidth / 3;
+    const segment = getSegmentWidth(el);
     if (segment <= 0) return;
-    if (el.scrollLeft < segment * 0.35) {
-      el.scrollLeft += segment;
-    } else if (el.scrollLeft > segment * 2.65) {
-      el.scrollLeft -= segment;
+
+    const left = el.scrollLeft;
+    if (left < segment * 0.15) {
+      el.scrollLeft = left + segment;
+    } else if (left > segment * 2.85) {
+      el.scrollLeft = left - segment;
     }
-  }, [items.length]);
+  }, [getSegmentWidth, items.length]);
 
   const scrollByCard = useCallback(
     (dir: -1 | 1, behavior: ScrollBehavior = "smooth") => {
@@ -67,92 +75,114 @@ export default function HomeShowsCarousel({
       if (!el) return;
       const card = el.querySelector<HTMLElement>("[data-show-card]");
       const gap =
+        parseFloat(getComputedStyle(el).gap || "0") ||
         parseFloat(getComputedStyle(el).columnGap || "0") ||
-        parseFloat(getComputedStyle(el).gap || "16") ||
         16;
       const step = (card?.offsetWidth || 280) + gap;
-      el.scrollBy({ left: dir * step, behavior });
-      if (behavior === "auto") {
-        normalizeLoopScroll();
-      }
+      el.scrollTo({ left: el.scrollLeft + dir * step, behavior });
     },
-    [normalizeLoopScroll],
+    [],
   );
+
+  const initLoopPosition = useCallback(() => {
+    const el = scrollerRef.current;
+    if (!el || items.length === 0) return;
+    const segment = getSegmentWidth(el);
+    if (segment > 0) {
+      el.scrollLeft = segment;
+      loopReadyRef.current = true;
+    }
+  }, [getSegmentWidth, items.length]);
 
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el || items.length === 0) return;
 
-    const placeMiddle = () => {
-      const segment = el.scrollWidth / 3;
-      if (segment > 0) {
-        el.scrollLeft = segment;
-        loopReadyRef.current = true;
-      }
-    };
+    initLoopPosition();
 
-    placeMiddle();
     const ro = new ResizeObserver(() => {
-      if (!loopReadyRef.current) placeMiddle();
+      if (!draggingRef.current) initLoopPosition();
     });
     ro.observe(el);
 
     const onScroll = () => {
-      if (!dragRef.current.active) normalizeLoopScroll();
+      if (!draggingRef.current) normalizeLoopScroll();
     };
     el.addEventListener("scroll", onScroll, { passive: true });
+    el.addEventListener("scrollend", onScroll);
 
     return () => {
       ro.disconnect();
       el.removeEventListener("scroll", onScroll);
+      el.removeEventListener("scrollend", onScroll);
     };
-  }, [items.length, normalizeLoopScroll]);
+  }, [items.length, initLoopPosition, normalizeLoopScroll]);
 
   useEffect(() => {
     if (items.length < 2) return;
     const id = window.setInterval(() => {
-      if (pausedRef.current || dragRef.current.active) return;
+      if (pausedRef.current || draggingRef.current) return;
       scrollByCard(1, "smooth");
     }, AUTOPLAY_MS);
     return () => window.clearInterval(id);
   }, [items.length, scrollByCard]);
 
-  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0) return;
+  const endDragSession = useCallback(() => {
     const el = scrollerRef.current;
-    if (!el) return;
-    dragRef.current = {
-      active: true,
-      startX: e.clientX,
-      startLeft: el.scrollLeft,
-      pointerId: e.pointerId,
-    };
-    pausedRef.current = true;
-    el.setPointerCapture(e.pointerId);
-  };
-
-  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragRef.current.active || dragRef.current.pointerId !== e.pointerId) {
-      return;
-    }
-    const el = scrollerRef.current;
-    if (!el) return;
-    el.scrollLeft = dragRef.current.startLeft - (e.clientX - dragRef.current.startX);
-  };
-
-  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragRef.current.active || dragRef.current.pointerId !== e.pointerId) {
-      return;
-    }
-    const el = scrollerRef.current;
-    dragRef.current.active = false;
-    if (el?.hasPointerCapture(e.pointerId)) {
-      el.releasePointerCapture(e.pointerId);
+    draggingRef.current = false;
+    if (el) {
+      el.classList.add("scroll-smooth", "snap-x", "snap-mandatory");
     }
     normalizeLoopScroll();
     window.setTimeout(() => {
       pausedRef.current = false;
-    }, 400);
+    }, 350);
+  }, [normalizeLoopScroll]);
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    const el = scrollerRef.current;
+    if (!el) return;
+
+    dragStateRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startScrollLeft: el.scrollLeft,
+      moved: false,
+    };
+    draggingRef.current = true;
+    pausedRef.current = true;
+
+    el.classList.remove("scroll-smooth", "snap-x", "snap-mandatory");
+
+    const onMove = (ev: PointerEvent) => {
+      if (ev.pointerId !== dragStateRef.current.pointerId) return;
+      const dx = ev.clientX - dragStateRef.current.startX;
+      if (Math.abs(dx) > DRAG_THRESHOLD_PX) {
+        dragStateRef.current.moved = true;
+      }
+      el.scrollLeft = dragStateRef.current.startScrollLeft - dx;
+    };
+
+    const onUp = (ev: PointerEvent) => {
+      if (ev.pointerId !== dragStateRef.current.pointerId) return;
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      endDragSession();
+    };
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+  };
+
+  const blockClickIfDragged = (e: React.MouseEvent) => {
+    if (dragStateRef.current.moved) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragStateRef.current.moved = false;
+    }
   };
 
   if (items.length === 0) return null;
@@ -187,6 +217,7 @@ export default function HomeShowsCarousel({
           className={className}
           style={style}
           draggable={false}
+          onClick={blockClickIfDragged}
         >
           {image}
         </Link>
@@ -228,7 +259,7 @@ export default function HomeShowsCarousel({
           pausedRef.current = true;
         }}
         onMouseLeave={() => {
-          if (!dragRef.current.active) pausedRef.current = false;
+          if (!draggingRef.current) pausedRef.current = false;
         }}
       >
         <button
@@ -250,14 +281,8 @@ export default function HomeShowsCarousel({
 
         <div
           ref={scrollerRef}
-          className="flex w-full cursor-grab snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-4 py-4 touch-pan-x active:cursor-grabbing [-ms-overflow-style:none] [scrollbar-width:none] md:gap-5 md:px-8 lg:px-16 xl:px-20 [&::-webkit-scrollbar]:hidden"
+          className="flex w-full cursor-grab select-none gap-4 overflow-x-auto scroll-smooth px-4 py-4 snap-x snap-mandatory active:cursor-grabbing [-ms-overflow-style:none] [scrollbar-width:none] [touch-action:pan-x] md:gap-5 md:px-8 lg:px-16 xl:px-20 [&::-webkit-scrollbar]:hidden"
           onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
-          onScroll={() => {
-            if (!dragRef.current.active) normalizeLoopScroll();
-          }}
         >
           {loopItems.map((item, index) => renderCard(item, index))}
         </div>

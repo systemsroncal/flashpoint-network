@@ -186,8 +186,8 @@ export default function HomeNetworkMarketing({
           />
           <div className="absolute inset-0 bg-[rgba(8,52,13,0.75)]" />
         </div>
-        <div className="relative mx-auto grid w-full max-w-[1920px] items-center gap-10 px-4 py-14 md:px-8 md:py-20 lg:grid-cols-[minmax(0,720px)_minmax(280px,1fr)] lg:px-16 xl:px-20">
-          <div>
+        <div className="relative w-full lg:min-h-[min(52vw,560px)] lg:pb-14 lg:pt-14 xl:min-h-[560px]">
+          <div className="relative z-10 w-full px-4 py-14 md:px-8 md:py-20 lg:max-w-[min(100%,780px)] lg:py-0 lg:pl-16 xl:pl-20">
             <h2 className="font-article text-[2rem] font-bold tracking-tight md:text-[3.2rem]">
               Watch FlashPoint Anywhere
             </h2>
@@ -202,13 +202,16 @@ export default function HomeNetworkMarketing({
               More channels and distribution partners continue to be added.
             </p>
           </div>
-          <div className="relative mx-auto aspect-[935/769] w-full max-w-[720px] lg:max-w-none">
+          {/* TV art: anchored to viewport right (not the text column width). */}
+          <div
+            className="relative mx-auto mt-10 aspect-[935/769] w-full max-w-[720px] px-4 pb-14 md:px-8 lg:pointer-events-none lg:absolute lg:bottom-0 lg:right-0 lg:top-0 lg:mx-0 lg:mt-0 lg:w-[min(58vw,980px)] lg:max-w-none lg:px-0 lg:pb-0"
+          >
             <Image
               src="/brand/home/watch-anywhere-tv.png"
               alt="FlashPoint on a smart TV channel guide"
               fill
-              className="object-contain object-center"
-              sizes="(max-width:1024px) 90vw, 640px"
+              className="object-contain object-right object-bottom"
+              sizes="(max-width:1024px) 90vw, 58vw"
             />
           </div>
         </div>

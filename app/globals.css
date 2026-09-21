@@ -388,6 +388,12 @@ article h3 {
   letter-spacing: 0.06em;
 }
 
+.fpn-live-cta--hero-on-light {
+  border-color: #e3e3e3;
+  color: #b80529;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
 .fpn-live-cta--ministry {
   color: #ff5000;
   font-weight: 900;
