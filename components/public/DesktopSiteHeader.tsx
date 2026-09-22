@@ -195,8 +195,8 @@ export default function DesktopSiteHeader({
 
   return (
     <header className="hidden w-full xl:block">
-      <div className="relative bg-[var(--fpn-navy)] text-white">
-        <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-[var(--fpn-rojo)]" />
+      <div className="relative border-b-[5px] border-[#E1B647] bg-[#000D3C] text-white">
+        <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-black" />
         <div className="relative mx-auto flex max-w-[1920px] items-center gap-6 px-4 py-3 md:gap-8 md:px-8 lg:px-10">
           <Link
             href="/"

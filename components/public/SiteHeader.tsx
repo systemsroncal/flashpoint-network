@@ -132,8 +132,9 @@ export default async function SiteHeader({
       />
 
       {/* Mobile / tablet */}
-      <header className="w-full max-w-none bg-[var(--fpn-navy)] text-white xl:hidden">
-        <div className="absolute inset-x-0 top-0 h-[3px] bg-[var(--fpn-rojo)]" />
+      <header className="w-full max-w-none text-white xl:hidden">
+        <div className="relative border-b-[5px] border-[#E1B647] bg-[#000D3C]">
+        <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-black" />
         <div className="relative flex items-center justify-between gap-2 px-2 pb-2.5 pt-3.5 sm:px-3">
           <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2">
             <MobileNav
@@ -168,6 +169,7 @@ export default async function SiteHeader({
             <HeaderSearch tone="light" iconSize={22} />
             <HeaderUserMenu user={user} tone="light" iconSize={22} />
           </div>
+        </div>
         </div>
 
         <NewsSectionMobileCategoryBar items={mobileBarItems} />

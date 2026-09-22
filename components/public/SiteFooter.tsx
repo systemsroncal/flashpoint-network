@@ -136,10 +136,10 @@ export default async function SiteFooter({
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-4 py-4 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between md:px-8 lg:px-10">
           <div className="flex flex-col gap-1.5">
-            <p>
+            <p className="text-[14px] leading-snug text-white/50">
               © {new Date().getFullYear()} {siteName}. All rights reserved.
             </p>
-            <p>
+            <p className="text-xs">
               Platform Developed By{" "}
               <a
                 href="https://www.dreamsanimation.com/"

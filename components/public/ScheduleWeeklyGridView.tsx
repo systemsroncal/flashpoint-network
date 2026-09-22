@@ -131,8 +131,8 @@ function GridTable({
       </p>
       <table className="schedule-week-grid w-full min-w-[920px] border-collapse text-left">
         <thead>
-          <tr className="text-[10px] font-bold uppercase tracking-[0.12em] text-white/70">
-            <th className="w-[72px] py-2 pr-2 font-bold">Time</th>
+          <tr className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-white/80">
+            <th className="w-[72px] py-2 pr-2 font-extrabold">Time</th>
             {DAYS.map((d) => (
               <th key={d} className="px-1 py-2 font-bold">
                 {d}
@@ -143,7 +143,7 @@ function GridTable({
         <tbody>
           {slots.map((slot) => (
             <tr key={slot} className="border-t border-white/8">
-              <td className="whitespace-nowrap py-1.5 pr-2 align-middle text-[11px] font-semibold text-white/45">
+              <td className="whitespace-nowrap py-1.5 pr-2 align-middle text-[11px] font-bold text-white/55">
                 {formatSlotLabel(slot)}
               </td>
               {DAYS.map((_, dayIndex) => {
@@ -155,7 +155,7 @@ function GridTable({
                   >
                     {cell ? (
                       <span
-                        className="schedule-week-grid-cell mx-auto block max-w-[11rem] text-[11px] leading-[1.35] md:text-[12px] md:leading-[1.4]"
+                        className="schedule-week-grid-cell mx-auto block max-w-[11rem] text-[11px] font-bold leading-[1.35] md:text-[12px] md:leading-[1.4]"
                         style={{ color: cell.color }}
                         title={cell.title}
                       >
@@ -198,9 +198,8 @@ export default function ScheduleWeeklyGridView({
       <style>{`
         .schedule-week-grid-cell {
           font-family: var(--font-ui);
-          font-weight: 100;
+          font-weight: 700 !important;
           letter-spacing: 0.01em;
-          -webkit-font-smoothing: antialiased;
         }
         @media print {
           header, footer, .schedule-week-nav { display: none !important; }
