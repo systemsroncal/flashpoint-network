@@ -118,14 +118,14 @@ export default function HomeNetworkMarketing({
                   {reason.body}
                 </p>
               </div>
-              <div className="mt-6 flex justify-end">
-                <div className="relative h-[4.8rem] w-24">
+              <div className="mt-4 flex justify-end md:mt-6">
+                <div className="relative h-[6.75rem] w-[6.75rem] sm:h-[7.25rem] sm:w-[7.25rem] md:h-[4.8rem] md:w-24">
                   <Image
                     src={reason.icon}
                     alt=""
                     fill
                     className="object-contain object-right"
-                    sizes="96px"
+                    sizes="(max-width: 767px) 116px, 96px"
                   />
                 </div>
               </div>
@@ -186,8 +186,8 @@ export default function HomeNetworkMarketing({
           />
           <div className="absolute inset-0 bg-[rgba(8,52,13,0.75)]" />
         </div>
-        <div className="relative w-full lg:flex lg:items-center lg:min-h-[min(52vw,560px)] lg:py-14 xl:min-h-[560px]">
-          <div className="relative z-10 w-full px-4 py-14 text-center md:px-8 md:py-20 lg:ml-auto lg:max-w-[840px] lg:flex-shrink-0 lg:py-0 lg:pr-10 lg:text-left">
+        <div className="relative flex w-full flex-col lg:min-h-[min(52vw,560px)] lg:flex-row lg:items-center lg:py-14 xl:min-h-[560px]">
+          <div className="relative z-10 w-full px-4 pb-2 pt-10 text-center md:px-8 md:pb-4 md:pt-14 lg:ml-auto lg:max-w-[840px] lg:flex-shrink-0 lg:py-0 lg:pr-10 lg:text-left">
             <h2 className="font-home-title text-[2rem] font-bold tracking-tight md:text-[3.2rem]">
               Watch FlashPoint Anywhere
             </h2>
@@ -198,29 +198,33 @@ export default function HomeNetworkMarketing({
               Watch on Roku, Xfinity, broadcast affiliates, streaming partners,
               and digital platforms across the country.
             </p>
-            <PartnersGrid className="mt-8" />
-            <p className="mt-6 text-sm text-white/40 md:text-[1.05rem]">
+            <PartnersGrid className="mt-6 md:mt-8" />
+            <p className="mt-6 hidden text-sm text-white/40 md:text-[1.05rem] lg:block">
               More channels and distribution partners continue to be added.
             </p>
           </div>
-          <div className="relative mx-auto mt-4 w-full max-w-[min(92vw,560px)] px-4 pb-14 sm:mt-6 lg:pointer-events-none lg:mx-0 lg:mt-0 lg:w-[46%] lg:max-w-none lg:flex-shrink-0 lg:px-0 lg:pb-0 lg:pr-0">
-            <div className="relative mx-auto aspect-[935/769] w-full lg:mx-0 lg:ml-auto lg:max-w-[720px]">
-              <Image
-                src="/brand/home/watch-anywhere-tv-mobile.png"
-                alt="FlashPoint on a smart TV channel guide"
-                fill
-                className="object-contain object-center lg:hidden"
-                sizes="(max-width:1024px) 92vw, 0px"
-              />
+          <div className="relative mx-auto w-full max-w-[min(92vw,560px)] px-4 pb-4 pt-2 lg:pointer-events-none lg:mx-0 lg:mt-0 lg:w-[46%] lg:max-w-none lg:flex-shrink-0 lg:px-0 lg:pb-0 lg:pr-0 lg:pt-0">
+            <Image
+              src="/brand/home/watch-anywhere-tv-mobile.png"
+              alt="FlashPoint on a smart TV channel guide"
+              width={935}
+              height={769}
+              className="mx-auto w-full max-w-[min(92vw,560px)] h-auto lg:hidden"
+              sizes="(max-width:1024px) 92vw"
+            />
+            <div className="relative mx-auto hidden aspect-[935/769] w-full lg:mx-0 lg:ml-auto lg:block lg:max-w-[720px]">
               <Image
                 src="/brand/home/watch-anywhere-tv.png"
                 alt="FlashPoint on a smart TV channel guide"
                 fill
-                className="hidden object-contain object-right object-bottom lg:block"
+                className="object-contain object-right object-bottom"
                 sizes="46vw"
               />
             </div>
           </div>
+          <p className="mx-auto max-w-xl px-4 pb-8 pt-1 text-center text-sm text-white/40 md:pb-10 md:text-[1.05rem] lg:hidden">
+            More channels and distribution partners continue to be added.
+          </p>
         </div>
       </section>
     </div>
