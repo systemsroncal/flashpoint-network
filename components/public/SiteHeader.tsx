@@ -8,7 +8,7 @@ import DesktopSiteHeader, {
 } from "@/components/public/DesktopSiteHeader";
 import NewsSectionMobileCategoryBar from "@/components/public/NewsSectionMobileCategoryBar";
 import MobileNav from "@/components/public/MobileNav";
-import SiteLogo from "@/components/public/SiteLogo";
+import SiteHeaderMobileLogo from "@/components/public/SiteHeaderMobileLogo";
 import {
   flattenCategoriesHierarchy,
   getChildCategories,
@@ -113,7 +113,7 @@ export default async function SiteHeader({
   ];
 
   return (
-    <div className="sticky top-0 z-50 w-full max-w-none">
+    <div className="sticky top-0 z-50 w-full max-w-none overflow-visible">
       <DesktopSiteHeader
         siteName={siteName}
         logoSrc={logoSrc}
@@ -125,10 +125,10 @@ export default async function SiteHeader({
       />
 
       {/* Mobile / tablet */}
-      <header className="w-full max-w-none text-white xl:hidden">
-        <div className="relative border-b-[5px] border-[#E1B647] bg-[#000D3C]">
+      <header className="w-full max-w-none overflow-visible text-white xl:hidden">
+        <div className="relative overflow-visible border-b-[5px] border-[#E1B647] bg-[#000D3C]">
         <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-black" />
-        <div className="relative flex items-center justify-between gap-2 px-2 pb-2.5 pt-3.5 sm:px-3">
+        <div className="relative flex items-center justify-between gap-2 overflow-visible px-2 pb-2.5 pt-3.5 sm:px-3">
           <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2">
             <MobileNav
               topCategories={
@@ -143,19 +143,12 @@ export default async function SiteHeader({
               logoWidths={identity.headerLogoMaxWidth}
               logoClassName={identity.headerLogoClassName}
             />
-            <Link
-              href="/"
-              className="block min-w-0 w-full flex-1"
-              aria-label={siteName}
-            >
-              <SiteLogo
-                src={logoSrc}
-                alt={siteName}
-                widths={identity.headerLogoMaxWidth}
-                className={identity.headerLogoClassName}
-                priority
-              />
-            </Link>
+            <SiteHeaderMobileLogo
+              siteName={siteName}
+              logoSrc={logoSrc}
+              widths={identity.headerLogoMaxWidth}
+              className={identity.headerLogoClassName}
+            />
           </div>
 
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">

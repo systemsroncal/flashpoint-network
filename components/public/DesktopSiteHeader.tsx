@@ -24,6 +24,8 @@ type PrimaryLink = {
   match: (path: string) => boolean;
 };
 
+const NEWS_CATEGORY_BAR_EXCLUDE = new Set(["elections", "video"]);
+
 function categoryLabel(name: string, slug: string): string {
   if (slug === "elections") return "Elections 2026";
   return name;
@@ -36,7 +38,7 @@ function ChevronDown() {
       height={5}
       viewBox="0 0 10 6"
       aria-hidden
-      className="shrink-0 opacity-70"
+      className="ml-0.5 shrink-0"
     >
       <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.6" fill="none" />
     </svg>
@@ -63,14 +65,14 @@ function CategoryNavItem({
     >
       <Link
         href={href}
-        className={`inline-flex items-center gap-1 whitespace-nowrap py-2.5 text-[15px] font-medium tracking-tight transition-opacity hover:opacity-70 ${
+        className={`inline-flex items-center whitespace-nowrap py-3 text-[15px] font-bold tracking-tight transition-opacity hover:opacity-75 ${
           active ? "text-black" : "text-black"
         }`}
         aria-expanded={hasChildren ? open : undefined}
         aria-haspopup={hasChildren ? "true" : undefined}
       >
         {categoryLabel(item.name, item.slug)}
-        <ChevronDown />
+        {hasChildren ? <ChevronDown /> : null}
       </Link>
       {open && hasChildren ? (
         <div
@@ -81,7 +83,7 @@ function CategoryNavItem({
             <Link
               key={child.id}
               href={`/category/${child.slug}`}
-              className="block px-4 py-2 text-[14px] font-medium text-black hover:bg-black/5"
+              className="block px-4 py-2 text-[14px] font-semibold text-black hover:bg-black/5"
               role="menuitem"
             >
               {categoryLabel(child.name, child.slug)}
@@ -96,9 +98,11 @@ function CategoryNavItem({
 function PrimaryNav({
   links,
   pathname,
+  activeHighlight = "white",
 }: {
   links: PrimaryLink[];
   pathname: string;
+  activeHighlight?: "white" | "cyan";
 }) {
   return (
     <nav
@@ -107,12 +111,16 @@ function PrimaryNav({
     >
       {links.map((link) => {
         const active = link.match(pathname);
+        const activeClass =
+          activeHighlight === "cyan"
+            ? "font-black text-[#0035FC]"
+            : "font-black text-white";
         return (
           <Link
             key={link.href}
             href={link.href}
-            className={`text-[length:clamp(0.9rem,1.1vw,1.2rem)] font-black tracking-tight transition-opacity hover:opacity-90 ${
-              active ? "text-white" : "text-white/75"
+            className={`text-[length:clamp(0.9rem,1.1vw,1.2rem)] tracking-tight transition-opacity hover:opacity-90 ${
+              active ? activeClass : "font-black text-white/75"
             }`}
           >
             {link.label}
@@ -120,6 +128,91 @@ function PrimaryNav({
         );
       })}
     </nav>
+  );
+}
+
+function buildPrimaryLinks(showSchedule: boolean, newsLayout: boolean): PrimaryLink[] {
+  const newsMatch = (p: string) =>
+    p === "/news" ||
+    p.startsWith("/news/") ||
+    p.startsWith("/category/") ||
+    p.startsWith("/tag/") ||
+    p.startsWith("/tags/") ||
+    p.startsWith("/feed/") ||
+    p.startsWith("/preview/news/");
+
+  const links: PrimaryLink[] = [
+    { label: "Home", href: "/", match: (p) => p === "/" },
+    { label: "Watch Live", href: "/live", match: (p) => p.startsWith("/live") },
+    { label: "FPTN News", href: "/news", match: newsMatch },
+    ...(showSchedule
+      ? [
+          {
+            label: "Broadcast Schedule",
+            href: "/schedule-programs",
+            match: (p: string) => p.startsWith("/schedule-programs"),
+          },
+        ]
+      : []),
+    {
+      label: "Shows",
+      href: "/network-programs",
+      match: (p) => p.startsWith("/network-programs"),
+    },
+    { label: "Advertise", href: "/contact", match: (p) => p.startsWith("/contact") },
+    ...(newsLayout
+      ? []
+      : [{ label: "About", href: "/about", match: (p: string) => p.startsWith("/about") }]),
+  ];
+
+  return links;
+}
+
+function LogoLink({
+  siteName,
+  logoSrc,
+  logoWidths,
+  logoClassName,
+  variant = "inline",
+}: {
+  siteName: string;
+  logoSrc: string;
+  logoWidths: ResponsiveLogoMaxWidth;
+  logoClassName: string;
+  variant?: "inline" | "tall" | "hang";
+}) {
+  const variantClass =
+    variant === "tall"
+      ? "col-start-1 row-span-2 flex items-end self-stretch pb-1 pt-2"
+      : variant === "hang"
+        ? "relative z-40 -mb-8 flex items-start self-start"
+        : "";
+
+  const logoSizeClass =
+    variant === "tall"
+      ? "!max-h-[108px] object-left object-contain"
+      : variant === "hang"
+        ? "!max-h-[118px] object-left object-contain"
+        : "";
+
+  return (
+    <Link
+      href="/"
+      className={`relative z-30 block shrink-0 ${variantClass}`}
+      style={{
+        width: logoWidths.desktop,
+        maxWidth: logoWidths.desktop,
+      }}
+      aria-label={siteName}
+    >
+      <SiteLogo
+        src={logoSrc}
+        alt={siteName}
+        widths={logoWidths}
+        className={`${logoClassName} ${logoSizeClass}`}
+        priority
+      />
+    </Link>
   );
 }
 
@@ -142,85 +235,52 @@ export default function DesktopSiteHeader({
 }) {
   const pathname = usePathname() || "/";
   const showCategoryBar = isNewsSectionPath(pathname);
+  const primaryLinks = buildPrimaryLinks(showSchedule, showCategoryBar);
+  const newsCategories = categories.filter(
+    (c) => !NEWS_CATEGORY_BAR_EXCLUDE.has(c.slug),
+  );
 
-  const primaryLinks: PrimaryLink[] = [
-    {
-      label: "Home",
-      href: "/",
-      match: (p) => p === "/",
-    },
-    { label: "Watch Live", href: "/live", match: (p) => p.startsWith("/live") },
-    {
-      label: "FPTN News",
-      href: "/news",
-      match: (p) =>
-        p === "/news" ||
-        p.startsWith("/news/") ||
-        p.startsWith("/category/") ||
-        p.startsWith("/tag/") ||
-        p.startsWith("/tags/") ||
-        p.startsWith("/feed/") ||
-        p.startsWith("/preview/news/"),
-    },
-    ...(showSchedule
-      ? [
-          {
-            label: "Broadcast Schedule",
-            href: "/schedule-programs",
-            match: (p: string) => p.startsWith("/schedule-programs"),
-          },
-        ]
-      : []),
-    {
-      label: "Shows",
-      href: "/network-programs",
-      match: (p) => p.startsWith("/network-programs"),
-    },
-    { label: "About", href: "/about", match: (p) => p.startsWith("/about") },
-  ];
+  if (showCategoryBar) {
+    return (
+      <header className="relative hidden w-full xl:block">
+        <div className="absolute inset-x-0 top-0 z-40 h-[3px] bg-black" />
+        <div
+          className="relative mx-auto grid max-w-[1920px] gap-x-6 px-4 pt-[3px] md:gap-x-8 md:px-8 lg:px-10"
+          style={{
+            gridTemplateColumns: `${logoWidths.desktop} minmax(0, 1fr)`,
+            gridTemplateRows: "auto auto",
+          }}
+        >
+          <LogoLink
+            siteName={siteName}
+            logoSrc={logoSrc}
+            logoWidths={logoWidths}
+            logoClassName={logoClassName}
+            variant="tall"
+          />
 
-  return (
-    <header className="hidden w-full xl:block">
-      <div className="relative border-b-[5px] border-[#E1B647] bg-[#000D3C] text-white">
-        <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-black" />
-        <div className="relative mx-auto flex max-w-[1920px] items-center gap-6 px-4 py-3 md:gap-8 md:px-8 lg:px-10">
-          <Link
-            href="/"
-            className="relative z-20 block shrink-0"
-            style={{
-              width: logoWidths.desktop,
-              maxWidth: logoWidths.desktop,
-            }}
-            aria-label={siteName}
+          <div
+            className="col-start-2 row-start-1 flex min-w-0 items-center gap-4 border-b-[5px] border-[#E1B647] bg-[#000D3C] py-3 text-white"
           >
-            <SiteLogo
-              src={logoSrc}
-              alt={siteName}
-              widths={logoWidths}
-              className={logoClassName}
-              priority
-            />
-          </Link>
-
-          <div className="flex min-w-0 flex-1 items-center justify-center">
-            <PrimaryNav links={primaryLinks} pathname={pathname} />
+            <div className="flex min-w-0 flex-1 items-center justify-center">
+              <PrimaryNav
+                links={primaryLinks}
+                pathname={pathname}
+                activeHighlight="white"
+              />
+            </div>
+            <div className="flex shrink-0 items-center justify-end gap-3">
+              <HeaderSearch tone="light" />
+              <HeaderUserMenu user={user} tone="light" iconSize={24} />
+            </div>
           </div>
 
-          <div className="flex shrink-0 items-center justify-end gap-3">
-            <HeaderSearch tone="light" />
-            <HeaderUserMenu user={user} tone="light" iconSize={24} />
-          </div>
-        </div>
-      </div>
-
-      {showCategoryBar ? (
-        <div className="bg-white text-black">
-          <div className="mx-auto max-w-[1920px] px-4 md:px-8 lg:px-10">
+          <div className="col-start-2 row-start-2 bg-white text-black">
             <nav
-              className="flex min-w-0 items-center justify-between gap-x-4 overflow-x-auto scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="flex min-w-0 items-center justify-between gap-x-3 overflow-x-auto py-0.5 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               aria-label="News categories"
             >
-              {categories.map((item) => (
+              {newsCategories.map((item) => (
                 <CategoryNavItem
                   key={item.id}
                   item={item}
@@ -230,7 +290,37 @@ export default function DesktopSiteHeader({
             </nav>
           </div>
         </div>
-      ) : null}
+      </header>
+    );
+  }
+
+  return (
+    <header className="relative z-50 hidden w-full overflow-visible xl:block">
+      <div className="relative overflow-visible border-b-[5px] border-[#E1B647] bg-[#000D3C] text-white">
+        <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-black" />
+        <div className="relative mx-auto flex max-w-[1920px] items-center gap-6 overflow-visible px-4 pb-3 pt-[calc(3px+0.75rem)] md:gap-8 md:px-8 lg:px-10">
+          <LogoLink
+            siteName={siteName}
+            logoSrc={logoSrc}
+            logoWidths={logoWidths}
+            logoClassName={logoClassName}
+            variant="hang"
+          />
+
+          <div className="flex min-w-0 flex-1 items-center justify-center">
+            <PrimaryNav
+              links={primaryLinks}
+              pathname={pathname}
+              activeHighlight="cyan"
+            />
+          </div>
+
+          <div className="flex shrink-0 items-center justify-end gap-3">
+            <HeaderSearch tone="light" />
+            <HeaderUserMenu user={user} tone="light" iconSize={24} />
+          </div>
+        </div>
+      </div>
     </header>
   );
 }
