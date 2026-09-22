@@ -14,7 +14,7 @@ import {
   getChildCategories,
   getRootCategories,
 } from "@/lib/categories/hierarchy";
-import { getNavCategories, getTopCategoriesByPostCount } from "@/lib/data/home";
+import { getNavCategories } from "@/lib/data/home";
 import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { DEFAULT_FOOTER_MARK_URL } from "@/lib/site-identity/constants";
 import type { ProgramModules } from "@/lib/features/program-modules";
@@ -49,10 +49,9 @@ export default async function SiteHeader({
   isStaff?: boolean;
   user?: HeaderUser | null;
 }) {
-  const [identity, categories, menuTopCategories] = await Promise.all([
+  const [identity, categories] = await Promise.all([
     getSiteIdentity(),
     getNavCategories(),
-    getTopCategoriesByPostCount(5),
   ]);
   const siteName = identity.siteName;
   const headerLogo = identity.headerLogoUrl;
@@ -100,7 +99,7 @@ export default async function SiteHeader({
         }));
 
   const mobileBarItems: MobileCategoryItem[] = [
-    { id: "latest", label: "Latest", href: "/" },
+    { id: "latest", label: "Latest", href: "/news" },
     ...navAll.map((c) => ({
       id: c.id,
       label: c.parent_id
@@ -108,7 +107,6 @@ export default async function SiteHeader({
         : categoryLabel(c.name, c.slug),
       href: `/category/${c.slug}`,
     })),
-    { id: "for-you", label: "For You", href: "/feed/popular" },
     { id: "exclusive", label: "Exclusive", href: "/feed/premium" },
   ];
 
@@ -131,9 +129,7 @@ export default async function SiteHeader({
         <div className="site-header-navy-inner relative flex items-center justify-between gap-2 px-2 sm:px-3">
           <div className="flex min-h-0 min-w-0 flex-1 items-center gap-1 sm:gap-2">
             <MobileNav
-              topCategories={
-                menuTopCategories.length > 0 ? menuTopCategories : navAll.slice(0, 5)
-              }
+              topCategories={navAll}
               showSchedule={modules.schedule}
               isLoggedIn={isLoggedIn}
               isStaff={isStaff}
