@@ -15,10 +15,8 @@ import {
   getRootCategories,
 } from "@/lib/categories/hierarchy";
 import { getNavCategories, getTopCategoriesByPostCount } from "@/lib/data/home";
-import { formatDate } from "@/lib/format";
 import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { DEFAULT_FOOTER_MARK_URL } from "@/lib/site-identity/constants";
-import { getSiteTimezone } from "@/lib/timezone/settings";
 import type { ProgramModules } from "@/lib/features/program-modules";
 import { DEFAULT_PROGRAM_MODULES } from "@/lib/features/program-modules";
 import type { MobileCategoryItem } from "@/components/public/MobileCategoryBar";
@@ -33,7 +31,6 @@ const FALLBACK_NAV = [
   { name: "Lifestyle" },
   { name: "Health" },
   { name: "Tech & AI" },
-  { name: "Elections" },
 ];
 
 function categoryLabel(name: string, slug: string): string {
@@ -52,11 +49,10 @@ export default async function SiteHeader({
   isStaff?: boolean;
   user?: HeaderUser | null;
 }) {
-  const [identity, categories, menuTopCategories, timeZone] = await Promise.all([
+  const [identity, categories, menuTopCategories] = await Promise.all([
     getSiteIdentity(),
     getNavCategories(),
     getTopCategoriesByPostCount(5),
-    getSiteTimezone(),
   ]);
   const siteName = identity.siteName;
   const headerLogo = identity.headerLogoUrl;
@@ -103,8 +99,6 @@ export default async function SiteHeader({
           children: [],
         }));
 
-  const todayLabel = formatDate(new Date().toISOString(), timeZone);
-
   const mobileBarItems: MobileCategoryItem[] = [
     { id: "latest", label: "Latest", href: "/" },
     ...navAll.map((c) => ({
@@ -127,7 +121,6 @@ export default async function SiteHeader({
         logoClassName={identity.headerLogoClassName}
         categories={desktopCategories}
         showSchedule={modules.schedule}
-        todayLabel={todayLabel}
         user={user}
       />
 

@@ -31,8 +31,14 @@ function categoryLabel(name: string, slug: string): string {
 
 function ChevronDown() {
   return (
-    <svg width={10} height={6} viewBox="0 0 10 6" aria-hidden className="ml-1 shrink-0 opacity-90">
-      <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" fill="none" />
+    <svg
+      width={8}
+      height={5}
+      viewBox="0 0 10 6"
+      aria-hidden
+      className="shrink-0 opacity-70"
+    >
+      <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.6" fill="none" />
     </svg>
   );
 }
@@ -49,37 +55,24 @@ function CategoryNavItem({
   const active = pathname === href || pathname.startsWith(`${href}/`);
   const hasChildren = item.children.length > 0;
 
-  if (!hasChildren) {
-    return (
-      <Link
-        href={href}
-        className={`inline-flex items-center whitespace-nowrap px-2 py-2 text-[15px] font-bold transition-opacity hover:opacity-80 ${
-          active ? "text-black" : "text-black/80"
-        }`}
-      >
-        {categoryLabel(item.name, item.slug)}
-      </Link>
-    );
-  }
-
   return (
     <div
       className="relative"
-      onMouseEnter={() => setOpen(true)}
+      onMouseEnter={() => hasChildren && setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
       <Link
         href={href}
-        className={`inline-flex items-center whitespace-nowrap px-2 py-2 text-[15px] font-bold transition-opacity hover:opacity-80 ${
-          active ? "text-black" : "text-black/80"
+        className={`inline-flex items-center gap-1 whitespace-nowrap py-2.5 text-[15px] font-medium tracking-tight transition-opacity hover:opacity-70 ${
+          active ? "text-black" : "text-black"
         }`}
-        aria-expanded={open}
-        aria-haspopup="true"
+        aria-expanded={hasChildren ? open : undefined}
+        aria-haspopup={hasChildren ? "true" : undefined}
       >
         {categoryLabel(item.name, item.slug)}
         <ChevronDown />
       </Link>
-      {open ? (
+      {open && hasChildren ? (
         <div
           className="absolute left-0 top-full z-50 min-w-[200px] rounded-md border border-black/10 bg-white py-1 shadow-lg"
           role="menu"
@@ -88,7 +81,7 @@ function CategoryNavItem({
             <Link
               key={child.id}
               href={`/category/${child.slug}`}
-              className="block px-4 py-2 text-[14px] font-semibold text-black hover:bg-black/5"
+              className="block px-4 py-2 text-[14px] font-medium text-black hover:bg-black/5"
               role="menuitem"
             >
               {categoryLabel(child.name, child.slug)}
@@ -137,7 +130,6 @@ export default function DesktopSiteHeader({
   logoClassName,
   categories,
   showSchedule,
-  todayLabel,
   user,
 }: {
   siteName: string;
@@ -146,7 +138,6 @@ export default function DesktopSiteHeader({
   logoClassName: string;
   categories: DesktopCategoryNav[];
   showSchedule: boolean;
-  todayLabel: string;
   user: HeaderUser | null;
 }) {
   const pathname = usePathname() || "/";
@@ -223,10 +214,10 @@ export default function DesktopSiteHeader({
       </div>
 
       {showCategoryBar ? (
-        <div className="border-b border-[#E5E5E5] bg-white text-black">
-          <div className="mx-auto flex max-w-[1920px] items-center justify-between gap-4 px-4 py-2 md:px-8 lg:px-10">
+        <div className="bg-white text-black">
+          <div className="mx-auto max-w-[1920px] px-4 md:px-8 lg:px-10">
             <nav
-              className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1 gap-y-0"
+              className="flex min-w-0 items-center justify-between gap-x-4 overflow-x-auto scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               aria-label="News categories"
             >
               {categories.map((item) => (
@@ -237,9 +228,6 @@ export default function DesktopSiteHeader({
                 />
               ))}
             </nav>
-            <p className="hidden shrink-0 text-[14px] font-medium text-black/70 sm:block">
-              {todayLabel}
-            </p>
           </div>
         </div>
       ) : null}

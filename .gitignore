@@ -47,3 +47,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# graphify (keep graph.json / GRAPH_REPORT.md commitable)
+graphify-out/cost.json
+graphify-out/cache/

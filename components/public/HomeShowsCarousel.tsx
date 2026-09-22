@@ -263,11 +263,11 @@ export default function HomeShowsCarousel({
         }}
       >
         <div
-          className="pointer-events-none absolute inset-y-0 left-0 z-20 w-[clamp(48px,14vw,160px)] bg-gradient-to-r from-black via-black/85 to-transparent"
+          className="pointer-events-none absolute inset-y-0 left-0 z-20 w-[clamp(48px,14vw,160px)] bg-gradient-to-r from-black via-black/85 to-transparent lg:w-[clamp(96px,28vw,320px)]"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute inset-y-0 right-0 z-20 w-[clamp(48px,14vw,160px)] bg-gradient-to-l from-black via-black/85 to-transparent"
+          className="pointer-events-none absolute inset-y-0 right-0 z-20 w-[clamp(48px,14vw,160px)] bg-gradient-to-l from-black via-black/85 to-transparent lg:w-[clamp(96px,28vw,320px)]"
           aria-hidden
         />
 
