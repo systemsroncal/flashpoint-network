@@ -67,6 +67,16 @@ article h3 {
   font-family: var(--font-article) !important;
 }
 
+/* Network home section titles (news block keeps .font-article) */
+.font-home-title {
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+/* Original Live Shows — full-bleed track; edge fade via overlay gradients in component */
+.home-shows-carousel-track {
+  padding-inline: clamp(0.75rem, 3vw, 3rem);
+}
+
 /* Public rich-text bodies from admin Tiptap */
 .fpn-rich-html p {
   margin: 0 0 1.25rem;
@@ -386,17 +396,6 @@ article h3 {
   font: inherit;
   font-weight: 700;
   letter-spacing: 0.06em;
-}
-
-.fpn-live-cta--hero-on-light {
-  border-color: #e3e3e3;
-  color: #b80529;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-}
-
-/* /home2 hero partner row on white background (Figma 640:10245) */
-.container-hero-player img {
-  filter: invert(0.7);
 }
 
 .fpn-live-cta--ministry {

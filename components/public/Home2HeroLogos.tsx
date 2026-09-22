@@ -44,7 +44,7 @@ function LogoCell({ logo }: { logo: HeroLogo }) {
 export default function Home2HeroLogos({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`container-hero-player mx-auto w-full max-w-[1230px] px-2 ${className}`}
+      className={`mx-auto w-full max-w-[1230px] px-2 ${className}`}
     >
       <div
         className="grid grid-cols-3 place-items-center gap-x-5 gap-y-5 sm:grid-cols-5 md:grid-cols-9 md:gap-x-8 md:gap-y-0"

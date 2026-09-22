@@ -12,14 +12,14 @@ import { LIVE_HEADLINE } from "@/components/public/LiveHeroCopy";
  */
 export default function Home2LiveHero() {
   return (
-    <section className="relative w-full bg-white text-[#101011]">
+    <section className="relative w-full bg-black text-white">
       <div className="mx-auto flex w-full max-w-[1920px] flex-col items-center px-4 pb-12 pt-8 text-center md:px-8 md:pb-16 md:pt-12 lg:px-16 lg:pt-14 xl:px-20">
-        <h1 className="font-article text-[1.85rem] font-bold uppercase leading-[1.08] tracking-tight sm:text-[2.4rem] md:text-[3rem]">
+        <h1 className="font-home-title text-[1.85rem] font-bold uppercase leading-[1.08] tracking-tight text-white sm:text-[2.4rem] md:text-[3rem]">
           One Network.
           <br />
           Five Reasons to Watch.
         </h1>
-        <p className="mt-4 max-w-[735px] text-[15px] leading-relaxed text-[#5c6370] md:text-[19px]">
+        <p className="mt-4 max-w-[735px] text-[15px] leading-relaxed text-white/70 md:text-[19px]">
           Live Shows • Original Programs • News • Faith • Culture
         </p>
 
@@ -35,7 +35,7 @@ export default function Home2LiveHero() {
         </div>
 
         <Link href="/live" className="mt-6 inline-flex md:mt-8">
-          <span className="fpn-live-cta fpn-live-cta--hero fpn-live-cta--hero-on-light">
+          <span className="fpn-live-cta fpn-live-cta--hero">
             <LiveTvIcon />
             WE ARE LIVE
           </span>

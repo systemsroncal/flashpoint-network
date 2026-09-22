@@ -79,7 +79,7 @@ export default function HomeNetworkMarketing({
           </div>
           <div className="flex flex-1 flex-col gap-4 px-6 pb-6 pt-2 md:flex-row md:items-center md:justify-between md:px-8 md:py-6">
             <div className="min-w-0">
-              <h2 className="text-xl font-bold tracking-tight md:text-[1.4rem]">
+              <h2 className="font-home-title text-xl font-bold tracking-tight md:text-[1.4rem]">
                 Family Classics Are Back
               </h2>
               <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-white/90 md:text-[19px] md:leading-7">
@@ -101,7 +101,7 @@ export default function HomeNetworkMarketing({
 
       {/* More reasons */}
       <section className="w-full px-4 py-12 md:px-8 md:py-16 lg:px-16 xl:px-20">
-        <h2 className="mx-auto w-full max-w-[1920px] text-center font-article text-[1.85rem] font-bold tracking-tight md:text-left md:text-[2.7rem]">
+        <h2 className="mx-auto w-full max-w-[1920px] text-center font-home-title text-[1.85rem] font-bold tracking-tight md:text-left md:text-[2.7rem]">
           More Reasons to Stay Connected with FlashPoint TV Network
         </h2>
         <div className="mx-auto mt-8 grid w-full max-w-[1920px] gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -111,7 +111,7 @@ export default function HomeNetworkMarketing({
               className="flex min-h-[300px] flex-col justify-between rounded-[20px] bg-gradient-to-r from-[#161836] to-[#100d1e] p-6 md:min-h-[340px] md:p-7"
             >
               <div>
-                <h3 className="text-[1.35rem] font-black leading-snug md:text-[1.65rem]">
+                <h3 className="font-home-title text-[1.35rem] font-black leading-snug md:text-[1.65rem]">
                   {reason.title}
                 </h3>
                 <p className="mt-3 text-[15px] leading-relaxed text-[#c3c5d6] md:text-[17px]">
@@ -145,7 +145,7 @@ export default function HomeNetworkMarketing({
       {/* Four pillars */}
       <section className="w-full px-4 py-14 md:px-8 md:py-16 lg:px-16 xl:px-20">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="font-article text-[2rem] font-bold tracking-tight md:text-[3rem]">
+          <h2 className="font-home-title text-[2rem] font-bold tracking-tight md:text-[3rem]">
             Four Pillars of the Network
           </h2>
           <p className="mt-4 text-[15px] leading-relaxed text-[#a5aab5] md:text-[19px]">
@@ -188,7 +188,7 @@ export default function HomeNetworkMarketing({
         </div>
         <div className="relative w-full lg:min-h-[min(52vw,560px)] lg:pb-14 lg:pt-14 xl:min-h-[560px]">
           <div className="relative z-10 w-full px-4 py-14 md:px-8 md:py-20 lg:max-w-[min(100%,780px)] lg:py-0 lg:pl-16 xl:pl-20">
-            <h2 className="font-article text-[2rem] font-bold tracking-tight md:text-[3.2rem]">
+            <h2 className="font-home-title text-[2rem] font-bold tracking-tight md:text-[3.2rem]">
               Watch FlashPoint Anywhere
             </h2>
             <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-white/88 md:text-[1.35rem] md:leading-8">

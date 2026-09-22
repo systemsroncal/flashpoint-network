@@ -239,10 +239,10 @@ export default function HomeShowsCarousel({
   };
 
   return (
-    <section className="w-full bg-[#101011] py-14 text-white md:py-16 lg:py-20">
+    <section className="w-full bg-black py-14 text-white md:py-16 lg:py-20">
       <div className="mx-auto w-full max-w-[1920px] px-4 md:px-8 lg:px-16 xl:px-20">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="font-article text-[2rem] font-bold tracking-tight md:text-[2.7rem]">
+          <h2 className="font-home-title text-[2rem] font-bold tracking-tight md:text-[2.7rem]">
             Original Live Shows
           </h2>
           <p className="mt-4 text-[15px] leading-relaxed text-white/85 md:text-[1.05rem]">
@@ -254,7 +254,7 @@ export default function HomeShowsCarousel({
       </div>
 
       <div
-        className="relative mt-10 w-full md:mt-12"
+        className="relative mt-10 w-full overflow-hidden md:mt-12"
         onMouseEnter={() => {
           pausedRef.current = true;
         }}
@@ -262,10 +262,19 @@ export default function HomeShowsCarousel({
           if (!draggingRef.current) pausedRef.current = false;
         }}
       >
+        <div
+          className="pointer-events-none absolute inset-y-0 left-0 z-20 w-[clamp(48px,14vw,160px)] bg-gradient-to-r from-black via-black/85 to-transparent"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 z-20 w-[clamp(48px,14vw,160px)] bg-gradient-to-l from-black via-black/85 to-transparent"
+          aria-hidden
+        />
+
         <button
           type="button"
           onClick={() => scrollByCard(-1)}
-          className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-2xl text-white backdrop-blur-sm transition hover:bg-white/25 lg:left-4"
+          className="absolute left-3 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/25 text-2xl leading-none text-white shadow-[0_2px_12px_rgba(0,0,0,0.45)] backdrop-blur-[2px] transition hover:bg-white/35 md:left-6 lg:left-10"
           aria-label="Previous shows"
         >
           ‹
@@ -273,7 +282,7 @@ export default function HomeShowsCarousel({
         <button
           type="button"
           onClick={() => scrollByCard(1)}
-          className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-2xl text-white backdrop-blur-sm transition hover:bg-white/25 lg:right-4"
+          className="absolute right-3 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/25 text-2xl leading-none text-white shadow-[0_2px_12px_rgba(0,0,0,0.45)] backdrop-blur-[2px] transition hover:bg-white/35 md:right-6 lg:right-10"
           aria-label="Next shows"
         >
           ›
@@ -281,7 +290,7 @@ export default function HomeShowsCarousel({
 
         <div
           ref={scrollerRef}
-          className="flex w-full cursor-grab select-none gap-4 overflow-x-auto scroll-smooth px-4 py-4 snap-x snap-mandatory active:cursor-grabbing [-ms-overflow-style:none] [scrollbar-width:none] [touch-action:pan-x] md:gap-5 md:px-8 lg:px-16 xl:px-20 [&::-webkit-scrollbar]:hidden"
+          className="home-shows-carousel-track flex w-full cursor-grab select-none gap-4 overflow-x-auto scroll-smooth py-4 snap-x snap-mandatory active:cursor-grabbing [-ms-overflow-style:none] [scrollbar-width:none] [touch-action:pan-x] md:gap-5 [&::-webkit-scrollbar]:hidden"
           onPointerDown={onPointerDown}
         >
           {loopItems.map((item, index) => renderCard(item, index))}
