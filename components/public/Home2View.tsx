@@ -31,15 +31,12 @@ export default async function Home2View({
       imageUrl: p.carousel_image_url as string,
     }));
 
-  const stayInformedPosts = [
-    ...data.latest,
-    ...data.politics,
-    ...data.world,
-  ]
+  const stayInformedPosts = [data.featured, ...data.secondary]
+    .filter((post): post is NonNullable<typeof post> => Boolean(post))
     .filter(
       (post, index, all) => all.findIndex((p) => p.id === post.id) === index,
     )
-    .slice(0, 4);
+    .slice(0, 3);
 
   return (
     <div className="w-full max-w-none bg-[#101011] text-white">

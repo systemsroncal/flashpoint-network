@@ -37,8 +37,8 @@ export default function HomeStayInformedSection({
             View More &gt;
           </Link>
         </div>
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          {newsPosts.slice(0, 4).map((post) => {
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {newsPosts.slice(0, 3).map((post) => {
             const thumb = cardFeaturedImageUrl(post, defaultFeatured);
             const category = post.category?.name?.toUpperCase() || "NEWS";
             return (
@@ -53,7 +53,7 @@ export default function HomeStayInformedSection({
                       alt=""
                       fill
                       className="object-cover"
-                      sizes="(max-width:1280px) 50vw, 25vw"
+                      sizes="(max-width:1280px) 50vw, 33vw"
                     />
                   ) : null}
                 </Link>

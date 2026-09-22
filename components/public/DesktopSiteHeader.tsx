@@ -114,17 +114,12 @@ function PrimaryNav({
     >
       {links.map((link) => {
         const active = link.match(pathname);
-        const isNews = link.label === "FPTN News";
         return (
           <Link
             key={link.href}
             href={link.href}
             className={`text-[length:clamp(0.9rem,1.1vw,1.2rem)] font-black tracking-tight transition-opacity hover:opacity-90 ${
-              active
-                ? isNews
-                  ? "text-[var(--fpn-sky)]"
-                  : "text-white"
-                : "text-white/75"
+              active ? "text-white" : "text-white/75"
             }`}
           >
             {link.label}
