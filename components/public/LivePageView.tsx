@@ -115,7 +115,7 @@ export default function LivePageView() {
       </section>
 
       <section
-        className="mx-auto w-full max-w-[1920px] px-4 pb-14 md:px-8 md:pb-20 lg:px-10"
+        className="mx-auto w-full max-w-[1420px] px-4 pb-14 md:px-8 md:pb-20 lg:px-10"
         aria-labelledby="live-tv-heading"
       >
         <h2
