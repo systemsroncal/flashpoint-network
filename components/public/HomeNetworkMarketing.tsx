@@ -209,7 +209,7 @@ export default function HomeNetworkMarketing({
               alt="FlashPoint on a smart TV channel guide"
               width={935}
               height={769}
-              className="mx-auto w-full max-w-[min(92vw,560px)] h-auto lg:hidden"
+              className="mx-auto h-auto w-full max-w-[min(92vw,560px)] pt-[17px] lg:hidden lg:pt-0"
               sizes="(max-width:1024px) 92vw"
             />
             <div className="relative mx-auto hidden aspect-[935/769] w-full lg:mx-0 lg:ml-auto lg:block lg:max-w-[720px]">
