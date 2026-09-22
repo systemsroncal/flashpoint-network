@@ -174,22 +174,24 @@ function LogoLink({
   logoWidths,
   logoClassName,
   variant = "inline",
+  positionClassName = "",
 }: {
   siteName: string;
   logoSrc: string;
   logoWidths: ResponsiveLogoMaxWidth;
   logoClassName: string;
-  variant?: "inline" | "tall" | "hang";
+  variant?: "inline" | "overlap" | "hang";
+  positionClassName?: string;
 }) {
   const variantClass =
-    variant === "tall"
-      ? "col-start-1 row-span-2 flex items-end self-stretch pb-1 pt-2"
+    variant === "overlap"
+      ? "absolute top-1/2 z-50 -translate-y-1/2"
       : variant === "hang"
         ? "relative z-40 -mb-8 flex items-start self-start"
         : "";
 
   const logoSizeClass =
-    variant === "tall"
+    variant === "overlap"
       ? "!max-h-[108px] object-left object-contain"
       : variant === "hang"
         ? "!max-h-[118px] object-left object-contain"
@@ -198,7 +200,7 @@ function LogoLink({
   return (
     <Link
       href="/"
-      className={`relative z-30 block shrink-0 ${variantClass}`}
+      className={`relative z-30 block shrink-0 ${variantClass} ${positionClassName}`}
       style={{
         width: logoWidths.desktop,
         maxWidth: logoWidths.desktop,
@@ -241,53 +243,53 @@ export default function DesktopSiteHeader({
   );
 
   if (showCategoryBar) {
+    const categoryBarInset = `calc(${logoWidths.desktop} + 50px)`;
+
     return (
       <header className="relative hidden w-full xl:block">
         <div className="absolute inset-x-0 top-0 z-40 h-[3px] bg-black" />
-        <div
-          className="relative mx-auto grid max-w-[1920px] gap-x-6 px-4 pt-[3px] md:gap-x-8 md:px-8 lg:px-10"
-          style={{
-            gridTemplateColumns: `${logoWidths.desktop} minmax(0, 1fr)`,
-            gridTemplateRows: "auto auto",
-          }}
-        >
+        <div className="relative w-full pt-[3px]">
           <LogoLink
             siteName={siteName}
             logoSrc={logoSrc}
             logoWidths={logoWidths}
             logoClassName={logoClassName}
-            variant="tall"
+            variant="overlap"
+            positionClassName="left-4 md:left-8 lg:left-10"
           />
 
-          <div
-            className="col-start-2 row-start-1 flex min-w-0 items-center gap-4 border-b-[5px] border-[#E1B647] bg-[#000D3C] py-3 text-white"
-          >
-            <div className="flex min-w-0 flex-1 items-center justify-center">
-              <PrimaryNav
-                links={primaryLinks}
-                pathname={pathname}
-                activeHighlight="white"
-              />
-            </div>
-            <div className="flex shrink-0 items-center justify-end gap-3">
-              <HeaderSearch tone="light" />
-              <HeaderUserMenu user={user} tone="light" iconSize={24} />
+          <div className="w-full border-b-[5px] border-[#E1B647] bg-[#000D3C] text-white">
+            <div className="mx-auto flex max-w-[1920px] items-center gap-4 px-4 py-3 md:px-8 lg:px-10">
+              <div className="flex min-w-0 flex-1 items-center justify-center">
+                <PrimaryNav
+                  links={primaryLinks}
+                  pathname={pathname}
+                  activeHighlight="white"
+                />
+              </div>
+              <div className="flex shrink-0 items-center justify-end gap-3">
+                <HeaderSearch tone="light" />
+                <HeaderUserMenu user={user} tone="light" iconSize={24} />
+              </div>
             </div>
           </div>
 
-          <div className="col-start-2 row-start-2 bg-white text-black">
-            <nav
-              className="flex min-w-0 items-center justify-between gap-x-3 overflow-x-auto py-0.5 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              aria-label="News categories"
-            >
-              {newsCategories.map((item) => (
-                <CategoryNavItem
-                  key={item.id}
-                  item={item}
-                  pathname={pathname}
-                />
-              ))}
-            </nav>
+          <div className="w-full bg-white text-black">
+            <div className="mx-auto max-w-[1920px] px-4 md:px-8 lg:px-10">
+              <nav
+                className="flex min-w-0 items-center justify-between gap-x-3 overflow-x-auto py-0.5 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                style={{ paddingLeft: categoryBarInset }}
+                aria-label="News categories"
+              >
+                {newsCategories.map((item) => (
+                  <CategoryNavItem
+                    key={item.id}
+                    item={item}
+                    pathname={pathname}
+                  />
+                ))}
+              </nav>
+            </div>
           </div>
         </div>
       </header>
