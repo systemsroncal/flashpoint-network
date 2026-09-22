@@ -125,11 +125,11 @@ export default async function SiteHeader({
       />
 
       {/* Mobile / tablet */}
-      <header className="w-full max-w-none overflow-visible text-white xl:hidden">
-        <div className="relative overflow-visible border-b-[5px] border-[#E1B647] bg-[#000D3C]">
+      <header className="w-full max-w-none text-white xl:hidden">
+        <div className="relative border-b-[5px] border-[#E1B647] bg-[#000D3C]">
         <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-black" />
-        <div className="relative flex items-center justify-between gap-2 overflow-visible px-2 pb-2.5 pt-3.5 sm:px-3">
-          <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2">
+        <div className="relative flex min-h-[52px] items-center justify-between gap-2 px-2 pb-2.5 pt-3.5 sm:min-h-[56px] sm:px-3">
+          <div className="flex min-h-0 min-w-0 flex-1 items-center gap-1 sm:gap-2">
             <MobileNav
               topCategories={
                 menuTopCategories.length > 0 ? menuTopCategories : navAll.slice(0, 5)

@@ -621,3 +621,26 @@ aside img[src*="fpn-logo-wordmark"] {
   }
 }
 
+/* News category strip — match logo width tokens per breakpoint + 100px */
+.news-category-bar-inset {
+  padding-left: calc(var(--site-logo-max-phone, 140px) + 100px);
+}
+
+@media (min-width: 640px) {
+  .news-category-bar-inset {
+    padding-left: calc(var(--site-logo-max-tablet, 160px) + 100px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .news-category-bar-inset {
+    padding-left: calc(var(--site-logo-max-laptop, 180px) + 100px);
+  }
+}
+
+@media (min-width: 1280px) {
+  .news-category-bar-inset {
+    padding-left: calc(var(--site-logo-max-desktop, 200px) + 100px);
+  }
+}
+

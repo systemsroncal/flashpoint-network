@@ -8,7 +8,10 @@ import HeaderUserMenu, {
   type HeaderUser,
 } from "@/components/public/HeaderUserMenu";
 import SiteLogo from "@/components/public/SiteLogo";
-import type { ResponsiveLogoMaxWidth } from "@/lib/site-identity/logo-layout";
+import {
+  responsiveLogoMaxWidthStyle,
+  type ResponsiveLogoMaxWidth,
+} from "@/lib/site-identity/logo-layout";
 import { isNewsSectionPath } from "@/lib/navigation/news-section";
 
 export type DesktopCategoryNav = {
@@ -59,7 +62,7 @@ function CategoryNavItem({
 
   return (
     <div
-      className="relative"
+      className="relative shrink-0"
       onMouseEnter={() => hasChildren && setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
@@ -237,8 +240,6 @@ export default function DesktopSiteHeader({
   );
 
   if (showCategoryBar) {
-    const categoryNavPaddingLeft = `calc(${logoWidths.desktop} + 50px)`;
-
     return (
       <header className="hidden w-full xl:block">
         <div className="relative border-b-[5px] border-[#E1B647] bg-[#000D3C] text-white">
@@ -278,11 +279,11 @@ export default function DesktopSiteHeader({
 
         <div className="bg-white text-black">
           <div
-            className="mx-auto flex max-w-[1920px] items-center gap-4 py-2 pr-4 md:pr-8 lg:pr-10"
-            style={{ paddingLeft: categoryNavPaddingLeft }}
+            className="news-category-bar-inset mx-auto flex max-w-[1920px] items-center gap-4 py-2 pr-4 md:pr-8 lg:pr-10"
+            style={responsiveLogoMaxWidthStyle(logoWidths)}
           >
             <nav
-              className="flex min-w-0 flex-1 items-center justify-between gap-x-3 overflow-x-auto scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="flex min-w-0 flex-1 flex-nowrap items-center justify-start gap-x-5 overflow-x-auto scrollbar-none 2xl:gap-x-7 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               aria-label="News categories"
             >
               {newsCategories.map((item) => (

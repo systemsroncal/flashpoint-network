@@ -66,3 +66,4 @@ export function responsiveLogoMaxWidthStyle(
     "--site-logo-max-desktop": widths.desktop,
   };
 }
+
