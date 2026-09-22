@@ -260,8 +260,8 @@ export default function DesktopSiteHeader({
             />
           </Link>
 
-          <div className="site-header-navy-inner relative mx-auto max-w-[1920px] px-4 pl-[min(220px,20vw)] md:px-8 md:pl-[min(240px,22vw)] lg:px-10">
-            <div className="grid grid-cols-[1fr_auto] items-center gap-4">
+          <div className="site-header-navy-inner relative mx-auto flex max-w-[1920px] items-center px-4 pl-[min(220px,20vw)] md:px-8 md:pl-[min(240px,22vw)] lg:px-10">
+            <div className="grid w-full grid-cols-[1fr_auto] items-center gap-4">
               <PrimaryNav
                 links={primaryLinks}
                 pathname={pathname}
@@ -275,7 +275,7 @@ export default function DesktopSiteHeader({
           </div>
         </div>
 
-        <div className="bg-white text-black">
+        <div className="site-header-news-category bg-white text-black">
           <div
             className="news-category-bar-inset site-header-category-row mx-auto flex max-w-[1920px] items-center gap-4 pr-4 md:pr-8 lg:pr-10"
             style={responsiveLogoMaxWidthStyle(logoWidths)}
