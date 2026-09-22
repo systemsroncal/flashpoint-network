@@ -240,11 +240,11 @@ export default function DesktopSiteHeader({
   if (showCategoryBar) {
     return (
       <header className="hidden w-full xl:block">
-        <div className="relative border-b-[5px] border-[#E1B647] bg-[#000D3C] text-white">
+        <div className="relative overflow-visible border-b-[5px] border-[#E1B647] bg-[#000D3C] text-white">
           <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-black" />
           <Link
             href="/"
-            className="absolute left-4 top-2 z-20 block md:left-8 lg:left-10"
+            className="site-header-news-logo-link absolute left-4 top-2 z-40 block md:left-8 lg:left-10"
             style={{
               width: logoWidths.desktop,
               maxWidth: logoWidths.desktop,

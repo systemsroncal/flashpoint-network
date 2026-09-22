@@ -651,9 +651,14 @@ aside img[src*="fpn-logo-wordmark"] {
 }
 
 @media (min-width: 1280px) {
-  /* News layout: logo is absolute, so enforce same band height as home desktop */
   .site-header-navy-inner {
-    min-height: calc(3px + 0.5rem + 118px + 0.5rem);
+    min-height: calc(75px + 1rem);
+  }
+
+  /* News header: logo overlaps into white category strip */
+  .site-header-news-logo-link {
+    margin-top: 25px;
+    margin-bottom: -50px;
   }
 }
 
