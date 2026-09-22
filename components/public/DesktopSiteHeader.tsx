@@ -134,7 +134,7 @@ function PrimaryNav({
   );
 }
 
-function buildPrimaryLinks(showSchedule: boolean, newsLayout: boolean): PrimaryLink[] {
+function buildPrimaryLinks(showSchedule: boolean): PrimaryLink[] {
   const newsMatch = (p: string) =>
     p === "/news" ||
     p.startsWith("/news/") ||
@@ -163,9 +163,7 @@ function buildPrimaryLinks(showSchedule: boolean, newsLayout: boolean): PrimaryL
       match: (p) => p.startsWith("/network-programs"),
     },
     { label: "Advertise", href: "/contact", match: (p) => p.startsWith("/contact") },
-    ...(newsLayout
-      ? []
-      : [{ label: "About", href: "/about", match: (p: string) => p.startsWith("/about") }]),
+    { label: "About", href: "/about", match: (p) => p.startsWith("/about") },
   ];
 
   return links;
@@ -234,7 +232,7 @@ export default function DesktopSiteHeader({
 }) {
   const pathname = usePathname() || "/";
   const showCategoryBar = isNewsSectionPath(pathname);
-  const primaryLinks = buildPrimaryLinks(showSchedule, showCategoryBar);
+  const primaryLinks = buildPrimaryLinks(showSchedule);
   const newsCategories = categories.filter(
     (c) => !NEWS_CATEGORY_BAR_EXCLUDE.has(c.slug),
   );
