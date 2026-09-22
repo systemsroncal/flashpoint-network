@@ -48,7 +48,7 @@ export default function MobileCategoryBar({ items }: Props) {
   return (
     <nav
       aria-label="Sections"
-      className="w-full max-w-none border-b border-[#E5E5E5] bg-white"
+      className="w-full max-w-none border-b border-[#E5E5E5] bg-white text-black"
     >
       <ul
         ref={listRef}
@@ -66,7 +66,7 @@ export default function MobileCategoryBar({ items }: Props) {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={`relative inline-flex whitespace-nowrap py-3 text-[14px] leading-none tracking-tight text-black ${
-                  active ? "font-bold" : "font-normal"
+                  active ? "font-bold" : "font-normal text-black/80"
                 }`}
               >
                 {item.label}

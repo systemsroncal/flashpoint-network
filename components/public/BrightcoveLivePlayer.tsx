@@ -4,11 +4,13 @@ export default function BrightcoveLivePlayer({
   title = "FlashPoint Live",
   autoplay = false,
   muted = false,
+  controls = true,
   className,
 }: {
   title?: string;
   autoplay?: boolean;
   muted?: boolean;
+  controls?: boolean;
   className?: string;
 }) {
   return (
@@ -21,10 +23,14 @@ export default function BrightcoveLivePlayer({
         .join(" ")}
     >
       <iframe
-        src={brightcovePlayerSrc({ autoplay, muted })}
+        src={brightcovePlayerSrc({ autoplay, muted, controls })}
         title={title}
-        allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-        allowFullScreen
+        allow={
+          controls
+            ? "autoplay; encrypted-media; fullscreen; picture-in-picture"
+            : "autoplay; encrypted-media"
+        }
+        allowFullScreen={controls}
         className="absolute inset-0 h-full w-full border-0"
       />
     </div>

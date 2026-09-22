@@ -53,8 +53,8 @@ function CategoryNavItem({
     return (
       <Link
         href={href}
-        className={`inline-flex items-center whitespace-nowrap px-2 py-2 text-[15px] font-bold transition-opacity hover:opacity-90 ${
-          active ? "text-white" : "text-white/95"
+        className={`inline-flex items-center whitespace-nowrap px-2 py-2 text-[15px] font-bold transition-opacity hover:opacity-80 ${
+          active ? "text-black" : "text-black/80"
         }`}
       >
         {categoryLabel(item.name, item.slug)}
@@ -70,8 +70,8 @@ function CategoryNavItem({
     >
       <Link
         href={href}
-        className={`inline-flex items-center whitespace-nowrap px-2 py-2 text-[15px] font-bold transition-opacity hover:opacity-90 ${
-          active ? "text-white" : "text-white/95"
+        className={`inline-flex items-center whitespace-nowrap px-2 py-2 text-[15px] font-bold transition-opacity hover:opacity-80 ${
+          active ? "text-black" : "text-black/80"
         }`}
         aria-expanded={open}
         aria-haspopup="true"
@@ -81,14 +81,14 @@ function CategoryNavItem({
       </Link>
       {open ? (
         <div
-          className="absolute left-0 top-full z-50 min-w-[200px] rounded-md border border-white/20 bg-[var(--fpn-navy)] py-1 shadow-lg"
+          className="absolute left-0 top-full z-50 min-w-[200px] rounded-md border border-black/10 bg-white py-1 shadow-lg"
           role="menu"
         >
           {item.children.map((child) => (
             <Link
               key={child.id}
               href={`/category/${child.slug}`}
-              className="block px-4 py-2 text-[14px] font-semibold text-white hover:bg-white/10"
+              className="block px-4 py-2 text-[14px] font-semibold text-black hover:bg-black/5"
               role="menuitem"
             >
               {categoryLabel(child.name, child.slug)}
@@ -156,7 +156,6 @@ export default function DesktopSiteHeader({
 }) {
   const pathname = usePathname() || "/";
   const showCategoryBar = isNewsSectionPath(pathname);
-  const categoryNavPaddingLeft = `calc(${logoWidths.desktop} + 50px)`;
 
   const primaryLinks: PrimaryLink[] = [
     {
@@ -196,97 +195,59 @@ export default function DesktopSiteHeader({
 
   return (
     <header className="hidden w-full xl:block">
-      {showCategoryBar ? (
-        <>
-          {/* Two-tier news header: logo overlaps navy + cyan */}
-          <div className="relative bg-[var(--fpn-navy)] text-white">
-            <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-[var(--fpn-rojo)]" />
-            <Link
-              href="/"
-              className="absolute left-4 top-2.5 z-20 block md:left-8 lg:left-10"
-              style={{
-                width: logoWidths.desktop,
-                maxWidth: logoWidths.desktop,
-              }}
-              aria-label={siteName}
-            >
-              <SiteLogo
-                src={logoSrc}
-                alt={siteName}
-                widths={logoWidths}
-                className={logoClassName}
-                priority
-              />
-            </Link>
+      <div className="relative bg-[var(--fpn-navy)] text-white">
+        <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-[var(--fpn-rojo)]" />
+        <div className="relative mx-auto flex max-w-[1920px] items-center gap-6 px-4 py-3 md:gap-8 md:px-8 lg:px-10">
+          <Link
+            href="/"
+            className="relative z-20 block shrink-0"
+            style={{
+              width: logoWidths.desktop,
+              maxWidth: logoWidths.desktop,
+            }}
+            aria-label={siteName}
+          >
+            <SiteLogo
+              src={logoSrc}
+              alt={siteName}
+              widths={logoWidths}
+              className={logoClassName}
+              priority
+            />
+          </Link>
 
-            <div className="relative mx-auto max-w-[1920px] px-4 py-3 pl-[min(220px,20vw)] md:px-8 md:pl-[min(240px,22vw)] lg:px-10">
-              <div className="grid grid-cols-[1fr_auto] items-center gap-4">
-                <PrimaryNav links={primaryLinks} pathname={pathname} />
-                <div className="flex items-center justify-end gap-3">
-                  <HeaderSearch tone="light" />
-                  <HeaderUserMenu user={user} tone="light" iconSize={24} />
-                </div>
-              </div>
-            </div>
+          <div className="flex min-w-0 flex-1 items-center justify-center">
+            <PrimaryNav links={primaryLinks} pathname={pathname} />
           </div>
 
-          <div className="bg-[var(--fpn-sky)] text-white">
-            <div
-              className="mx-auto flex max-w-[1920px] items-center justify-between gap-4 py-2 pr-4 md:pr-8 lg:pr-10"
-              style={{ paddingLeft: categoryNavPaddingLeft }}
-            >
-              <nav
-                className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1 gap-y-0"
-                aria-label="News categories"
-              >
-                {categories.map((item) => (
-                  <CategoryNavItem
-                    key={item.id}
-                    item={item}
-                    pathname={pathname}
-                  />
-                ))}
-              </nav>
-              <p className="hidden shrink-0 text-[14px] font-medium text-white/95 sm:block">
-                {todayLabel}
-              </p>
-            </div>
-          </div>
-        </>
-      ) : (
-        /* Compact header (Shows, Live, About, etc.): logo in-flow, no cyan strip */
-        <div className="relative bg-[var(--fpn-navy)] text-white">
-          <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-[var(--fpn-rojo)]" />
-          <div className="relative mx-auto flex max-w-[1920px] items-center gap-6 px-4 py-3 md:gap-8 md:px-8 lg:px-10">
-            <Link
-              href="/"
-              className="relative z-20 block shrink-0"
-              style={{
-                width: logoWidths.desktop,
-                maxWidth: logoWidths.desktop,
-              }}
-              aria-label={siteName}
-            >
-              <SiteLogo
-                src={logoSrc}
-                alt={siteName}
-                widths={logoWidths}
-                className={logoClassName}
-                priority
-              />
-            </Link>
-
-            <div className="flex min-w-0 flex-1 items-center justify-center">
-              <PrimaryNav links={primaryLinks} pathname={pathname} />
-            </div>
-
-            <div className="flex shrink-0 items-center justify-end gap-3">
-              <HeaderSearch tone="light" />
-              <HeaderUserMenu user={user} tone="light" iconSize={24} />
-            </div>
+          <div className="flex shrink-0 items-center justify-end gap-3">
+            <HeaderSearch tone="light" />
+            <HeaderUserMenu user={user} tone="light" iconSize={24} />
           </div>
         </div>
-      )}
+      </div>
+
+      {showCategoryBar ? (
+        <div className="border-b border-[#E5E5E5] bg-white text-black">
+          <div className="mx-auto flex max-w-[1920px] items-center justify-between gap-4 px-4 py-2 md:px-8 lg:px-10">
+            <nav
+              className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1 gap-y-0"
+              aria-label="News categories"
+            >
+              {categories.map((item) => (
+                <CategoryNavItem
+                  key={item.id}
+                  item={item}
+                  pathname={pathname}
+                />
+              ))}
+            </nav>
+            <p className="hidden shrink-0 text-[14px] font-medium text-black/70 sm:block">
+              {todayLabel}
+            </p>
+          </div>
+        </div>
+      ) : null}
     </header>
   );
 }

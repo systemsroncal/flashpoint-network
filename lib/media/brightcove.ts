@@ -7,6 +7,8 @@ export function brightcovePlayerSrc(options?: {
   autoplay?: boolean;
   /** Start without sound. Brightcove honors both `muted` and `autoplay=muted`. */
   muted?: boolean;
+  /** When false, hide the Brightcove/Video.js control bar. */
+  controls?: boolean;
 }): string {
   const videoId = options?.videoId ?? BRIGHTCOVE_LIVE_VIDEO_ID;
   const params = new URLSearchParams({ videoId });
@@ -15,6 +17,9 @@ export function brightcovePlayerSrc(options?: {
   }
   if (options?.autoplay) {
     params.set("autoplay", options.muted ? "muted" : "true");
+  }
+  if (options?.controls === false) {
+    params.set("controls", "false");
   }
   return `https://players.brightcove.net/${BRIGHTCOVE_ACCOUNT_ID}/${BRIGHTCOVE_PLAYER_ID}/index.html?${params.toString()}`;
 }

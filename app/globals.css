@@ -6,6 +6,7 @@
   --fpn-black: #000000;
   --fpn-navy: #1b2a64;
   --fpn-sky: #00b8f0;
+  --fpn-category: #0035fc;
   --fpn-rojo: #b80529;
   --fpn-orange: #b80529;
   --fpn-red: #b80529;
@@ -528,6 +529,12 @@ button.fpn-live-cta {
   height: 100%;
   width: 100%;
   border-radius: 6px;
+  pointer-events: none;
+}
+
+.fpn-live-pip-player iframe {
+  transform: scale(1.18);
+  transform-origin: center center;
 }
 
 .fpn-live-pip-badge {
