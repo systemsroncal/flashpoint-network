@@ -67,7 +67,7 @@ export default function HomeNetworkMarketing({
     <div className="w-full max-w-none bg-[#101011] text-white">
       {/* Classics banner — full width rail */}
       <section className="w-full px-4 py-10 md:px-8 lg:px-16 xl:px-20">
-        <div className="mx-auto flex w-full max-w-[1920px] flex-col items-stretch overflow-hidden rounded-[22px] border border-[#2a1747] bg-[#000d3c] md:flex-row md:items-center">
+        <div className="mx-auto flex w-full max-w-[1400px] flex-col items-stretch overflow-hidden rounded-[22px] border border-[#2a1747] bg-[#000d3c] md:flex-row md:items-center">
           <div className="relative mx-auto h-[140px] w-[160px] shrink-0 md:mx-0 md:h-[154px] md:w-[182px]">
             <Image
               src="/brand/home/classics-popcorn.png"
@@ -119,13 +119,13 @@ export default function HomeNetworkMarketing({
                 </p>
               </div>
               <div className="mt-6 flex justify-end">
-                <div className="relative h-16 w-20">
+                <div className="relative h-[4.8rem] w-24">
                   <Image
                     src={reason.icon}
                     alt=""
                     fill
                     className="object-contain object-right"
-                    sizes="80px"
+                    sizes="96px"
                   />
                 </div>
               </div>
@@ -186,8 +186,8 @@ export default function HomeNetworkMarketing({
           />
           <div className="absolute inset-0 bg-[rgba(8,52,13,0.75)]" />
         </div>
-        <div className="relative w-full lg:min-h-[min(52vw,560px)] lg:pb-14 lg:pt-14 xl:min-h-[560px]">
-          <div className="relative z-10 w-full px-4 py-14 md:px-8 md:py-20 lg:max-w-[min(100%,780px)] lg:py-0 lg:pl-16 xl:pl-20">
+        <div className="relative w-full lg:flex lg:min-h-[min(52vw,560px)] lg:pb-14 lg:pt-14 xl:min-h-[560px]">
+          <div className="relative z-10 w-full px-4 py-14 md:px-8 md:py-20 lg:my-auto lg:ml-auto lg:max-w-[min(100%,780px)] lg:py-0 lg:pl-16 xl:pl-20">
             <h2 className="font-home-title text-[2rem] font-bold tracking-tight md:text-[3.2rem]">
               Watch FlashPoint Anywhere
             </h2>
@@ -202,16 +202,16 @@ export default function HomeNetworkMarketing({
               More channels and distribution partners continue to be added.
             </p>
           </div>
-          {/* TV art: anchored to viewport right (not the text column width). */}
+          {/* TV art: stacked on mobile; 46% column on desktop. */}
           <div
-            className="relative mx-auto mt-10 aspect-[935/769] w-full max-w-[720px] px-4 pb-14 md:px-8 lg:pointer-events-none lg:absolute lg:bottom-0 lg:right-0 lg:top-0 lg:mx-0 lg:mt-0 lg:w-[min(58vw,980px)] lg:max-w-none lg:px-0 lg:pb-0"
+            className="relative mx-auto mt-10 aspect-[935/769] w-full max-w-[720px] px-4 pb-14 md:px-8 lg:pointer-events-none lg:ml-auto lg:mr-0 lg:mt-0 lg:w-[46%] lg:max-w-none lg:px-0 lg:pb-0"
           >
             <Image
               src="/brand/home/watch-anywhere-tv.png"
               alt="FlashPoint on a smart TV channel guide"
               fill
               className="object-contain object-right object-bottom"
-              sizes="(max-width:1024px) 90vw, 58vw"
+              sizes="(max-width:1024px) 90vw, 46vw"
             />
           </div>
         </div>
