@@ -186,14 +186,15 @@ export default function HomeNetworkMarketing({
           />
           <div className="absolute inset-0 bg-[rgba(8,52,13,0.75)]" />
         </div>
-        <div className="relative w-full lg:flex lg:min-h-[min(52vw,560px)] lg:pb-14 lg:pt-14 xl:min-h-[560px]">
-          <div className="relative z-10 w-full px-4 py-14 md:px-8 md:py-20 lg:my-auto lg:ml-auto lg:max-w-[min(100%,780px)] lg:py-0 lg:pl-16 xl:pl-20">
+        <div className="relative w-full lg:flex lg:items-center lg:min-h-[min(52vw,560px)] lg:py-14 xl:min-h-[560px]">
+          <div className="relative z-10 w-full px-4 py-14 text-center md:px-8 md:py-20 lg:max-w-[54%] lg:flex-shrink-0 lg:py-0 lg:pl-16 lg:pr-10 lg:text-left xl:pl-20">
             <h2 className="font-home-title text-[2rem] font-bold tracking-tight md:text-[3.2rem]">
               Watch FlashPoint Anywhere
             </h2>
-            <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-white/88 md:text-[1.35rem] md:leading-8">
+            <p className="mx-auto mt-4 max-w-xl text-[16px] leading-relaxed text-white/88 md:text-[1.35rem] md:leading-8 lg:mx-0">
               Access FlashPoint Television Network at home or on the go.
-              <br />
+              <br className="hidden sm:inline" />
+              <span className="sm:hidden"> </span>
               Watch on Roku, Xfinity, broadcast affiliates, streaming partners,
               and digital platforms across the country.
             </p>
@@ -202,17 +203,23 @@ export default function HomeNetworkMarketing({
               More channels and distribution partners continue to be added.
             </p>
           </div>
-          {/* TV art: stacked on mobile; 46% column on desktop. */}
-          <div
-            className="relative mx-auto mt-10 aspect-[935/769] w-full max-w-[720px] px-4 pb-14 md:px-8 lg:pointer-events-none lg:ml-auto lg:mr-0 lg:mt-0 lg:w-[46%] lg:max-w-none lg:px-0 lg:pb-0"
-          >
-            <Image
-              src="/brand/home/watch-anywhere-tv.png"
-              alt="FlashPoint on a smart TV channel guide"
-              fill
-              className="object-contain object-right object-bottom"
-              sizes="(max-width:1024px) 90vw, 46vw"
-            />
+          <div className="relative mx-auto mt-4 w-full max-w-[min(92vw,560px)] px-4 pb-14 sm:mt-6 lg:pointer-events-none lg:mx-0 lg:mt-0 lg:w-[46%] lg:max-w-none lg:flex-shrink-0 lg:px-0 lg:pb-0 lg:pr-8 xl:pr-16">
+            <div className="relative mx-auto aspect-[935/769] w-full lg:mx-0 lg:ml-auto lg:max-w-[720px]">
+              <Image
+                src="/brand/home/watch-anywhere-tv-mobile.png"
+                alt="FlashPoint on a smart TV channel guide"
+                fill
+                className="object-contain object-center lg:hidden"
+                sizes="(max-width:1024px) 92vw, 0px"
+              />
+              <Image
+                src="/brand/home/watch-anywhere-tv.png"
+                alt="FlashPoint on a smart TV channel guide"
+                fill
+                className="hidden object-contain object-right object-bottom lg:block"
+                sizes="46vw"
+              />
+            </div>
           </div>
         </div>
       </section>
