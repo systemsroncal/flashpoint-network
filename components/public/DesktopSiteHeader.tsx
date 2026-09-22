@@ -186,7 +186,7 @@ function LogoLink({
 }) {
   const variantClass =
     variant === "hang"
-      ? "relative z-40 -mb-8 flex items-start self-start"
+      ? "site-header-default-logo-link relative z-40 flex items-start self-start"
       : "";
 
   const logoSizeClass =

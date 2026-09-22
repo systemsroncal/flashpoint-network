@@ -660,6 +660,12 @@ aside img[src*="fpn-logo-wordmark"] {
     margin-top: 25px;
     margin-bottom: -50px;
   }
+
+  /* Home, about, contact, etc.: hanging logo in navy bar only */
+  .site-header-default-logo-link {
+    margin-top: 15px;
+    margin-bottom: -40px;
+  }
 }
 
 .site-header-category-row {
