@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import VideoPlayer from "@/components/public/VideoPlayer";
+import { categoryDisplayNameUpper } from "@/lib/categories/display-name";
 import type { Post } from "@/lib/types/cms";
 import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
@@ -61,7 +62,10 @@ export default async function PostCard({
 }: Props) {
   const { defaultFeaturedImageUrl } = await getSiteIdentity();
   const href = `/news/${post.slug}`;
-  const category = (post.category?.name ?? "News").toUpperCase();
+  const category = categoryDisplayNameUpper(
+    post.category?.name ?? "News",
+    post.category?.slug,
+  );
   // Grids/cards: never gate on show_featured_image (article-hero only).
   // Prefer featured/og image; fall back to YouTube thumb when video-as-featured.
   const featured = cardFeaturedImageUrl(post, defaultFeaturedImageUrl);

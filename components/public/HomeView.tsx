@@ -8,6 +8,7 @@ import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PatriotHomeBanner from "@/components/public/PatriotHomeBanner";
 import PostCard from "@/components/public/PostCard";
 import StarlinkHomeBanner from "@/components/public/StarlinkHomeBanner";
+import { categoryDisplayName } from "@/lib/categories/display-name";
 import type { BannerSlot, BannerWidget as BannerWidgetRow } from "@/lib/banners/slots";
 import type { HomePayload, MinistryProgram } from "@/lib/types/cms";
 import {
@@ -317,7 +318,7 @@ export default async function HomeView({
         <section>
           <div className="mb-6 flex items-end justify-between gap-3">
             <h2 className="font-article text-[2rem] font-black tracking-tight md:text-[45.5px]">
-              Elections
+              {categoryDisplayName("Elections", "elections")}
             </h2>
             <SeeMore href="/category/elections" />
           </div>

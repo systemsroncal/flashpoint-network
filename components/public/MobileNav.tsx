@@ -128,7 +128,7 @@ export default function MobileNav({
       </button>
 
       {open ? (
-        <div className="fixed inset-0 z-50 flex flex-col bg-[var(--fpn-navy)] text-white">
+        <div className="fixed inset-0 z-50 flex flex-col bg-[#000D3C] text-white">
           <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-3 px-4 py-4 md:px-8">
             {logoSrc && logoWidths ? (
               <Link
