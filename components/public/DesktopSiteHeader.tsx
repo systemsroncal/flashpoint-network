@@ -68,7 +68,7 @@ function CategoryNavItem({
     >
       <Link
         href={href}
-        className={`inline-flex items-center whitespace-nowrap py-3 text-[15px] font-bold tracking-tight transition-opacity hover:opacity-75 ${
+        className={`site-header-category-link inline-flex items-center whitespace-nowrap text-[15px] font-bold tracking-tight transition-opacity hover:opacity-75 ${
           active ? "text-black" : "text-black"
         }`}
         aria-expanded={hasChildren ? open : undefined}
@@ -262,7 +262,7 @@ export default function DesktopSiteHeader({
             />
           </Link>
 
-          <div className="relative mx-auto max-w-[1920px] px-4 py-2 pl-[min(220px,20vw)] md:px-8 md:pl-[min(240px,22vw)] lg:px-10">
+          <div className="site-header-navy-inner relative mx-auto max-w-[1920px] px-4 pl-[min(220px,20vw)] md:px-8 md:pl-[min(240px,22vw)] lg:px-10">
             <div className="grid grid-cols-[1fr_auto] items-center gap-4">
               <PrimaryNav
                 links={primaryLinks}
@@ -279,7 +279,7 @@ export default function DesktopSiteHeader({
 
         <div className="bg-white text-black">
           <div
-            className="news-category-bar-inset mx-auto flex max-w-[1920px] items-center gap-4 py-2 pr-4 md:pr-8 lg:pr-10"
+            className="news-category-bar-inset site-header-category-row mx-auto flex max-w-[1920px] items-center gap-4 pr-4 md:pr-8 lg:pr-10"
             style={responsiveLogoMaxWidthStyle(logoWidths)}
           >
             <nav
@@ -304,7 +304,7 @@ export default function DesktopSiteHeader({
     <header className="relative z-50 hidden w-full overflow-visible xl:block">
       <div className="relative overflow-visible border-b-[5px] border-[#E1B647] bg-[#000D3C] text-white">
         <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-black" />
-        <div className="relative mx-auto flex max-w-[1920px] items-center gap-6 overflow-visible px-4 pb-2 pt-[calc(3px+0.5rem)] md:gap-8 md:px-8 lg:px-10">
+        <div className="site-header-navy-inner relative mx-auto flex max-w-[1920px] items-center gap-6 overflow-visible px-4 md:gap-8 md:px-8 lg:px-10">
           <LogoLink
             siteName={siteName}
             logoSrc={logoSrc}

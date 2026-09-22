@@ -644,3 +644,19 @@ aside img[src*="fpn-logo-wordmark"] {
   }
 }
 
+/* Site header — same navy row height with or without category strip */
+.site-header-navy-inner {
+  padding-top: calc(3px + 0.5rem);
+  padding-bottom: 0.5rem;
+}
+
+.site-header-category-row {
+  padding-top: calc(0.5rem * 0.95);
+  padding-bottom: calc(0.5rem * 0.95);
+}
+
+.site-header-category-link {
+  padding-top: calc(0.75rem * 0.95);
+  padding-bottom: calc(0.75rem * 0.95);
+}
+

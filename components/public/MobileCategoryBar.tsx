@@ -65,7 +65,7 @@ export default function MobileCategoryBar({ items }: Props) {
               <Link
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`relative inline-flex whitespace-nowrap py-3 text-[14px] leading-none tracking-tight text-black ${
+                className={`site-header-category-link relative inline-flex whitespace-nowrap text-[14px] leading-none tracking-tight text-black ${
                   active ? "font-bold" : "font-normal text-black/80"
                 }`}
               >

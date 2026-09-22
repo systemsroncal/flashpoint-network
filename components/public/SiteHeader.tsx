@@ -128,7 +128,7 @@ export default async function SiteHeader({
       <header className="w-full max-w-none text-white xl:hidden">
         <div className="relative border-b-[5px] border-[#E1B647] bg-[#000D3C]">
         <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-black" />
-        <div className="relative flex min-h-[48px] items-center justify-between gap-2 px-2 py-2 sm:min-h-[50px] sm:px-3 sm:py-2.5">
+        <div className="site-header-navy-inner relative flex items-center justify-between gap-2 px-2 sm:px-3">
           <div className="flex min-h-0 min-w-0 flex-1 items-center gap-1 sm:gap-2">
             <MobileNav
               topCategories={
