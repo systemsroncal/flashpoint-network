@@ -187,7 +187,7 @@ export default function HomeNetworkMarketing({
           <div className="absolute inset-0 bg-[rgba(8,52,13,0.75)]" />
         </div>
         <div className="relative w-full lg:flex lg:items-center lg:min-h-[min(52vw,560px)] lg:py-14 xl:min-h-[560px]">
-          <div className="relative z-10 w-full px-4 py-14 text-center md:px-8 md:py-20 lg:max-w-[54%] lg:flex-shrink-0 lg:py-0 lg:pl-16 lg:pr-10 lg:text-left xl:pl-20">
+          <div className="relative z-10 w-full px-4 py-14 text-center md:px-8 md:py-20 lg:ml-auto lg:max-w-[840px] lg:flex-shrink-0 lg:py-0 lg:pr-10 lg:text-left">
             <h2 className="font-home-title text-[2rem] font-bold tracking-tight md:text-[3.2rem]">
               Watch FlashPoint Anywhere
             </h2>
@@ -203,7 +203,7 @@ export default function HomeNetworkMarketing({
               More channels and distribution partners continue to be added.
             </p>
           </div>
-          <div className="relative mx-auto mt-4 w-full max-w-[min(92vw,560px)] px-4 pb-14 sm:mt-6 lg:pointer-events-none lg:mx-0 lg:mt-0 lg:w-[46%] lg:max-w-none lg:flex-shrink-0 lg:px-0 lg:pb-0 lg:pr-8 xl:pr-16">
+          <div className="relative mx-auto mt-4 w-full max-w-[min(92vw,560px)] px-4 pb-14 sm:mt-6 lg:pointer-events-none lg:mx-0 lg:mt-0 lg:w-[46%] lg:max-w-none lg:flex-shrink-0 lg:px-0 lg:pb-0 lg:pr-0">
             <div className="relative mx-auto aspect-[935/769] w-full lg:mx-0 lg:ml-auto lg:max-w-[720px]">
               <Image
                 src="/brand/home/watch-anywhere-tv-mobile.png"

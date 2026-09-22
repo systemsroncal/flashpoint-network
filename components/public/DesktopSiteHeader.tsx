@@ -180,22 +180,16 @@ function LogoLink({
   logoSrc: string;
   logoWidths: ResponsiveLogoMaxWidth;
   logoClassName: string;
-  variant?: "inline" | "overlap" | "hang";
+  variant?: "inline" | "hang";
   positionClassName?: string;
 }) {
   const variantClass =
-    variant === "overlap"
-      ? "absolute top-1/2 z-50 -translate-y-1/2"
-      : variant === "hang"
-        ? "relative z-40 -mb-8 flex items-start self-start"
-        : "";
+    variant === "hang"
+      ? "relative z-40 -mb-8 flex items-start self-start"
+      : "";
 
   const logoSizeClass =
-    variant === "overlap"
-      ? "!max-h-[108px] object-left object-contain"
-      : variant === "hang"
-        ? "!max-h-[118px] object-left object-contain"
-        : "";
+    variant === "hang" ? "!max-h-[118px] object-left object-contain" : "";
 
   return (
     <Link
@@ -243,53 +237,62 @@ export default function DesktopSiteHeader({
   );
 
   if (showCategoryBar) {
-    const categoryBarInset = `calc(${logoWidths.desktop} + 50px)`;
+    const categoryNavPaddingLeft = `calc(${logoWidths.desktop} + 50px)`;
 
     return (
-      <header className="relative hidden w-full xl:block">
-        <div className="absolute inset-x-0 top-0 z-40 h-[3px] bg-black" />
-        <div className="relative w-full pt-[3px]">
-          <LogoLink
-            siteName={siteName}
-            logoSrc={logoSrc}
-            logoWidths={logoWidths}
-            logoClassName={logoClassName}
-            variant="overlap"
-            positionClassName="left-4 md:left-8 lg:left-10"
-          />
+      <header className="hidden w-full xl:block">
+        <div className="relative border-b-[5px] border-[#E1B647] bg-[#000D3C] text-white">
+          <div className="absolute inset-x-0 top-0 z-30 h-[3px] bg-black" />
+          <Link
+            href="/"
+            className="absolute left-4 top-2.5 z-20 block md:left-8 lg:left-10"
+            style={{
+              width: logoWidths.desktop,
+              maxWidth: logoWidths.desktop,
+            }}
+            aria-label={siteName}
+          >
+            <SiteLogo
+              src={logoSrc}
+              alt={siteName}
+              widths={logoWidths}
+              className={logoClassName}
+              priority
+            />
+          </Link>
 
-          <div className="w-full border-b-[5px] border-[#E1B647] bg-[#000D3C] text-white">
-            <div className="mx-auto flex max-w-[1920px] items-center gap-4 px-4 py-3 md:px-8 lg:px-10">
-              <div className="flex min-w-0 flex-1 items-center justify-center">
-                <PrimaryNav
-                  links={primaryLinks}
-                  pathname={pathname}
-                  activeHighlight="white"
-                />
-              </div>
-              <div className="flex shrink-0 items-center justify-end gap-3">
+          <div className="relative mx-auto max-w-[1920px] px-4 py-3 pl-[min(220px,20vw)] md:px-8 md:pl-[min(240px,22vw)] lg:px-10">
+            <div className="grid grid-cols-[1fr_auto] items-center gap-4">
+              <PrimaryNav
+                links={primaryLinks}
+                pathname={pathname}
+                activeHighlight="white"
+              />
+              <div className="flex items-center justify-end gap-3">
                 <HeaderSearch tone="light" />
                 <HeaderUserMenu user={user} tone="light" iconSize={24} />
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="w-full bg-white text-black">
-            <div className="mx-auto max-w-[1920px] px-4 md:px-8 lg:px-10">
-              <nav
-                className="flex min-w-0 items-center justify-between gap-x-3 overflow-x-auto py-0.5 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-                style={{ paddingLeft: categoryBarInset }}
-                aria-label="News categories"
-              >
-                {newsCategories.map((item) => (
-                  <CategoryNavItem
-                    key={item.id}
-                    item={item}
-                    pathname={pathname}
-                  />
-                ))}
-              </nav>
-            </div>
+        <div className="bg-white text-black">
+          <div
+            className="mx-auto flex max-w-[1920px] items-center gap-4 py-2 pr-4 md:pr-8 lg:pr-10"
+            style={{ paddingLeft: categoryNavPaddingLeft }}
+          >
+            <nav
+              className="flex min-w-0 flex-1 items-center justify-between gap-x-3 overflow-x-auto scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              aria-label="News categories"
+            >
+              {newsCategories.map((item) => (
+                <CategoryNavItem
+                  key={item.id}
+                  item={item}
+                  pathname={pathname}
+                />
+              ))}
+            </nav>
           </div>
         </div>
       </header>
@@ -313,7 +316,7 @@ export default function DesktopSiteHeader({
             <PrimaryNav
               links={primaryLinks}
               pathname={pathname}
-              activeHighlight="cyan"
+              activeHighlight="white"
             />
           </div>
 
