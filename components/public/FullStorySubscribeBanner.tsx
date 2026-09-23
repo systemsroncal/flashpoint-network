@@ -5,6 +5,8 @@ type Props = {
 };
 
 const TAGLINE = "Get The Full Story. As It Is.";
+const TAGLINE_DESCRIPTION =
+  "Read it. Share it on X, Facebook, and with your friends.";
 
 /** Figma Group 29790 — black rail with couple photo + subscribe headline (news / footer). */
 export default function FullStorySubscribeBanner({
@@ -43,7 +45,7 @@ export default function FullStorySubscribeBanner({
               {TAGLINE}
             </h2>
             <p className="mt-1 max-w-[36ch] text-[12.5px] leading-snug text-white/80 sm:mt-1.5 sm:text-sm md:max-w-none md:text-[1.05rem] md:leading-normal">
-              {TAGLINE}
+              {TAGLINE_DESCRIPTION}
             </p>
           </div>
         </div>

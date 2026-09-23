@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 const DEFAULT_AUTHOR_LABEL = "FlashPoint News Staff Writers";
 const DEFAULT_AUTHOR_AVATAR = "/brand/news/staff-author-avatar.png";
 
@@ -13,13 +11,18 @@ export default function ArticleAuthorByline({
 }) {
   return (
     <div className="mb-6 flex items-center gap-3">
-      <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-neutral-200 sm:h-12 sm:w-12">
-        <Image
+      <div
+        className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neutral-200 xl:h-[55px] xl:w-[55px]"
+      >
+        {/* Native size — no object-cover crop; crisp at 55px desktop */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={avatarSrc}
           alt=""
-          fill
-          className="object-cover"
-          sizes="48px"
+          width={55}
+          height={55}
+          className="max-h-none max-w-none shrink-0 xl:h-[55px] xl:w-[55px]"
+          decoding="async"
         />
       </div>
       <p className="text-[15px] leading-snug text-black sm:text-base">
