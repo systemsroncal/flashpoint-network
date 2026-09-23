@@ -58,10 +58,7 @@ export default async function SiteFooter({
   return (
     <footer className="mt-auto bg-[#111111] text-white">
       <div className="mx-auto max-w-[1440px] px-4 py-10 md:px-8 lg:px-10">
-        <FullStorySubscribeBanner
-          className="mb-10"
-          maxWidthClass="max-w-none"
-        />
+        <FullStorySubscribeBanner className="mb-10" />
 
         <div className="grid gap-10 md:grid-cols-[1.1fr_2fr]">
           <div>

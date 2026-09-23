@@ -1,13 +1,13 @@
 type Props = {
   className?: string;
-  /** Outer width constraint (news uses 1160px; footer can match or stay full column). */
+  /** Outer width constraint (default 1180px). */
   maxWidthClass?: string;
 };
 
-/** Figma Group 29790 — black rail with couple photo + subscribe headline (news / footer). */
+/** Figma Group 29790 — black rail with couple photo + subscribe headline (footer). */
 export default function FullStorySubscribeBanner({
   className = "",
-  maxWidthClass = "max-w-[1160px]",
+  maxWidthClass = "max-w-[1180px]",
 }: Props) {
   return (
     <section
