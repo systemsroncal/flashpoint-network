@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import ArticleAuthorByline from "@/components/public/ArticleAuthorByline";
 import BannerWidget from "@/components/public/BannerWidget";
 import PostCard from "@/components/public/PostCard";
 import PaywallGate from "@/components/public/PaywallGate";
@@ -174,6 +175,8 @@ export default async function NewsArticleView({
               />
             </div>
           ) : null}
+
+          <ArticleAuthorByline />
 
           <PaywallGate
             postId={post.id}
