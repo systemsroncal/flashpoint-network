@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import FullStorySubscribeBanner from "@/components/public/FullStorySubscribeBanner";
 import SiteLogo from "@/components/public/SiteLogo";
 import type { ProgramModules } from "@/lib/features/program-modules";
 import { DEFAULT_PROGRAM_MODULES } from "@/lib/features/program-modules";
@@ -46,10 +47,8 @@ const COLUMNS = [
 ];
 
 export default async function SiteFooter({
-  tagline = "Get The Full Story. As It Is.",
   modules = DEFAULT_PROGRAM_MODULES,
 }: {
-  tagline?: string;
   modules?: ProgramModules;
 }) {
   const identity = await getSiteIdentity();
@@ -59,11 +58,10 @@ export default async function SiteFooter({
   return (
     <footer className="mt-auto bg-[#111111] text-white">
       <div className="mx-auto max-w-[1440px] px-4 py-10 md:px-8 lg:px-10">
-        <div className="mb-10 flex flex-col items-start justify-between gap-4 rounded-[12px] bg-black/40 px-5 py-6 md:flex-row md:items-center">
-          <p className="font-article text-xl font-black tracking-tight md:text-2xl">
-            {tagline}
-          </p>
-        </div>
+        <FullStorySubscribeBanner
+          className="mb-10"
+          maxWidthClass="max-w-none"
+        />
 
         <div className="grid gap-10 md:grid-cols-[1.1fr_2fr]">
           <div>
