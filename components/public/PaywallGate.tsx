@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 const COOKIE = "fpn_free_views";
@@ -87,9 +88,18 @@ export default function PaywallGate({
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-black/70">{body}</p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-            <p className="text-sm font-semibold text-black/60">
-              Account signup is temporarily paused. Check back soon.
-            </p>
+            <Link
+              href="/register"
+              className="inline-flex rounded-md bg-[var(--fpn-rojo)] px-6 py-3 text-sm font-bold text-white hover:brightness-110"
+            >
+              Create free account
+            </Link>
+            <Link
+              href="/login"
+              className="inline-flex rounded-md border border-black/20 bg-white px-6 py-3 text-sm font-bold text-black hover:bg-black/5"
+            >
+              Log in
+            </Link>
           </div>
         </div>
       </div>

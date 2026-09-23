@@ -1,14 +1,16 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function NewsletterSignup({
   className = "",
 }: {
   className?: string;
 }) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "error" | "paused">("idle");
+  const [status, setStatus] = useState<"idle" | "error">("idle");
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -17,8 +19,8 @@ export default function NewsletterSignup({
       setStatus("error");
       return;
     }
-    // Public registration is temporarily gated — do not send users to /register.
-    setStatus("paused");
+    const qs = new URLSearchParams({ email: trimmed });
+    router.push(`/register?${qs.toString()}`);
   };
 
   return (
@@ -49,11 +51,6 @@ export default function NewsletterSignup({
       {status === "error" ? (
         <p className="mt-3 text-sm font-medium text-red-700" role="alert">
           Enter a valid email address.
-        </p>
-      ) : null}
-      {status === "paused" ? (
-        <p className="mt-3 text-sm font-medium text-black/65" role="status">
-          New account signup is temporarily paused. Check back soon.
         </p>
       ) : null}
     </div>

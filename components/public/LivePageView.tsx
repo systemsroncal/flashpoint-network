@@ -58,14 +58,6 @@ export default function LivePageView() {
                 className="h-full w-full rounded-[24px]"
               />
             </div>
-            <Image
-              src="/brand/live-play-circle.svg"
-              alt=""
-              width={200}
-              height={200}
-              className="pointer-events-none absolute bottom-2 left-2 z-10 h-[clamp(4.5rem,18vw,12rem)] w-[clamp(4.5rem,18vw,12rem)] md:bottom-4 md:left-4"
-              aria-hidden
-            />
           </div>
         </div>
       </section>
