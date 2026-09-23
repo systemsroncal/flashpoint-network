@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 type Props = {
   className?: string;
   /** Outer width constraint (default 1180px). */
@@ -44,6 +46,12 @@ export default function FullStorySubscribeBanner({
               Subscribe for complete FPTN access
             </p>
           </div>
+          <Link
+            href="/register"
+            className="inline-flex shrink-0 items-center justify-center self-start rounded-full bg-[#0035FC] px-8 py-3 text-[15px] font-bold text-white transition-opacity hover:opacity-90 sm:px-10 sm:py-3.5 sm:text-base md:self-center"
+          >
+            Subscribe
+          </Link>
         </div>
       </div>
     </section>
