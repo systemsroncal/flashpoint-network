@@ -260,17 +260,25 @@ export default function DesktopSiteHeader({
             />
           </Link>
 
-          <div className="site-header-navy-inner relative mx-auto flex max-w-[1920px] items-center px-4 pl-[min(220px,20vw)] md:px-8 md:pl-[min(240px,22vw)] lg:px-10">
-            <div className="grid w-full grid-cols-[1fr_auto] items-center gap-4">
+          <div className="site-header-navy-inner relative mx-auto flex max-w-[1920px] items-center gap-6 overflow-visible px-4 md:gap-8 md:px-8 lg:px-10">
+            <div
+              className="pointer-events-none shrink-0"
+              style={{
+                width: logoWidths.desktop,
+                maxWidth: logoWidths.desktop,
+              }}
+              aria-hidden
+            />
+            <div className="flex min-w-0 flex-1 items-center justify-center">
               <PrimaryNav
                 links={primaryLinks}
                 pathname={pathname}
                 activeHighlight="white"
               />
-              <div className="flex items-center justify-end gap-3">
-                <HeaderSearch tone="light" />
-                <HeaderUserMenu user={user} tone="light" iconSize={24} />
-              </div>
+            </div>
+            <div className="flex shrink-0 items-center justify-end gap-3">
+              <HeaderSearch tone="light" />
+              <HeaderUserMenu user={user} tone="light" iconSize={24} />
             </div>
           </div>
         </div>

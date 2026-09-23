@@ -1,14 +1,12 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function NewsletterSignup({
   className = "",
 }: {
   className?: string;
 }) {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "error">("idle");
 
@@ -19,8 +17,7 @@ export default function NewsletterSignup({
       setStatus("error");
       return;
     }
-    const qs = new URLSearchParams({ email: trimmed });
-    router.push(`/register?${qs.toString()}`);
+    // Registration gated — no navigation or status message.
   };
 
   return (

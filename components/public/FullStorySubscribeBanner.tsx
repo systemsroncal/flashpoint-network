@@ -1,12 +1,12 @@
-import Link from "next/link";
-
 type Props = {
   className?: string;
   /** Outer width constraint (default 1180px). */
   maxWidthClass?: string;
 };
 
-/** Figma Group 29790 — black rail with couple photo + subscribe headline (footer). */
+const TAGLINE = "Get The Full Story. As It Is.";
+
+/** Figma Group 29790 — black rail with couple photo + subscribe headline (news / footer). */
 export default function FullStorySubscribeBanner({
   className = "",
   maxWidthClass = "max-w-[1180px]",
@@ -40,18 +40,12 @@ export default function FullStorySubscribeBanner({
               id="full-story-banner-heading"
               className="font-article text-[clamp(1.05rem,3.8vw,1.45rem)] font-black leading-[1.18] tracking-tight text-pretty sm:text-[1.55rem] md:text-[2.15rem] lg:text-[2.45rem] lg:leading-[1.2]"
             >
-              Get The Full Story. As It Is.
+              {TAGLINE}
             </h2>
             <p className="mt-1 max-w-[36ch] text-[12.5px] leading-snug text-white/80 sm:mt-1.5 sm:text-sm md:max-w-none md:text-[1.05rem] md:leading-normal">
-              Subscribe for complete FPTN access
+              {TAGLINE}
             </p>
           </div>
-          <Link
-            href="/register"
-            className="inline-flex shrink-0 items-center justify-center self-start rounded-full bg-[#0035FC] px-8 py-3 text-[15px] font-bold text-white transition-opacity hover:opacity-90 sm:px-10 sm:py-3.5 sm:text-base md:self-center"
-          >
-            Subscribe
-          </Link>
         </div>
       </div>
     </section>

@@ -221,17 +221,6 @@ export default function MobileNav({
               </ul>
             </div>
 
-            {isLoggedIn && isStaff ? (
-              <div className="mt-6">
-                <Link
-                  href="/admin"
-                  onClick={close}
-                  className="inline-flex h-11 w-full items-center justify-center rounded-md bg-[var(--fpn-rojo)] text-sm font-black text-white"
-                >
-                  Admin
-                </Link>
-              </div>
-            ) : null}
           </nav>
         </div>
       ) : null}

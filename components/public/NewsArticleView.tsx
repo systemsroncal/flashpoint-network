@@ -14,7 +14,6 @@ import { formatDate, formatReadTime, formatViews } from "@/lib/format";
 import { resolveMediaUrl } from "@/lib/media/public-url";
 import { shouldShowFeaturedImageInArticleHero } from "@/lib/posts/media-layout";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
-import { withPublicAuthAccess } from "@/lib/auth/public-auth-gate";
 import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
@@ -57,13 +56,6 @@ export default async function NewsArticleView({
   // Switch is article-hero only — cards/home/SEO always keep featured_image_url.
   const showFeatured = shouldShowFeaturedImageInArticleHero(post);
   const playerInHero = Boolean(post.video_url) && !showFeatured;
-  const loginHref = withPublicAuthAccess(
-    `/login?next=${encodeURIComponent(href)}`,
-  );
-  const registerHref = withPublicAuthAccess(
-    `/register?next=${encodeURIComponent(href)}`,
-  );
-
   return (
     <article className="bg-white text-black">
       <div className="mx-auto grid max-w-[1440px] gap-10 px-4 pb-6 md:px-8 lg:grid-cols-[minmax(0,1fr)_370px] lg:gap-12 lg:px-10">
@@ -241,21 +233,6 @@ export default async function NewsArticleView({
             </h2>
             <p className="mt-6 text-center text-[15px] text-black/80">
               Only FPTN All Access subscribers can comment
-            </p>
-            <Link
-              href={registerHref}
-              className="mt-5 flex w-full items-center justify-center rounded-[6px] bg-[var(--fpn-rojo)] px-6 py-4 text-center text-[15px] font-bold leading-snug text-white hover:brightness-110"
-            >
-              Unlock FPTN All Access to join the conversation.
-            </Link>
-            <p className="mt-5 text-center text-[15px] text-black/80">
-              Already a subscriber?{" "}
-              <Link
-                href={loginHref}
-                className="font-bold text-black underline underline-offset-2 hover:text-[var(--fpn-rojo)]"
-              >
-                Log In
-              </Link>
             </p>
           </div>
         </div>

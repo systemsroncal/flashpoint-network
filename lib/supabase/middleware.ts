@@ -1,6 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import {
+  ADMIN_ACCESS_COOKIE,
+  ADMIN_ACCESS_QUERY_PARAM,
+  ADMIN_ACCESS_QUERY_VALUE,
+  isAdminAccessGranted,
+} from "@/lib/admin/access-manager";
+import {
   PUBLIC_AUTH_SECURITY_PARAM,
   PUBLIC_AUTH_SECURITY_VALUE,
 } from "@/lib/auth/public-auth-gate";
@@ -135,6 +141,26 @@ export async function updateSession(request: NextRequest) {
     const isAdmin = path === "/admin" || path.startsWith("/admin/");
 
     if (isAdmin) {
+      const accessParam = request.nextUrl.searchParams.get(ADMIN_ACCESS_QUERY_PARAM);
+      const accessCookie = request.cookies.get(ADMIN_ACCESS_COOKIE)?.value;
+
+      if (!isAdminAccessGranted(accessParam, accessCookie)) {
+        const home = request.nextUrl.clone();
+        home.pathname = "/";
+        home.search = "";
+        return NextResponse.redirect(home);
+      }
+
+      if (accessParam === ADMIN_ACCESS_QUERY_VALUE) {
+        supabaseResponse.cookies.set(ADMIN_ACCESS_COOKIE, ADMIN_ACCESS_QUERY_VALUE, {
+          path: "/",
+          maxAge: 60 * 60 * 24 * 90,
+          httpOnly: true,
+          sameSite: "lax",
+          secure: request.nextUrl.protocol === "https:",
+        });
+      }
+
       if (!user) {
         const login = request.nextUrl.clone();
         login.pathname = "/login";

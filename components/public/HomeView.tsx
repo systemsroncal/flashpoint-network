@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import BannerWidget from "@/components/public/BannerWidget";
+import FullStorySubscribeBanner from "@/components/public/FullStorySubscribeBanner";
 import HomeLiveHero from "@/components/public/HomeLiveHero";
 import HomeNetworkMarketing from "@/components/public/HomeNetworkMarketing";
 import HomeShowsCarousel from "@/components/public/HomeShowsCarousel";
@@ -197,6 +198,8 @@ export default async function HomeView({
             />
           </>
         ) : null}
+
+        <FullStorySubscribeBanner />
 
         {/* Must-watch — Figma ~2/3 featured + 4 stacked */}
         <section>
