@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useTheme } from "@mui/material/styles";
 import { useMediaQuery, Box, Drawer, IconButton, Stack, Typography } from "@mui/material";
 import { IconX } from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
@@ -29,15 +30,16 @@ const MSidebar = ({
   siteName,
 }: ItemType) => {
   const pathname = usePathname();
-  const lgUp = useMediaQuery((theme: { breakpoints: { up: (k: string) => string } }) =>
-    theme.breakpoints.up("lg"),
-  );
+  const theme = useTheme();
+  const lgUp = useMediaQuery(theme.breakpoints.up("lg"), { noSsr: true });
+  const prevPathRef = useRef(pathname);
 
   useEffect(() => {
-    if (!lgUp) {
+    if (prevPathRef.current !== pathname) {
+      prevPathRef.current = pathname;
       onSidebarClose();
     }
-  }, [pathname, lgUp, onSidebarClose]);
+  }, [pathname, onSidebarClose]);
 
   const sidebarWidth = "270px";
 

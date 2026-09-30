@@ -14,6 +14,7 @@ import type {
   SchedulePdf,
   Tag,
   HelpCenterSubmission,
+  AdvertiseInquiry,
 } from "@/lib/types/cms";
 
 const POST_SELECT = `
@@ -47,7 +48,7 @@ function normalizePost(p: unknown): Post {
 
 export async function getAdminStats() {
   const supabase = requireAdmin();
-  const [posts, published, events, categories, tags, users, views, helpCenter] =
+  const [posts, published, events, categories, tags, users, views, helpCenter, advertise] =
     await Promise.all([
       supabase.from("posts").select("*", { count: "exact", head: true }),
       supabase
@@ -61,6 +62,9 @@ export async function getAdminStats() {
       supabase.from("posts").select("view_count"),
       supabase
         .from("help_center_submissions")
+        .select("*", { count: "exact", head: true }),
+      supabase
+        .from("advertise_inquiries")
         .select("*", { count: "exact", head: true }),
     ]);
 
@@ -78,6 +82,7 @@ export async function getAdminStats() {
     users: users.count ?? 0,
     totalViews,
     helpCenterSubmissions: helpCenter.error ? 0 : (helpCenter.count ?? 0),
+    advertiseInquiries: advertise.error ? 0 : (advertise.count ?? 0),
   };
 }
 
@@ -101,6 +106,57 @@ export async function getAdminHelpCenterSubmissions(): Promise<
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map(normalizeHelpCenterRow);
+}
+
+export async function getAdminSiteFormEntryCounts(): Promise<
+  Record<string, number>
+> {
+  const supabase = requireAdmin();
+  const [help, advertise] = await Promise.all([
+    supabase
+      .from("help_center_submissions")
+      .select("*", { count: "exact", head: true }),
+    supabase
+      .from("advertise_inquiries")
+      .select("*", { count: "exact", head: true }),
+  ]);
+  return {
+    "help-center": help.count ?? 0,
+    advertise: advertise.error ? 0 : (advertise.count ?? 0),
+  };
+}
+
+export async function getAdminAdvertiseInquiries(): Promise<AdvertiseInquiry[]> {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("advertise_inquiries")
+    .select(
+      "id, created_at, company, name, email, phone, message, read_at",
+    )
+    .order("created_at", { ascending: false });
+  if (error) {
+    if (/advertise_inquiries/i.test(error.message)) return [];
+    throw error;
+  }
+  return (data ?? []) as AdvertiseInquiry[];
+}
+
+export async function getAdminAdvertiseInquiry(
+  id: string,
+): Promise<AdvertiseInquiry | null> {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("advertise_inquiries")
+    .select(
+      "id, created_at, company, name, email, phone, message, read_at",
+    )
+    .eq("id", id)
+    .maybeSingle();
+  if (error) {
+    if (/advertise_inquiries/i.test(error.message)) return null;
+    throw error;
+  }
+  return (data as AdvertiseInquiry | null) ?? null;
 }
 
 export async function getAdminHelpCenterSubmission(

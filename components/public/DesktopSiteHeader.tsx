@@ -162,7 +162,11 @@ function buildPrimaryLinks(showSchedule: boolean): PrimaryLink[] {
       href: "/network-programs",
       match: (p) => p.startsWith("/network-programs"),
     },
-    { label: "Advertise", href: "/contact", match: (p) => p.startsWith("/contact") },
+    {
+      label: "Advertisers",
+      href: "/advertise",
+      match: (p) => p.startsWith("/advertise"),
+    },
     { label: "About", href: "/about", match: (p) => p.startsWith("/about") },
   ];
 

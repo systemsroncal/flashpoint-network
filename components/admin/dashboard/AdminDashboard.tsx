@@ -34,6 +34,7 @@ type Stats = {
   users: number;
   totalViews: number;
   helpCenterSubmissions: number;
+  advertiseInquiries: number;
 };
 
 export default function AdminDashboard({
@@ -80,12 +81,14 @@ export default function AdminDashboard({
       color: "warning.main",
     },
     {
-      title: "Help Center",
-      value: String(stats.helpCenterSubmissions),
-      hint: "Form entries",
+      title: "Forms",
+      value: String(
+        (stats.helpCenterSubmissions ?? 0) + (stats.advertiseInquiries ?? 0),
+      ),
+      hint: "Help Center & advertising inquiries",
       icon: IconMessageCircle,
       color: "info.main",
-      href: "/admin/help-center",
+      href: "/admin/forms",
     },
   ];
 

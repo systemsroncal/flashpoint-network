@@ -111,10 +111,10 @@ const Menuitems: MenuItemConfig[] = [
     href: "/admin/banners",
   },
   {
-    id: "nav-help-center",
-    title: "Help Center",
+    id: "nav-forms",
+    title: "Forms",
     icon: IconMessageCircle,
-    href: "/admin/help-center",
+    href: "/admin/forms",
   },
   {
     navlabel: true,

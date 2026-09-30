@@ -1,7 +1,7 @@
 "use client";
 
 import { styled, Container, Box } from "@mui/material";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { usePathname } from "next/navigation";
 import Header from "@/components/admin/layout/header/Header";
 import Sidebar from "@/components/admin/layout/sidebar/Sidebar";
@@ -40,6 +40,11 @@ export default function AdminShell({
   const pathname = usePathname();
   const [isSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const closeMobileSidebar = useCallback(() => setMobileSidebarOpen(false), []);
+  const toggleMobileSidebar = useCallback(
+    () => setMobileSidebarOpen((open) => !open),
+    [],
+  );
   const isPostEditor =
     pathname === "/admin/posts/new" || pathname.startsWith("/admin/posts/");
 
@@ -48,7 +53,7 @@ export default function AdminShell({
       <Sidebar
         isSidebarOpen={isSidebarOpen}
         isMobileSidebarOpen={isMobileSidebarOpen}
-        onSidebarClose={() => setMobileSidebarOpen(false)}
+        onSidebarClose={closeMobileSidebar}
         role={profile.role}
         modules={modules}
         headerLogoSrc={headerLogoSrc}
@@ -56,7 +61,7 @@ export default function AdminShell({
       />
       <PageWrapper className="page-wrapper">
         <Header
-          toggleMobileSidebar={() => setMobileSidebarOpen((open) => !open)}
+          toggleMobileSidebar={toggleMobileSidebar}
           profile={profile}
         />
         <Container

@@ -69,7 +69,8 @@ export default async function NewsArticleView({
       {canEditInAdmin ? (
         <Link
           href={`/admin/posts/${post.id}`}
-          className="fixed right-4 top-[5.25rem] z-40 inline-flex items-center gap-2 rounded-full border-2 border-[var(--fpn-rojo)] bg-white px-4 py-2.5 text-sm font-bold text-[var(--fpn-rojo)] shadow-[0_6px_24px_rgba(15,23,42,0.14)] transition hover:bg-[var(--fpn-rojo)] hover:text-white md:right-8 md:top-[6.5rem]"
+          aria-label="Edit this article in the admin"
+          className="fixed bottom-6 right-4 z-[70] inline-flex items-center gap-2 rounded-full border-2 border-white bg-[var(--fpn-rojo)] px-4 py-3 text-sm font-bold text-white shadow-[0_8px_28px_rgba(0,0,0,0.22)] transition hover:brightness-110 sm:bottom-auto sm:right-6 sm:top-[7.25rem] md:top-[7.75rem]"
         >
           <svg
             width="16"

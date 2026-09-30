@@ -26,7 +26,7 @@ const PRIMARY_LINKS: MenuLink[] = [
 const FPTN_NEWS: MenuLink = { label: "FPTN News", href: "/news" };
 
 const ADVERTISE_LINK: MenuLink = {
-  label: "Advertise",
+  label: "Advertisers",
   href: "/advertise",
 };
 

@@ -22,8 +22,8 @@ export default function HelpCenterSubmissionDetail({
 
   return (
     <Stack spacing={3}>
-      <Button component={Link} href="/admin/help-center" variant="text" sx={{ alignSelf: "flex-start" }}>
-        ← All requests
+      <Button component={Link} href="/admin/forms/help-center" variant="text" sx={{ alignSelf: "flex-start" }}>
+        ← All entries
       </Button>
 
       <DashboardCard

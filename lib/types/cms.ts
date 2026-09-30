@@ -28,6 +28,17 @@ export type HelpCenterSubmission = {
   read_at: string | null;
 };
 
+export type AdvertiseInquiry = {
+  id: string;
+  created_at: string;
+  company: string | null;
+  name: string;
+  email: string;
+  phone: string | null;
+  message: string;
+  read_at: string | null;
+};
+
 export type ClassicProgramStatus = "draft" | "published" | "archived";
 
 export type ClassicProgramsSortMode =

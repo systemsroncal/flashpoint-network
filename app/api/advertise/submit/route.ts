@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { getAdvertisingInquiryEmail, getSiteName } from "@/lib/env";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -66,6 +67,20 @@ export async function POST(request: Request) {
     <p><strong>Message</strong></p>
     <p>${escapeHtml(message).replace(/\n/g, "<br />")}</p>
   `;
+
+  const admin = createAdminClient();
+  if (admin) {
+    const { error: insertError } = await admin.from("advertise_inquiries").insert({
+      company: company || null,
+      name,
+      email,
+      phone: phone || null,
+      message,
+    });
+    if (insertError) {
+      console.error("[advertise/submit] insert", insertError);
+    }
+  }
 
   try {
     await sendEmail({ to, subject, html });
