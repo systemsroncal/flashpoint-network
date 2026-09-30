@@ -175,7 +175,7 @@ export default async function HomeView({
             <div>
               <div className="mb-4 flex items-end justify-between gap-3">
                 <h2 className="font-article text-[2rem] font-black leading-none tracking-tight md:text-[45.5px]">
-                  Opinión
+                  Opinion
                 </h2>
                 <SeeMore href="/category/opinion" label="SEE ALL" />
               </div>

@@ -65,7 +65,36 @@ export default async function NewsArticleView({
   const showFeatured = shouldShowFeaturedImageInArticleHero(post);
   const playerInHero = Boolean(post.video_url) && !showFeatured;
   return (
-    <article className="bg-white text-black">
+    <article className="relative bg-white text-black">
+      {canEditInAdmin ? (
+        <Link
+          href={`/admin/posts/${post.id}`}
+          className="fixed right-4 top-[5.25rem] z-40 inline-flex items-center gap-2 rounded-full border-2 border-[var(--fpn-rojo)] bg-white px-4 py-2.5 text-sm font-bold text-[var(--fpn-rojo)] shadow-[0_6px_24px_rgba(15,23,42,0.14)] transition hover:bg-[var(--fpn-rojo)] hover:text-white md:right-8 md:top-[6.5rem]"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden
+            className="shrink-0"
+          >
+            <path
+              d="M4 20h4l10.5-10.5a2.12 2.12 0 0 0-3-3L5 17v3z"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M13.5 6.5l3 3"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
+          Edit article
+        </Link>
+      ) : null}
       <div className="mx-auto grid max-w-[1440px] gap-10 px-4 pb-6 md:px-8 lg:grid-cols-[minmax(0,1fr)_370px] lg:gap-12 lg:px-10">
         <div className="min-w-0 lg:col-start-1">
           <div className="w-full max-w-[906px] pb-8 pt-10 lg:mx-0 lg:pt-12">
@@ -82,19 +111,9 @@ export default async function NewsArticleView({
               {category}
             </span>
           )}
-          <div className="mt-5 flex flex-wrap items-start justify-between gap-3">
-            <h1 className="font-article text-[2rem] font-black leading-[1.12] tracking-tight text-black md:text-[2.65rem] lg:text-[3rem]">
-              {post.title}
-            </h1>
-            {canEditInAdmin ? (
-              <Link
-                href={`/admin/posts/${post.id}`}
-                className="shrink-0 rounded-md border border-[var(--fpn-rojo)] px-4 py-2 text-xs font-bold uppercase tracking-wide text-[var(--fpn-rojo)] hover:bg-[var(--fpn-rojo)] hover:text-white"
-              >
-                Edit
-              </Link>
-            ) : null}
-          </div>
+          <h1 className="mt-5 font-article text-[2rem] font-black leading-[1.12] tracking-tight text-black md:text-[2.65rem] lg:text-[3rem]">
+            {post.title}
+          </h1>
           {post.excerpt ? (
             <p className="mt-4 text-base leading-7 text-black/90 md:text-lg md:leading-8">
               {post.excerpt}

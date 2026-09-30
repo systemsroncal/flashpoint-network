@@ -15,6 +15,8 @@ interface ItemType {
   isSidebarOpen: boolean;
   role: UserRole;
   modules?: ProgramModules;
+  headerLogoSrc: string;
+  siteName: string;
 }
 
 const MSidebar = ({
@@ -23,6 +25,8 @@ const MSidebar = ({
   isSidebarOpen,
   role,
   modules = DEFAULT_PROGRAM_MODULES,
+  headerLogoSrc,
+  siteName,
 }: ItemType) => {
   const pathname = usePathname();
   const lgUp = useMediaQuery((theme: { breakpoints: { up: (k: string) => string } }) =>
@@ -71,7 +75,12 @@ const MSidebar = ({
         >
           <Box sx={{ height: "100%" }}>
             <Box>
-              <SidebarItems role={role} modules={modules} />
+              <SidebarItems
+                role={role}
+                modules={modules}
+                headerLogoSrc={headerLogoSrc}
+                siteName={siteName}
+              />
             </Box>
           </Box>
         </Drawer>
@@ -110,7 +119,12 @@ const MSidebar = ({
         </IconButton>
       </Stack>
       <Box>
-        <SidebarItems role={role} modules={modules} />
+        <SidebarItems
+          role={role}
+          modules={modules}
+          headerLogoSrc={headerLogoSrc}
+          siteName={siteName}
+        />
       </Box>
     </Drawer>
   );

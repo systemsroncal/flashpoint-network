@@ -28,10 +28,14 @@ export default function AdminShell({
   children,
   profile,
   modules = DEFAULT_PROGRAM_MODULES,
+  headerLogoSrc,
+  siteName,
 }: {
   children: React.ReactNode;
   profile: Profile;
   modules?: ProgramModules;
+  headerLogoSrc: string;
+  siteName: string;
 }) {
   const pathname = usePathname();
   const [isSidebarOpen] = useState(true);
@@ -47,6 +51,8 @@ export default function AdminShell({
         onSidebarClose={() => setMobileSidebarOpen(false)}
         role={profile.role}
         modules={modules}
+        headerLogoSrc={headerLogoSrc}
+        siteName={siteName}
       />
       <PageWrapper className="page-wrapper">
         <Header

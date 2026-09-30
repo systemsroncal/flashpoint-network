@@ -3,7 +3,6 @@
 import Menuitems, { type MenuItemConfig } from "./MenuItems";
 import { Box, Typography } from "@mui/material";
 import {
-  Logo,
   Sidebar as MUI_Sidebar,
   Menu,
   MenuItem,
@@ -99,9 +98,13 @@ const renderMenuItems = (items: MenuItemConfig[], pathDirect: string) => {
 const SidebarItems = ({
   role,
   modules = DEFAULT_PROGRAM_MODULES,
+  headerLogoSrc,
+  siteName,
 }: {
   role: UserRole;
   modules?: ProgramModules;
+  headerLogoSrc: string;
+  siteName: string;
 }) => {
   const pathname = usePathname();
   const items = filterMenuItems(Menuitems, role, modules);
@@ -114,9 +117,22 @@ const SidebarItems = ({
         themeColor="#1B2A64"
         themeSecondaryColor="#B80529"
       >
-        <Logo img="/brand/fpn-logo-wordmark.png" component={Link} href="/admin">
-          <span className="sr-only">FlashPoint Television Network</span>
-        </Logo>
+        <Box sx={{ px: 2.5, pt: 2.5, pb: 1 }}>
+          <Link href="/admin" style={{ display: "block" }}>
+            <Box
+              component="img"
+              src={headerLogoSrc}
+              alt={siteName}
+              sx={{
+                display: "block",
+                maxHeight: 52,
+                width: "auto",
+                maxWidth: "100%",
+                objectFit: "contain",
+              }}
+            />
+          </Link>
+        </Box>
         {renderMenuItems(items, pathname)}
         <Box px={2} mt={3}>
           <Typography variant="caption" color="textSecondary">
