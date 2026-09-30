@@ -175,14 +175,20 @@ export default async function HomeView({
             <div>
               <div className="mb-4 flex items-end justify-between gap-3">
                 <h2 className="font-article text-[2rem] font-black leading-none tracking-tight md:text-[45.5px]">
-                  Latest News
+                  Opinión
                 </h2>
-                <SeeMore href="/feed/latest" />
+                <SeeMore href="/category/opinion" label="SEE ALL" />
               </div>
               <div className="border-t border-[#ccc]">
-                {data.latest.map((post) => (
-                  <PostCard key={post.id} post={post} variant="latest"  timeZone={timeZone} />
-                ))}
+                {data.opinion.length > 0 ? (
+                  data.opinion.map((post) => (
+                    <PostCard key={post.id} post={post} variant="latest" timeZone={timeZone} />
+                  ))
+                ) : (
+                  <p className="py-6 text-sm text-black/55">
+                    No opinion stories yet — check back soon.
+                  </p>
+                )}
               </div>
             </div>
           </aside>

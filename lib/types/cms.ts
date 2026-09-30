@@ -200,6 +200,8 @@ export type HomePayload = {
   grid: Post[];
   /** Continuación del feed Latest (después de hero + 2 sides); con ellos ≈ 8. */
   latest: Post[];
+  /** Sidebar Opinión — categoría opinion, más recientes primero. */
+  opinion: Post[];
   /** Últimas 4 de Politics. */
   politics: Post[];
   /** Últimas 4 de World. */

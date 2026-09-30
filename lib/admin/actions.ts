@@ -176,7 +176,7 @@ export async function upsertPostAction(formData: FormData) {
   const ogTitle = String(formData.get("og_title") || "").trim() || null;
   const ogDescription =
     String(formData.get("og_description") || "").trim() || null;
-  const readingTime = Number(formData.get("reading_time_minutes") || 5);
+  const readingTime = Number(formData.get("reading_time_minutes") || 3);
   const publishedAtRaw = String(formData.get("published_at") || "");
   const publishedAtDisplay = String(
     formData.get("published_at_display") || "",

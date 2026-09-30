@@ -46,6 +46,7 @@ type Props = {
     q: string;
     categoryId: string;
     tagId: string;
+    status: string;
   };
 };
 
@@ -54,6 +55,7 @@ function buildHref(filters: Props["filters"], page: number) {
   if (filters.q.trim()) params.set("q", filters.q.trim());
   if (filters.categoryId) params.set("category", filters.categoryId);
   if (filters.tagId) params.set("tag", filters.tagId);
+  if (filters.status) params.set("status", filters.status);
   if (page > 1) params.set("page", String(page));
   const qs = params.toString();
   return qs ? `/admin/posts?${qs}` : "/admin/posts";
@@ -74,6 +76,7 @@ export default function PostsTable({
   const [q, setQ] = useState(filters.q);
   const [categoryId, setCategoryId] = useState(filters.categoryId);
   const [tagId, setTagId] = useState(filters.tagId);
+  const [status, setStatus] = useState(filters.status);
 
   const categoriesOrdered = useMemo(
     () => flattenCategoriesHierarchy(categories),
@@ -91,7 +94,7 @@ export default function PostsTable({
     startTransition(() => {
       router.push(
         buildHref(
-          { q, categoryId, tagId },
+          { q, categoryId, tagId, status },
           nextPage,
         ),
       );
@@ -102,8 +105,16 @@ export default function PostsTable({
     setQ("");
     setCategoryId("");
     setTagId("");
+    setStatus("");
     startTransition(() => {
       router.push("/admin/posts");
+    });
+  };
+
+  const showDraftsOnly = () => {
+    setStatus("draft_scheduled");
+    startTransition(() => {
+      router.push(buildHref({ q, categoryId, tagId, status: "draft_scheduled" }, 1));
     });
   };
 
@@ -112,9 +123,19 @@ export default function PostsTable({
       title="News"
       subtitle={`${rangeLabel} — edits update the public home immediately`}
       action={
-        <Button component={Link} href="/admin/posts/new" variant="contained">
-          New news
-        </Button>
+        <Stack direction="row" spacing={1}>
+          <Button
+            type="button"
+            variant="outlined"
+            onClick={showDraftsOnly}
+            disabled={pending}
+          >
+            Drafts &amp; scheduled
+          </Button>
+          <Button component={Link} href="/admin/posts/new" variant="contained">
+            New news
+          </Button>
+        </Stack>
       }
     >
       <Stack
@@ -169,6 +190,19 @@ export default function PostsTable({
                 {t.name}
               </MenuItem>
             ))}
+          </TextField>
+          <TextField
+            select
+            size="small"
+            label="Status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            sx={{ minWidth: { md: 170 }, flex: 1 }}
+          >
+            <MenuItem value="">All (drafts on top)</MenuItem>
+            <MenuItem value="draft_scheduled">Draft &amp; scheduled</MenuItem>
+            <MenuItem value="draft">Draft only</MenuItem>
+            <MenuItem value="scheduled">Scheduled only</MenuItem>
           </TextField>
           <Stack direction="row" spacing={1} flexShrink={0}>
             <Button type="submit" variant="contained" disabled={pending}>

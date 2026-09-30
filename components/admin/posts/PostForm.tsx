@@ -192,7 +192,7 @@ export default function PostForm({
       category_id: categoryId,
       featured_image_url: featuredImageUrl,
       video_url: String(fd.get("video_url") || ""),
-      reading_time_minutes: Number(fd.get("reading_time_minutes") || 5),
+      reading_time_minutes: Number(fd.get("reading_time_minutes") || 3),
       published_at: String(fd.get("published_at") || ""),
       published_at_display: publishedAtDisplay,
       published_at_original: publishedAtOriginal,
@@ -293,23 +293,28 @@ export default function PostForm({
           : "Create a story that can power home sections"
       }
       action={
-        status === "published" && slug ? (
-          <Button
-            component={Link}
-            href={`/news/${slug}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View public page
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          <Button component={Link} href="/admin/posts/new" variant="outlined">
+            Create New
           </Button>
-        ) : null
+          {status === "published" && slug ? (
+            <Button
+              component={Link}
+              href={`/news/${slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View public page
+            </Button>
+          ) : null}
+        </Stack>
       }
     >
       <Box
         sx={{
           display: "grid",
-          gap: 3,
-          gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 1fr) 320px" },
+          gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 1fr) 300px" },
+          gap: { xs: 2, lg: 3 },
           alignItems: "start",
         }}
       >
@@ -371,6 +376,45 @@ export default function PostForm({
               onChange={(e) => setExcerpt(e.target.value)}
             />
 
+            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+              <TextField
+                select
+                name="status"
+                label="Status"
+                fullWidth
+                value={status}
+                onChange={(e) => setStatus(e.target.value as PostStatus)}
+              >
+                {STATUSES.map((s) => (
+                  <MenuItem key={s} value={s}>
+                    {s}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                select
+                name="category_id"
+                label="Category"
+                fullWidth
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+              >
+                <MenuItem value="">— None —</MenuItem>
+                {categoriesOrdered.map((category) => (
+                  <MenuItem key={category.id} value={category.id}>
+                    {categoryOptionLabel(category, categories)}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                name="reading_time_minutes"
+                label="Reading time (min)"
+                type="number"
+                fullWidth
+                defaultValue={post?.reading_time_minutes ?? 3}
+              />
+            </Stack>
+
             <AiWritingAssistant
               titleBlank={!title.trim()}
               excerptBlank={!excerpt.trim()}
@@ -419,49 +463,12 @@ export default function PostForm({
               name="body"
               label="Body"
               placeholder="Write the article…"
-              minHeight={320}
+              minHeight={280}
+              maxHeight={520}
               initialHtml={post?.body ?? ""}
               forceHtml={forceHtml}
               forceToken={forceToken}
             />
-            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-              <TextField
-                select
-                name="status"
-                label="Status"
-                fullWidth
-                value={status}
-                onChange={(e) => setStatus(e.target.value as PostStatus)}
-              >
-                {STATUSES.map((s) => (
-                  <MenuItem key={s} value={s}>
-                    {s}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                select
-                name="category_id"
-                label="Category"
-                fullWidth
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-              >
-                <MenuItem value="">— None —</MenuItem>
-                {categoriesOrdered.map((category) => (
-                  <MenuItem key={category.id} value={category.id}>
-                    {categoryOptionLabel(category, categories)}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                name="reading_time_minutes"
-                label="Reading time (min)"
-                type="number"
-                fullWidth
-                defaultValue={post?.reading_time_minutes ?? 5}
-              />
-            </Stack>
             {tags.length > 0 ? (
               <Box>
                 <input type="hidden" name="tags_present" value="1" />
@@ -636,7 +643,7 @@ export default function PostForm({
               onChange={(patch) => setSeo((s) => ({ ...s, ...patch }))}
             />
 
-            <Stack direction="row" spacing={1.5} flexWrap="wrap" sx={{ pb: 10 }}>
+            <Stack direction="row" spacing={1.5} flexWrap="wrap" sx={{ pb: { xs: 18, sm: 14 } }}>
               <Button
                 type="button"
                 variant="outlined"
@@ -658,7 +665,8 @@ export default function PostForm({
               left: { xs: 0, lg: 270 },
               right: 0,
               bottom: 0,
-              zIndex: (theme) => theme.zIndex.appBar,
+              zIndex: (theme) => theme.zIndex.appBar - 1,
+              pb: "calc(12px + env(safe-area-inset-bottom, 0px))",
               bgcolor: "background.paper",
               borderTop: "1px solid",
               borderColor: "divider",
@@ -707,6 +715,15 @@ export default function PostForm({
                 <Button
                   type="button"
                   variant="outlined"
+                  color="info"
+                  disabled={saving || saveBlocked}
+                  onClick={() => submitWithStatus("scheduled")}
+                >
+                  {saving && status === "scheduled" ? "Scheduling…" : "Schedule"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outlined"
                   disabled={
                     previewBusy ||
                     saving ||
@@ -728,6 +745,7 @@ export default function PostForm({
           </Box>
         </Box>
 
+        <Box sx={{ display: { xs: "none", lg: "block" } }}>
         <NewsCardPreview
           title={title}
           slug={slug}
@@ -743,6 +761,7 @@ export default function PostForm({
           siteUrl={siteUrl}
           publicHref={status === "published" && slug ? `/news/${slug}` : null}
         />
+        </Box>
       </Box>
 
       {postId ? (

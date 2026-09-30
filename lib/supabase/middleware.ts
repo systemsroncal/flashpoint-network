@@ -7,10 +7,6 @@ import {
   isAdminAccessGranted,
 } from "@/lib/admin/access-manager";
 import {
-  PUBLIC_AUTH_SECURITY_PARAM,
-  PUBLIC_AUTH_SECURITY_VALUE,
-} from "@/lib/auth/public-auth-gate";
-import {
   getSiteUrl,
   getSupabaseUrl,
   normalizeForwardedHost,
@@ -166,10 +162,6 @@ export async function updateSession(request: NextRequest) {
         login.pathname = "/login";
         login.search = "";
         login.searchParams.set("next", path);
-        login.searchParams.set(
-          PUBLIC_AUTH_SECURITY_PARAM,
-          PUBLIC_AUTH_SECURITY_VALUE,
-        );
         return NextResponse.redirect(login);
       }
 

@@ -8,6 +8,7 @@ const CONTACT_LINES = [
   {
     label: "For sponsorship and advertising opportunities:",
     email: FPTN_PUBLIC_CONTACT.partnershipsEmail,
+    href: "/advertise",
   },
   {
     label: "For help with your FPTN subscription:",
@@ -156,6 +157,17 @@ export default function AboutView() {
           {CONTACT_LINES.map((line) => (
             <li key={line.email}>
               <span>{line.label} </span>
+              {"href" in line && line.href ? (
+                <>
+                  <Link
+                    href={line.href}
+                    className="font-medium text-[var(--fpn-rojo)] hover:underline"
+                  >
+                    Submit an inquiry online
+                  </Link>
+                  <span className="text-black/55"> or </span>
+                </>
+              ) : null}
               <a
                 href={`mailto:${line.email}`}
                 className="font-medium text-[var(--fpn-rojo)] hover:underline"

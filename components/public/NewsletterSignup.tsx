@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useState } from "react";
 
 export default function NewsletterSignup({
@@ -17,7 +18,11 @@ export default function NewsletterSignup({
       setStatus("error");
       return;
     }
-    // Registration gated — no navigation or status message.
+    const params = new URLSearchParams({
+      email: trimmed,
+      next: "/news",
+    });
+    window.location.href = `/register?${params.toString()}`;
   };
 
   return (
@@ -45,6 +50,13 @@ export default function NewsletterSignup({
           Sign up
         </button>
       </form>
+      <p className="mt-3 text-center text-xs text-black/60">
+        One free FPTN All Access account — newsletter, reading, and comments.
+        Already joined?{" "}
+        <Link href="/login" className="font-semibold text-[var(--fpn-rojo)] hover:underline">
+          Sign in
+        </Link>
+      </p>
       {status === "error" ? (
         <p className="mt-3 text-sm font-medium text-red-700" role="alert">
           Enter a valid email address.

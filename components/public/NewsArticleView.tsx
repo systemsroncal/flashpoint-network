@@ -5,8 +5,10 @@ import BannerWidget from "@/components/public/BannerWidget";
 import PostCard from "@/components/public/PostCard";
 import PaywallGate from "@/components/public/PaywallGate";
 import RichHtml from "@/components/public/RichHtml";
+import PostCommentsSection from "@/components/public/PostCommentsSection";
 import ShareBar from "@/components/public/ShareBar";
 import VideoPlayer from "@/components/public/VideoPlayer";
+import type { PostComment } from "@/lib/data/post-comments";
 import type { BannerSlot, BannerWidget as BannerWidgetRow } from "@/lib/banners/slots";
 import type { Post } from "@/lib/types/cms";
 import type { PaywallSettings } from "@/lib/paywall/settings";
@@ -27,6 +29,9 @@ type Props = {
   paywall: PaywallSettings;
   paywallBypass: boolean;
   banners?: Partial<Record<BannerSlot, BannerWidgetRow>>;
+  comments: PostComment[];
+  isLoggedIn: boolean;
+  canEditInAdmin?: boolean;
 };
 
 export default async function NewsArticleView({
@@ -39,6 +44,9 @@ export default async function NewsArticleView({
   paywall,
   paywallBypass,
   banners = {},
+  comments,
+  isLoggedIn,
+  canEditInAdmin = false,
 }: Props) {
   const [timeZone, identity] = await Promise.all([
     getSiteTimezone(),
@@ -74,9 +82,19 @@ export default async function NewsArticleView({
               {category}
             </span>
           )}
-          <h1 className="mt-5 font-article text-[2rem] font-black leading-[1.12] tracking-tight text-black md:text-[2.65rem] lg:text-[3rem]">
-            {post.title}
-          </h1>
+          <div className="mt-5 flex flex-wrap items-start justify-between gap-3">
+            <h1 className="font-article text-[2rem] font-black leading-[1.12] tracking-tight text-black md:text-[2.65rem] lg:text-[3rem]">
+              {post.title}
+            </h1>
+            {canEditInAdmin ? (
+              <Link
+                href={`/admin/posts/${post.id}`}
+                className="shrink-0 rounded-md border border-[var(--fpn-rojo)] px-4 py-2 text-xs font-bold uppercase tracking-wide text-[var(--fpn-rojo)] hover:bg-[var(--fpn-rojo)] hover:text-white"
+              >
+                Edit
+              </Link>
+            ) : null}
+          </div>
           {post.excerpt ? (
             <p className="mt-4 text-base leading-7 text-black/90 md:text-lg md:leading-8">
               {post.excerpt}
@@ -227,14 +245,13 @@ export default async function NewsArticleView({
             </div>
           </div>
 
-          <div className="pt-10">
-            <h2 className="font-article text-[1.75rem] font-black tracking-tight md:text-[2rem]">
-              Comments
-            </h2>
-            <p className="mt-6 text-center text-[15px] text-black/80">
-              Only FPTN All Access subscribers can comment
-            </p>
-          </div>
+          <PostCommentsSection
+            postId={post.id}
+            postSlug={post.slug}
+            initialComments={comments}
+            isLoggedIn={isLoggedIn}
+            timeZone={timeZone}
+          />
         </div>
         </div>
 

@@ -17,6 +17,7 @@ const POST_SELECT = `
 
 const POLITICS_ID = "b1000000-0000-4000-8000-000000000002";
 const WORLD_ID = "b1000000-0000-4000-8000-000000000003";
+const OPINION_ID = "b1000000-0000-4000-8000-000000000004";
 const ELECTIONS_ID = "b1000000-0000-4000-8000-00000000000a";
 
 /** Home / feed rail “Beyond the Broadcast”. Accepts old slug while the tag is renamed. */
@@ -123,6 +124,7 @@ export async function getHomePayload(): Promise<HomePayload> {
     podcasts: [],
     grid: [],
     latest: [],
+    opinion: [],
     politics: [],
     world: [],
     mustWatch: [],
@@ -147,6 +149,7 @@ export async function getHomePayload(): Promise<HomePayload> {
     popularRes,
     politicsRes,
     worldRes,
+    opinionRes,
   ] = await Promise.all([
     supabase
       .from("categories")
@@ -228,6 +231,15 @@ export async function getHomePayload(): Promise<HomePayload> {
       .eq("is_video", false)
       .order("published_at", { ascending: false })
       .limit(8),
+    supabase
+      .from("posts")
+      .select(POST_SELECT)
+      .eq("status", "published")
+      .eq("category_id", OPINION_ID)
+      .eq("is_podcast", false)
+      .eq("is_video", false)
+      .order("published_at", { ascending: false })
+      .limit(8),
   ]);
 
   const latestPool = asPosts(latestPoolRes.data);
@@ -271,6 +283,9 @@ export async function getHomePayload(): Promise<HomePayload> {
     .filter((p) => !usedInTop.has(p.id))
     .slice(0, 3);
   const latestRail = latestPool.filter((p) => !usedInTop.has(p.id)).slice(0, 4);
+  const opinionRail = asPosts(opinionRes.data)
+    .filter((p) => !usedInTop.has(p.id))
+    .slice(0, 4);
 
   const tickerEvents = (tickerEventsRes.data as EventItem[]) ?? [];
   const nextUpcomingEvent = pickNextUpcomingEvent(tickerEvents, new Date());
@@ -285,6 +300,7 @@ export async function getHomePayload(): Promise<HomePayload> {
     podcasts,
     grid: [...politics, ...world],
     latest: latestRail,
+    opinion: opinionRail,
     politics,
     world,
     mustWatch: asPosts(mustWatchRes.data),

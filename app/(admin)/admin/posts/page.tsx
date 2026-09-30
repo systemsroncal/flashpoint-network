@@ -13,6 +13,7 @@ type Props = {
     q?: string;
     category?: string;
     tag?: string;
+    status?: string;
     page?: string;
   }>;
 };
@@ -22,10 +23,11 @@ export default async function AdminPostsPage({ searchParams }: Props) {
   const q = (sp.q || "").trim();
   const categoryId = (sp.category || "").trim();
   const tagId = (sp.tag || "").trim();
+  const status = (sp.status || "").trim();
   const page = Math.max(1, Number(sp.page || 1) || 1);
 
   const [result, categories, tags] = await Promise.all([
-    getAdminPostsPage({ q, categoryId, tagId, page, pageSize: 20 }),
+    getAdminPostsPage({ q, categoryId, tagId, status, page, pageSize: 20 }),
     getAdminCategories(),
     getAdminTags(),
   ]);
@@ -40,7 +42,7 @@ export default async function AdminPostsPage({ searchParams }: Props) {
         page={result.page}
         pageSize={result.pageSize}
         totalPages={result.totalPages}
-        filters={{ q, categoryId, tagId }}
+        filters={{ q, categoryId, tagId, status }}
       />
     </PageContainer>
   );

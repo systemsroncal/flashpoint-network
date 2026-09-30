@@ -128,9 +128,44 @@ export type AdminPostsQuery = {
   q?: string;
   categoryId?: string;
   tagId?: string;
+  /** draft | scheduled | draft_scheduled */
+  status?: string;
   page?: number;
   pageSize?: number;
 };
+
+const ADMIN_POSTS_SORT_CAP = 3000;
+
+function isDraftishStatus(status: string) {
+  return status === "draft" || status === "scheduled";
+}
+
+/** News admin list: drafts/scheduled first, then home slots 1–3, then publish date. */
+export function compareAdminPosts(a: Post, b: Post): number {
+  const aDraft = isDraftishStatus(a.status);
+  const bDraft = isDraftishStatus(b.status);
+  if (aDraft && !bDraft) return -1;
+  if (!aDraft && bDraft) return 1;
+  if (aDraft && bDraft) {
+    const ta = new Date(a.updated_at || 0).getTime();
+    const tb = new Date(b.updated_at || 0).getTime();
+    return tb - ta;
+  }
+
+  const slotRank = (slot: number | null | undefined) => {
+    if (slot === 1) return 0;
+    if (slot === 2) return 1;
+    if (slot === 3) return 2;
+    return 3;
+  };
+  const sa = slotRank(a.home_first_slot);
+  const sb = slotRank(b.home_first_slot);
+  if (sa !== sb) return sa - sb;
+
+  const ta = new Date(a.published_at || a.updated_at || 0).getTime();
+  const tb = new Date(b.published_at || b.updated_at || 0).getTime();
+  return tb - ta;
+}
 
 export type AdminPostsPageResult = {
   posts: Post[];
@@ -151,6 +186,7 @@ export async function getAdminPostsPage(
   const q = (query.q ?? "").trim();
   const categoryId = (query.categoryId ?? "").trim();
   const tagId = (query.tagId ?? "").trim();
+  const statusFilter = (query.status ?? "").trim();
 
   let postIdFilter: string[] | null = null;
   if (tagId) {
@@ -165,12 +201,15 @@ export async function getAdminPostsPage(
     }
   }
 
-  // Sort by publish time (same as home). Do not use updated_at — edits would
-  // reshuffle the News list even when published_at is unchanged.
-  let builder = supabase
-    .from("posts")
-    .select(POST_SELECT, { count: "exact" })
-    .order("published_at", { ascending: false, nullsFirst: false });
+  let builder = supabase.from("posts").select(POST_SELECT, { count: "exact" });
+
+  if (statusFilter === "draft") {
+    builder = builder.eq("status", "draft");
+  } else if (statusFilter === "scheduled") {
+    builder = builder.eq("status", "scheduled");
+  } else if (statusFilter === "draft_scheduled") {
+    builder = builder.in("status", ["draft", "scheduled"]);
+  }
 
   if (categoryId) {
     builder = builder.eq("category_id", categoryId);
@@ -189,14 +228,16 @@ export async function getAdminPostsPage(
     }
   }
 
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-  const { data, error, count } = await builder.range(from, to);
+  const { data, error, count } = await builder.limit(ADMIN_POSTS_SORT_CAP);
   if (error) throw new Error(error.message);
 
   const total = count ?? 0;
+  const all = ((data as unknown[]) ?? []).map(normalizePost).sort(compareAdminPosts);
+  const from = (page - 1) * pageSize;
+  const posts = all.slice(from, from + pageSize);
+
   return {
-    posts: ((data as unknown[]) ?? []).map(normalizePost),
+    posts,
     total,
     page,
     pageSize,

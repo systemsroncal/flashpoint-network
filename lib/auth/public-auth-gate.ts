@@ -1,37 +1,31 @@
 import { redirect } from "next/navigation";
 
-/** Temporary gate for public login/register while email delivery is unstable. */
+/** Legacy query param — kept for bookmarks; auth is open without it. */
 export const PUBLIC_AUTH_SECURITY_PARAM = "security";
 export const PUBLIC_AUTH_SECURITY_VALUE = "1zlpoahjrmalosjqjpa81kaw3xa";
 
 export function isPublicAuthUnlocked(
-  value: string | string[] | undefined | null,
+  _value?: string | string[] | undefined | null,
 ): boolean {
-  const raw = Array.isArray(value) ? value[0] : value;
-  return typeof raw === "string" && raw === PUBLIC_AUTH_SECURITY_VALUE;
+  return true;
 }
 
-/** Query string to append so auth pages stay unlocked across internal links. */
+/** Strip legacy security param from URLs when building auth links. */
 export function publicAuthAccessQuery(): string {
-  return `${PUBLIC_AUTH_SECURITY_PARAM}=${PUBLIC_AUTH_SECURITY_VALUE}`;
+  return "";
 }
 
 export function withPublicAuthAccess(path: string): string {
   const [base, existing] = path.split("?");
   const params = new URLSearchParams(existing || "");
-  params.set(PUBLIC_AUTH_SECURITY_PARAM, PUBLIC_AUTH_SECURITY_VALUE);
+  params.delete(PUBLIC_AUTH_SECURITY_PARAM);
   const qs = params.toString();
   return qs ? `${base}?${qs}` : base;
 }
 
-/**
- * Server pages under /login, /register, /forgot-password must call this.
- * Missing or wrong `security` → home.
- */
+/** Server pages under /login, /register, /forgot-password — public access enabled. */
 export function requirePublicAuthAccess(
-  security: string | string[] | undefined | null,
+  _security?: string | string[] | undefined | null,
 ): void {
-  if (!isPublicAuthUnlocked(security)) {
-    redirect("/");
-  }
+  // no-op
 }

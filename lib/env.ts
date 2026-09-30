@@ -85,6 +85,13 @@ export function getResendApiKey(): string | null {
   return process.env.RESEND_API_KEY || null;
 }
 
+/** Inbox for /advertise form submissions (set your personal email in production). */
+export function getAdvertisingInquiryEmail(): string {
+  const fromEnv = String(process.env.ADVERTISING_INQUIRY_EMAIL || "").trim();
+  if (fromEnv.includes("@")) return fromEnv;
+  return "partnerships@fptn.com";
+}
+
 /**
  * Canonical public origin. Prefers NEXT_PUBLIC_SITE_URL, then SITE_URL
  * (CyberPanel/OLS sometimes injects a comma-separated SITE_URL that is not

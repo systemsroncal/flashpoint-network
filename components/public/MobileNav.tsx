@@ -25,8 +25,10 @@ const PRIMARY_LINKS: MenuLink[] = [
 
 const FPTN_NEWS: MenuLink = { label: "FPTN News", href: "/news" };
 
-/** Enable when the advertise landing page ships. */
-const ADVERTISE_LINK: MenuLink | null = null;
+const ADVERTISE_LINK: MenuLink = {
+  label: "Advertise",
+  href: "/advertise",
+};
 
 const FOOTER_LINKS: MenuLink[] = [
   { label: "About", href: "/about" },
@@ -82,9 +84,7 @@ export default function MobileNav({
     (link) => link.label !== "Broadcast Schedule" || showSchedule,
   );
 
-  const footerLinks = ADVERTISE_LINK
-    ? [ADVERTISE_LINK, ...FOOTER_LINKS]
-    : FOOTER_LINKS;
+  const footerLinks = [ADVERTISE_LINK, ...FOOTER_LINKS];
 
   useEffect(() => {
     if (!open) return;

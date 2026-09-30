@@ -22,6 +22,8 @@ type Props = {
   initialHtml?: string | null;
   placeholder?: string;
   minHeight?: number;
+  /** Scrollable editor area height (toolbar stays sticky inside). */
+  maxHeight?: number;
   onHtmlChange?: (html: string) => void;
   /** When `forceToken` changes, replace editor content with `forceHtml`. */
   forceHtml?: string | null;
@@ -46,6 +48,7 @@ export default function RichTextEditor({
   initialHtml = "",
   placeholder = "Write content…",
   minHeight = 220,
+  maxHeight = 480,
   onHtmlChange,
   forceHtml,
   forceToken,
@@ -169,6 +172,9 @@ export default function RichTextEditor({
           borderRadius: 1,
           overflow: "hidden",
           bgcolor: "background.paper",
+          maxHeight,
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         <Stack
@@ -176,6 +182,9 @@ export default function RichTextEditor({
           spacing={1}
           alignItems="center"
           sx={{
+            position: "sticky",
+            top: 0,
+            zIndex: 2,
             px: 1,
             py: 0.75,
             borderBottom: "1px solid",
@@ -183,6 +192,7 @@ export default function RichTextEditor({
             bgcolor: "grey.50",
             flexWrap: "wrap",
             gap: 0.5,
+            flexShrink: 0,
           }}
         >
           <ButtonGroup size="small" variant="outlined">
@@ -294,7 +304,9 @@ export default function RichTextEditor({
 
         <Box
           sx={{
-            minHeight,
+            flex: 1,
+            minHeight: 0,
+            overflowY: "auto",
             px: 2,
             py: 1.5,
             "& .fpn-rich-editor": {

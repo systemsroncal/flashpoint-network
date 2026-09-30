@@ -142,7 +142,10 @@ export async function signUpAction(formData: FormData) {
         CURRENT_USER_NAME: firstName || "Reader",
       }).catch(() => undefined);
     }
-    redirect(withPublicAuthAccess("/login?registered=1"));
+    const next = safeNext(String(formData.get("next") || "/news"));
+    const loginQs = new URLSearchParams({ registered: "1" });
+    if (next && next !== "/") loginQs.set("next", next);
+    redirect(withPublicAuthAccess(`/login?${loginQs.toString()}`));
   } catch (error) {
     rethrowRedirect(error);
     console.error("[auth] signUpAction", error);

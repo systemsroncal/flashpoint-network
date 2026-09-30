@@ -155,7 +155,7 @@ export async function POST(request: Request) {
       body.home_first_slot,
       existing ? (existing.home_first_slot ?? null) : null,
     ),
-    readingTime: Number(body.reading_time_minutes) || 5,
+    readingTime: Number(body.reading_time_minutes) || 3,
     publishedAt,
   });
 

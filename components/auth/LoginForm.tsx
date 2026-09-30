@@ -100,6 +100,15 @@ export default function LoginForm({ next, initialError, registered }: Props) {
         </button>
       </form>
 
+      <p className="mt-6 text-center text-sm text-black/65">
+        New here?{" "}
+        <Link
+          href={withPublicAuthAccess("/register")}
+          className="font-semibold text-[var(--fpn-rojo)] hover:underline"
+        >
+          Create your free account
+        </Link>
+      </p>
     </div>
   );
 }

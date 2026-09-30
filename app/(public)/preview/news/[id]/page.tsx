@@ -68,6 +68,9 @@ export default async function NewsPreviewPage({ params }: Props) {
         paywall={paywall}
         paywallBypass
         banners={banners}
+        comments={[]}
+        isLoggedIn={true}
+        canEditInAdmin
       />
     </div>
   );

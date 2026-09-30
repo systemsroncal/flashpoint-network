@@ -5,6 +5,7 @@ import NewsArticleView from "@/components/public/NewsArticleView";
 import { recordPostView } from "@/lib/analytics/record-view";
 import { getCurrentProfile, isStaffRole } from "@/lib/auth/session";
 import { getBannerWidgetsBySlots } from "@/lib/data/banners";
+import { getPostComments } from "@/lib/data/post-comments";
 import { getArticleSidebar, getPostBySlug } from "@/lib/data/home";
 import { absoluteMediaUrl } from "@/lib/media/public-url";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
@@ -78,7 +79,7 @@ export default async function NewsArticlePage({ params }: Props) {
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  const [sidebar, paywall, profile, banners, identity] = await Promise.all([
+  const [sidebar, paywall, profile, banners, identity, comments] = await Promise.all([
     getArticleSidebar(post.id),
     getPaywallSettings(),
     getCurrentProfile(),
@@ -87,6 +88,7 @@ export default async function NewsArticlePage({ params }: Props) {
       "article_above_latest_ofc",
     ]),
     getSiteIdentity(),
+    getPostComments(post.id),
     recordPostView(post.id),
   ]);
 
@@ -114,6 +116,9 @@ export default async function NewsArticlePage({ params }: Props) {
         paywall={paywall}
         paywallBypass={paywallBypass}
         banners={banners}
+        comments={comments}
+        isLoggedIn={Boolean(profile)}
+        canEditInAdmin={Boolean(profile && isStaffRole(profile.role))}
       />
     </>
   );

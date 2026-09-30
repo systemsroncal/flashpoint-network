@@ -10,7 +10,12 @@ import {
 export const dynamic = "force-dynamic";
 
 type Props = {
-  searchParams: Promise<{ error?: string; email?: string; security?: string }>;
+  searchParams: Promise<{
+    error?: string;
+    email?: string;
+    security?: string;
+    next?: string;
+  }>;
 };
 
 function prefillEmail(raw: string | undefined): string {
@@ -29,6 +34,7 @@ export default async function RegisterPage({ searchParams }: Props) {
   const params = await searchParams;
   requirePublicAuthAccess(params.security);
   const emailPrefill = prefillEmail(params.email);
+  const nextPath = (params.next || "/news").trim() || "/news";
 
   return (
     <div className="rounded-2xl border border-white/15 bg-white/95 p-6 text-[#111] shadow-2xl backdrop-blur sm:p-8">
@@ -46,6 +52,7 @@ export default async function RegisterPage({ searchParams }: Props) {
       ) : null}
 
       <form action={signUpAction} className="mt-6 space-y-4">
+        <input type="hidden" name="next" value={nextPath} />
         <input
           type="hidden"
           name={PUBLIC_AUTH_SECURITY_PARAM}
