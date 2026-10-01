@@ -434,6 +434,54 @@ button.fpn-live-cta {
   padding: 8px 14px;
 }
 
+/* Live stream Share (home, /news, /live) */
+.fpn-live-share-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 9999px;
+  background-color: var(--fpn-rojo, #b80529);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  appearance: none;
+  transition: filter 150ms ease, transform 150ms ease;
+}
+
+.fpn-live-share-cta:hover {
+  filter: brightness(1.06);
+}
+
+.fpn-live-share-cta:active {
+  transform: scale(0.98);
+}
+
+.fpn-live-share-cta .fpn-live-share-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+@media (max-width: 767px) {
+  .fpn-live-share-cta {
+    padding: 8px 18px;
+    font-size: 14px;
+    gap: 7px;
+  }
+
+  .fpn-live-share-cta .fpn-live-share-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 .fpn-live-pip-wrap {
   position: fixed;
   z-index: 60;
