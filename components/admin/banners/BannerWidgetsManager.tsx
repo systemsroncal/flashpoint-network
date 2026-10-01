@@ -17,6 +17,13 @@ import ImageUploadField from "@/components/admin/shared/ImageUploadField";
 import { upsertBannerWidgetAction } from "@/lib/admin/actions";
 import type { BannerWidget } from "@/lib/banners/slots";
 
+const SLOT_PLACEMENT_HINTS: Partial<Record<string, string>> = {
+  home_patriot_banner:
+    "Placement: /news below Must-Watch Videos (full image creative, desktop + mobile)",
+  home_above_podcasts: "Placement: /news sidebar above podcasts",
+  home_above_latest: "Placement: /news sidebar above Latest",
+};
+
 type Props = {
   widgets: BannerWidget[];
   flash?: { saved?: boolean; error?: string | null };
@@ -52,9 +59,17 @@ export default function BannerWidgetsManager({ widgets, flash }: Props) {
 function BannerWidgetEditor({ widget }: { widget: BannerWidget }) {
   const [openInNewTab, setOpenInNewTab] = useState(widget.open_in_new_tab !== false);
   const [enabled, setEnabled] = useState(widget.enabled !== false);
+  const placement = SLOT_PLACEMENT_HINTS[widget.slot];
 
   return (
-    <DashboardCard title={widget.label} subtitle={`Slot: ${widget.slot}`}>
+    <DashboardCard
+      title={widget.label}
+      subtitle={
+        placement
+          ? `Slot: ${widget.slot} — ${placement}`
+          : `Slot: ${widget.slot}`
+      }
+    >
       <Box component="form" action={upsertBannerWidgetAction}>
         <input type="hidden" name="id" value={widget.id} />
         <input type="hidden" name="open_in_new_tab" value={openInNewTab ? "true" : "false"} />

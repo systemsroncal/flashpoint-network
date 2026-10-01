@@ -7,6 +7,7 @@ import HomeNetworkMarketing from "@/components/public/HomeNetworkMarketing";
 import HomeShowsCarousel from "@/components/public/HomeShowsCarousel";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PatriotHomeBanner from "@/components/public/PatriotHomeBanner";
+import CategorySpotlightCard from "@/components/public/CategorySpotlightCard";
 import PostCard from "@/components/public/PostCard";
 import StarlinkHomeBanner from "@/components/public/StarlinkHomeBanner";
 import { categoryDisplayName } from "@/lib/categories/display-name";
@@ -313,21 +314,15 @@ export default async function HomeView({
 
       {showCategorySpotlight &&
       data.categorySpotlight.some((item) => item.post) ? (
-        <section className="mx-auto max-w-[1654px] px-4 py-10 md:px-8 lg:px-10 lg:py-12">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-            {data.categorySpotlight.map((item) =>
-              item.post ? (
-                <div key={item.slug} className="min-w-0">
-                  <div className="mb-3 flex items-end justify-between gap-2">
-                    <h2 className="font-article text-xl font-black tracking-tight md:text-2xl">
-                      {categoryDisplayName(item.name, item.slug)}
-                    </h2>
-                    <SeeMore href={`/category/${item.slug}`} />
-                  </div>
-                  <PostCard post={item.post} timeZone={timeZone} />
-                </div>
-              ) : null,
-            )}
+        <section className="bg-[#f3f3f3]">
+          <div className="mx-auto max-w-[1654px] px-4 py-10 md:px-8 lg:px-10 lg:py-14">
+            <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+              {data.categorySpotlight.map((item) =>
+                item.post ? (
+                  <CategorySpotlightCard key={item.slug} post={item.post} />
+                ) : null,
+              )}
+            </div>
           </div>
         </section>
       ) : null}
