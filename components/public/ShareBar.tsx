@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { getSiteUrl } from "@/lib/env";
 
 type Props = {
@@ -77,16 +77,15 @@ export default function ShareBar({
   orientation = "horizontal",
   variant = "default",
 }: Props) {
-  const [pageUrl, setPageUrl] = useState(() => absolutePageUrl(urlPath));
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    // Prefer the live browser URL so query/hash are included when present.
-    setPageUrl(
+  const pageUrl = useSyncExternalStore(
+    () => () => {},
+    () =>
       window.location.href ||
-        `${window.location.origin}${urlPath.startsWith("/") ? urlPath : `/${urlPath}`}`,
-    );
-  }, [urlPath]);
+      `${window.location.origin}${urlPath.startsWith("/") ? urlPath : `/${urlPath}`}`,
+    () => absolutePageUrl(urlPath),
+  );
 
   const networkHrefs = useMemo(() => {
     const base = absolutePageUrl(urlPath, pageUrl);

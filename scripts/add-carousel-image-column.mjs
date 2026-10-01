@@ -2,7 +2,6 @@
 /**
  * Schema-only: ADD COLUMN carousel_image_url (no content DML).
  */
-import { createClient } from "@supabase/supabase-js";
 import { Client } from "pg";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";

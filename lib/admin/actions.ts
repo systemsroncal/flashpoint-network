@@ -856,7 +856,7 @@ export async function upsertClassicProgramAction(formData: FormData) {
   const id = String(formData.get("id") || "");
   const title = String(formData.get("title") || "").trim();
   if (!title) throw new Error("Title is required");
-  let slug = slugify(String(formData.get("slug") || "").trim() || title) || "program";
+  const slug = slugify(String(formData.get("slug") || "").trim() || title) || "program";
   const status = (String(formData.get("status") || "published") ||
     "published") as "draft" | "published" | "archived";
   const sortOrder = Number(formData.get("sort_order") || 0);

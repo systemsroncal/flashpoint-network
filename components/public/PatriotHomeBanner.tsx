@@ -35,7 +35,7 @@ export default function PatriotHomeBanner({ widget }: Props) {
           {images.desktop ? (
             <source media="(min-width: 768px)" srcSet={images.desktop} />
           ) : null}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          { }
           <img src={images.imgSrc} alt={label} className="h-auto w-full" />
         </picture>
       </a>

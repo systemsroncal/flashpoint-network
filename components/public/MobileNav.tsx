@@ -57,8 +57,6 @@ function RowArrow() {
 export default function MobileNav({
   topCategories,
   showSchedule = true,
-  isLoggedIn = false,
-  isStaff = false,
   tone = "light",
   logoSrc,
   logoAlt,

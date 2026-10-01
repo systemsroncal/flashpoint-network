@@ -90,7 +90,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Title is required to preview." }, { status: 400 });
   }
 
-  let slug = slugify(String(body.slug || "").trim() || title) || "untitled";
+  const slug = slugify(String(body.slug || "").trim() || title) || "untitled";
   const id = String(body.id || "").trim();
   const statusRaw = String(body.status || "draft") as PostStatus;
   // Keep published if already published; otherwise save as draft for preview

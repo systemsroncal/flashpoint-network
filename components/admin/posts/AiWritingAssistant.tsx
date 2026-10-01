@@ -78,7 +78,10 @@ export default function AiWritingAssistant({
   }, []);
 
   useEffect(() => {
-    void loadModels();
+    const id = window.setTimeout(() => {
+      void loadModels();
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [loadModels]);
 
   const enabledCount = useMemo(

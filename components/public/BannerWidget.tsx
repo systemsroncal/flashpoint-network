@@ -60,7 +60,7 @@ export default function BannerWidget({
         {images.desktop ? (
           <source media="(min-width: 768px)" srcSet={images.desktop} />
         ) : null}
-        {/* eslint-disable-next-line @next/next/no-img-element -- responsive picture pair */}
+        { }
         <img
           src={images.imgSrc}
           alt={label}

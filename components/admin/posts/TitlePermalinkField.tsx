@@ -50,10 +50,6 @@ export default function TitlePermalinkField({
   const [checking, setChecking] = useState(false);
   const checkSeq = useRef(0);
 
-  useEffect(() => {
-    if (!editing) setDraftSlug(slug);
-  }, [slug, editing]);
-
   const origin = useMemo(
     () => normalizePublicUrl(siteUrl, "http://127.0.0.1:43125"),
     [siteUrl],
@@ -104,15 +100,15 @@ export default function TitlePermalinkField({
   // Debounced uniqueness check whenever the committed slug changes
   useEffect(() => {
     const normalized = slugify(slug);
-    if (!normalized) {
-      setSlugError(slug.trim() ? "Slug is required." : null);
-      onSlugValidChange?.(false);
-      return;
-    }
-
+    const delay = normalized ? 400 : 0;
     const timer = window.setTimeout(() => {
+      if (!normalized) {
+        setSlugError(slug.trim() ? "Slug is required." : null);
+        onSlugValidChange?.(false);
+        return;
+      }
       void runCheck(normalized);
-    }, 400);
+    }, delay);
     return () => window.clearTimeout(timer);
     // excludeId + slug drive the check; onSlugValidChange is stable enough via parent
     // eslint-disable-next-line react-hooks/exhaustive-deps

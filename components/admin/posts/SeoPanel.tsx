@@ -93,7 +93,6 @@ export default function SeoPanel({
     excerpt ||
     "Add a meta description to improve how this story appears in search."
   ).trim();
-  const path = `/news/${slug || "your-slug"}`;
   const host = useMemo(() => {
     try {
       return new URL(normalizePublicUrl(siteUrl)).host;

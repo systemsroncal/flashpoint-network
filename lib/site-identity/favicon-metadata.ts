@@ -9,8 +9,6 @@ export function hasConfiguredFavicon(identity: SiteIdentity): boolean {
  * Tab icons are served by app/icon.tsx and app/apple-icon.tsx (dynamic, from settings).
  * Keep metadata minimal so Next does not inject a second default /favicon.ico.
  */
-export function buildSiteFaviconMetadata(
-  _identity: SiteIdentity,
-): Metadata["icons"] | undefined {
+export function buildSiteFaviconMetadata(): Metadata["icons"] | undefined {
   return undefined;
 }

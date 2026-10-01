@@ -54,27 +54,30 @@ export default function PaywallGate({
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (bypass || !enabled) {
-      setLocked(false);
+    const id = window.setTimeout(() => {
+      if (bypass || !enabled) {
+        setLocked(false);
+        setReady(true);
+        return;
+      }
+
+      const viewed = readViewed();
+      const already = viewed.includes(postId);
+      let next = viewed;
+      if (!already) {
+        next = [...viewed, postId];
+        writeViewed(next);
+      }
+
+      if (isPremium) {
+        setLocked(true);
+      } else {
+        const count = already ? viewed.length : next.length;
+        setLocked(count > freeArticleLimit);
+      }
       setReady(true);
-      return;
-    }
-
-    const viewed = readViewed();
-    const already = viewed.includes(postId);
-    let next = viewed;
-    if (!already) {
-      next = [...viewed, postId];
-      writeViewed(next);
-    }
-
-    if (isPremium) {
-      setLocked(true);
-    } else {
-      const count = already ? viewed.length : next.length;
-      setLocked(count > freeArticleLimit);
-    }
-    setReady(true);
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [bypass, enabled, freeArticleLimit, isPremium, postId]);
 
   const overlay = useMemo(() => {

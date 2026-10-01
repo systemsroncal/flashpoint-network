@@ -17,7 +17,7 @@ export default function PatriotSidebarPromo({ className = "" }: Props) {
           srcSet="/brand/ads/patriot-sidebar-square.webp"
           type="image/webp"
         />
-        {/* eslint-disable-next-line @next/next/no-img-element -- picture/webp fallback pair */}
+        { }
         <img
           src="/brand/ads/patriot-sidebar-square.png"
           alt="Are You a Patriot? Join FP Army Chapters"

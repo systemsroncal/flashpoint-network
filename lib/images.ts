@@ -43,7 +43,7 @@ export async function optimizeImage(
 }
 
 /** @deprecated Use optimizeImage — kept for older imports. */
-export async function optimizeImageStub(_buffer: Buffer) {
+export async function optimizeImageStub() {
   return {
     ok: false as const,
     message: "Use optimizeImage() instead.",

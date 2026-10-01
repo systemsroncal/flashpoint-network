@@ -27,7 +27,7 @@ export default function FullStorySubscribeBanner({
               srcSet="/brand/banners/fpn-full-story-couple.webp"
               type="image/webp"
             />
-            {/* eslint-disable-next-line @next/next/no-img-element -- picture/webp fallback pair */}
+            { }
             <img
               src="/brand/banners/fpn-full-story-couple.png"
               alt="FlashPoint Television Network hosts"

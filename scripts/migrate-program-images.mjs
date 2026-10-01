@@ -6,7 +6,7 @@
  * Usage: node scripts/migrate-program-images.mjs
  */
 import { createClient } from "@supabase/supabase-js";
-import { createHash, randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";

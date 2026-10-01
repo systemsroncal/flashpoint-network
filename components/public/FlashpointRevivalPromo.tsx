@@ -23,7 +23,7 @@ export default function FlashpointRevivalPromo({ className = "" }: Props) {
           srcSet="/brand/ads/flashpoint-revival-promo.webp"
           type="image/webp"
         />
-        {/* eslint-disable-next-line @next/next/no-img-element -- picture/webp fallback pair */}
+        { }
         <img
           src="/brand/ads/flashpoint-revival-promo.png"
           alt="Special offer — Flashpoint of Revival by Gene Bailey"

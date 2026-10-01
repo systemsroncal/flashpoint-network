@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 export default function NewsletterSignup({
@@ -8,6 +9,7 @@ export default function NewsletterSignup({
 }: {
   className?: string;
 }) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "error">("idle");
 
@@ -22,7 +24,7 @@ export default function NewsletterSignup({
       email: trimmed,
       next: "/news",
     });
-    window.location.href = `/register?${params.toString()}`;
+    router.push(`/register?${params.toString()}`);
   };
 
   return (

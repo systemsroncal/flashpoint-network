@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { type MouseEvent, useEffect, useState } from "react";
+import { type MouseEvent, useEffect, useState, useSyncExternalStore } from "react";
 import BrightcoveLivePlayer from "@/components/public/BrightcoveLivePlayer";
 import { LIVE_HEADLINE } from "@/components/public/LiveHeroCopy";
 import LiveTvIcon from "@/components/public/LiveTvIcon";
@@ -16,33 +16,26 @@ import {
 const SCROLL_SHOW_PX = 160;
 
 function isLiveHeroPath(pathname: string | null): boolean {
-  return (
-    pathname === "/" || pathname === "/live"
-  );
+  return pathname === "/" || pathname === "/live";
 }
 
-/**
- * Sitewide floating live mini-player (desktop + mobile).
- * - On `/` and `/live`: shows when the main live hero scrolls out of view.
- * - Elsewhere: shows after a short scroll, unless the user closed it.
- * - Always muted, no player chrome; close hides it until the next pass.
- */
-export default function GlobalLivePip() {
-  const pathname = usePathname();
+function subscribeLivePipDismiss() {
+  return () => {};
+}
+
+function GlobalLivePipInner({ pathname }: { pathname: string | null }) {
   const heroPage = isLiveHeroPath(pathname);
+  const storageDismissed = useSyncExternalStore(
+    subscribeLivePipDismiss,
+    isLivePipDismissed,
+    () => false,
+  );
+  const [sessionDismissed, setSessionDismissed] = useState(false);
+  const dismissed = storageDismissed || sessionDismissed;
   const [heroInView, setHeroInView] = useState(heroPage);
   const [scrolled, setScrolled] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
   /** Closed while the hero is already off-screen; resets when hero re-enters. */
   const [closedThisPass, setClosedThisPass] = useState(false);
-
-  useEffect(() => {
-    setDismissed(isLivePipDismissed());
-    setClosedThisPass(false);
-    if (heroPage) {
-      setHeroInView(true);
-    }
-  }, [pathname, heroPage]);
 
   useEffect(() => {
     if (!heroPage) return;
@@ -91,9 +84,9 @@ export default function GlobalLivePip() {
 
   useEffect(() => {
     if (!heroPage || heroInView || closedThisPass) return;
-    // Scroll past live hero on home /live → show again sitewide.
     clearLivePipDismiss();
-    setDismissed(false);
+    const id = window.setTimeout(() => setSessionDismissed(false), 0);
+    return () => window.clearTimeout(id);
   }, [heroPage, heroInView, closedThisPass]);
 
   const pipVisible = heroPage
@@ -104,7 +97,7 @@ export default function GlobalLivePip() {
     e.preventDefault();
     e.stopPropagation();
     dismissLivePip();
-    setDismissed(true);
+    setSessionDismissed(true);
     setClosedThisPass(true);
   };
 
@@ -145,4 +138,15 @@ export default function GlobalLivePip() {
       </Link>
     </div>
   );
+}
+
+/**
+ * Sitewide floating live mini-player (desktop + mobile).
+ * - On `/` and `/live`: shows when the main live hero scrolls out of view.
+ * - Elsewhere: shows after a short scroll, unless the user closed it.
+ * - Always muted, no player chrome; close hides it until the next pass.
+ */
+export default function GlobalLivePip() {
+  const pathname = usePathname();
+  return <GlobalLivePipInner key={pathname ?? ""} pathname={pathname} />;
 }

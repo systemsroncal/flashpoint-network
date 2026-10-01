@@ -1,4 +1,3 @@
-import Link from "next/link";
 import HeaderSearch from "@/components/public/HeaderSearch";
 import HeaderUserMenu, {
   type HeaderUser,

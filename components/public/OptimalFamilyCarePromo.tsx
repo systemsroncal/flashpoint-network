@@ -17,7 +17,7 @@ export default function OptimalFamilyCarePromo({ className = "" }: Props) {
           srcSet="/brand/ads/optimal-family-care-banner.webp"
           type="image/webp"
         />
-        {/* eslint-disable-next-line @next/next/no-img-element -- picture/webp fallback pair */}
+        { }
         <img
           src="/brand/ads/optimal-family-care-banner.png"
           alt="Optimal Family Care — book an appointment"

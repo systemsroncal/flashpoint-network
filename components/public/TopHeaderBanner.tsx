@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import type { TopHeaderBannerSettings } from "@/lib/top-banner/constants";
 import {
   dismissTopHeaderBannerFor24Hours,
@@ -13,6 +13,10 @@ type Props = {
 
 const IMG_CLASS =
   "block h-auto w-full max-h-none object-contain object-center";
+
+function subscribeTopBannerDismiss() {
+  return () => {};
+}
 
 function BannerPicture({
   desktop,
@@ -27,7 +31,6 @@ function BannerPicture({
     <picture className="block w-full">
       {mobile ? <source media="(max-width: 767px)" srcSet={mobile} /> : null}
       {desktop ? <source media="(min-width: 768px)" srcSet={desktop} /> : null}
-      {/* eslint-disable-next-line @next/next/no-img-element -- responsive promo pair */}
       <img src={imgSrc} alt="" className={IMG_CLASS} />
     </picture>
   );
@@ -85,15 +88,17 @@ function BannerShell({
 }
 
 export default function TopHeaderBanner({ settings }: Props) {
-  const [hidden, setHidden] = useState(true);
-
-  useEffect(() => {
-    setHidden(isTopHeaderBannerDismissed());
-  }, []);
+  const storageDismissed = useSyncExternalStore(
+    subscribeTopBannerDismiss,
+    isTopHeaderBannerDismissed,
+    () => true,
+  );
+  const [closedSession, setClosedSession] = useState(false);
+  const hidden = storageDismissed || closedSession;
 
   const close = useCallback(() => {
     dismissTopHeaderBannerFor24Hours();
-    setHidden(true);
+    setClosedSession(true);
   }, []);
 
   if (hidden) return null;

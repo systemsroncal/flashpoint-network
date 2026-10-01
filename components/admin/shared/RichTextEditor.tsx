@@ -100,8 +100,10 @@ export default function RichTextEditor({
     const current = editor.getHTML();
     if (next && next !== current) {
       editor.commands.setContent(next, { emitUpdate: false });
-      setHtml(next);
-      onHtmlChange?.(next);
+      window.setTimeout(() => {
+        setHtml(next);
+        onHtmlChange?.(next);
+      }, 0);
     }
     // intentionally omit onHtmlChange — parent may pass unstable callbacks
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -111,8 +113,10 @@ export default function RichTextEditor({
     if (!editor || forceToken == null || forceToken <= 0) return;
     const next = toEditorHtml(forceHtml) || "<p></p>";
     editor.commands.setContent(next, { emitUpdate: true });
-    setHtml(next);
-    onHtmlChange?.(next);
+    window.setTimeout(() => {
+      setHtml(next);
+      onHtmlChange?.(next);
+    }, 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, forceToken]);
 

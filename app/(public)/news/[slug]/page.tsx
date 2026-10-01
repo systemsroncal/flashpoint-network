@@ -118,6 +118,7 @@ export default async function NewsArticlePage({ params }: Props) {
         banners={banners}
         comments={comments}
         isLoggedIn={Boolean(profile)}
+        commentViewerProfile={profile}
         canEditInAdmin={Boolean(profile && isStaffRole(profile.role))}
       />
     </>

@@ -159,7 +159,10 @@ export default function MediaGrid() {
   }, [searchInput]);
 
   useEffect(() => {
-    void fetchPage(0, false);
+    const id = window.setTimeout(() => {
+      void fetchPage(0, false);
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [fetchPage]);
 
   const groupedSections = useMemo(() => {

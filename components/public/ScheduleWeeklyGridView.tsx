@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import type { ScheduleEntry, SchedulePdf } from "@/lib/types/cms";
+import type { ScheduleEntry } from "@/lib/types/cms";
 import { scheduleEntryDisplayColor } from "@/lib/schedule/display-color";
 
 const MONTH_NAMES = [

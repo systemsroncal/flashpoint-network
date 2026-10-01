@@ -105,7 +105,7 @@ export default function NewsCardPreview({
         }}
       >
         {featuredImageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
+           
           <Box
             component="img"
             src={featuredImageUrl}

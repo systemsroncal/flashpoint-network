@@ -13,6 +13,36 @@ function asDate(value: string | Date | null | undefined): Date | null {
   return date;
 }
 
+/** Short relative time for comments — falls back to calendar date after ~7 days. */
+export function formatCommentTime(
+  value: string | null | undefined,
+  timeZone: string = DEFAULT_SITE_TIMEZONE,
+): string {
+  const date = asDate(value);
+  if (!date) return "";
+  const now = Date.now();
+  const diffSec = Math.round((date.getTime() - now) / 1000);
+  const abs = Math.abs(diffSec);
+  try {
+    if (abs < 60) return "Just now";
+    if (abs < 3600) {
+      const m = Math.round(diffSec / 60);
+      return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(m, "minute");
+    }
+    if (abs < 86400) {
+      const h = Math.round(diffSec / 3600);
+      return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(h, "hour");
+    }
+    if (abs < 604800) {
+      const d = Math.round(diffSec / 86400);
+      return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(d, "day");
+    }
+  } catch {
+    // ignore
+  }
+  return formatDate(value, timeZone);
+}
+
 export function formatDate(
   value: string | null | undefined,
   timeZone: string = DEFAULT_SITE_TIMEZONE,

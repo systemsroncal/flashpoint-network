@@ -31,6 +31,13 @@ type Props = {
   banners?: Partial<Record<BannerSlot, BannerWidgetRow>>;
   comments: PostComment[];
   isLoggedIn: boolean;
+  commentViewerProfile?: {
+    full_name?: string | null;
+    first_name?: string | null;
+    last_name?: string | null;
+    email?: string | null;
+    avatar_url?: string | null;
+  } | null;
   canEditInAdmin?: boolean;
 };
 
@@ -46,6 +53,7 @@ export default async function NewsArticleView({
   banners = {},
   comments,
   isLoggedIn,
+  commentViewerProfile = null,
   canEditInAdmin = false,
 }: Props) {
   const [timeZone, identity] = await Promise.all([
@@ -271,6 +279,7 @@ export default async function NewsArticleView({
             initialComments={comments}
             isLoggedIn={isLoggedIn}
             timeZone={timeZone}
+            viewerProfile={commentViewerProfile}
           />
         </div>
         </div>
