@@ -41,7 +41,7 @@ export default async function FptnNewsPage() {
           path: "/news",
         })}
       />
-      <HomeView data={data} banners={banners} />
+      <HomeView data={data} banners={banners} showCategorySpotlight />
     </>
   );
 }

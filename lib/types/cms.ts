@@ -221,4 +221,12 @@ export type HomePayload = {
   elections: Post[];
   exclusives: Post[];
   popular: Post[];
+  /** Latest published story per category (US, Elections, Business, Tech & AI). */
+  categorySpotlight: CategorySpotlightItem[];
+};
+
+export type CategorySpotlightItem = {
+  slug: string;
+  name: string;
+  post: Post | null;
 };

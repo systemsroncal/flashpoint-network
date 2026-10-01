@@ -37,12 +37,15 @@ export default async function HomeView({
   banners = {},
   carouselShows = [],
   showNetworkExtras = false,
+  showCategorySpotlight = false,
 }: {
   data: HomePayload;
   banners?: Partial<Record<BannerSlot, BannerWidgetRow>>;
   carouselShows?: MinistryProgram[];
   /** Network landing extras (shows carousel + marketing blocks). Used by /home2. */
   showNetworkExtras?: boolean;
+  /** /news — latest story each for U.S., Elections, Business, Tech & AI. */
+  showCategorySpotlight?: boolean;
 }) {
   const [timeZone, identity] = await Promise.all([
     getSiteTimezone(),
@@ -307,6 +310,27 @@ export default async function HomeView({
 
       {/* Starlink ad — Figma 27:10588, full-bleed */}
       <StarlinkHomeBanner />
+
+      {showCategorySpotlight &&
+      data.categorySpotlight.some((item) => item.post) ? (
+        <section className="mx-auto max-w-[1654px] px-4 py-10 md:px-8 lg:px-10 lg:py-12">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+            {data.categorySpotlight.map((item) =>
+              item.post ? (
+                <div key={item.slug} className="min-w-0">
+                  <div className="mb-3 flex items-end justify-between gap-2">
+                    <h2 className="font-article text-xl font-black tracking-tight md:text-2xl">
+                      {categoryDisplayName(item.name, item.slug)}
+                    </h2>
+                    <SeeMore href={`/category/${item.slug}`} />
+                  </div>
+                  <PostCard post={item.post} timeZone={timeZone} />
+                </div>
+              ) : null,
+            )}
+          </div>
+        </section>
+      ) : null}
 
       {/* Exclusive Content + Popular — Figma 34:12523 */}
       <section className="bg-[#F5F5F5]">

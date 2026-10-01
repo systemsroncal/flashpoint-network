@@ -71,6 +71,18 @@ export default function HeaderUserMenu({
             <p className="text-sm font-bold leading-snug">{user.displayName}</p>
             <p className="mt-0.5 truncate text-xs text-black/55">{user.email}</p>
           </div>
+          {user.isStaff ? (
+            <div className="px-2 py-1">
+              <Link
+                href="/admin"
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                className="block w-full rounded-md px-2 py-2.5 text-left text-sm font-semibold text-black hover:bg-black/5"
+              >
+                Dashboard
+              </Link>
+            </div>
+          ) : null}
           <form action={signOutAction} className="border-t border-black/8 px-2 pt-1">
             <button
               type="submit"

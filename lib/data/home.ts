@@ -2,7 +2,13 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { pickNextUpcomingEvent } from "@/lib/events/upcoming";
 import { getDescendantCategoryIds } from "@/lib/categories/hierarchy";
-import type { Category, EventItem, HomePayload, Post } from "@/lib/types/cms";
+import type {
+  Category,
+  CategorySpotlightItem,
+  EventItem,
+  HomePayload,
+  Post,
+} from "@/lib/types/cms";
 
 const POST_SELECT = `
   id, title, slug, excerpt, body, status, category_id, author_id,
@@ -15,10 +21,45 @@ const POST_SELECT = `
   author:profiles ( id, email, full_name, first_name, last_name, role, avatar_url )
 `;
 
+const US_ID = "b1000000-0000-4000-8000-000000000001";
 const POLITICS_ID = "b1000000-0000-4000-8000-000000000002";
 const WORLD_ID = "b1000000-0000-4000-8000-000000000003";
 const OPINION_ID = "b1000000-0000-4000-8000-000000000004";
+const BUSINESS_ID = "b1000000-0000-4000-8000-000000000005";
+const TECH_AI_ID = "b1000000-0000-4000-8000-000000000009";
 const ELECTIONS_ID = "b1000000-0000-4000-8000-00000000000a";
+
+const CATEGORY_SPOTLIGHT_DEFS: { id: string; slug: string; name: string }[] = [
+  { id: US_ID, slug: "us", name: "U.S." },
+  { id: ELECTIONS_ID, slug: "elections", name: "Elections" },
+  { id: BUSINESS_ID, slug: "business", name: "Business" },
+  { id: TECH_AI_ID, slug: "tech-ai", name: "Tech & AI" },
+];
+
+async function fetchCategorySpotlight(
+  supabase: DbClient,
+): Promise<CategorySpotlightItem[]> {
+  const rows = await Promise.all(
+    CATEGORY_SPOTLIGHT_DEFS.map((cat) =>
+      supabase
+        .from("posts")
+        .select(POST_SELECT)
+        .eq("status", "published")
+        .eq("category_id", cat.id)
+        .eq("is_podcast", false)
+        .eq("is_video", false)
+        .order("published_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ),
+  );
+
+  return CATEGORY_SPOTLIGHT_DEFS.map((cat, index) => {
+    const row = rows[index].data;
+    const post = row ? asPosts([row])[0] ?? null : null;
+    return { slug: cat.slug, name: cat.name, post };
+  });
+}
 
 /** Home / feed rail “Beyond the Broadcast”. Accepts old slug while the tag is renamed. */
 export const BROADCAST_TAG_SLUGS = ["broadcast", "podcast"] as const;
@@ -131,6 +172,11 @@ export async function getHomePayload(): Promise<HomePayload> {
     elections: [],
     exclusives: [],
     popular: [],
+    categorySpotlight: CATEGORY_SPOTLIGHT_DEFS.map((c) => ({
+      slug: c.slug,
+      name: c.name,
+      post: null,
+    })),
   };
 
   const supabase = await db();
@@ -150,6 +196,7 @@ export async function getHomePayload(): Promise<HomePayload> {
     politicsRes,
     worldRes,
     opinionRes,
+    categorySpotlight,
   ] = await Promise.all([
     supabase
       .from("categories")
@@ -240,6 +287,7 @@ export async function getHomePayload(): Promise<HomePayload> {
       .eq("is_video", false)
       .order("published_at", { ascending: false })
       .limit(8),
+    fetchCategorySpotlight(supabase),
   ]);
 
   const latestPool = asPosts(latestPoolRes.data);
@@ -307,6 +355,7 @@ export async function getHomePayload(): Promise<HomePayload> {
     elections: asPosts(electionsRes.data),
     exclusives: asPosts(exclusivesRes.data),
     popular: asPosts(popularRes.data),
+    categorySpotlight,
   };
 }
 
