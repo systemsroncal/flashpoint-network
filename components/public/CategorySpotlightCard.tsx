@@ -5,21 +5,10 @@ import type { Post } from "@/lib/types/cms";
 import { cardFeaturedImageUrl } from "@/lib/posts/media-layout";
 import { getSiteIdentity } from "@/lib/site-identity/settings";
 
-function authorByline(post: Post): string | null {
-  const a = post.author;
-  if (!a) return null;
-  const name =
-    a.full_name?.trim() ||
-    [a.first_name, a.last_name].filter(Boolean).join(" ").trim();
-  if (!name) return null;
-  return `BY ${name.toUpperCase()}`;
-}
-
 export default async function CategorySpotlightCard({ post }: { post: Post }) {
   const { defaultFeaturedImageUrl } = await getSiteIdentity();
   const href = `/news/${post.slug}`;
   const featured = cardFeaturedImageUrl(post, defaultFeaturedImageUrl);
-  const byline = authorByline(post);
   const categoryLabel = categoryDisplayName(
     post.category?.name ?? "News",
     post.category?.slug,
@@ -53,11 +42,6 @@ export default async function CategorySpotlightCard({ post }: { post: Post }) {
         {post.excerpt ? (
           <p className="mt-2 line-clamp-3 text-[14px] leading-relaxed text-black/60 md:text-[15px]">
             {post.excerpt}
-          </p>
-        ) : null}
-        {byline ? (
-          <p className="mt-auto pt-4 text-[10px] font-medium uppercase tracking-[0.12em] text-black/45 md:text-[11px]">
-            {byline}
           </p>
         ) : null}
       </div>
