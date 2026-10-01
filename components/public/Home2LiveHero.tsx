@@ -33,8 +33,8 @@ export default function Home2LiveHero() {
           />
         </div>
 
-        <div className="mt-6 w-full max-w-[1125px]">
-          <LiveStreamShareButton sharePath="/live" fullWidth />
+        <div className="mt-6 flex w-full max-w-[1125px] justify-center">
+          <LiveStreamShareButton sharePath="/live" />
         </div>
 
         <Home2HeroLogos className="mt-8 w-full md:mt-10" />

@@ -11,7 +11,6 @@ type Props = {
   /** Path or absolute URL to share. Defaults to /live. */
   sharePath?: string;
   className?: string;
-  fullWidth?: boolean;
 };
 
 function resolveShareUrl(sharePath: string): string {
@@ -25,7 +24,6 @@ function resolveShareUrl(sharePath: string): string {
 export default function LiveStreamShareButton({
   sharePath = "/live",
   className = "",
-  fullWidth = false,
 }: Props) {
   const [copied, setCopied] = useState(false);
 
@@ -59,7 +57,7 @@ export default function LiveStreamShareButton({
     <button
       type="button"
       onClick={() => void onShare()}
-      className={`fpn-live-cta fpn-live-cta--hero ${fullWidth ? "fpn-live-cta--full" : ""} ${className}`.trim()}
+      className={`fpn-live-cta fpn-live-cta--hero w-auto max-w-none shrink-0 ${className}`.trim()}
       aria-label={copied ? "Link copied" : "Share live stream"}
     >
       <Image

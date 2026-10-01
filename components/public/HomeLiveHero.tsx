@@ -24,8 +24,8 @@ export default function HomeLiveHero() {
               className="h-full w-full rounded-[15px]"
             />
           </div>
-          <div className="mt-4 w-full">
-            <LiveStreamShareButton sharePath="/live" fullWidth />
+          <div className="mt-4 flex w-full justify-start">
+            <LiveStreamShareButton sharePath="/live" />
           </div>
         </div>
 

@@ -434,11 +434,6 @@ button.fpn-live-cta {
   padding: 8px 14px;
 }
 
-.fpn-live-cta--full {
-  width: 100%;
-  justify-content: center;
-}
-
 .fpn-live-pip-wrap {
   position: fixed;
   z-index: 60;

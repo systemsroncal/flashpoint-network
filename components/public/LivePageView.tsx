@@ -59,8 +59,8 @@ export default function LivePageView() {
                 className="h-full w-full rounded-[24px]"
               />
             </div>
-            <div className="mt-5 w-full md:mt-6">
-              <LiveStreamShareButton sharePath="/live" fullWidth />
+            <div className="mt-5 flex w-full justify-center md:mt-6">
+              <LiveStreamShareButton sharePath="/live" />
             </div>
           </div>
         </div>
