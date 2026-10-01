@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 import {
+  Alert,
   Button,
   Chip,
   MenuItem,
@@ -15,6 +18,7 @@ import {
   Typography,
 } from "@mui/material";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
+import { adminFormStackSx, adminSelectFieldSx } from "@/components/admin/shared/adminFormStyles";
 import {
   saveScheduleDisplayModeAction,
   saveScheduleLayoutTemplateAction,
@@ -31,6 +35,21 @@ const MODES: { value: ScheduleDisplayMode; label: string }[] = [
   { value: "dynamic", label: "Dynamic grid only" },
   { value: "pdf", label: "PDF only" },
   { value: "both", label: "Both dynamic + PDF" },
+];
+
+const MONTH_LABELS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 const TEMPLATES: {
@@ -57,6 +76,9 @@ export default function ScheduleProgramsAdmin({
   displayMode,
   layoutTemplate,
   pdf,
+  importDefaultYear,
+  importDefaultMonth,
+  currentCalendarYear,
 }: {
   year: number;
   month: number;
@@ -64,7 +86,62 @@ export default function ScheduleProgramsAdmin({
   displayMode: ScheduleDisplayMode;
   layoutTemplate: ScheduleLayoutTemplate;
   pdf: SchedulePdf | null;
+  importDefaultYear: number;
+  importDefaultMonth: number;
+  currentCalendarYear: number;
 }) {
+  const router = useRouter();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [importYear, setImportYear] = useState(
+    importDefaultYear === currentCalendarYear
+      ? currentCalendarYear
+      : importDefaultYear,
+  );
+  const [importMonth, setImportMonth] = useState(importDefaultMonth);
+  const [importBusy, setImportBusy] = useState(false);
+  const [importMessage, setImportMessage] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+
+  const yearOptions = Array.from({ length: 5 }, (_, i) => currentCalendarYear - 1 + i);
+
+  const onImportFile = async (file: File) => {
+    setImportBusy(true);
+    setImportMessage(null);
+    setImportError(null);
+    try {
+      const body = new FormData();
+      body.set("file", file);
+      body.set("year", String(importYear));
+      body.set("month", String(importMonth));
+      const res = await fetch("/api/admin/schedule-programs/import", {
+        method: "POST",
+        body,
+      });
+      const json = (await res.json()) as {
+        ok?: boolean;
+        inserted?: number;
+        error?: string;
+        year?: number;
+        month?: number;
+      };
+      if (!res.ok || json.error) {
+        throw new Error(json.error || "Import failed.");
+      }
+      setImportMessage(
+        `Imported ${json.inserted ?? 0} entries for ${json.year}-${String(json.month).padStart(2, "0")}.`,
+      );
+      router.push(
+        `/admin/schedule-programs?year=${json.year}&month=${json.month}`,
+      );
+      router.refresh();
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : "Import failed.");
+    } finally {
+      setImportBusy(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
   const prev =
     month === 1
       ? { year: year - 1, month: 12 }
@@ -77,6 +154,77 @@ export default function ScheduleProgramsAdmin({
   return (
     <Stack spacing={3}>
       <DashboardCard
+        title="Import from Excel"
+        subtitle="Weekly Sun–Sat grid (30-minute rows). Replaces all entries for the selected month."
+      >
+        <Stack spacing={2} sx={adminFormStackSx}>
+          <Typography variant="body2" color="text.secondary">
+            Default month is the next one after the latest uploaded schedule
+            (e.g. after September → October). Use the same layout as the
+            broadcast workbook: row 1 = days, column A = times.
+          </Typography>
+          {importMessage ? (
+            <Alert severity="success">{importMessage}</Alert>
+          ) : null}
+          {importError ? <Alert severity="error">{importError}</Alert> : null}
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={2}
+            sx={adminFormStackSx}
+          >
+            <TextField
+              select
+              label="Year"
+              value={importYear}
+              onChange={(e) => setImportYear(Number(e.target.value))}
+              fullWidth
+              sx={adminSelectFieldSx}
+            >
+              {yearOptions.map((y) => (
+                <MenuItem key={y} value={y}>
+                  {y}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select
+              label="Month"
+              value={importMonth}
+              onChange={(e) => setImportMonth(Number(e.target.value))}
+              fullWidth
+              sx={adminSelectFieldSx}
+            >
+              {MONTH_LABELS.map((label, idx) => (
+                <MenuItem key={label} value={idx + 1}>
+                  {label}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Stack>
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+            <Button
+              variant="contained"
+              disabled={importBusy}
+              onClick={() => fileRef.current?.click()}
+              sx={{ alignSelf: { sm: "flex-start" } }}
+            >
+              {importBusy ? "Importing…" : "Choose Excel & import"}
+            </Button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              hidden
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) void onImportFile(file);
+              }}
+            />
+          </Stack>
+        </Stack>
+      </DashboardCard>
+
+      <DashboardCard
         title="Display mode"
         subtitle="Controls /schedule-programs public presentation"
       >
@@ -86,13 +234,15 @@ export default function ScheduleProgramsAdmin({
           direction={{ xs: "column", sm: "row" }}
           spacing={2}
           alignItems={{ sm: "center" }}
+          sx={adminFormStackSx}
         >
           <TextField
             select
             name="display_mode"
             label="Mode"
             defaultValue={displayMode}
-            sx={{ minWidth: 240 }}
+            fullWidth
+            sx={adminSelectFieldSx}
           >
             {MODES.map((m) => (
               <MenuItem key={m.value} value={m.value}>
@@ -122,13 +272,15 @@ export default function ScheduleProgramsAdmin({
           component="form"
           action={saveScheduleLayoutTemplateAction}
           spacing={2}
+          sx={adminFormStackSx}
         >
           <TextField
             select
             name="layout_template"
             label="Template"
             defaultValue={layoutTemplate}
-            sx={{ minWidth: 280, maxWidth: 480 }}
+            fullWidth
+            sx={{ maxWidth: { md: 480 } }}
           >
             {TEMPLATES.map((t) => (
               <MenuItem key={t.value} value={t.value}>
@@ -151,6 +303,7 @@ export default function ScheduleProgramsAdmin({
           component="form"
           action={saveSchedulePdfAction}
           spacing={2}
+          sx={adminFormStackSx}
         >
           <input type="hidden" name="year" value={year} />
           <input type="hidden" name="month" value={month} />
@@ -262,9 +415,8 @@ export default function ScheduleProgramsAdmin({
               <TableRow>
                 <TableCell colSpan={5}>
                   <Typography color="textSecondary" sx={{ py: 2 }}>
-                    No entries. Run{" "}
-                    <code>node scripts/seed-schedule-programs.mjs</code> or
-                    create one.
+                    No entries. Use Import from Excel above or create one
+                    manually.
                   </Typography>
                 </TableCell>
               </TableRow>

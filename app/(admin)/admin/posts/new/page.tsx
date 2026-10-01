@@ -11,7 +11,7 @@ export default async function NewPostPage() {
     getAdminTags(),
   ]);
   return (
-    <PageContainer title="New news" description="Create a publication">
+    <PageContainer title="Create News" description="Create a publication">
       <PostForm
         categories={categories}
         tags={tags}

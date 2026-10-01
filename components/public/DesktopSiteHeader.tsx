@@ -27,7 +27,7 @@ type PrimaryLink = {
   match: (path: string) => boolean;
 };
 
-const NEWS_CATEGORY_BAR_EXCLUDE = new Set(["elections", "video"]);
+const NEWS_CATEGORY_BAR_EXCLUDE = new Set(["video"]);
 
 function categoryLabel(name: string, slug: string): string {
   if (slug === "elections") return "Elections 2026";

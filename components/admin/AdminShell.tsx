@@ -22,6 +22,9 @@ const PageWrapper = styled("div")(() => ({
   flexDirection: "column",
   zIndex: 1,
   backgroundColor: "transparent",
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowX: "hidden",
 }));
 
 export default function AdminShell({
@@ -66,10 +69,14 @@ export default function AdminShell({
         />
         <Container
           maxWidth={false}
+          disableGutters={false}
           sx={{
             paddingTop: "20px",
-            px: { xs: 1.5, sm: 2, md: 3 },
+            px: { xs: 1, sm: 2, md: 3 },
             maxWidth: isPostEditor ? "min(1440px, 100%)" : "1200px",
+            width: "100%",
+            minWidth: 0,
+            overflowX: "hidden",
           }}
         >
           <Box sx={{ minHeight: "calc(100vh - 170px)" }}>{children}</Box>

@@ -9,11 +9,11 @@ import DesktopSiteHeader, {
 import NewsSectionMobileCategoryBar from "@/components/public/NewsSectionMobileCategoryBar";
 import MobileNav from "@/components/public/MobileNav";
 import SiteHeaderMobileLogo from "@/components/public/SiteHeaderMobileLogo";
+import { getChildCategories } from "@/lib/categories/hierarchy";
 import {
-  flattenCategoriesHierarchy,
-  getChildCategories,
-  getRootCategories,
-} from "@/lib/categories/hierarchy";
+  flattenCategoriesForNewsNav,
+  orderRootCategoriesForNewsNav,
+} from "@/lib/categories/news-nav-order";
 import { getNavCategories } from "@/lib/data/home";
 import { getSiteIdentity } from "@/lib/site-identity/settings";
 import { DEFAULT_FOOTER_MARK_URL } from "@/lib/site-identity/constants";
@@ -59,7 +59,7 @@ export default async function SiteHeader({
   const fromDb = categories.filter((c) => c.slug !== "video");
   const navRoots =
     fromDb.length > 0
-      ? getRootCategories(fromDb).map((c) => ({
+      ? orderRootCategoriesForNewsNav(fromDb).map((c) => ({
           id: c.id,
           name: c.name,
           slug: c.slug,
@@ -71,7 +71,7 @@ export default async function SiteHeader({
         }));
   const navAll =
     fromDb.length > 0
-      ? flattenCategoriesHierarchy(fromDb).map((c) => ({
+      ? flattenCategoriesForNewsNav(fromDb).map((c) => ({
           id: c.id,
           name: c.name,
           slug: c.slug,
@@ -81,7 +81,7 @@ export default async function SiteHeader({
 
   const desktopCategories: DesktopCategoryNav[] =
     fromDb.length > 0
-      ? getRootCategories(fromDb).map((root) => ({
+      ? orderRootCategoriesForNewsNav(fromDb).map((root) => ({
           id: root.id,
           name: root.name,
           slug: root.slug,

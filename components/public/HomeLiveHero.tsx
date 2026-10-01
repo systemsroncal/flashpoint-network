@@ -1,6 +1,7 @@
 "use client";
 
 import BrightcoveLivePlayer from "@/components/public/BrightcoveLivePlayer";
+import LiveStreamShareButton from "@/components/public/LiveStreamShareButton";
 import LiveHeroCopy, { LIVE_HEADLINE } from "@/components/public/LiveHeroCopy";
 
 export default function HomeLiveHero() {
@@ -23,9 +24,12 @@ export default function HomeLiveHero() {
               className="h-full w-full rounded-[15px]"
             />
           </div>
+          <div className="mt-4 w-full">
+            <LiveStreamShareButton sharePath="/live" fullWidth />
+          </div>
         </div>
 
-        <LiveHeroCopy href="/live" />
+        <LiveHeroCopy />
       </div>
     </section>
   );

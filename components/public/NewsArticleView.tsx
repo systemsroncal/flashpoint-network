@@ -70,11 +70,11 @@ export default async function NewsArticleView({
         <Link
           href={`/admin/posts/${post.id}`}
           aria-label="Edit this article in the admin"
-          className="fixed bottom-6 right-4 z-[70] inline-flex items-center gap-2 rounded-full border-2 border-white bg-[var(--fpn-rojo)] px-4 py-3 text-sm font-bold text-white shadow-[0_8px_28px_rgba(0,0,0,0.22)] transition hover:brightness-110 sm:bottom-auto sm:right-6 sm:top-[7.25rem] md:top-[7.75rem]"
+          className="fixed right-0 top-[4.5rem] z-[70] inline-flex items-center gap-1.5 rounded-none bg-black px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-white transition hover:bg-neutral-800 md:top-[5.25rem]"
         >
           <svg
-            width="16"
-            height="16"
+            width="14"
+            height="14"
             viewBox="0 0 24 24"
             fill="none"
             aria-hidden
@@ -93,7 +93,7 @@ export default async function NewsArticleView({
               strokeLinecap="round"
             />
           </svg>
-          Edit article
+          Edit
         </Link>
       ) : null}
       <div className="mx-auto grid max-w-[1440px] gap-10 px-4 pb-6 md:px-8 lg:grid-cols-[minmax(0,1fr)_370px] lg:gap-12 lg:px-10">

@@ -17,6 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
+import { adminFormStackSx, adminSelectFieldSx } from "@/components/admin/shared/adminFormStyles";
 import { saveMinistryProgramsSortAction } from "@/lib/admin/actions";
 import type {
   MinistryProgram,
@@ -125,13 +126,15 @@ export default function MinistryProgramsTable({
           direction={{ xs: "column", sm: "row" }}
           spacing={2}
           alignItems={{ sm: "center" }}
+          sx={adminFormStackSx}
         >
           <TextField
             select
             name="sort_mode"
             label="Sort mode"
             defaultValue={sortMode}
-            sx={{ minWidth: 240 }}
+            fullWidth
+            sx={adminSelectFieldSx}
           >
             {SORT_OPTIONS.map((opt) => (
               <MenuItem key={opt.value} value={opt.value}>
@@ -157,11 +160,19 @@ export default function MinistryProgramsTable({
         title="Network Programs"
         subtitle={`${programs.length} total`}
         action={
-          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={1}
+            flexWrap="wrap"
+            useFlexGap
+            sx={{ width: { xs: "100%", md: "auto" } }}
+          >
             <Button
               variant="outlined"
               disabled={busy !== null}
               onClick={() => void onExport()}
+              fullWidth
+              sx={{ width: { sm: "auto" } }}
             >
               {busy === "export" ? "Exporting…" : "Export Excel"}
             </Button>
@@ -169,6 +180,8 @@ export default function MinistryProgramsTable({
               variant="outlined"
               disabled={busy !== null}
               onClick={() => fileRef.current?.click()}
+              fullWidth
+              sx={{ width: { sm: "auto" } }}
             >
               {busy === "import" ? "Importing…" : "Import Excel"}
             </Button>
@@ -186,6 +199,8 @@ export default function MinistryProgramsTable({
               component={Link}
               href="/admin/network-programs/new"
               variant="contained"
+              fullWidth
+              sx={{ width: { sm: "auto" } }}
             >
               New program
             </Button>

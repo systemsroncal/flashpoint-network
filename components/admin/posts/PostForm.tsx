@@ -286,7 +286,7 @@ export default function PostForm({
 
   return (
     <DashboardCard
-      title={isEdit || postId ? "Edit news" : "New news"}
+      title={isEdit || postId ? "Edit news" : "Create News"}
       subtitle={
         isEdit || postId
           ? "Only fields you change are saved. Publish date, placement flags, and category stay put unless you edit them."
@@ -295,7 +295,7 @@ export default function PostForm({
       action={
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
           <Button component={Link} href="/admin/posts/new" variant="outlined">
-            Create New
+            Create News
           </Button>
           {status === "published" && slug ? (
             <Button

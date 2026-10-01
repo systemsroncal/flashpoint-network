@@ -114,7 +114,7 @@ export default function AdminDashboard({
             </Typography>
           </Box>
           <Button component={Link} href="/admin/posts/new" variant="contained">
-            New news
+            Create News
           </Button>
         </Stack>
 

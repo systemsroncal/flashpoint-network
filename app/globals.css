@@ -397,6 +397,7 @@ article h3 {
   font: inherit;
   font-weight: 700;
   letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .fpn-live-cta--ministry {
@@ -431,6 +432,11 @@ button.fpn-live-cta {
 
 .fpn-live-cta--sheet {
   padding: 8px 14px;
+}
+
+.fpn-live-cta--full {
+  width: 100%;
+  justify-content: center;
 }
 
 .fpn-live-pip-wrap {

@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isMissingRelationError } from "@/lib/admin/form-submissions-db";
 import type {
   Category,
   ClassicProgram,
@@ -104,8 +105,32 @@ export async function getAdminHelpCenterSubmissions(): Promise<
       "id, created_at, email, help_area, journalism_issue, subject, description, attachment_paths, read_at",
     )
     .order("created_at", { ascending: false });
-  if (error) throw error;
+  if (error) {
+    if (isMissingRelationError(error.message)) return [];
+    console.error("[admin] help_center_submissions list", error.message);
+    return [];
+  }
   return (data ?? []).map(normalizeHelpCenterRow);
+}
+
+export async function getAdminFormSubmissionsSchemaReady(): Promise<{
+  helpCenter: boolean;
+  advertise: boolean;
+}> {
+  const supabase = requireAdmin();
+  const [help, advertise] = await Promise.all([
+    supabase
+      .from("help_center_submissions")
+      .select("id", { head: true, count: "exact" }),
+    supabase
+      .from("advertise_inquiries")
+      .select("id", { head: true, count: "exact" }),
+  ]);
+  return {
+    helpCenter: !help.error || !isMissingRelationError(help.error.message),
+    advertise:
+      !advertise.error || !isMissingRelationError(advertise.error.message),
+  };
 }
 
 export async function getAdminSiteFormEntryCounts(): Promise<
@@ -120,9 +145,20 @@ export async function getAdminSiteFormEntryCounts(): Promise<
       .from("advertise_inquiries")
       .select("*", { count: "exact", head: true }),
   ]);
+  const helpCount =
+    help.error && isMissingRelationError(help.error.message)
+      ? 0
+      : (help.count ?? 0);
+  const advertiseCount =
+    advertise.error && isMissingRelationError(advertise.error.message)
+      ? 0
+      : advertise.error
+        ? 0
+        : (advertise.count ?? 0);
+
   return {
-    "help-center": help.count ?? 0,
-    advertise: advertise.error ? 0 : (advertise.count ?? 0),
+    "help-center": helpCount,
+    advertise: advertiseCount,
   };
 }
 
@@ -135,8 +171,9 @@ export async function getAdminAdvertiseInquiries(): Promise<AdvertiseInquiry[]> 
     )
     .order("created_at", { ascending: false });
   if (error) {
-    if (/advertise_inquiries/i.test(error.message)) return [];
-    throw error;
+    if (isMissingRelationError(error.message)) return [];
+    console.error("[admin] advertise_inquiries list", error.message);
+    return [];
   }
   return (data ?? []) as AdvertiseInquiry[];
 }
@@ -153,8 +190,9 @@ export async function getAdminAdvertiseInquiry(
     .eq("id", id)
     .maybeSingle();
   if (error) {
-    if (/advertise_inquiries/i.test(error.message)) return null;
-    throw error;
+    if (isMissingRelationError(error.message)) return null;
+    console.error("[admin] advertise_inquiries detail", error.message);
+    return null;
   }
   return (data as AdvertiseInquiry | null) ?? null;
 }
@@ -170,7 +208,11 @@ export async function getAdminHelpCenterSubmission(
     )
     .eq("id", id)
     .maybeSingle();
-  if (error) throw error;
+  if (error) {
+    if (isMissingRelationError(error.message)) return null;
+    console.error("[admin] help_center_submissions detail", error.message);
+    return null;
+  }
   if (!data) return null;
   return normalizeHelpCenterRow(data);
 }
@@ -559,6 +601,24 @@ export async function getMinistryProgramsSortMode(): Promise<MinistryProgramsSor
     return mode as MinistryProgramsSortMode;
   }
   return "manual";
+}
+
+export async function getAdminScheduleLatestUploadedMonth(): Promise<{
+  year: number;
+  month: number;
+} | null> {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("schedule_entries")
+    .select("air_date")
+    .order("air_date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data?.air_date) return null;
+  const [y, m] = String(data.air_date).split("-").map(Number);
+  if (!y || !m) return null;
+  return { year: y, month: m };
 }
 
 export async function getAdminScheduleEntries(

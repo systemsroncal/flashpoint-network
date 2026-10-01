@@ -19,6 +19,10 @@ import {
   Typography,
 } from "@mui/material";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
+import {
+  adminFilterRowSx,
+  adminSelectFieldSx,
+} from "@/components/admin/shared/adminFormStyles";
 import { categoryOptionLabel, flattenCategoriesHierarchy } from "@/lib/categories/hierarchy";
 import type { Category, Post, Tag } from "@/lib/types/cms";
 
@@ -123,17 +127,30 @@ export default function PostsTable({
       title="News"
       subtitle={`${rangeLabel} — edits update the public home immediately`}
       action={
-        <Stack direction="row" spacing={1}>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={1}
+          useFlexGap
+          sx={{ width: { xs: "100%", md: "auto" } }}
+        >
           <Button
             type="button"
             variant="outlined"
             onClick={showDraftsOnly}
             disabled={pending}
+            fullWidth
+            sx={{ width: { sm: "auto" } }}
           >
             Drafts &amp; scheduled
           </Button>
-          <Button component={Link} href="/admin/posts/new" variant="contained">
-            New news
+          <Button
+            component={Link}
+            href="/admin/posts/new"
+            variant="contained"
+            fullWidth
+            sx={{ width: { sm: "auto" } }}
+          >
+            Create News
           </Button>
         </Stack>
       }
@@ -151,6 +168,7 @@ export default function PostsTable({
           direction={{ xs: "column", md: "row" }}
           spacing={1.5}
           alignItems={{ md: "center" }}
+          sx={adminFilterRowSx}
         >
           <TextField
             size="small"
@@ -159,7 +177,7 @@ export default function PostsTable({
             value={q}
             onChange={(e) => setQ(e.target.value)}
             fullWidth
-            sx={{ flex: 2 }}
+            sx={{ flex: { md: 2 }, ...adminSelectFieldSx }}
           />
           <TextField
             select
@@ -167,7 +185,8 @@ export default function PostsTable({
             label="Category"
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            sx={{ minWidth: { md: 180 }, flex: 1 }}
+            fullWidth
+            sx={adminSelectFieldSx}
           >
             <MenuItem value="">All categories</MenuItem>
             {categoriesOrdered.map((c) => (
@@ -182,7 +201,8 @@ export default function PostsTable({
             label="Tag"
             value={tagId}
             onChange={(e) => setTagId(e.target.value)}
-            sx={{ minWidth: { md: 160 }, flex: 1 }}
+            fullWidth
+            sx={adminSelectFieldSx}
           >
             <MenuItem value="">All tags</MenuItem>
             {tags.map((t) => (
@@ -197,15 +217,26 @@ export default function PostsTable({
             label="Status"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            sx={{ minWidth: { md: 170 }, flex: 1 }}
+            fullWidth
+            sx={adminSelectFieldSx}
           >
             <MenuItem value="">All (drafts on top)</MenuItem>
             <MenuItem value="draft_scheduled">Draft &amp; scheduled</MenuItem>
             <MenuItem value="draft">Draft only</MenuItem>
             <MenuItem value="scheduled">Scheduled only</MenuItem>
           </TextField>
-          <Stack direction="row" spacing={1} flexShrink={0}>
-            <Button type="submit" variant="contained" disabled={pending}>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={1}
+            sx={{ width: { xs: "100%", md: "auto" }, flexShrink: 0 }}
+          >
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={pending}
+              fullWidth
+              sx={{ width: { sm: "auto" } }}
+            >
               {pending ? "Filtering…" : "Filter"}
             </Button>
             <Button
@@ -213,6 +244,8 @@ export default function PostsTable({
               variant="outlined"
               disabled={pending}
               onClick={clearFilters}
+              fullWidth
+              sx={{ width: { sm: "auto" } }}
             >
               Clear
             </Button>

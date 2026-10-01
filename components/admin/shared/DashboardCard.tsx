@@ -19,28 +19,58 @@ const DashboardCard = ({
   middlecontent,
 }: Props) => {
   return (
-    <Card sx={{ padding: 0 }} elevation={9} variant={undefined}>
-      <CardContent sx={{ p: "30px" }}>
+    <Card
+      sx={{ padding: 0, maxWidth: "100%", overflow: "hidden" }}
+      elevation={9}
+      variant={undefined}
+    >
+      <CardContent
+        sx={{
+          p: { xs: 2, md: 3 },
+          maxWidth: "100%",
+          overflow: "hidden",
+          "&:last-child": { pb: { xs: 2, md: 3 } },
+        }}
+      >
         {title ? (
           <Stack
-            direction="row"
+            direction={{ xs: "column", md: "row" }}
             spacing={2}
             justifyContent="space-between"
-            alignItems="center"
+            alignItems={{ xs: "stretch", md: "center" }}
             mb={3}
+            sx={{ maxWidth: "100%", minWidth: 0 }}
           >
-            <Box>
-              <Typography variant="h5">{title}</Typography>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="h5" sx={{ wordBreak: "break-word" }}>
+                {title}
+              </Typography>
               {subtitle ? (
                 <Typography variant="subtitle2" color="textSecondary">
                   {subtitle}
                 </Typography>
               ) : null}
             </Box>
-            {action}
+            {action ? (
+              <Box
+                sx={{
+                  flexShrink: 0,
+                  maxWidth: "100%",
+                  "& .MuiStack-root": { maxWidth: "100%" },
+                  "& .MuiButton-root": {
+                    maxWidth: "100%",
+                    whiteSpace: { xs: "normal", sm: "nowrap" },
+                  },
+                }}
+              >
+                {action}
+              </Box>
+            ) : null}
           </Stack>
         ) : null}
-        {children}
+        <Box sx={{ maxWidth: "100%", minWidth: 0, overflowX: "auto" }}>
+          {children}
+        </Box>
       </CardContent>
       {middlecontent}
       {footer}

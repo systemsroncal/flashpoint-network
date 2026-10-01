@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import BrightcoveLivePlayer from "@/components/public/BrightcoveLivePlayer";
-import LiveTvIcon from "@/components/public/LiveTvIcon";
+import LiveStreamShareButton from "@/components/public/LiveStreamShareButton";
 import Home2HeroLogos from "@/components/public/Home2HeroLogos";
 import { LIVE_HEADLINE } from "@/components/public/LiveHeroCopy";
 
@@ -34,12 +33,9 @@ export default function Home2LiveHero() {
           />
         </div>
 
-        <Link href="/live" className="mt-6 inline-flex md:mt-8">
-          <span className="fpn-live-cta fpn-live-cta--hero">
-            <LiveTvIcon />
-            WE ARE LIVE
-          </span>
-        </Link>
+        <div className="mt-6 w-full max-w-[1125px]">
+          <LiveStreamShareButton sharePath="/live" fullWidth />
+        </div>
 
         <Home2HeroLogos className="mt-8 w-full md:mt-10" />
       </div>

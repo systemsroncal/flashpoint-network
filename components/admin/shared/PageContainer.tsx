@@ -14,7 +14,7 @@ type Props = {
  */
 export default function PageContainer({ title, description, children }: Props) {
   return (
-    <Box>
+    <Box sx={{ maxWidth: "100%", minWidth: 0, overflowX: "hidden" }}>
       {title || description ? (
         <Box mb={2.5}>
           {title ? (
