@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { categoryDisplayName } from "@/lib/categories/display-name";
 import type { Post } from "@/lib/types/cms";
 import { cardFeaturedImageUrl } from "@/lib/posts/media-layout";
 import { getSiteIdentity } from "@/lib/site-identity/settings";
@@ -19,12 +20,16 @@ export default async function CategorySpotlightCard({ post }: { post: Post }) {
   const href = `/news/${post.slug}`;
   const featured = cardFeaturedImageUrl(post, defaultFeaturedImageUrl);
   const byline = authorByline(post);
+  const categoryLabel = categoryDisplayName(
+    post.category?.name ?? "News",
+    post.category?.slug,
+  );
 
   return (
-    <article className="flex h-full flex-col text-center">
+    <article className="flex h-full flex-col overflow-hidden rounded-md bg-[#e8e8e8] p-3 text-center shadow-none">
       <Link
         href={href}
-        className="relative mb-5 block aspect-[4/3] overflow-hidden rounded-sm bg-neutral-200"
+        className="relative block aspect-[4/3] shrink-0 overflow-hidden rounded-sm bg-neutral-300"
       >
         {featured ? (
           <Image
@@ -36,21 +41,26 @@ export default async function CategorySpotlightCard({ post }: { post: Post }) {
           />
         ) : null}
       </Link>
-      <h3 className="font-article text-[1.35rem] font-bold leading-[1.2] tracking-tight text-black md:text-[1.5rem]">
-        <Link href={href} className="hover:text-[var(--fpn-rojo)]">
-          {post.title}
-        </Link>
-      </h3>
-      {post.excerpt ? (
-        <p className="mt-3 text-[15px] leading-relaxed text-black/60 md:text-[16px]">
-          {post.excerpt}
+      <div className="flex flex-1 flex-col px-4 pb-5 pt-4 md:px-5 md:pb-6 md:pt-5">
+        <h3 className="font-article text-[1.25rem] font-bold leading-[1.2] tracking-tight text-black md:text-[1.35rem]">
+          <Link href={href} className="hover:text-[var(--fpn-rojo)]">
+            {post.title}
+          </Link>
+        </h3>
+        <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--fpn-rojo)] md:text-[11px]">
+          {categoryLabel}
         </p>
-      ) : null}
-      {byline ? (
-        <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.12em] text-black/45">
-          {byline}
-        </p>
-      ) : null}
+        {post.excerpt ? (
+          <p className="mt-2 line-clamp-3 text-[14px] leading-relaxed text-black/60 md:text-[15px]">
+            {post.excerpt}
+          </p>
+        ) : null}
+        {byline ? (
+          <p className="mt-auto pt-4 text-[10px] font-medium uppercase tracking-[0.12em] text-black/45 md:text-[11px]">
+            {byline}
+          </p>
+        ) : null}
+      </div>
     </article>
   );
 }

@@ -314,9 +314,9 @@ export default async function HomeView({
 
       {showCategorySpotlight &&
       data.categorySpotlight.some((item) => item.post) ? (
-        <section className="bg-[#f3f3f3]">
+        <section className="bg-white">
           <div className="mx-auto max-w-[1654px] px-4 py-10 md:px-8 lg:px-10 lg:py-14">
-            <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
               {data.categorySpotlight.map((item) =>
                 item.post ? (
                   <CategorySpotlightCard key={item.slug} post={item.post} />
