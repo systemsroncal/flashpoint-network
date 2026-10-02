@@ -120,9 +120,10 @@ export default function SeoPanel({
         SEO
       </Typography>
       <Typography variant="body2" color="text.secondary" mb={2}>
-        Meta fields and a live Google-style snippet. Leave blank to fall back to
-        the news title and excerpt on the public page. Social / Open Graph image
-        always uses the featured image.
+        Meta fields and a live Google-style snippet. Leave meta description blank
+        to use the Excerpt above (also used for X/Twitter and Facebook link
+        cards). Social image uses the featured image, then site default from
+        Settings if needed.
       </Typography>
 
       {/* SERP preview */}

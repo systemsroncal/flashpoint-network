@@ -7,10 +7,9 @@ import { getCurrentProfile, isStaffRole } from "@/lib/auth/session";
 import { getBannerWidgetsBySlots } from "@/lib/data/banners";
 import { getPostComments } from "@/lib/data/post-comments";
 import { getArticleSidebar, getPostBySlug } from "@/lib/data/home";
-import { absoluteMediaUrl } from "@/lib/media/public-url";
-import { youtubeThumbnailUrl } from "@/lib/media/youtube";
 import { getPaywallSettings } from "@/lib/paywall/settings";
 import { buildArticleJsonLdGraph } from "@/lib/seo/article-json-ld";
+import { buildNewsPostMetadata } from "@/lib/seo/post-metadata";
 import { absoluteSiteUrl } from "@/lib/seo/urls";
 import { getSiteIdentity } from "@/lib/site-identity/settings";
 
@@ -28,50 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ]);
   if (!post) return { title: "Not found", robots: { index: false, follow: false } };
 
-  const title = post.seo_title?.trim() || post.title;
-  const description =
-    post.seo_description?.trim() || post.excerpt || undefined;
-  const keywords = post.seo_keywords
-    ?.split(",")
-    .map((k) => k.trim())
-    .filter(Boolean);
-  const ogTitle = post.og_title?.trim() || title;
-  const ogDescription =
-    post.og_description?.trim() || description || undefined;
-  const ogImage =
-    absoluteMediaUrl(post.og_image_url)?.trim() ||
-    absoluteMediaUrl(post.featured_image_url)?.trim() ||
-    youtubeThumbnailUrl(post.video_url) ||
-    absoluteMediaUrl(identity.defaultFeaturedImageUrl) ||
-    undefined;
-  const url = absoluteSiteUrl(`/news/${post.slug}`);
-
-  return {
-    title,
-    description,
-    keywords: keywords?.length ? keywords : undefined,
-    alternates: { canonical: url },
-    robots: { index: true, follow: true },
-    openGraph: {
-      type: "article",
-      locale: "en_US",
-      siteName: identity.siteName,
-      title: ogTitle,
-      description: ogDescription,
-      url,
-      publishedTime: post.published_at || undefined,
-      modifiedTime: post.updated_at || post.published_at || undefined,
-      section: post.category?.name || undefined,
-      tags: keywords?.length ? keywords : undefined,
-      images: ogImage ? [{ url: ogImage, alt: title }] : undefined,
-    },
-    twitter: {
-      card: ogImage ? "summary_large_image" : "summary",
-      title: ogTitle,
-      description: ogDescription,
-      images: ogImage ? [ogImage] : undefined,
-    },
-  };
+  return buildNewsPostMetadata(post, identity);
 }
 
 export default async function NewsArticlePage({ params }: Props) {

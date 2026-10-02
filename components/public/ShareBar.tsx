@@ -51,8 +51,10 @@ function buildNetworkHref(
       return `https://www.threads.net/intent/post?text=${textEnc}%20${url}`;
     case "facebook":
       return `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-    case "x":
-      return `https://twitter.com/intent/tweet?url=${url}&text=${titleEnc}`;
+    case "x": {
+      const tweetText = excerpt?.trim() || title;
+      return `https://twitter.com/intent/tweet?url=${url}&text=${encodeURIComponent(tweetText)}`;
+    }
     default:
       return pageUrl;
   }

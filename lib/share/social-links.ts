@@ -45,6 +45,7 @@ export function buildSocialShareLinks({
     {
       key: "x",
       label: "X",
+      // Card title/description/image come from page OG/Twitter meta on `url`.
       href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`,
     },
     {

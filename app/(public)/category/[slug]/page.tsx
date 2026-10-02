@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 import JsonLd from "@/components/seo/JsonLd";
 import CategoryView from "@/components/public/CategoryView";
 import { buildCollectionPageJsonLd } from "@/lib/seo/web-page-json-ld";
-import { buildPublicPageMetadata } from "@/lib/seo/metadata";
-import { getSiteIdentity } from "@/lib/site-identity/settings";
+import { buildStaticPageMetadata } from "@/lib/seo/metadata";
 import { getBannerWidgetsBySlots } from "@/lib/data/banners";
 import {
   getArticleSidebar,
@@ -21,19 +20,15 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const [category, identity] = await Promise.all([
-    getCategoryBySlug(slug),
-    getSiteIdentity(),
-  ]);
+  const category = await getCategoryBySlug(slug);
   if (!category) return { title: "Category not found" };
   const description =
     category.description ??
     `${category.name} coverage from FlashPoint Television Network`;
-  return buildPublicPageMetadata({
+  return buildStaticPageMetadata({
     title: category.name,
     description,
     path: `/category/${slug}`,
-    siteName: identity.siteName,
   });
 }
 

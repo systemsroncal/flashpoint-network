@@ -23,6 +23,17 @@ export function buildPublicPageMetadata(input: PublicPageMetaInput): Metadata {
   const ogTitle = (input.ogTitle || input.title).trim();
   const ogDescription = (input.ogDescription || description || "").trim() || undefined;
 
+  const imageEntry = input.ogImage
+    ? [
+        {
+          url: input.ogImage,
+          width: 1200,
+          height: 630,
+          alt: ogTitle,
+        },
+      ]
+    : undefined;
+
   return {
     title: input.title,
     description: description || undefined,
@@ -38,7 +49,7 @@ export function buildPublicPageMetadata(input: PublicPageMetaInput): Metadata {
       title: ogTitle,
       description: ogDescription,
       url,
-      images: input.ogImage ? [{ url: input.ogImage }] : undefined,
+      images: imageEntry,
     },
     twitter: {
       card: input.ogImage ? "summary_large_image" : "summary",
