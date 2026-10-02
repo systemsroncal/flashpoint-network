@@ -192,7 +192,7 @@ export default async function NewsArticleView({
           ) : null}
         </div>
 
-        <LiveStreamShareRow className="border-b border-[#ccc] pb-8 pt-2 md:pt-3">
+        <LiveStreamShareRow className="w-full self-center border-b border-[#ccc] pb-8 pt-2 md:pt-3">
           <LiveStreamShareButton
             useCurrentUrl
             shareTitle={post.title}

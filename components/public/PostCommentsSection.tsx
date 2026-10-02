@@ -382,29 +382,23 @@ export default function PostCommentsSection({
         </p>
       )}
 
-      {roots.length > 0 || isLoggedIn ? (
+      {roots.length > 0 ? (
         <ul className="mt-8 space-y-6 border-t border-[#ddd] pt-8">
-          {roots.length === 0 ? (
-            <li className="text-center text-sm text-black/50">
-              Be the first to share your thoughts.
-            </li>
-          ) : (
-            roots.map((c) => (
-              <CommentItem
-                key={c.id}
-                comment={c}
-                repliesByParent={repliesByParent}
-                postId={postId}
-                postSlug={postSlug}
-                isLoggedIn={isLoggedIn}
-                timeZone={timeZone}
-                viewerProfile={viewerProfile}
-                depth={0}
-                onPosted={onPosted}
-                onLikeToggle={onLikeToggle}
-              />
-            ))
-          )}
+          {roots.map((c) => (
+            <CommentItem
+              key={c.id}
+              comment={c}
+              repliesByParent={repliesByParent}
+              postId={postId}
+              postSlug={postSlug}
+              isLoggedIn={isLoggedIn}
+              timeZone={timeZone}
+              viewerProfile={viewerProfile}
+              depth={0}
+              onPosted={onPosted}
+              onLikeToggle={onLikeToggle}
+            />
+          ))}
         </ul>
       ) : null}
     </div>

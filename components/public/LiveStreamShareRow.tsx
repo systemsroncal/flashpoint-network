@@ -9,9 +9,9 @@ type Props = {
 export default function LiveStreamShareRow({ children, className = "" }: Props) {
   return (
     <div
-      className={`mt-5 flex w-full justify-center md:mt-6 ${className}`.trim()}
+      className={`mt-5 flex w-full items-center justify-center text-center md:mt-6 ${className}`.trim()}
     >
-      {children}
+      <div className="mx-auto flex justify-center">{children}</div>
     </div>
   );
 }

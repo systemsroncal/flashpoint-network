@@ -7,6 +7,7 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
+import { HtmlEmbed } from "@/lib/editor/html-embed-extension";
 import { createPasteMarkdownExtension } from "@/lib/editor/paste-markdown-extension";
 import {
   insertIntoHtmlSource,
@@ -134,6 +135,7 @@ export default function RichTextEditor({
       Placeholder.configure({
         placeholder,
       }),
+      HtmlEmbed,
       createPasteMarkdownExtension(),
     ],
     [placeholder],
@@ -234,6 +236,27 @@ export default function RichTextEditor({
       return;
     }
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+  };
+
+  const insertHtmlEmbed = () => {
+    const raw = window.prompt(
+      "Paste embed HTML (X/Twitter blockquote + script, etc.):",
+    );
+    if (!raw?.trim()) return;
+    const snippet = raw.trim();
+    if (mode === "html") {
+      insertHtmlSourceAtCursor(snippet);
+      return;
+    }
+    if (!editor) return;
+    editor
+      .chain()
+      .focus()
+      .insertContent({
+        type: "htmlEmbed",
+        attrs: { raw: snippet },
+      })
+      .run();
   };
 
   const addImage = async () => {
@@ -417,6 +440,13 @@ export default function RichTextEditor({
             <Button type="button" onClick={addImage} disabled={toolbarDisabled}>
               Image
             </Button>
+            <Button
+              type="button"
+              onClick={insertHtmlEmbed}
+              disabled={mode === "visual" && !editor}
+            >
+              Embed
+            </Button>
           </ButtonGroup>
           <Divider orientation="vertical" flexItem />
           <ButtonGroup size="small" variant="outlined">
@@ -490,6 +520,28 @@ export default function RichTextEditor({
               float: "left",
               height: 0,
               pointerEvents: "none",
+            },
+            "& .fpn-html-embed-slot": {
+              my: 2,
+              border: "1px dashed",
+              borderColor: "divider",
+              borderRadius: 1,
+              p: 1.5,
+              bgcolor: "grey.50",
+            },
+            "& .fpn-html-embed-label": {
+              m: 0,
+              mb: 1,
+              fontSize: "0.7rem",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: "text.secondary",
+            },
+            "& .fpn-html-embed-preview": {
+              maxWidth: "100%",
+              overflow: "auto",
+              fontSize: "0.8125rem",
             },
           }}
         >

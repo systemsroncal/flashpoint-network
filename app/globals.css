@@ -126,6 +126,16 @@ article h3 {
   margin: 1rem 0;
 }
 
+.fpn-rich-html iframe,
+.fpn-rich-html .twitter-tweet {
+  max-width: 100%;
+  margin: 1rem auto;
+}
+
+.fpn-rich-html .twitter-tweet {
+  display: block;
+}
+
 /* Single-post article prose — Noto Serif Medium */
 .fpn-article-body {
   font-family: var(--font-noto-serif), "Noto Serif", Georgia, serif;

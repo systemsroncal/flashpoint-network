@@ -1,12 +1,27 @@
 import type { PostComment } from "@/lib/data/post-comments";
 
+/** Public comment byline: first name + last initial (e.g. "Maria G."). */
+export function commentPublicDisplayName(raw: string): string {
+  const name = raw.trim();
+  if (!name) return "Reader";
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length === 1) return parts[0];
+  const first = parts[0];
+  const last = parts[parts.length - 1];
+  if (last.length <= 2 && last.endsWith(".")) {
+    return `${first} ${last}`;
+  }
+  const initial = last[0]?.toUpperCase();
+  return initial ? `${first} ${initial}.` : first;
+}
+
 export function commentAuthorName(comment: PostComment): string {
   const name = comment.author_name?.trim();
-  return name || "Reader";
+  return commentPublicDisplayName(name || "Reader");
 }
 
 export function commentAuthorInitials(comment: PostComment): string {
-  const fromName = commentAuthorName(comment);
+  const fromName = (comment.author_name || "").trim() || "Reader";
   const parts = fromName.split(/\s+/).filter(Boolean);
   if (parts.length >= 2) {
     return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
@@ -24,9 +39,15 @@ export function profileDisplayName(profile: {
   email?: string | null;
 }): string {
   const full = (profile.full_name || "").trim();
-  if (full) return full;
-  const parts = [profile.first_name, profile.last_name].filter(Boolean).join(" ").trim();
-  if (parts) return parts;
+  if (full) return commentPublicDisplayName(full);
+  const first = (profile.first_name || "").trim();
+  const last = (profile.last_name || "").trim();
+  if (first && last) {
+    const initial = last[0]?.toUpperCase();
+    return initial ? `${first} ${initial}.` : first;
+  }
+  if (first) return first;
+  if (last) return last;
   const email = (profile.email || "").trim();
   if (email) return email.split("@")[0] || "You";
   return "You";
