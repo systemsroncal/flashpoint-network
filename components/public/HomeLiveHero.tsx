@@ -25,7 +25,7 @@ export default function HomeLiveHero() {
               className="h-full w-full rounded-[15px]"
             />
           </div>
-          <LiveStreamShareRow className="mt-4 w-full md:mt-4">
+          <LiveStreamShareRow className="mt-4 w-full md:mt-4" centerMobileOnly>
             <LiveStreamShareButton sharePath="/live" />
           </LiveStreamShareRow>
         </div>
