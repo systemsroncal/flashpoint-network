@@ -1,6 +1,7 @@
 import Image from "next/image";
 import BrightcoveLivePlayer from "@/components/public/BrightcoveLivePlayer";
 import LiveStreamShareButton from "@/components/public/LiveStreamShareButton";
+import LiveStreamShareRow from "@/components/public/LiveStreamShareRow";
 import { LIVE_HEADLINE } from "@/components/public/LiveHeroCopy";
 
 const LIVE_TV_SHOWS = [
@@ -59,9 +60,9 @@ export default function LivePageView() {
                 className="h-full w-full rounded-[24px]"
               />
             </div>
-            <div className="mt-5 flex w-full justify-center md:mt-6">
+            <LiveStreamShareRow>
               <LiveStreamShareButton sharePath="/live" />
-            </div>
+            </LiveStreamShareRow>
           </div>
         </div>
       </section>

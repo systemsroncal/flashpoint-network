@@ -2,6 +2,7 @@
 
 import BrightcoveLivePlayer from "@/components/public/BrightcoveLivePlayer";
 import LiveStreamShareButton from "@/components/public/LiveStreamShareButton";
+import LiveStreamShareRow from "@/components/public/LiveStreamShareRow";
 import Home2HeroLogos from "@/components/public/Home2HeroLogos";
 import { LIVE_HEADLINE } from "@/components/public/LiveHeroCopy";
 
@@ -33,9 +34,9 @@ export default function Home2LiveHero() {
           />
         </div>
 
-        <div className="mt-6 flex w-full max-w-[1125px] justify-center">
+        <LiveStreamShareRow className="max-w-[1125px]">
           <LiveStreamShareButton sharePath="/live" />
-        </div>
+        </LiveStreamShareRow>
 
         <Home2HeroLogos className="mt-8 w-full md:mt-10" />
       </div>

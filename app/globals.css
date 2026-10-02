@@ -434,7 +434,8 @@ button.fpn-live-cta {
   padding: 8px 14px;
 }
 
-/* Live stream Share (home, /news, /live) */
+/* Live stream Share (home, /news, /live) — ~17% larger than original pill */
+button.fpn-live-share-cta,
 .fpn-live-share-cta {
   display: inline-flex;
   align-items: center;
@@ -444,13 +445,15 @@ button.fpn-live-cta {
   border: none;
   border-radius: 9999px;
   background-color: var(--fpn-rojo, #b80529);
-  color: #fff;
+  color: #fff !important;
+  font-family: var(--font-ui), system-ui, sans-serif;
   font-size: 18px;
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.01em;
   cursor: pointer;
   appearance: none;
+  box-sizing: border-box;
   transition: filter 150ms ease, transform 150ms ease;
 }
 

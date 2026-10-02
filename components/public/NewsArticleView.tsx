@@ -7,6 +7,7 @@ import PaywallGate from "@/components/public/PaywallGate";
 import RichHtml from "@/components/public/RichHtml";
 import PostCommentsSection from "@/components/public/PostCommentsSection";
 import LiveStreamShareButton from "@/components/public/LiveStreamShareButton";
+import LiveStreamShareRow from "@/components/public/LiveStreamShareRow";
 import ShareBar from "@/components/public/ShareBar";
 import VideoPlayer from "@/components/public/VideoPlayer";
 import type { PostComment } from "@/lib/data/post-comments";
@@ -107,7 +108,7 @@ export default async function NewsArticleView({
       ) : null}
       <div className="mx-auto grid max-w-[1440px] gap-10 px-4 pb-6 md:px-8 lg:grid-cols-[minmax(0,1fr)_370px] lg:gap-12 lg:px-10">
         <div className="min-w-0 lg:col-start-1">
-          <div className="w-full max-w-[906px] pb-8 pt-10 lg:mx-0 lg:pt-12">
+          <div className="flex w-full max-w-[906px] flex-col items-stretch pb-8 pt-10 lg:mx-0 lg:pt-12">
         <header className="text-left">
           {categoryHref ? (
             <Link
@@ -162,7 +163,7 @@ export default async function NewsArticleView({
           </div>
         </header>
 
-        <div className="mt-8">
+        <div className="mt-8 w-full">
           {playerInHero && post.video_url ? (
             <div className="overflow-hidden rounded-[13px] bg-black">
               <VideoPlayer
@@ -191,13 +192,13 @@ export default async function NewsArticleView({
           ) : null}
         </div>
 
-        <div className="mt-6 flex justify-center border-b border-[#ccc] pb-8 pt-2">
+        <LiveStreamShareRow className="border-b border-[#ccc] pb-8 pt-2 md:pt-3">
           <LiveStreamShareButton
             useCurrentUrl
             shareTitle={post.title}
             shareText={post.excerpt}
           />
-        </div>
+        </LiveStreamShareRow>
           </div>
 
         <div className="w-full max-w-[906px] lg:mx-0">
