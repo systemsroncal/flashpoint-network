@@ -3,9 +3,8 @@ import JsonLd from "@/components/seo/JsonLd";
 import HomeView from "@/components/public/HomeView";
 import { getBannerWidgetsBySlots } from "@/lib/data/banners";
 import { getHomePayload } from "@/lib/data/home";
-import { buildPublicPageMetadata } from "@/lib/seo/metadata";
+import { buildStaticPageMetadata } from "@/lib/seo/metadata";
 import { buildCollectionPageJsonLd } from "@/lib/seo/web-page-json-ld";
-import { getSiteIdentity } from "@/lib/site-identity/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -13,12 +12,10 @@ const NEWS_DESCRIPTION =
   "Breaking news, politics, and analysis from FlashPoint Television Network.";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const identity = await getSiteIdentity();
-  return buildPublicPageMetadata({
+  return buildStaticPageMetadata({
     title: "FPTN News",
     description: NEWS_DESCRIPTION,
     path: "/news",
-    siteName: identity.siteName,
   });
 }
 

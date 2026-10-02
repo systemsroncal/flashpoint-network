@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PostCard from "@/components/public/PostCard";
 import { searchPosts } from "@/lib/data/home";
+import { buildStaticPageMetadata } from "@/lib/seo/metadata";
 import { getSiteTimezone } from "@/lib/timezone/settings";
 
 export const dynamic = "force-dynamic";
@@ -13,10 +14,11 @@ type Props = {
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const sp = await searchParams;
   const q = (sp.q || "").trim();
-  return {
+  return buildStaticPageMetadata({
     title: q ? `Search: ${q}` : "Search",
     description: "Search FlashPoint Television Network news.",
-  };
+    path: "/search",
+  });
 }
 
 export default async function SearchPage({ searchParams }: Props) {

@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { buildStaticPageMetadata } from "@/lib/seo/metadata";
 import MobileFeedList from "@/components/public/MobileFeedList";
 import NewsletterSignup from "@/components/public/NewsletterSignup";
 import PostCard from "@/components/public/PostCard";
@@ -42,11 +44,16 @@ type Props = {
   params: Promise<{ type: string }>;
 };
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { type } = await params;
   const meta = FEEDS[type as FeedKind];
   if (!meta) return { title: "Feed not found" };
-  return { title: meta.title, description: meta.description };
+  const path = `/feed/${type}`;
+  return buildStaticPageMetadata({
+    title: meta.title,
+    description: meta.description,
+    path,
+  });
 }
 
 export default async function FeedPage({ params }: Props) {

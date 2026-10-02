@@ -9,6 +9,7 @@ import {
   IconMail,
   IconMessageCircle,
   IconNews,
+  IconFileText,
   IconPhoto,
   IconAd2,
   IconSettings,
@@ -122,6 +123,12 @@ const Menuitems: MenuItemConfig[] = [
     title: "Forms",
     icon: IconMessageCircle,
     href: "/admin/forms",
+  },
+  {
+    id: "nav-pages",
+    title: "Pages",
+    icon: IconFileText,
+    href: "/admin/pages",
   },
   {
     navlabel: true,

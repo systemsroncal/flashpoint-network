@@ -6,6 +6,7 @@ import {
   LIVE_DESCRIPTION,
   LIVE_HEADLINE,
 } from "@/components/public/LiveHeroCopy";
+import { getSiteUrl } from "@/lib/env";
 
 type Props = {
   /** Path or absolute URL when useCurrentUrl is false. */
@@ -22,7 +23,15 @@ function resolveShareUrl(sharePath: string): string {
     return sharePath;
   }
   const path = sharePath.startsWith("/") ? sharePath : `/${sharePath}`;
-  return `${window.location.origin}${path}`;
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}${path}`;
+  }
+  try {
+    const base = getSiteUrl().replace(/\/$/, "");
+    return `${base}${path}`;
+  } catch {
+    return path;
+  }
 }
 
 function subscribePageUrl() {
