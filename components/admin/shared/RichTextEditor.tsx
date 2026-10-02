@@ -7,6 +7,7 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
+import { PasteMarkdown } from "@/lib/editor/paste-markdown-extension";
 import {
   Box,
   Button,
@@ -80,6 +81,7 @@ export default function RichTextEditor({
       Placeholder.configure({
         placeholder,
       }),
+      PasteMarkdown,
     ],
     content: seed || "",
     onUpdate: ({ editor: ed }) => {
