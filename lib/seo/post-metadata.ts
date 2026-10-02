@@ -1,24 +1,18 @@
 import type { Metadata } from "next";
 import { absoluteMediaUrl } from "@/lib/media/public-url";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
+import { resolvePostMetaDescription } from "@/lib/seo/post-description";
 import { plainTextFromHtml } from "@/lib/seo/plain-text";
 import { absoluteSiteUrl } from "@/lib/seo/urls";
 import type { SiteIdentity } from "@/lib/site-identity/constants";
 import type { Post } from "@/lib/types/cms";
 
-/**
- * News posts: meta description defaults to admin Excerpt (plain text).
- * SEO panel overrides apply when set.
- */
 export function buildNewsPostMetadata(
   post: Post,
   identity: SiteIdentity,
 ): Metadata {
-  const excerptPlain = plainTextFromHtml(post.excerpt);
-
   const title = post.seo_title?.trim() || post.title;
-  const description =
-    post.seo_description?.trim() || excerptPlain || undefined;
+  const description = resolvePostMetaDescription(post);
 
   const keywords = post.seo_keywords
     ?.split(",")

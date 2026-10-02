@@ -4,6 +4,7 @@ import { DEFAULT_FOOTER_MARK_URL } from "@/lib/site-identity/constants";
 import { absoluteMediaUrl } from "@/lib/media/public-url";
 import { youtubeThumbnailUrl } from "@/lib/media/youtube";
 import { compactJsonLd } from "@/lib/seo/json-ld";
+import { resolvePostMetaDescription } from "@/lib/seo/post-description";
 import { absoluteSiteUrl } from "@/lib/seo/urls";
 
 function authorName(post: Post, siteName: string): string {
@@ -31,7 +32,7 @@ export function buildNewsArticleJsonLd(
   const siteUrl = absoluteSiteUrl("");
   const url = absoluteSiteUrl(`/news/${post.slug}`);
   const headline = post.seo_title?.trim() || post.title;
-  const description = post.seo_description?.trim() || post.excerpt || undefined;
+  const description = resolvePostMetaDescription(post);
   const publisherLogo =
     absoluteMediaUrl(identity.headerLogoUrl) ||
     `${siteUrl}${DEFAULT_FOOTER_MARK_URL}`;

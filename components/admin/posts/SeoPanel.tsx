@@ -121,9 +121,9 @@ export default function SeoPanel({
       </Typography>
       <Typography variant="body2" color="text.secondary" mb={2}>
         Meta fields and a live Google-style snippet. Leave meta description blank
-        to use the Excerpt above (also used for X/Twitter and Facebook link
-        cards). Social image uses the featured image, then site default from
-        Settings if needed.
+        to use the Excerpt above for search (`meta description`), structured data,
+        and social link previews. Social image uses the featured image, then site
+        default from Settings if needed.
       </Typography>
 
       {/* SERP preview */}
@@ -201,7 +201,7 @@ export default function SeoPanel({
             minRows={3}
             value={values.seo_description}
             onChange={(e) => onChange({ seo_description: e.target.value })}
-            placeholder={excerpt || "Defaults to excerpt"}
+            placeholder={excerpt || "Defaults to Excerpt field (search + social)"}
           />
           <Box mt={0.75}>
             <LengthHint
