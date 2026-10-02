@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Button,
   Chip,
@@ -21,6 +21,7 @@ export default function AdvertiseInquiriesTable({
 }: {
   inquiries: AdvertiseInquiry[];
 }) {
+  const router = useRouter();
   const timeZone = useTimezone();
   const unread = inquiries.filter((s) => !s.read_at).length;
 
@@ -44,9 +45,8 @@ export default function AdvertiseInquiriesTable({
             <TableRow
               key={row.id}
               hover
-              component={Link}
-              href={`/admin/forms/advertise/${row.id}`}
-              sx={{ cursor: "pointer", textDecoration: "none", color: "inherit" }}
+              sx={{ cursor: "pointer" }}
+              onClick={() => router.push(`/admin/forms/advertise/${row.id}`)}
             >
               <TableCell>
                 <Typography variant="subtitle2">{row.name}</Typography>
@@ -59,10 +59,12 @@ export default function AdvertiseInquiriesTable({
               <TableCell>{formatDateTime(row.created_at, timeZone)}</TableCell>
               <TableCell align="right">
                 <Button
-                  component={Link}
-                  href={`/admin/forms/advertise/${row.id}`}
                   size="small"
                   variant="outlined"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(`/admin/forms/advertise/${row.id}`);
+                  }}
                 >
                   View
                 </Button>

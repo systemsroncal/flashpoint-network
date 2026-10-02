@@ -35,6 +35,11 @@ function requireAdmin() {
   return client;
 }
 
+/** Form submission reads must not crash admin pages when service role env is missing. */
+function adminClientForFormReads() {
+  return createAdminClient();
+}
+
 function normalizePost(p: unknown): Post {
   const row = p as Post & {
     category?: Category | Category[] | null;
@@ -98,7 +103,8 @@ function normalizeHelpCenterRow(row: unknown): HelpCenterSubmission {
 export async function getAdminHelpCenterSubmissions(): Promise<
   HelpCenterSubmission[]
 > {
-  const supabase = requireAdmin();
+  const supabase = adminClientForFormReads();
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from("help_center_submissions")
     .select(
@@ -117,7 +123,10 @@ export async function getAdminFormSubmissionsSchemaReady(): Promise<{
   helpCenter: boolean;
   advertise: boolean;
 }> {
-  const supabase = requireAdmin();
+  const supabase = adminClientForFormReads();
+  if (!supabase) {
+    return { helpCenter: false, advertise: false };
+  }
   const [help, advertise] = await Promise.all([
     supabase.from("help_center_submissions").select("id").limit(1),
     supabase.from("advertise_inquiries").select("id").limit(1),
@@ -131,7 +140,10 @@ export async function getAdminFormSubmissionsSchemaReady(): Promise<{
 export async function getAdminSiteFormEntryCounts(): Promise<
   Record<string, number>
 > {
-  const supabase = requireAdmin();
+  const supabase = adminClientForFormReads();
+  if (!supabase) {
+    return { "help-center": 0, advertise: 0 };
+  }
   const [help, advertise] = await Promise.all([
     supabase
       .from("help_center_submissions")
@@ -158,7 +170,8 @@ export async function getAdminSiteFormEntryCounts(): Promise<
 }
 
 export async function getAdminAdvertiseInquiries(): Promise<AdvertiseInquiry[]> {
-  const supabase = requireAdmin();
+  const supabase = adminClientForFormReads();
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from("advertise_inquiries")
     .select(
@@ -176,7 +189,8 @@ export async function getAdminAdvertiseInquiries(): Promise<AdvertiseInquiry[]> 
 export async function getAdminAdvertiseInquiry(
   id: string,
 ): Promise<AdvertiseInquiry | null> {
-  const supabase = requireAdmin();
+  const supabase = adminClientForFormReads();
+  if (!supabase) return null;
   const { data, error } = await supabase
     .from("advertise_inquiries")
     .select(
@@ -195,7 +209,8 @@ export async function getAdminAdvertiseInquiry(
 export async function getAdminHelpCenterSubmission(
   id: string,
 ): Promise<HelpCenterSubmission | null> {
-  const supabase = requireAdmin();
+  const supabase = adminClientForFormReads();
+  if (!supabase) return null;
   const { data, error } = await supabase
     .from("help_center_submissions")
     .select(

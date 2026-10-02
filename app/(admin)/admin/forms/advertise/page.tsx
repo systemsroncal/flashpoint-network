@@ -1,6 +1,5 @@
-import Link from "next/link";
-import { Alert, Button, Stack } from "@mui/material";
 import PageContainer from "@/components/admin/shared/PageContainer";
+import FormEntriesPageChrome from "@/components/admin/forms/FormEntriesPageChrome";
 import AdvertiseInquiriesTable from "@/components/admin/forms/AdvertiseInquiriesTable";
 import {
   getAdminAdvertiseInquiries,
@@ -8,6 +7,9 @@ import {
 } from "@/lib/admin/queries";
 
 export const dynamic = "force-dynamic";
+
+const ADVERTISE_SCHEMA_WARNING =
+  "The advertising inquiries table is not available on this database. Run npm run db:apply (migration 20260930190000_advertise_inquiries.sql) on production.";
 
 export default async function AdminAdvertiseFormEntriesPage() {
   const [inquiries, schema] = await Promise.all([
@@ -20,19 +22,11 @@ export default async function AdminAdvertiseFormEntriesPage() {
       title="Advertising inquiry"
       description="Entries from /advertise"
     >
-      <Stack spacing={2}>
-        <Button component={Link} href="/admin/forms" variant="text" sx={{ alignSelf: "flex-start" }}>
-          ← All forms
-        </Button>
-        {!schema.advertise ? (
-          <Alert severity="warning">
-            The advertising inquiries table is not available on this database.
-            Run <code>npm run db:apply</code> (migration{" "}
-            <code>20260930190000_advertise_inquiries.sql</code>) on production.
-          </Alert>
-        ) : null}
-        <AdvertiseInquiriesTable inquiries={inquiries} />
-      </Stack>
+      <FormEntriesPageChrome
+        backHref="/admin/forms"
+        schemaWarning={schema.advertise ? null : ADVERTISE_SCHEMA_WARNING}
+      />
+      <AdvertiseInquiriesTable inquiries={inquiries} />
     </PageContainer>
   );
 }

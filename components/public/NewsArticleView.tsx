@@ -6,8 +6,6 @@ import PostCard from "@/components/public/PostCard";
 import PaywallGate from "@/components/public/PaywallGate";
 import RichHtml from "@/components/public/RichHtml";
 import PostCommentsSection from "@/components/public/PostCommentsSection";
-import LiveStreamShareButton from "@/components/public/LiveStreamShareButton";
-import LiveStreamShareRow from "@/components/public/LiveStreamShareRow";
 import ShareBar from "@/components/public/ShareBar";
 import VideoPlayer from "@/components/public/VideoPlayer";
 import type { PostComment } from "@/lib/data/post-comments";
@@ -192,13 +190,14 @@ export default async function NewsArticleView({
           ) : null}
         </div>
 
-        <LiveStreamShareRow className="w-full self-center border-b border-[#ccc] pb-8 pt-2 md:pt-3">
-          <LiveStreamShareButton
-            useCurrentUrl
-            shareTitle={post.title}
-            shareText={post.excerpt}
+        <div className="mt-6 border-b border-[#ccc] pb-8 pt-2">
+          <ShareBar
+            title={post.title}
+            urlPath={href}
+            excerpt={post.excerpt}
+            variant="strip"
           />
-        </LiveStreamShareRow>
+        </div>
           </div>
 
         <div className="w-full max-w-[906px] lg:mx-0">

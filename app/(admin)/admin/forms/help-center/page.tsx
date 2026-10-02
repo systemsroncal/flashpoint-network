@@ -1,6 +1,5 @@
-import Link from "next/link";
-import { Alert, Button, Stack } from "@mui/material";
 import PageContainer from "@/components/admin/shared/PageContainer";
+import FormEntriesPageChrome from "@/components/admin/forms/FormEntriesPageChrome";
 import HelpCenterSubmissionsTable from "@/components/admin/help-center/HelpCenterSubmissionsTable";
 import {
   getAdminFormSubmissionsSchemaReady,
@@ -8,6 +7,9 @@ import {
 } from "@/lib/admin/queries";
 
 export const dynamic = "force-dynamic";
+
+const HELP_CENTER_SCHEMA_WARNING =
+  "The Help Center submissions table is not available on this database. Run npm run db:apply (migration 20260918193000_help_center_submissions.sql) on production.";
 
 export default async function AdminHelpCenterFormEntriesPage() {
   const [submissions, schema] = await Promise.all([
@@ -20,19 +22,11 @@ export default async function AdminHelpCenterFormEntriesPage() {
       title="Help Center"
       description="Entries from the public Help Center form"
     >
-      <Stack spacing={2}>
-        <Button component={Link} href="/admin/forms" variant="text" sx={{ alignSelf: "flex-start" }}>
-          ← All forms
-        </Button>
-        {!schema.helpCenter ? (
-          <Alert severity="warning">
-            The Help Center submissions table is not available on this database.
-            Run <code>npm run db:apply</code> (migration{" "}
-            <code>20260918193000_help_center_submissions.sql</code>) on production.
-          </Alert>
-        ) : null}
-        <HelpCenterSubmissionsTable submissions={submissions} />
-      </Stack>
+      <FormEntriesPageChrome
+        backHref="/admin/forms"
+        schemaWarning={schema.helpCenter ? null : HELP_CENTER_SCHEMA_WARNING}
+      />
+      <HelpCenterSubmissionsTable submissions={submissions} />
     </PageContainer>
   );
 }

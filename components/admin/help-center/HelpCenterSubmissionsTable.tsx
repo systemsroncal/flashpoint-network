@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Button,
   Chip,
@@ -21,6 +21,7 @@ export default function HelpCenterSubmissionsTable({
 }: {
   submissions: HelpCenterSubmission[];
 }) {
+  const router = useRouter();
   const timeZone = useTimezone();
   const unread = submissions.filter((s) => !s.read_at).length;
 
@@ -44,9 +45,8 @@ export default function HelpCenterSubmissionsTable({
             <TableRow
               key={row.id}
               hover
-              component={Link}
-              href={`/admin/forms/help-center/${row.id}`}
-              sx={{ cursor: "pointer", textDecoration: "none", color: "inherit" }}
+              sx={{ cursor: "pointer" }}
+              onClick={() => router.push(`/admin/forms/help-center/${row.id}`)}
             >
               <TableCell>
                 <Typography variant="subtitle2">{row.subject}</Typography>
@@ -63,10 +63,12 @@ export default function HelpCenterSubmissionsTable({
               </TableCell>
               <TableCell align="right">
                 <Button
-                  component={Link}
-                  href={`/admin/forms/help-center/${row.id}`}
                   size="small"
                   variant="outlined"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(`/admin/forms/help-center/${row.id}`);
+                  }}
                 >
                   View
                 </Button>
