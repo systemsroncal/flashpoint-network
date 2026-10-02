@@ -9,7 +9,10 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
 import HtmlEmbedDialog from "@/components/admin/shared/HtmlEmbedDialog";
 import { HtmlEmbed } from "@/lib/editor/html-embed-extension";
-import { normalizeEmbedSlotsInHtml } from "@/lib/editor/html-embed";
+import {
+  prepareHtmlForEditorStorage,
+  prepareHtmlForHtmlTabDisplay,
+} from "@/lib/editor/html-embed";
 import { createPasteMarkdownExtension } from "@/lib/editor/paste-markdown-extension";
 import {
   insertIntoHtmlSource,
@@ -65,19 +68,21 @@ export default function RichTextEditor({
   forceHtml,
   forceToken,
 }: Props) {
-  const seed = normalizeEmbedSlotsInHtml(toEditorHtml(initialHtml));
+  const seed = prepareHtmlForEditorStorage(toEditorHtml(initialHtml));
   const [html, setHtml] = useState(seed || "<p></p>");
-  const [htmlSource, setHtmlSource] = useState(seed || "<p></p>");
+  const [htmlSource, setHtmlSource] = useState(
+    prepareHtmlForHtmlTabDisplay(seed) || seed || "<p></p>",
+  );
   const [mode, setMode] = useState<EditorMode>("visual");
   const [embedDialogOpen, setEmbedDialogOpen] = useState(false);
   const htmlTextareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const commitHtml = useCallback(
-    (next: string) => {
-      const normalized = normalizeEmbedSlotsInHtml(next);
-      setHtml(normalized);
-      setHtmlSource(normalized);
-      onHtmlChange?.(normalized);
+  const syncStoredBody = useCallback(
+    (source: string) => {
+      const stored = prepareHtmlForEditorStorage(source);
+      setHtml(stored);
+      onHtmlChange?.(stored);
+      return stored;
     },
     [onHtmlChange],
   );
@@ -103,12 +108,11 @@ export default function RichTextEditor({
         } else {
           next = prev.trim() ? `${prev}\n\n${source}` : source;
         }
-        setHtml(next);
-        onHtmlChange?.(next);
+        syncStoredBody(next);
         return next;
       });
     },
-    [onHtmlChange],
+    [syncStoredBody],
   );
 
   useEffect(() => {
@@ -150,7 +154,7 @@ export default function RichTextEditor({
     extensions,
     content: seed || "",
     onUpdate: ({ editor: ed }) => {
-      commitHtml(ed.getHTML());
+      syncStoredBody(ed.getHTML());
     },
     editorProps: {
       attributes: {
@@ -166,7 +170,7 @@ export default function RichTextEditor({
     if (next && next !== current) {
       editor.commands.setContent(next, { emitUpdate: false });
       window.setTimeout(() => {
-        commitHtml(next);
+        syncStoredBody(next);
       }, 0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -174,10 +178,11 @@ export default function RichTextEditor({
 
   useEffect(() => {
     if (!editor || forceToken == null || forceToken <= 0) return;
-    const next = toEditorHtml(forceHtml) || "<p></p>";
+    const next = prepareHtmlForEditorStorage(toEditorHtml(forceHtml) || "<p></p>");
     editor.commands.setContent(next, { emitUpdate: true });
     window.setTimeout(() => {
-      commitHtml(next);
+      syncStoredBody(editor.getHTML());
+      setHtmlSource(prepareHtmlForHtmlTabDisplay(editor.getHTML()));
       setMode("visual");
     }, 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -185,16 +190,19 @@ export default function RichTextEditor({
 
   const switchToVisual = () => {
     if (!editor) return;
-    const next = toEditorHtml(htmlSource) || "<p></p>";
-    editor.commands.setContent(next, { emitUpdate: true });
-    commitHtml(next);
+    const stored = prepareHtmlForEditorStorage(htmlSource);
+    editor.commands.setContent(stored || "<p></p>", { emitUpdate: false });
+    const fromEditor = syncStoredBody(editor.getHTML());
+    setHtmlSource(prepareHtmlForHtmlTabDisplay(fromEditor));
     setMode("visual");
   };
 
   const switchToHtml = () => {
     if (editor) {
-      const next = editor.getHTML();
-      commitHtml(next);
+      const stored = syncStoredBody(editor.getHTML());
+      setHtmlSource(prepareHtmlForHtmlTabDisplay(stored));
+    } else {
+      setHtmlSource(prepareHtmlForHtmlTabDisplay(html));
     }
     setMode("html");
     window.setTimeout(() => htmlTextareaRef.current?.focus(), 0);
@@ -552,7 +560,11 @@ export default function RichTextEditor({
               fullWidth
               minRows={12}
               value={htmlSource}
-              onChange={(e) => commitHtml(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setHtmlSource(value);
+                syncStoredBody(value);
+              }}
               placeholder="<p>HTML del artículo…</p>"
               spellCheck={false}
               sx={{

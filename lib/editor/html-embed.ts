@@ -90,3 +90,29 @@ export function expandHtmlEmbedsInArticle(html: string): string {
   }
   return out;
 }
+
+const TWITTER_EMBED_FRAGMENT =
+  /<blockquote\b[^>]*\bclass="[^"]*twitter-tweet[^"]*"[^>]*>[\s\S]*?<\/blockquote>\s*(?:<script\b[\s\S]*?<\/script>\s*)?/gi;
+
+/** Wrap raw X/Twitter embed markup in editor-safe slots before TipTap parses HTML. */
+export function wrapStandaloneEmbedsInSlots(html: string): string {
+  let out = html;
+  if (!out.trim()) return out;
+
+  out = out.replace(TWITTER_EMBED_FRAGMENT, (fragment) => {
+    if (/data-fpn-html-embed/i.test(fragment)) return fragment;
+    return embedSlotHtml(fragment.trim());
+  });
+
+  return normalizeEmbedSlotsInHtml(out);
+}
+
+/** Canonical HTML stored in DB / hidden input (slots, not stripped by TipTap). */
+export function prepareHtmlForEditorStorage(html: string): string {
+  return wrapStandaloneEmbedsInSlots(html);
+}
+
+/** Human-editable HTML for the admin HTML tab. */
+export function prepareHtmlForHtmlTabDisplay(storedHtml: string): string {
+  return expandHtmlEmbedsInArticle(storedHtml);
+}

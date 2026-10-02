@@ -10,6 +10,7 @@ export const HtmlEmbed = Node.create({
   group: "block",
   atom: true,
   draggable: true,
+  priority: 1000,
 
   addAttributes() {
     return {

@@ -46,14 +46,13 @@ function escapeText(text: string) {
 }
 
 function sanitizeArticleHtml(html: string) {
-  return html
-    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, (block) => {
-      if (/platform\.twitter\.com\/widgets\.js/i.test(block)) return block;
-      if (/instagram\.com\/embed\.js/i.test(block)) return block;
-      return "";
-    })
-    .replace(/on\w+=["'][^"']*["']/gi, "")
-    .replace(/javascript:/gi, "");
+  return (
+    html
+      // Inline embed scripts do not run via innerHTML; widgets.js is loaded below.
+      .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
+      .replace(/on\w+=["'][^"']*["']/gi, "")
+      .replace(/javascript:/gi, "")
+  );
 }
 
 function hydrateThirdPartyEmbeds(root: HTMLElement | null) {
@@ -61,25 +60,36 @@ function hydrateThirdPartyEmbeds(root: HTMLElement | null) {
   const hasTwitter = root.querySelector(
     "blockquote.twitter-tweet, .twitter-tweet",
   );
-  if (hasTwitter) {
-    const w = window as Window & {
-      twttr?: { widgets?: { load: (el?: HTMLElement) => void } };
-    };
-    if (w.twttr?.widgets) {
-      w.twttr.widgets.load(root);
-      return;
-    }
-    const existing = document.querySelector(
-      'script[src*="platform.twitter.com/widgets.js"]',
-    );
-    if (!existing) {
-      const script = document.createElement("script");
-      script.src = "https://platform.twitter.com/widgets.js";
-      script.async = true;
-      script.charset = "utf-8";
-      document.body.appendChild(script);
-    }
+  if (!hasTwitter) return;
+
+  const w = window as Window & {
+    twttr?: { widgets?: { load: (el?: HTMLElement) => void } };
+  };
+
+  const loadWidgets = () => {
+    w.twttr?.widgets?.load(root);
+  };
+
+  if (w.twttr?.widgets) {
+    loadWidgets();
+    return;
   }
+
+  const existing = document.querySelector(
+    'script[src*="platform.twitter.com/widgets.js"]',
+  ) as HTMLScriptElement | null;
+
+  if (existing) {
+    existing.addEventListener("load", loadWidgets, { once: true });
+    return;
+  }
+
+  const script = document.createElement("script");
+  script.src = "https://platform.twitter.com/widgets.js";
+  script.async = true;
+  script.charset = "utf-8";
+  script.addEventListener("load", loadWidgets, { once: true });
+  document.body.appendChild(script);
 }
 
 /** Renders admin-authored HTML for public article/event bodies. */
@@ -94,6 +104,8 @@ export default function RichHtml({ html, className }: Props) {
 
   useEffect(() => {
     hydrateThirdPartyEmbeds(rootRef.current);
+    const t = window.setTimeout(() => hydrateThirdPartyEmbeds(rootRef.current), 800);
+    return () => window.clearTimeout(t);
   }, [safe]);
 
   if (!safe) return null;
