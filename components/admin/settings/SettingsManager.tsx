@@ -311,6 +311,19 @@ export default function SettingsManager({
             <FormControlLabel
               control={
                 <Checkbox
+                  name="children"
+                  defaultChecked={
+                    typeof programModules.children === "boolean"
+                      ? programModules.children
+                      : true
+                  }
+                />
+              }
+              label="Enable Children Programs (public + admin)"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
                   name="schedule"
                   defaultChecked={
                     typeof programModules.schedule === "boolean"

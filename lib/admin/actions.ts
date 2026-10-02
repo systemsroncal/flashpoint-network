@@ -149,6 +149,11 @@ async function assertClassicProgramsEnabled() {
   if (!modules.classic) redirect("/admin");
 }
 
+async function assertChildrenProgramsEnabled() {
+  const modules = await getProgramModules();
+  if (!modules.children) redirect("/admin");
+}
+
 async function assertScheduleProgramsEnabled() {
   const modules = await getProgramModules();
   if (!modules.schedule) redirect("/admin");
@@ -832,20 +837,24 @@ export async function saveProgramModulesAction(formData: FormData) {
   const supabase = requireAdmin();
   const classic =
     formData.get("classic") === "on" || formData.get("classic") === "true";
+  const children =
+    formData.get("children") === "on" || formData.get("children") === "true";
   const schedule =
     formData.get("schedule") === "on" || formData.get("schedule") === "true";
 
   const { error } = await supabase.from("site_settings").upsert({
     key: "program_modules",
-    value: { classic, schedule },
+    value: { classic, children, schedule },
   });
   if (error) throw new Error(error.message);
   revalidatePath("/");
   revalidatePath("/classic-programs");
+  revalidatePath("/children-programs");
   revalidatePath("/network-programs");
   revalidatePath("/schedule-programs");
   revalidatePath("/admin");
   revalidatePath("/admin/classic-programs");
+  revalidatePath("/admin/children-programs");
   revalidatePath("/admin/schedule-programs");
   revalidatePath("/admin/settings");
 }
@@ -929,6 +938,87 @@ export async function saveClassicProgramsSortAction(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/classic-programs");
   revalidatePath("/admin/classic-programs");
+}
+
+export async function upsertChildrenProgramAction(formData: FormData) {
+  await assertChildrenProgramsEnabled();
+  const supabase = requireAdmin();
+  const id = String(formData.get("id") || "");
+  const title = String(formData.get("title") || "").trim();
+  if (!title) throw new Error("Title is required");
+  const slug = slugify(String(formData.get("slug") || "").trim() || title) || "program";
+  const status = (String(formData.get("status") || "published") ||
+    "published") as "draft" | "published" | "archived";
+  const sortOrder = Number(formData.get("sort_order") || 0);
+
+  const payload = {
+    title,
+    slug,
+    excerpt: String(formData.get("excerpt") || "").trim() || null,
+    description: String(formData.get("description") || "").trim() || null,
+    body: String(formData.get("body") || "").trim() || null,
+    featured_image_url:
+      String(formData.get("featured_image_url") || "").trim() || null,
+    external_url: null,
+    schedule_note: String(formData.get("schedule_note") || "").trim() || null,
+    genre: String(formData.get("genre") || "").trim() || null,
+    genres_label: String(formData.get("genres_label") || "").trim() || null,
+    schedule_line: String(formData.get("schedule_line") || "").trim() || null,
+    sort_order: Number.isFinite(sortOrder) ? sortOrder : 0,
+    status,
+    source_url: null,
+  };
+
+  if (id) {
+    const { error } = await supabase
+      .from("children_programs")
+      .update(payload)
+      .eq("id", id);
+    if (error) throw new Error(error.message);
+  } else {
+    const { data, error } = await supabase
+      .from("children_programs")
+      .insert(payload)
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    revalidatePath("/children-programs");
+    revalidatePath("/admin/children-programs");
+    redirect(`/admin/children-programs/${data.id}`);
+  }
+
+  revalidatePath("/children-programs");
+  revalidatePath(`/children-programs/${slug}`);
+  revalidatePath("/admin/children-programs");
+  revalidatePath(`/admin/children-programs/${id}`);
+  redirect(`/admin/children-programs/${id}`);
+}
+
+export async function deleteChildrenProgramAction(formData: FormData) {
+  await assertChildrenProgramsEnabled();
+  const supabase = requireAdmin();
+  const id = String(formData.get("id") || "");
+  if (!id) throw new Error("Missing id");
+  const { error } = await supabase.from("children_programs").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/children-programs");
+  revalidatePath("/admin/children-programs");
+  redirect("/admin/children-programs");
+}
+
+export async function saveChildrenProgramsSortAction(formData: FormData) {
+  await assertChildrenProgramsEnabled();
+  const supabase = requireAdmin();
+  const mode = String(formData.get("sort_mode") || "manual").trim();
+  const allowed = ["manual", "a_z", "z_a", "random", "newest"];
+  const value = allowed.includes(mode) ? mode : "manual";
+  const { error } = await supabase.from("site_settings").upsert({
+    key: "children_programs_sort",
+    value,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/children-programs");
+  revalidatePath("/admin/children-programs");
 }
 
 export async function upsertMinistryProgramAction(formData: FormData) {

@@ -5,12 +5,14 @@ export const PROGRAM_MODULES_OWNER_EMAIL = "development@dreamsanimation.com";
 
 export type ProgramModules = {
   classic: boolean;
+  children: boolean;
   schedule: boolean;
 };
 
 /** Classic and schedule are on by default; Settings can still kill-switch them. */
 export const DEFAULT_PROGRAM_MODULES: ProgramModules = {
   classic: true,
+  children: true,
   schedule: true,
 };
 
@@ -28,6 +30,10 @@ export function parseProgramModules(value: unknown): ProgramModules {
       typeof raw.classic === "boolean"
         ? raw.classic
         : DEFAULT_PROGRAM_MODULES.classic,
+    children:
+      typeof raw.children === "boolean"
+        ? raw.children
+        : DEFAULT_PROGRAM_MODULES.children,
     schedule:
       typeof raw.schedule === "boolean"
         ? raw.schedule

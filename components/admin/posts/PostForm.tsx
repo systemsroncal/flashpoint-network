@@ -31,7 +31,7 @@ import { categoryOptionLabel, flattenCategoriesHierarchy } from "@/lib/categorie
 import { slugify } from "@/lib/slug";
 import type { Category, Post, PostStatus, Tag } from "@/lib/types/cms";
 import { useTimezone } from "@/components/timezone/TimezoneProvider";
-import { isoToDatetimeLocal } from "@/lib/timezone/datetime";
+import { datetimeLocalToIso, isoToDatetimeLocal } from "@/lib/timezone/datetime";
 
 const STATUSES: PostStatus[] = [
   "draft",
@@ -138,6 +138,18 @@ export default function PostForm({
     () => isoToDatetimeLocal(post?.published_at, timeZone),
     [post?.published_at, timeZone],
   );
+  const [publishedAtLocal, setPublishedAtLocal] = useState(publishedAtDisplay);
+  const [publishClock, setPublishClock] = useState(0);
+  useEffect(() => {
+    const id = window.setTimeout(() => setPublishClock(Date.now()), 0);
+    return () => window.clearTimeout(id);
+  }, [publishedAtLocal, timeZone]);
+  const publishIsFuture = useMemo(() => {
+    if (!publishedAtLocal.trim()) return false;
+    const iso = datetimeLocalToIso(publishedAtLocal, timeZone);
+    if (!iso) return false;
+    return new Date(iso).getTime() > publishClock;
+  }, [publishedAtLocal, timeZone, publishClock]);
 
   const categoryName = useMemo(() => {
     return categories.find((c) => c.id === categoryId)?.name ?? post?.category?.name ?? null;
@@ -556,8 +568,9 @@ export default function PostForm({
               type="datetime-local"
               fullWidth
               InputLabelProps={{ shrink: true }}
-              defaultValue={publishedAtDisplay}
-              helperText="Interpreted in the site timezone (Settings → System timezone). Home and lists sort by this date. Leave unchanged (or blank) to keep the existing publish time — editing title/body alone will not reshuffle."
+              value={publishedAtLocal}
+              onChange={(e) => setPublishedAtLocal(e.target.value)}
+              helperText="Interpreted in the site timezone (Settings → System timezone). Home and lists sort by this date. Future dates require Schedule; Publish is only for now or earlier."
             />
             <Box>
               <Typography variant="subtitle2" gutterBottom>
@@ -707,20 +720,22 @@ export default function PostForm({
                   type="button"
                   variant="contained"
                   color="primary"
-                  disabled={saving || saveBlocked}
+                  disabled={saving || saveBlocked || publishIsFuture}
                   onClick={() => submitWithStatus("published")}
                 >
                   {saving && status === "published" ? "Publishing…" : "Publish"}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outlined"
-                  color="info"
-                  disabled={saving || saveBlocked}
-                  onClick={() => submitWithStatus("scheduled")}
-                >
-                  {saving && status === "scheduled" ? "Scheduling…" : "Schedule"}
-                </Button>
+                {publishIsFuture ? (
+                  <Button
+                    type="button"
+                    variant="outlined"
+                    color="info"
+                    disabled={saving || saveBlocked}
+                    onClick={() => submitWithStatus("scheduled")}
+                  >
+                    {saving && status === "scheduled" ? "Scheduling…" : "Schedule"}
+                  </Button>
+                ) : null}
                 <Button
                   type="button"
                   variant="outlined"

@@ -6,7 +6,10 @@ import { useMemo, useState, useTransition } from "react";
 import {
   Box,
   Button,
-  Chip,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
   MenuItem,
   Pagination,
   Stack,
@@ -18,25 +21,22 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import {
+  IconCalendar,
+  IconCheck,
+  IconDotsVertical,
+  IconEdit,
+  IconExternalLink,
+  IconFileText,
+} from "@tabler/icons-react";
 import DashboardCard from "@/components/admin/shared/DashboardCard";
 import {
   adminFilterRowSx,
   adminSelectFieldSx,
 } from "@/components/admin/shared/adminFormStyles";
 import { categoryOptionLabel, flattenCategoriesHierarchy } from "@/lib/categories/hierarchy";
+import { categoryPillStyle } from "@/lib/admin/category-pill";
 import type { Category, Post, Tag } from "@/lib/types/cms";
-
-const statusColor: Record<
-  string,
-  "default" | "success" | "warning" | "info" | "error"
-> = {
-  draft: "default",
-  pending_review: "warning",
-  scheduled: "info",
-  published: "success",
-  archived: "default",
-  trash: "error",
-};
 
 type Props = {
   posts: Post[];
@@ -81,6 +81,8 @@ export default function PostsTable({
   const [categoryId, setCategoryId] = useState(filters.categoryId);
   const [tagId, setTagId] = useState(filters.tagId);
   const [status, setStatus] = useState(filters.status);
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [menuPost, setMenuPost] = useState<Post | null>(null);
 
   const categoriesOrdered = useMemo(
     () => flattenCategoriesHierarchy(categories),
@@ -254,77 +256,88 @@ export default function PostsTable({
       </Stack>
 
       <Box sx={{ overflowX: "auto" }}>
-        <Table size="small">
-          <TableHead>
+        <Table size="small" sx={{ "& .MuiTableCell-root": { borderBottom: "1px solid", borderColor: "divider", py: 1.5 } }}>
+          <TableHead sx={{ display: { xs: "none", sm: "table-header-group" } }}>
             <TableRow>
-              <TableCell>Title</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Flags</TableCell>
-              <TableCell>Views</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell>Story</TableCell>
+              <TableCell width={120}>Stats</TableCell>
+              <TableCell align="right" width={56} />
             </TableRow>
           </TableHead>
           <TableBody>
-            {posts.map((post) => (
-              <TableRow key={post.id} hover>
-                <TableCell>
-                  <Typography variant="subtitle2">{post.title}</Typography>
-                  <Typography variant="caption" color="textSecondary">
-                    /news/{post.slug}
-                  </Typography>
-                </TableCell>
-                <TableCell>{post.category?.name ?? "—"}</TableCell>
-                <TableCell>
-                  <Chip
-                    size="small"
-                    label={post.status}
-                    color={statusColor[post.status] ?? "default"}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-                    {post.is_featured ? <Chip size="small" label="Featured" /> : null}
-                    {post.is_premium ? (
-                      <Chip size="small" label="Premium" color="warning" />
-                    ) : null}
-                    {post.is_video ? (
-                      <Chip size="small" label="Video" color="info" />
-                    ) : null}
-                    {post.is_podcast ? <Chip size="small" label="Podcast" /> : null}
-                    {post.is_popular ? (
-                      <Chip size="small" label="Popular" color="secondary" />
-                    ) : null}
-                  </Stack>
-                </TableCell>
-                <TableCell>{post.view_count}</TableCell>
-                <TableCell align="right">
-                  <Stack direction="row" spacing={1} justifyContent="flex-end">
-                    <Button
-                      component={Link}
-                      href={`/admin/posts/${post.id}`}
-                      size="small"
-                      variant="outlined"
-                    >
-                      Edit
-                    </Button>
-                    {post.status === "published" ? (
-                      <Button
-                        component={Link}
-                        href={`/news/${post.slug}`}
-                        size="small"
-                        target="_blank"
+            {posts.map((post) => {
+              const catSlug = post.category?.slug ?? post.category?.name ?? "";
+              const pill = categoryPillStyle(catSlug);
+              const isPublished = post.status === "published";
+              const isScheduled = post.status === "scheduled";
+              const isDraft =
+                post.status === "draft" ||
+                post.status === "pending_review" ||
+                post.status === "archived" ||
+                post.status === "trash";
+              return (
+                <TableRow key={post.id} hover>
+                  <TableCell>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, lineHeight: 1.35 }}>
+                      {post.title}
+                    </Typography>
+                    {post.category?.name ? (
+                      <Typography
+                        component="span"
+                        variant="caption"
+                        sx={{
+                          display: "inline-block",
+                          mt: 0.75,
+                          px: 1,
+                          py: 0.25,
+                          borderRadius: 1,
+                          fontWeight: 600,
+                          fontSize: "0.7rem",
+                          ...pill,
+                        }}
                       >
-                        View
-                      </Button>
-                    ) : null}
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            ))}
+                        {post.category.name}
+                      </Typography>
+                    ) : (
+                      <Typography variant="caption" color="text.secondary" display="block" mt={0.5}>
+                        Uncategorized
+                      </Typography>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" fontWeight={600}>
+                      {post.view_count ?? 0}
+                    </Typography>
+                    <Stack direction="row" alignItems="center" spacing={0.5} mt={0.5}>
+                      {isPublished ? (
+                        <IconCheck size={18} stroke={2.5} color="#16a34a" aria-label="Published" />
+                      ) : null}
+                      {isScheduled ? (
+                        <IconCalendar size={17} stroke={1.8} color="#2563eb" aria-label="Scheduled" />
+                      ) : null}
+                      {isDraft && !isScheduled ? (
+                        <IconFileText size={17} stroke={1.8} color="#6b7280" aria-label="Draft" />
+                      ) : null}
+                    </Stack>
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      size="small"
+                      aria-label="Post actions"
+                      onClick={(e) => {
+                        setMenuAnchor(e.currentTarget);
+                        setMenuPost(post);
+                      }}
+                    >
+                      <IconDotsVertical size={18} />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
             {posts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6}>
+                <TableCell colSpan={3}>
                   <Typography color="textSecondary">
                     No news matched these filters.
                   </Typography>
@@ -334,6 +347,44 @@ export default function PostsTable({
           </TableBody>
         </Table>
       </Box>
+
+      <Menu
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={() => {
+          setMenuAnchor(null);
+          setMenuPost(null);
+        }}
+      >
+        {menuPost ? (
+          <>
+            <MenuItem
+              component={Link}
+              href={`/admin/posts/${menuPost.id}`}
+              onClick={() => setMenuAnchor(null)}
+            >
+              <ListItemIcon>
+                <IconEdit size={18} />
+              </ListItemIcon>
+              <ListItemText>Edit</ListItemText>
+            </MenuItem>
+            {menuPost.status === "published" && menuPost.slug ? (
+              <MenuItem
+                component="a"
+                href={`/news/${menuPost.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMenuAnchor(null)}
+              >
+                <ListItemIcon>
+                  <IconExternalLink size={18} />
+                </ListItemIcon>
+                <ListItemText>View</ListItemText>
+              </MenuItem>
+            ) : null}
+          </>
+        ) : null}
+      </Menu>
 
       {totalPages > 1 ? (
         <Stack alignItems="center" mt={2.5}>

@@ -28,7 +28,7 @@ export type MenuItemConfig = {
   /** If set, item is shown only when the viewer role is included. */
   roles?: UserRole[];
   /** Optional program module kill-switch. */
-  module?: "classic" | "schedule";
+  module?: "classic" | "children" | "schedule";
 };
 
 /** Stable ids — avoid lodash uniqueId() (SSR/client mismatch). */
@@ -72,6 +72,13 @@ const Menuitems: MenuItemConfig[] = [
     icon: IconDeviceTvOld,
     href: "/admin/classic-programs",
     module: "classic",
+  },
+  {
+    id: "nav-children-programs",
+    title: "Children Programs",
+    icon: IconDeviceTvOld,
+    href: "/admin/children-programs",
+    module: "children",
   },
   {
     id: "nav-network-programs",

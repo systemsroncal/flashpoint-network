@@ -1,10 +1,10 @@
 import ShowsCatalogView from "@/components/public/ShowsCatalogView";
 import type { ClassicProgram } from "@/lib/types/cms";
 
-export default function ClassicProgramsView({
+export default function ChildrenProgramsView({
   programs,
 }: {
   programs: ClassicProgram[];
 }) {
-  return <ShowsCatalogView variant="classic" programs={programs} />;
+  return <ShowsCatalogView variant="children" programs={programs} />;
 }

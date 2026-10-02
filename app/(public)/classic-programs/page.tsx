@@ -6,9 +6,9 @@ import { buildStaticPageMetadata } from "@/lib/seo/metadata";
 
 export const dynamic = "force-dynamic";
 
-const TITLE = "Family Classics";
+const TITLE = "Your Classic Favorites";
 const DESCRIPTION =
-  "Weekday family classic television favorites on FlashPoint Television Network.";
+  "Great television and timeless stories — weekday classics on FlashPoint Television Network.";
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildStaticPageMetadata({

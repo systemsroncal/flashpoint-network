@@ -24,6 +24,7 @@ function filterMenuItems(
   for (const item of items) {
     if (item.roles && !item.roles.includes(role)) continue;
     if (item.module === "classic" && !modules.classic) continue;
+    if (item.module === "children" && !modules.children) continue;
     if (item.module === "schedule" && !modules.schedule) continue;
     if (item.children) {
       const children = filterMenuItems(item.children, role, modules);

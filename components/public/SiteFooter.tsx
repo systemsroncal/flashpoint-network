@@ -41,6 +41,7 @@ const COLUMNS = [
       { label: "Science", href: "/category/science" },
       { label: "Culture", href: "/category/lifestyle" },
       { label: "Family Classics", href: "/classic-programs" },
+      { label: "Children Programs", href: "/children-programs" },
       { label: "Network Programs", href: "/network-programs" },
     ],
   },
@@ -108,6 +109,7 @@ export default async function SiteFooter({
                   {col.links
                     .filter((link) => {
                       if (link.href === "/classic-programs") return modules.classic;
+                      if (link.href === "/children-programs") return modules.children;
                       if (link.href === "/schedule-programs") return modules.schedule;
                       return true;
                     })

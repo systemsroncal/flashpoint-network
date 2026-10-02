@@ -15,6 +15,8 @@ export default function MaintenanceWithProgramException({
   if (
     path === "/classic-programs" ||
     path.startsWith("/classic-programs/") ||
+    path === "/children-programs" ||
+    path.startsWith("/children-programs/") ||
     path === "/schedule-programs" ||
     path.startsWith("/schedule-programs/")
   ) {

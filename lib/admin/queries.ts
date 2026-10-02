@@ -537,6 +537,45 @@ export async function getClassicProgramsSortMode(): Promise<ClassicProgramsSortM
   return "manual";
 }
 
+export async function getAdminChildrenPrograms(): Promise<ClassicProgram[]> {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("children_programs")
+    .select(CLASSIC_SELECT)
+    .order("sort_order", { ascending: true })
+    .order("title", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data as ClassicProgram[]) ?? [];
+}
+
+export async function getAdminChildrenProgram(
+  id: string,
+): Promise<ClassicProgram | null> {
+  const supabase = requireAdmin();
+  const { data, error } = await supabase
+    .from("children_programs")
+    .select(CLASSIC_SELECT)
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return (data as ClassicProgram) ?? null;
+}
+
+export async function getChildrenProgramsSortMode(): Promise<ClassicProgramsSortMode> {
+  const supabase = requireAdmin();
+  const { data } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", "children_programs_sort")
+    .maybeSingle();
+  const raw = data?.value;
+  const mode = typeof raw === "string" ? raw : String(raw ?? "manual").replace(/"/g, "");
+  if (["manual", "a_z", "z_a", "random", "newest"].includes(mode)) {
+    return mode as ClassicProgramsSortMode;
+  }
+  return "manual";
+}
+
 export async function getAdminMinistryPrograms(): Promise<MinistryProgram[]> {
   const supabase = requireAdmin();
   const primary = await supabase
