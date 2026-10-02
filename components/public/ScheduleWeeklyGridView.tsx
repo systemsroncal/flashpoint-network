@@ -175,23 +175,23 @@ function GridTable({
   );
 }
 
+const navLinkClass =
+  "rounded-md border border-black/15 px-3 py-1.5 text-sm font-semibold text-black/70 hover:border-black/40";
+
 export default function ScheduleWeeklyGridView({
   year,
   month,
   entries,
-  pdfHref,
-  pdfTitle,
 }: {
   year: number;
   month: number;
   entries: ScheduleEntry[];
-  pdfHref: string | null;
-  pdfTitle: string;
 }) {
   const prev = shiftMonth(year, month, -1);
   const next = shiftMonth(year, month, 1);
   const dates = useMemo(() => weekDates(year, month), [year, month]);
   const lookup = useMemo(() => buildGrid(entries, dates), [entries, dates]);
+  const monthName = MONTH_NAMES[month - 1];
 
   return (
     <div className="bg-white text-black">
@@ -201,79 +201,52 @@ export default function ScheduleWeeklyGridView({
           font-weight: 700 !important;
           letter-spacing: 0.01em;
         }
-        @media print {
-          header, footer, .schedule-week-nav { display: none !important; }
-          .schedule-week-card { box-shadow: none !important; }
-        }
       `}</style>
-      <div className="schedule-week-nav mx-auto max-w-[1440px] px-4 pb-6 pt-10 md:px-8 md:pt-14 lg:px-10">
-        <div className="mb-6 flex flex-wrap items-center justify-center gap-3 text-sm">
-          <Link
-            href={`/schedule-programs?year=${prev.year}&month=${prev.month}`}
-            className="rounded-md border border-black/15 px-3 py-1.5 font-semibold text-black/70 hover:border-black/40"
-          >
-            ← {MONTH_NAMES[prev.month - 1]}
-          </Link>
-          <Link
-            href={`/schedule-programs?year=${next.year}&month=${next.month}`}
-            className="rounded-md border border-black/15 px-3 py-1.5 font-semibold text-black/70 hover:border-black/40"
-          >
-            {MONTH_NAMES[next.month - 1]} →
-          </Link>
-        </div>
-        <h1 className="text-center font-article text-[2rem] font-black leading-[1.15] tracking-[-0.03em] text-black md:text-5xl lg:text-[4.2rem] lg:leading-[1.05]">
-          Broadcast schedule as of
-          <br />
-          {MONTH_NAMES[month - 1]} {year}
-        </h1>
-      </div>
-
       <div className="mx-auto max-w-[1680px] px-3 pb-12 md:px-6 lg:px-10">
+        <div className="pt-10 md:pt-14">
+          <h1 className="text-center font-article text-[2rem] font-black leading-[1.15] tracking-[-0.03em] text-black md:text-5xl lg:text-[4.2rem] lg:leading-[1.05]">
+            {monthName} {year}
+          </h1>
+
+          <div className="schedule-week-nav mt-6 flex items-center justify-between gap-3">
+            <Link
+              href={`/schedule-programs?year=${prev.year}&month=${prev.month}`}
+              className={navLinkClass}
+            >
+              ← {MONTH_NAMES[prev.month - 1]}
+            </Link>
+            <Link
+              href={`/schedule-programs?year=${next.year}&month=${next.month}`}
+              className={navLinkClass}
+            >
+              {MONTH_NAMES[next.month - 1]} →
+            </Link>
+          </div>
+        </div>
+
         <div
-          className="schedule-week-card rounded-[17px] px-3 py-6 shadow-[0_20px_60px_rgba(11,26,52,0.35)] md:px-6 md:py-8 lg:px-8"
+          className="schedule-week-card mt-6 rounded-[17px] px-3 py-6 shadow-[0_20px_60px_rgba(11,26,52,0.35)] md:px-6 md:py-8 lg:px-8"
           style={{
             background:
               "linear-gradient(180deg, #152448 0%, #0B1A38 42%, #0A1428 100%)",
           }}
         >
           <GridTable
-            rangeLabel="12:00 AM – 11:30 AM"
+            rangeLabel={`${monthName} 12:00 AM – 11:30 AM`}
             slots={AM_SLOTS}
             lookup={lookup}
           />
           <div className="my-8 h-px bg-white/10" />
           <GridTable
-            rangeLabel="12:00 PM – 11:30 PM"
+            rangeLabel={`${monthName} 12:00 PM – 11:30 PM`}
             slots={PM_SLOTS}
             lookup={lookup}
           />
 
-          <div className="mt-8 flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-5 sm:flex-row sm:items-center">
-            <p className="text-[11px] text-white/40">
-              Programming subject to change · All times Eastern
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => window.print()}
-                className="rounded-md bg-[#C45C12] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-white hover:brightness-110"
-              >
-                Print schedule
-              </button>
-              {pdfHref ? (
-                <a
-                  href={pdfHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-md bg-[#8B1E1E] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-white hover:brightness-110"
-                >
-                  View more
-                </a>
-              ) : null}
-            </div>
-          </div>
+          <p className="mt-8 border-t border-white/10 pt-5 text-[11px] text-white/40">
+            Programming subject to change · All times Eastern
+          </p>
         </div>
-        <p className="mt-3 text-center text-[11px] text-black/40">{pdfTitle}</p>
       </div>
     </div>
   );

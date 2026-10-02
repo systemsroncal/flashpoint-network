@@ -29,17 +29,27 @@ type Props = {
   searchParams: Promise<{ year?: string; month?: string }>;
 };
 
-export default async function ScheduleProgramsPage({ searchParams }: Props) {
-  const sp = await searchParams;
-  const now = new Date();
-  let year = Number(sp.year) || 2026;
-  let month = Number(sp.month) || 9;
+function resolveSchedulePeriod(
+  sp: { year?: string; month?: string },
+  now: Date,
+): { year: number; month: number } {
+  const parsedYear = sp.year ? Number(sp.year) : NaN;
+  const parsedMonth = sp.month ? Number(sp.month) : NaN;
+  let year = Number.isFinite(parsedYear) ? parsedYear : now.getFullYear();
+  let month = Number.isFinite(parsedMonth) ? parsedMonth : now.getMonth() + 1;
   if (!Number.isFinite(year) || year < 2020 || year > 2100) {
     year = now.getFullYear();
   }
   if (!Number.isFinite(month) || month < 1 || month > 12) {
     month = now.getMonth() + 1;
   }
+  return { year, month };
+}
+
+export default async function ScheduleProgramsPage({ searchParams }: Props) {
+  const sp = await searchParams;
+  const now = new Date();
+  const { year, month } = resolveSchedulePeriod(sp, now);
 
   const [entries, displayMode, layoutTemplate, pdf, siteName] = await Promise.all([
     getScheduleEntriesForMonth(year, month),
@@ -49,24 +59,6 @@ export default async function ScheduleProgramsPage({ searchParams }: Props) {
     Promise.resolve(getSiteName()),
   ]);
 
-  const localPdf =
-    month === 9 && year === 2026 ? "/schedules/september-2026.pdf" : null;
-  const pdfHref = pdf?.pdf_url || localPdf;
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-
   const jsonLd = (
     <StaticWebPageJsonLd
       title={TITLE}
@@ -75,32 +67,29 @@ export default async function ScheduleProgramsPage({ searchParams }: Props) {
     />
   );
 
-  if (layoutTemplate === "template_2" && displayMode !== "pdf") {
+  if (layoutTemplate === "template_2") {
     return (
       <>
         {jsonLd}
-      <ScheduleWeeklyGridView
-        year={year}
-        month={month}
-        entries={entries}
-        pdfHref={pdfHref}
-        pdfTitle={pdf?.title || `${monthNames[month - 1]} ${year} broadcast grid`}
-      />
+        <ScheduleWeeklyGridView year={year} month={month} entries={entries} />
       </>
     );
   }
 
+  const effectiveDisplayMode =
+    displayMode === "pdf" ? "dynamic" : displayMode;
+
   return (
     <>
       {jsonLd}
-    <ScheduleProgramsView
-      year={year}
-      month={month}
-      entries={entries}
-      displayMode={displayMode}
-      pdf={pdf}
-      siteName={siteName}
-    />
+      <ScheduleProgramsView
+        year={year}
+        month={month}
+        entries={entries}
+        displayMode={effectiveDisplayMode}
+        pdf={pdf}
+        siteName={siteName}
+      />
     </>
   );
 }
