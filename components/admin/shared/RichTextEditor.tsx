@@ -1,19 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
-import { PasteMarkdown } from "@/lib/editor/paste-markdown-extension";
+import { createPasteMarkdownExtension } from "@/lib/editor/paste-markdown-extension";
+import {
+  insertIntoHtmlSource,
+  readClipboardPayload,
+  resolveClipboardPaste,
+} from "@/lib/editor/clipboard-paste";
+import { setHtmlSourcePasteHandler } from "@/lib/editor/clipboard-paste-handlers";
+import { normalizePastedHtml } from "@/lib/editor/paste-markdown";
 import {
   Box,
   Button,
   ButtonGroup,
   Divider,
   Stack,
+  TextField,
   Typography,
 } from "@mui/material";
 
@@ -23,13 +31,13 @@ type Props = {
   initialHtml?: string | null;
   placeholder?: string;
   minHeight?: number;
-  /** Scrollable editor area height (toolbar stays sticky inside). */
   maxHeight?: number;
   onHtmlChange?: (html: string) => void;
-  /** When `forceToken` changes, replace editor content with `forceHtml`. */
   forceHtml?: string | null;
   forceToken?: number;
 };
+
+type EditorMode = "visual" | "html";
 
 function toEditorHtml(value: string | null | undefined) {
   const raw = (value ?? "").trim();
@@ -56,10 +64,55 @@ export default function RichTextEditor({
 }: Props) {
   const seed = toEditorHtml(initialHtml);
   const [html, setHtml] = useState(seed || "<p></p>");
+  const [htmlSource, setHtmlSource] = useState(seed || "<p></p>");
+  const [mode, setMode] = useState<EditorMode>("visual");
+  const htmlTextareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const editor = useEditor({
-    immediatelyRender: false,
-    extensions: [
+  const commitHtml = useCallback(
+    (next: string) => {
+      setHtml(next);
+      setHtmlSource(next);
+      onHtmlChange?.(next);
+    },
+    [onHtmlChange],
+  );
+
+  const insertHtmlSourceAtCursor = useCallback(
+    (source: string) => {
+      setMode("html");
+      const ta = htmlTextareaRef.current;
+      setHtmlSource((prev) => {
+        let next: string;
+        if (ta) {
+          const { next: merged, cursor } = insertIntoHtmlSource(
+            prev,
+            source,
+            ta.selectionStart,
+            ta.selectionEnd,
+          );
+          next = merged;
+          window.setTimeout(() => {
+            ta.focus();
+            ta.setSelectionRange(cursor, cursor);
+          }, 0);
+        } else {
+          next = prev.trim() ? `${prev}\n\n${source}` : source;
+        }
+        setHtml(next);
+        onHtmlChange?.(next);
+        return next;
+      });
+    },
+    [onHtmlChange],
+  );
+
+  useEffect(() => {
+    setHtmlSourcePasteHandler(insertHtmlSourceAtCursor);
+    return () => setHtmlSourcePasteHandler(null);
+  }, [insertHtmlSourceAtCursor]);
+
+  const extensions = useMemo(
+    () => [
       StarterKit.configure({
         heading: { levels: [2, 3] },
       }),
@@ -81,12 +134,19 @@ export default function RichTextEditor({
       Placeholder.configure({
         placeholder,
       }),
-      PasteMarkdown,
+      createPasteMarkdownExtension(),
     ],
+    [placeholder],
+  );
+
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions,
     content: seed || "",
     onUpdate: ({ editor: ed }) => {
       const next = ed.getHTML();
       setHtml(next);
+      setHtmlSource(next);
       onHtmlChange?.(next);
     },
     editorProps: {
@@ -103,11 +163,9 @@ export default function RichTextEditor({
     if (next && next !== current) {
       editor.commands.setContent(next, { emitUpdate: false });
       window.setTimeout(() => {
-        setHtml(next);
-        onHtmlChange?.(next);
+        commitHtml(next);
       }, 0);
     }
-    // intentionally omit onHtmlChange — parent may pass unstable callbacks
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, seed]);
 
@@ -116,14 +174,58 @@ export default function RichTextEditor({
     const next = toEditorHtml(forceHtml) || "<p></p>";
     editor.commands.setContent(next, { emitUpdate: true });
     window.setTimeout(() => {
-      setHtml(next);
-      onHtmlChange?.(next);
+      commitHtml(next);
+      setMode("visual");
     }, 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, forceToken]);
 
-  const setLink = () => {
+  const switchToVisual = () => {
     if (!editor) return;
+    const next = toEditorHtml(htmlSource) || "<p></p>";
+    editor.commands.setContent(next, { emitUpdate: true });
+    commitHtml(next);
+    setMode("visual");
+  };
+
+  const switchToHtml = () => {
+    if (editor) {
+      const next = editor.getHTML();
+      commitHtml(next);
+    }
+    setMode("html");
+    window.setTimeout(() => htmlTextareaRef.current?.focus(), 0);
+  };
+
+  const runSmartPaste = async () => {
+    const payload = await readClipboardPayload();
+    if (!payload.plain.trim() && !payload.html.trim()) {
+      window.alert("No hay contenido en el portapapeles.");
+      return;
+    }
+
+    const action = resolveClipboardPaste(payload);
+
+    if (action.type === "html-source") {
+      insertHtmlSourceAtCursor(action.source);
+      return;
+    }
+
+    const visualHtml = normalizePastedHtml(action.html);
+
+    if (mode === "html") {
+      setMode("visual");
+      window.setTimeout(() => {
+        editor?.chain().focus().insertContent(visualHtml).run();
+      }, 0);
+      return;
+    }
+
+    editor?.chain().focus().insertContent(visualHtml).run();
+  };
+
+  const setLink = () => {
+    if (!editor || mode !== "visual") return;
     const previous = editor.getAttributes("link").href as string | undefined;
     const url = window.prompt("URL", previous || "https://");
     if (url === null) return;
@@ -135,7 +237,7 @@ export default function RichTextEditor({
   };
 
   const addImage = async () => {
-    if (!editor) return;
+    if (!editor || mode !== "visual") return;
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/jpeg,image/png,image/webp,image/gif,image/avif";
@@ -165,6 +267,8 @@ export default function RichTextEditor({
     };
     input.click();
   };
+
+  const toolbarDisabled = !editor || mode === "html";
 
   return (
     <Box>
@@ -204,8 +308,33 @@ export default function RichTextEditor({
           <ButtonGroup size="small" variant="outlined">
             <Button
               type="button"
+              variant={mode === "visual" ? "contained" : "outlined"}
+              onClick={switchToVisual}
+            >
+              Visual
+            </Button>
+            <Button
+              type="button"
+              variant={mode === "html" ? "contained" : "outlined"}
+              onClick={switchToHtml}
+            >
+              HTML
+            </Button>
+          </ButtonGroup>
+          <Button
+            type="button"
+            size="small"
+            variant="outlined"
+            onClick={() => void runSmartPaste()}
+          >
+            Paste
+          </Button>
+          <Divider orientation="vertical" flexItem />
+          <ButtonGroup size="small" variant="outlined">
+            <Button
+              type="button"
               onClick={() => editor?.chain().focus().toggleBold().run()}
-              disabled={!editor}
+              disabled={toolbarDisabled}
               sx={{ fontWeight: 700 }}
             >
               B
@@ -213,7 +342,7 @@ export default function RichTextEditor({
             <Button
               type="button"
               onClick={() => editor?.chain().focus().toggleItalic().run()}
-              disabled={!editor}
+              disabled={toolbarDisabled}
               sx={{ fontStyle: "italic" }}
             >
               I
@@ -221,7 +350,7 @@ export default function RichTextEditor({
             <Button
               type="button"
               onClick={() => editor?.chain().focus().toggleStrike().run()}
-              disabled={!editor}
+              disabled={toolbarDisabled}
               sx={{ textDecoration: "line-through" }}
             >
               S
@@ -229,7 +358,7 @@ export default function RichTextEditor({
             <Button
               type="button"
               onClick={() => editor?.chain().focus().toggleUnderline().run()}
-              disabled={!editor}
+              disabled={toolbarDisabled}
               sx={{ textDecoration: "underline" }}
             >
               U
@@ -242,7 +371,7 @@ export default function RichTextEditor({
               onClick={() =>
                 editor?.chain().focus().toggleHeading({ level: 2 }).run()
               }
-              disabled={!editor}
+              disabled={toolbarDisabled}
             >
               H2
             </Button>
@@ -251,7 +380,7 @@ export default function RichTextEditor({
               onClick={() =>
                 editor?.chain().focus().toggleHeading({ level: 3 }).run()
               }
-              disabled={!editor}
+              disabled={toolbarDisabled}
             >
               H3
             </Button>
@@ -261,31 +390,31 @@ export default function RichTextEditor({
             <Button
               type="button"
               onClick={() => editor?.chain().focus().toggleBulletList().run()}
-              disabled={!editor}
+              disabled={toolbarDisabled}
             >
               • List
             </Button>
             <Button
               type="button"
               onClick={() => editor?.chain().focus().toggleOrderedList().run()}
-              disabled={!editor}
+              disabled={toolbarDisabled}
             >
               1. List
             </Button>
             <Button
               type="button"
               onClick={() => editor?.chain().focus().toggleBlockquote().run()}
-              disabled={!editor}
+              disabled={toolbarDisabled}
             >
               Quote
             </Button>
           </ButtonGroup>
           <Divider orientation="vertical" flexItem />
           <ButtonGroup size="small" variant="outlined">
-            <Button type="button" onClick={setLink} disabled={!editor}>
+            <Button type="button" onClick={setLink} disabled={toolbarDisabled}>
               Link
             </Button>
-            <Button type="button" onClick={addImage} disabled={!editor}>
+            <Button type="button" onClick={addImage} disabled={toolbarDisabled}>
               Image
             </Button>
           </ButtonGroup>
@@ -294,14 +423,14 @@ export default function RichTextEditor({
             <Button
               type="button"
               onClick={() => editor?.chain().focus().undo().run()}
-              disabled={!editor}
+              disabled={toolbarDisabled}
             >
               Undo
             </Button>
             <Button
               type="button"
               onClick={() => editor?.chain().focus().redo().run()}
-              disabled={!editor}
+              disabled={toolbarDisabled}
             >
               Redo
             </Button>
@@ -313,8 +442,10 @@ export default function RichTextEditor({
             flex: 1,
             minHeight: 0,
             overflowY: "auto",
-            px: 2,
-            py: 1.5,
+            px: mode === "html" ? 0 : 2,
+            py: mode === "html" ? 0 : 1.5,
+            display: mode === "html" ? "flex" : "block",
+            flexDirection: "column",
             "& .fpn-rich-editor": {
               minHeight: minHeight - 24,
               outline: "none",
@@ -362,7 +493,34 @@ export default function RichTextEditor({
             },
           }}
         >
-          <EditorContent editor={editor} />
+          {mode === "html" ? (
+            <TextField
+              inputRef={htmlTextareaRef}
+              multiline
+              fullWidth
+              minRows={12}
+              value={htmlSource}
+              onChange={(e) => commitHtml(e.target.value)}
+              placeholder="<p>HTML del artículo…</p>"
+              spellCheck={false}
+              sx={{
+                flex: 1,
+                "& .MuiInputBase-root": {
+                  fontFamily:
+                    "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                  fontSize: "0.8125rem",
+                  lineHeight: 1.55,
+                  alignItems: "flex-start",
+                  minHeight: minHeight,
+                  borderRadius: 0,
+                },
+                "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                "& textarea": { minHeight: `${minHeight}px` },
+              }}
+            />
+          ) : (
+            <EditorContent editor={editor} />
+          )}
         </Box>
       </Box>
       <input type="hidden" name={name} value={html} readOnly />
