@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Box,
   Button,
@@ -17,6 +18,7 @@ type Props = {
 };
 
 export default function SiteFormsList({ forms, counts }: Props) {
+  const router = useRouter();
   return (
     <Stack spacing={2}>
       {forms.map((form) => {
@@ -45,10 +47,10 @@ export default function SiteFormsList({ forms, counts }: Props) {
                   </Typography>
                 </Box>
                 <Button
-                  component={Link}
-                  href={form.adminEntriesPath}
+                  type="button"
                   variant="contained"
                   sx={{ flexShrink: 0 }}
+                  onClick={() => router.push(form.adminEntriesPath)}
                 >
                   View entries
                 </Button>

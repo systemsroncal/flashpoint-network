@@ -119,17 +119,12 @@ export async function getAdminFormSubmissionsSchemaReady(): Promise<{
 }> {
   const supabase = requireAdmin();
   const [help, advertise] = await Promise.all([
-    supabase
-      .from("help_center_submissions")
-      .select("id", { head: true, count: "exact" }),
-    supabase
-      .from("advertise_inquiries")
-      .select("id", { head: true, count: "exact" }),
+    supabase.from("help_center_submissions").select("id").limit(1),
+    supabase.from("advertise_inquiries").select("id").limit(1),
   ]);
   return {
-    helpCenter: !help.error || !isMissingRelationError(help.error.message),
-    advertise:
-      !advertise.error || !isMissingRelationError(advertise.error.message),
+    helpCenter: !help.error,
+    advertise: !advertise.error,
   };
 }
 

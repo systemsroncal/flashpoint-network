@@ -41,7 +41,13 @@ export default function AdvertiseInquiriesTable({
         </TableHead>
         <TableBody>
           {inquiries.map((row) => (
-            <TableRow key={row.id} hover>
+            <TableRow
+              key={row.id}
+              hover
+              component={Link}
+              href={`/admin/forms/advertise/${row.id}`}
+              sx={{ cursor: "pointer", textDecoration: "none", color: "inherit" }}
+            >
               <TableCell>
                 <Typography variant="subtitle2">{row.name}</Typography>
                 {!row.read_at ? (

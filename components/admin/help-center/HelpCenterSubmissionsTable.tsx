@@ -41,7 +41,13 @@ export default function HelpCenterSubmissionsTable({
         </TableHead>
         <TableBody>
           {submissions.map((row) => (
-            <TableRow key={row.id} hover>
+            <TableRow
+              key={row.id}
+              hover
+              component={Link}
+              href={`/admin/forms/help-center/${row.id}`}
+              sx={{ cursor: "pointer", textDecoration: "none", color: "inherit" }}
+            >
               <TableCell>
                 <Typography variant="subtitle2">{row.subject}</Typography>
                 {!row.read_at ? (
