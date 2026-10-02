@@ -230,4 +230,8 @@ else
   verify_static_chunks
 fi
 
+if [[ -f scripts/install-cyberpanel-error-pages.sh ]]; then
+  bash scripts/install-cyberpanel-error-pages.sh || log "WARN: OLS error page HTML not refreshed (run with sudo once)"
+fi
+
 log "OK → $BRANCH @ $(git rev-parse --short HEAD) (pm2=$PM2_APP_NAME port=$APP_PORT)"

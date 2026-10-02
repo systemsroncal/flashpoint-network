@@ -1,0 +1,23 @@
+# FlashPoint — custom OpenLiteSpeed error pages (CyberPanel 3 + OLS 1.9)
+#
+# 1) On the VPS, from the app repo:
+#      sudo bash scripts/install-cyberpanel-error-pages.sh
+# 2) CyberPanel → Websites → fptn.com → vHost Conf
+#    Paste this block (adjust paths if FPTN_HOME differs), then save.
+# 3) CyberPanel → Server → Graceful Restart OpenLiteSpeed
+#    (or: sudo systemctl restart lsws)
+#
+# During deploy, PM2 stops Node on 127.0.0.1:43125 — the proxy often returns
+# 403, 502, or 503. Point those codes at the same branded HTML.
+
+errorpage 403 {
+  file                /home/fptn.com/deploy-pages/fptn-error.html
+}
+
+errorpage 502 {
+  file                /home/fptn.com/deploy-pages/fptn-error.html
+}
+
+errorpage 503 {
+  file                /home/fptn.com/deploy-pages/fptn-error.html
+}

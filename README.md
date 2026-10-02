@@ -130,6 +130,16 @@ From Windows (PowerShell, repo root):
 
 The canonical server script is `scripts/deploy-from-github.sh` (env files and `public/uploads` are preserved across deploys).
 
+### Custom 403 / 502 / 503 page during deploy (OpenLiteSpeed)
+
+While `deploy-from-github.sh` runs, PM2 stops Next on `127.0.0.1:43125` during `npm run build`. The OLS reverse proxy may show a generic **403**, **502**, or **503** until the app restarts.
+
+1. On the VPS (once, after pull): `sudo bash scripts/install-cyberpanel-error-pages.sh` — copies branded HTML to `/home/fptn.com/deploy-pages/fptn-error.html`.
+2. CyberPanel → **Websites** → **fptn.com** → **vHost Conf** → append `deploy/openlitespeed/vhost-errorpages.snippet`.
+3. **Graceful Restart** OpenLiteSpeed.
+
+Each deploy refreshes the HTML file automatically. Edit `deploy/openlitespeed/fptn-error.html` in Git to change copy or styling.
+
 After every rebuild, **hard-refresh** open admin tabs (Ctrl/Cmd+Shift+R). Stale clients call old Server Action IDs and fail with `Failed to find Server Action "…"`. The News editor shows a reload toast when that happens.
 
 ```bash
