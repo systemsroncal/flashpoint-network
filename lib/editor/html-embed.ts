@@ -20,6 +20,58 @@ export function decodeEmbedRaw(encoded: string): string {
   }
 }
 
+export function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, "&");
+}
+
+function embedSlotHtml(raw: string): string {
+  const encoded = encodeEmbedRaw(raw);
+  if (!encoded) return "";
+  return `<div data-fpn-html-embed="1" class="fpn-html-embed-slot" data-raw="${encoded}"></div>`;
+}
+
+/** Fix legacy/broken embed slots (escaped raw="" attr, editor chrome in saved HTML). */
+export function normalizeEmbedSlotsInHtml(html: string): string {
+  let out = html;
+
+  out = out.replace(
+    /<div\b([^>]*)\braw="([^"]*)"([^>]*\bdata-fpn-html-embed="1"[^>]*)>\s*<\/div>/gi,
+    (_, _a, rawValue: string) =>
+      embedSlotHtml(decodeHtmlEntities(rawValue)) || "",
+  );
+
+  out = out.replace(
+    /<div\b([^>]*\bdata-fpn-html-embed="1"[^>]*)>([\s\S]*?)<\/div>/gi,
+    (whole, attrs: string, inner: string) => {
+      if (!/fpn-html-embed-label|fpn-html-embed-preview/i.test(inner)) {
+        const encoded = attrs.match(/\bdata-raw="([^"]+)"/i)?.[1];
+        if (encoded && !inner.trim()) {
+          const decoded = decodeEmbedRaw(encoded);
+          if (decoded) return embedSlotHtml(decoded);
+        }
+        return whole;
+      }
+      const encoded = attrs.match(/\bdata-raw="([^"]+)"/i)?.[1];
+      if (encoded) {
+        const decoded = decodeEmbedRaw(encoded);
+        if (decoded) return embedSlotHtml(decoded);
+      }
+      const preview = inner.match(
+        /<div[^>]*class="[^"]*fpn-html-embed-preview[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+      )?.[1];
+      if (preview?.trim()) return embedSlotHtml(preview.trim());
+      return whole;
+    },
+  );
+
+  return out;
+}
+
 const EMBED_DIV_RE =
   /<div\b[^>]*\bdata-fpn-html-embed\b[^>]*\bdata-raw="([^"]*)"[^>]*>\s*<\/div>/gi;
 
@@ -28,9 +80,13 @@ const EMBED_DIV_RE_ALT =
 
 /** Replace stored embed slots with the original embed markup. */
 export function expandHtmlEmbedsInArticle(html: string): string {
-  let out = html;
+  const normalized = normalizeEmbedSlotsInHtml(html);
+  let out = normalized;
   for (const re of [EMBED_DIV_RE, EMBED_DIV_RE_ALT]) {
-    out = out.replace(re, (_, raw: string) => decodeEmbedRaw(raw));
+    out = out.replace(re, (_, raw: string) => {
+      const decoded = decodeEmbedRaw(raw);
+      return decoded || "";
+    });
   }
   return out;
 }

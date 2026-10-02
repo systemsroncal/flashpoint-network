@@ -7,7 +7,9 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
+import HtmlEmbedDialog from "@/components/admin/shared/HtmlEmbedDialog";
 import { HtmlEmbed } from "@/lib/editor/html-embed-extension";
+import { normalizeEmbedSlotsInHtml } from "@/lib/editor/html-embed";
 import { createPasteMarkdownExtension } from "@/lib/editor/paste-markdown-extension";
 import {
   insertIntoHtmlSource,
@@ -63,17 +65,19 @@ export default function RichTextEditor({
   forceHtml,
   forceToken,
 }: Props) {
-  const seed = toEditorHtml(initialHtml);
+  const seed = normalizeEmbedSlotsInHtml(toEditorHtml(initialHtml));
   const [html, setHtml] = useState(seed || "<p></p>");
   const [htmlSource, setHtmlSource] = useState(seed || "<p></p>");
   const [mode, setMode] = useState<EditorMode>("visual");
+  const [embedDialogOpen, setEmbedDialogOpen] = useState(false);
   const htmlTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const commitHtml = useCallback(
     (next: string) => {
-      setHtml(next);
-      setHtmlSource(next);
-      onHtmlChange?.(next);
+      const normalized = normalizeEmbedSlotsInHtml(next);
+      setHtml(normalized);
+      setHtmlSource(normalized);
+      onHtmlChange?.(normalized);
     },
     [onHtmlChange],
   );
@@ -146,10 +150,7 @@ export default function RichTextEditor({
     extensions,
     content: seed || "",
     onUpdate: ({ editor: ed }) => {
-      const next = ed.getHTML();
-      setHtml(next);
-      setHtmlSource(next);
-      onHtmlChange?.(next);
+      commitHtml(ed.getHTML());
     },
     editorProps: {
       attributes: {
@@ -238,14 +239,11 @@ export default function RichTextEditor({
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   };
 
-  const insertHtmlEmbed = () => {
-    const raw = window.prompt(
-      "Paste embed HTML (X/Twitter blockquote + script, etc.):",
-    );
-    if (!raw?.trim()) return;
-    const snippet = raw.trim();
+  const applyHtmlEmbed = (snippet: string) => {
+    const raw = snippet.trim();
+    if (!raw) return;
     if (mode === "html") {
-      insertHtmlSourceAtCursor(snippet);
+      insertHtmlSourceAtCursor(raw);
       return;
     }
     if (!editor) return;
@@ -254,7 +252,7 @@ export default function RichTextEditor({
       .focus()
       .insertContent({
         type: "htmlEmbed",
-        attrs: { raw: snippet },
+        attrs: { raw },
       })
       .run();
   };
@@ -442,7 +440,9 @@ export default function RichTextEditor({
             </Button>
             <Button
               type="button"
-              onClick={insertHtmlEmbed}
+              onClick={() => {
+                setEmbedDialogOpen(true);
+              }}
               disabled={mode === "visual" && !editor}
             >
               Embed
@@ -576,6 +576,11 @@ export default function RichTextEditor({
         </Box>
       </Box>
       <input type="hidden" name={name} value={html} readOnly />
+      <HtmlEmbedDialog
+        open={embedDialogOpen}
+        onClose={() => setEmbedDialogOpen(false)}
+        onSubmit={applyHtmlEmbed}
+      />
     </Box>
   );
 }

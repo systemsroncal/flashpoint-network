@@ -1,5 +1,9 @@
 import { Node, mergeAttributes } from "@tiptap/core";
-import { decodeEmbedRaw, encodeEmbedRaw } from "@/lib/editor/html-embed";
+import {
+  decodeEmbedRaw,
+  decodeHtmlEntities,
+  encodeEmbedRaw,
+} from "@/lib/editor/html-embed";
 
 export const HtmlEmbed = Node.create({
   name: "htmlEmbed",
@@ -11,6 +15,8 @@ export const HtmlEmbed = Node.create({
     return {
       raw: {
         default: "",
+        parseHTML: () => null,
+        renderHTML: () => ({}),
       },
     };
   },
@@ -22,18 +28,30 @@ export const HtmlEmbed = Node.create({
         getAttrs: (element) => {
           const el = element as HTMLElement;
           const encoded = el.getAttribute("data-raw");
-          return {
-            raw: encoded ? decodeEmbedRaw(encoded) : "",
-          };
+          if (encoded) {
+            return { raw: decodeEmbedRaw(encoded) };
+          }
+          const legacy = el.getAttribute("raw");
+          if (legacy) {
+            return { raw: decodeHtmlEntities(legacy) };
+          }
+          const preview = el.querySelector(".fpn-html-embed-preview");
+          if (preview?.innerHTML.trim()) {
+            return { raw: preview.innerHTML.trim() };
+          }
+          return { raw: "" };
         },
       },
     ];
   },
 
   renderHTML({ node, HTMLAttributes }) {
+    const attrs = { ...HTMLAttributes } as Record<string, unknown>;
+    delete attrs.raw;
+
     return [
       "div",
-      mergeAttributes(HTMLAttributes, {
+      mergeAttributes(attrs, {
         "data-fpn-html-embed": "1",
         class: "fpn-html-embed-slot",
         "data-raw": encodeEmbedRaw(String(node.attrs.raw || "")),
@@ -44,8 +62,9 @@ export const HtmlEmbed = Node.create({
   addNodeView() {
     return ({ node }) => {
       const wrap = document.createElement("div");
-      wrap.className = "fpn-html-embed-slot";
+      wrap.className = "fpn-html-embed-slot fpn-html-embed-slot--editor";
       wrap.setAttribute("data-fpn-html-embed", "1");
+      wrap.contentEditable = "false";
 
       const label = document.createElement("p");
       label.className = "fpn-html-embed-label";

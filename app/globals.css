@@ -136,6 +136,11 @@ article h3 {
   display: block;
 }
 
+/* Editor-only embed label (public body expands data-raw slots) */
+.fpn-rich-html .fpn-html-embed-label {
+  display: none !important;
+}
+
 /* Single-post article prose — Noto Serif Medium */
 .fpn-article-body {
   font-family: var(--font-noto-serif), "Noto Serif", Georgia, serif;
